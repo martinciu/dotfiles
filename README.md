@@ -2,12 +2,6 @@
 
 Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono Nerd Font.
 
-## On a new Mac
-
-    git clone git@github.com:martinciu/dotfiles.git ~/projects/dotfiles
-    brew bundle --file=~/projects/dotfiles/Brewfile
-    ~/projects/dotfiles/bootstrap.sh
-
 ## What's where
 
 | Tool    | Source path                          | Target              |
