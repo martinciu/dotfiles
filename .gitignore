@@ -1,0 +1,20 @@
+# tmux plugin clones (managed by TPM at runtime)
+.config/tmux/plugins/
+
+# vim runtime files (real dirs in $HOME, not symlinks; never tracked)
+.vim/undo/*
+.vim/backup/*
+.vim/swap/*
+!.vim/undo/.gitkeep
+!.vim/backup/.gitkeep
+!.vim/swap/.gitkeep
+
+# superpowers plans/specs (per ~/.claude/CLAUDE.md, never committed)
+tmp/
+
+# macOS
+.DS_Store
+
+# editor swap
+*.swp
+*~
