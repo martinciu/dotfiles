@@ -1,0 +1,34 @@
+# Machine-specific shell config.
+# Copy to ~/.zshrc.local and uncomment/fill in what applies to this machine.
+# This file is NOT tracked by dotfiles — never commit ~/.zshrc.local.
+
+# conda/miniconda — run 'conda init zsh' to regenerate this block for your install path
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/path/to/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/path/to/miniconda3/etc/profile.d/conda.sh" ]; then
+#         . "/path/to/miniconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/path/to/miniconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+# <<< conda initialize <<<
+
+# STM32CubeProgrammer
+# export STM32_PRG_PATH=/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin
+
+# ghcup (Haskell toolchain)
+# source "${HOME}/.ghcup/env"
+
+# Windsurf
+# export PATH="${HOME}/.codeium/windsurf/bin:$PATH"
+
+# opencode
+# export PATH="${HOME}/.opencode/bin:$PATH"
+
+# Claude Code — disable 1M context window
+# export CLAUDE_CODE_DISABLE_1M_CONTEXT=1
