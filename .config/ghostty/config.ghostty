@@ -22,7 +22,7 @@ window-padding-x = 12
 window-padding-y = 12
 window-padding-balance = true
 # Padding area inherits the live background instead of the theme background.
-window-padding-color = extend-always
+window-padding-color = extend
 # Use the wider P3 color space on modern Macs.
 window-colorspace = display-p3
 # Bold text uses the bright palette — more visual variety in ls/prompts/logs.
