@@ -41,6 +41,10 @@ link ".vimrc"          "$HOME/.vimrc"
 link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
+# --- zsh
+link ".zshrc"     "$HOME/.zshrc"
+link ".p10k.zsh"  "$HOME/.p10k.zsh"
+
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then
@@ -63,3 +67,4 @@ echo "next steps:"
 echo "  1. start tmux:               tmux"
 echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
 echo "  3. test sesh popup:          <prefix> T"
+echo "  4. create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"
