@@ -15,6 +15,9 @@ tmp/
 # zsh local machine config — lives at ~/.zshrc.local, never in the repo
 .zshrc.local
 
+# git worktrees (project-local, per CLAUDE.md)
+.claude/worktrees/
+
 # macOS
 .DS_Store
 
