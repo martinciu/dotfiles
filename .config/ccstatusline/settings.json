@@ -8,9 +8,9 @@
         "backgroundColor": "bgBrightMagenta"
       },
       {
-        "id": "a5bf6779-0585-49c1-981b-86fe0fa8fc4e",
-        "type": "weekly-usage",
-        "backgroundColor": "bgBrightGreen"
+        "id": "67ec2370-00c3-4cd7-80ae-ec661a522b28",
+        "type": "context-percentage",
+        "backgroundColor": "bgCyan"
       },
       {
         "id": "41900a0a-d664-4970-a166-bf3ff25c9ee2",
@@ -18,14 +18,6 @@
         "backgroundColor": "bgBrightYellow",
         "metadata": {
           "display": "time"
-        }
-      },
-      {
-        "id": "ad5155b2-d186-47dd-9732-61b3b6d48be7",
-        "type": "context-percentage-usable",
-        "backgroundColor": "bgBrightBlack",
-        "metadata": {
-          "inverse": "false"
         }
       },
       {
@@ -37,6 +29,11 @@
         "id": "8e379731-4323-48a7-b798-cd10701104e3",
         "type": "tokens-total",
         "backgroundColor": "bgBlue"
+      },
+      {
+        "id": "a5bf6779-0585-49c1-981b-86fe0fa8fc4e",
+        "type": "weekly-usage",
+        "backgroundColor": "bgBrightGreen"
       }
     ],
     [
