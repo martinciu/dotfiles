@@ -172,10 +172,12 @@ else
   fi
   ( cd "$changes_repo" && git commit -q -m "add a" && git push -q )
 
-  # Replace 1 line with 2 → "2/1" inline ratio with both colors
+  # Replace 1 line with 2 → "2/1" inline ratio with both colors. The literal
+  # "2/1" substring is split by tmux color directives, so strip them first.
   ( cd "$changes_repo" && printf 'b\nc\n' > a.txt )
   out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
-  assert_contains "$out" "2/1"         "both ins+del renders as '2/1' ratio"
+  out_plain=$(printf '%s' "$out" | sed 's/#\[[^]]*\]//g')
+  assert_contains "$out_plain" "2/1"   "both ins+del renders as '2/1' ratio"
   assert_contains "$out" "fg=#b8d65c"  "ratio uses lifted green for insertions"
   assert_contains "$out" "fg=#ff7770"  "ratio uses lifted red for deletions"
   ( cd "$changes_repo" && git commit -q -am "edit a" && git push -q )

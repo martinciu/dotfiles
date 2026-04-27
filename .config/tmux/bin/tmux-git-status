@@ -6,21 +6,19 @@
 #
 # Output rules:
 #   - not in a git repo                  -> empty
-#   - main checkout                      -> cyan chip,   BRANCH
-#   - worktree, branch == wt-dir name    -> yellow chip,  BRANCH
-#   - worktree, branch != wt-dir name    -> yellow chip,  BRANCH · wt:WT_NAME
+#   - main checkout                      -> chipless,    BRANCH on bar bg
+#   - worktree, branch == wt-dir name    -> yellow chip, BRANCH
+#   - worktree, branch != wt-dir name    -> yellow chip, BRANCH · wt:WT_NAME
 #
-# When the working tree is dirty or the branch diverges from upstream, the
-# label is suffixed with compact change markers, in this order:
-#   +N   inserted lines (dark text on solarized green pill)
-#   -N   deleted lines  (dark text on solarized red pill)
-#   N?   untracked files
-#   ↑N   ahead          ↓N   behind
+# When the working tree has changes or diverges from upstream, compact markers
+# are appended in this order:
+#   ins/del   inline ratio in lifted/deepened green & red (slash neutral).
+#             Collapses to a single colored count when only one side is non-zero.
+#   N?        untracked files
+#   ↑N        ahead          ↓N   behind
 # Insertion/deletion totals come from `git diff --numstat HEAD` (staged +
-# unstaged tracked changes). Untracked files are counted separately because
-# they have no diff baseline. Each marker is omitted when its count is zero.
-# Dark-on-color pills are used for +N/-N because solarized accent fg on the
-# chip's mid-luminance bg is too low-contrast.
+# unstaged tracked changes). Untracked / ahead / behind inherit the surrounding
+# neutral fg — color is reserved for line-change weight.
 
 set -e
 pwd_in="${1:-$PWD}"
@@ -28,11 +26,17 @@ prev_bg="${2:-#073642}"
 next_bg="${3:-#073642}"
 
 # Solarized base16
-fg_text="#073642"   # base02 — dark text on bright chip
-bg_main="#2aa198"   # cyan
-bg_wt="#b58900"     # yellow
-bg_ins="#859900"    # green pill — inserted-lines marker
-bg_del="#dc322f"    # red pill   — deleted-lines marker
+fg_text="#073642"          # base02 — dark text on bright chip
+bg_wt="#b58900"            # yellow — worktree chip
+
+# Inline change-marker palette, two pairs tuned per background.
+fg_ins_bar="#b8d65c"       # lifted green for bar bg
+fg_del_bar="#ff7770"       # lifted red   for bar bg
+fg_neutral_bar="#93a1a1"   # base1
+fg_ins_wt="#3a5400"        # deepened green for yellow chip
+fg_del_wt="#7a1116"        # deepened red   for yellow chip
+fg_neutral_wt="#073642"    # base02 — same as branch text on yellow
+
 # Nerd Font / unicode glyphs as UTF-8 byte sequences (avoids editor-dependent literal embedding)
 icon=$(printf '\xef\x84\xa6')      # U+F126 nf-fa-code_branch
 tri_l=$(printf '\xee\x82\xb6')     # U+E0B6 powerline rounded left cap (filled)
@@ -50,7 +54,12 @@ git_dir=$(git rev-parse --git-dir 2>/dev/null)
 common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
 
 if [ "$git_dir" != "$common_dir" ]; then
+  is_worktree=1
   bg=$bg_wt
+  branch_fg=$fg_text
+  ins_fg=$fg_ins_wt
+  del_fg=$fg_del_wt
+  neutral_fg=$fg_neutral_wt
   wt=$(basename "$(git rev-parse --show-toplevel)")
   if [ "$wt" = "$branch" ]; then
     label="$icon $branch"
@@ -58,7 +67,12 @@ if [ "$git_dir" != "$common_dir" ]; then
     label="$icon $branch · wt:$wt"
   fi
 else
-  bg=$bg_main
+  is_worktree=0
+  bg="#073642"             # bar bg — chipless on main
+  branch_fg=$fg_neutral_bar
+  ins_fg=$fg_ins_bar
+  del_fg=$fg_del_bar
+  neutral_fg=$fg_neutral_bar
   label="$icon $branch"
 fi
 
@@ -93,19 +107,35 @@ if numstat=$(git diff --numstat HEAD 2>/dev/null); then
   done <<< "$numstat"
 fi
 
-# +N/-N render as dark-text pills on green/red bg, separated from the chip
-# body by a chip-bg space on each side. Other markers stay on the chip bg.
-extras=""
-if [ "$ins"       -gt 0 ]; then extras="$extras #[fg=${fg_text},bg=${bg_ins}]+${ins}#[fg=${fg_text},bg=${bg}]"; fi
-if [ "$del"       -gt 0 ]; then extras="$extras #[fg=${fg_text},bg=${bg_del}]-${del}#[fg=${fg_text},bg=${bg}]"; fi
-if [ "$untracked" -gt 0 ]; then extras="$extras ${untracked}?";    fi
-if [ "$ahead"     -gt 0 ]; then extras="$extras ${g_up}${ahead}";  fi
+# Ins/del token: ratio when both, single colored count when only one, empty
+# otherwise. Each token resets fg back to branch_fg so the following markers
+# (untracked / ahead / behind) inherit the correct neutral.
+diff_token=""
+if [ "$ins" -gt 0 ] && [ "$del" -gt 0 ]; then
+  diff_token=" #[fg=${ins_fg}]${ins}#[fg=${neutral_fg}]/#[fg=${del_fg}]${del}#[fg=${branch_fg}]"
+elif [ "$ins" -gt 0 ]; then
+  diff_token=" #[fg=${ins_fg}]${ins}#[fg=${branch_fg}]"
+elif [ "$del" -gt 0 ]; then
+  diff_token=" #[fg=${del_fg}]${del}#[fg=${branch_fg}]"
+fi
+
+extras="$diff_token"
+if [ "$untracked" -gt 0 ]; then extras="$extras ${untracked}?";   fi
+if [ "$ahead"     -gt 0 ]; then extras="$extras ${g_up}${ahead}"; fi
 if [ "$behind"    -gt 0 ]; then extras="$extras ${g_dn}${behind}"; fi
 label="$label$extras"
 
-# Powerline rounded caps: prev_bg -> bg (left cap), then bg -> next_bg (right cap).
-printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
-  "$bg" "$prev_bg" "$tri_l" \
-  "$fg_text" "$bg" \
-  "$label" \
-  "$bg" "$next_bg" "$tri_r"
+# Worktree path: rounded chip with both caps. Main path: chipless — emit only
+# the leading cap (visually closes the preceding chip) followed by the label.
+if [ "$is_worktree" = 1 ]; then
+  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
+    "$bg" "$prev_bg" "$tri_l" \
+    "$branch_fg" "$bg" \
+    "$label" \
+    "$bg" "$next_bg" "$tri_r"
+else
+  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s' \
+    "$bg" "$prev_bg" "$tri_l" \
+    "$branch_fg" "$bg" \
+    "$label"
+fi
