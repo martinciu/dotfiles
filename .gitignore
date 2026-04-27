@@ -12,6 +12,9 @@
 # superpowers plans/specs (per ~/.claude/CLAUDE.md, never committed)
 tmp/
 
+# zsh local machine config — lives at ~/.zshrc.local, never in the repo
+.zshrc.local
+
 # macOS
 .DS_Store
 
