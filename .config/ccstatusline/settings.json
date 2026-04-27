@@ -29,6 +29,11 @@
         "id": "8e379731-4323-48a7-b798-cd10701104e3",
         "type": "tokens-total",
         "backgroundColor": "bgBlue"
+      },
+      {
+        "id": "e4d3272d-104a-4c96-9d53-c262312549e1",
+        "type": "git-worktree",
+        "backgroundColor": "bgWhite"
       }
     ],
     [
