@@ -20,7 +20,10 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
-export PROJECTS_HOME="$HOME/code"
+# Per-machine config (sets PROJECTS_HOME and any local PATH/env overrides).
+# Sourced after .zshrc's PATH appends so .zshrc.local's appends still win
+# precedence; sourced before any function or precmd that uses $PROJECTS_HOME.
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 autoload -U add-zsh-hook
 load-nvmrc() {
@@ -87,4 +90,3 @@ precmd_functions=(_p9k_project_context ${precmd_functions:#_p9k_project_context}
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 [[ -f ~/.secrets ]] && source ~/.secrets
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
