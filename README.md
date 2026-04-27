@@ -19,9 +19,9 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 
 ## Keymaps quick-ref
 
-- tmux prefix: `C-Space`
+- tmux prefix: `C-a`
 - session switcher: `<prefix> T`
-- pane nav (no prefix): `M-h/j/k/l`
+- pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)

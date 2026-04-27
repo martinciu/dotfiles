@@ -11,7 +11,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **tmux status bar is hand-rolled** in `.config/tmux/tmux.conf` with
   Solarized base16 colors. Don't suggest theme plugins (catppuccin,
   tmux-powerline, etc.) — we deliberately avoid them.
-- **tmux prefix is `C-Space`.** Pane nav: `M-h/j/k/l`. Splits: `|` and `-`.
+- **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
+  input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
+  Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
 - **vim is intentionally minimal** (~30 lines, no plugin manager).
   Don't add vim-plug, LSP, or fuzzy finders without an explicit ask.
 - **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without

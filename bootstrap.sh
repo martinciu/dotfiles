@@ -58,5 +58,5 @@ brew bundle check --file="$DOTFILES/Brewfile" --verbose || \
 echo
 echo "next steps:"
 echo "  1. start tmux:               tmux"
-echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-Space)"
+echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
 echo "  3. test sesh popup:          <prefix> T"
