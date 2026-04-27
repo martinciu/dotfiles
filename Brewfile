@@ -1,5 +1,5 @@
 # Brewfile — packages this dotfiles repo depends on.
-# Run `brew bundle --file=~/projects/dotfiles/Brewfile` to install.
+# Run `brew bundle --file=$PROJECTS_HOME/dotfiles/Brewfile` to install.
 
 # Core
 brew "git"

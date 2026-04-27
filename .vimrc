@@ -1,4 +1,4 @@
-" ~/.vimrc — minimal vim config (managed in ~/projects/dotfiles)
+" ~/.vimrc — minimal vim config (managed in $PROJECTS_HOME/dotfiles)
 
 set nocompatible
 set encoding=utf-8
