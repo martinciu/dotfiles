@@ -3,7 +3,7 @@
 # Run from the repo root or anywhere — paths are absolute.
 set -u
 
-REPO="$HOME/projects/dotfiles"
+REPO="$PROJECTS_HOME/dotfiles"
 PROJ_NAME="$REPO/.config/tmux/bin/tmux-project-name"
 GIT_STATUS="$REPO/.config/tmux/bin/tmux-git-status"
 

@@ -5,7 +5,7 @@
 # existing session or creates a new one rooted at the chosen path.
 set -eu
 
-projects="${PROJECTS_HOME:-$HOME/projects}"
+projects="$PROJECTS_HOME"
 
 # Project dirs (full path, one per line)
 project_paths=$(find "$projects" -mindepth 1 -maxdepth 1 -type d ! -name '.*' \
