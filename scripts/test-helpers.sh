@@ -111,6 +111,82 @@ else
   assert_eq "$out" "" "non-git dir -> empty output"
 
   rm -rf "$fixture" "$not_repo"
+
+  # ─── change-info markers ────────────────────
+  # A repo with an upstream so we can exercise ahead/behind too.
+  changes_repo=$(mktemp -d)
+  upstream=$(mktemp -d)
+  clone_dir=$(mktemp -d)
+  (
+    cd "$upstream" && git init -q --bare -b main
+    cd "$changes_repo"
+    git init -q -b main
+    git config user.email t@t
+    git config user.name  t
+    git commit --allow-empty -q -m "init"
+    git remote add origin "$upstream"
+    git push -q -u origin main
+  )
+
+  # Clean + synced — none of the change markers should appear.
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  for marker in '+' '-' '?' $'\xe2\x86\x91' $'\xe2\x86\x93'; do
+    if printf '%s' "$out" | grep -q -F -- "$marker"; then
+      fail=$((fail+1))
+      fail_msgs+=("FAIL  clean+synced repo should not contain '$marker'"$'\n'"        got:  '$out'")
+      echo "  FAIL  clean+synced repo should not contain '$marker'"
+    else
+      pass=$((pass+1))
+      echo "  PASS  clean+synced repo lacks '$marker'"
+    fi
+  done
+
+  # Untracked file → "1?"
+  ( cd "$changes_repo" && : > new.txt )
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  assert_contains "$out" "1?" "untracked file -> 1?"
+  ( cd "$changes_repo" && rm -f new.txt )
+
+  # Staged new file (1 line) → "+1" wrapped in solarized green
+  (
+    cd "$changes_repo"
+    echo a > a.txt
+    git add a.txt
+  )
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  assert_contains "$out" "+1"         "staged new file (1 line) -> +1"
+  assert_contains "$out" "bg=#859900" "insertions render on solarized green pill"
+  ( cd "$changes_repo" && git commit -q -m "add a" && git push -q )
+
+  # Replace 1 line with 2 → "+2" on green pill AND "-1" on red pill
+  ( cd "$changes_repo" && printf 'b\nc\n' > a.txt )
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  assert_contains "$out" "+2"         "replace 1 line with 2 -> +2"
+  assert_contains "$out" "-1"         "replace 1 line with 2 -> -1"
+  assert_contains "$out" "bg=#dc322f" "deletions render on solarized red pill"
+  ( cd "$changes_repo" && git commit -q -am "edit a" && git push -q )
+
+  # Ahead by 1 → "↑1"
+  ( cd "$changes_repo" && git commit --allow-empty -q -m "ahead" )
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  assert_contains "$out" $'\xe2\x86\x91''1' "ahead by 1 -> ↑1"
+  ( cd "$changes_repo" && git push -q )
+
+  # Behind by 1 → "↓1" (push from a separate clone, fetch into the fixture)
+  (
+    cd "$clone_dir"
+    git clone -q "$upstream" repo
+    cd repo
+    git config user.email t@t
+    git config user.name  t
+    git commit --allow-empty -q -m "remote-only"
+    git push -q
+  )
+  ( cd "$changes_repo" && git fetch -q origin )
+  out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
+  assert_contains "$out" $'\xe2\x86\x93''1' "behind by 1 -> ↓1"
+
+  rm -rf "$changes_repo" "$upstream" "$clone_dir"
 fi
 
 # ─── Summary ────────────────────────────────

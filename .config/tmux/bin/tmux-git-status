@@ -9,6 +9,18 @@
 #   - main checkout                      -> cyan chip,   BRANCH
 #   - worktree, branch == wt-dir name    -> yellow chip,  BRANCH
 #   - worktree, branch != wt-dir name    -> yellow chip,  BRANCH · wt:WT_NAME
+#
+# When the working tree is dirty or the branch diverges from upstream, the
+# label is suffixed with compact change markers, in this order:
+#   +N   inserted lines (dark text on solarized green pill)
+#   -N   deleted lines  (dark text on solarized red pill)
+#   N?   untracked files
+#   ↑N   ahead          ↓N   behind
+# Insertion/deletion totals come from `git diff --numstat HEAD` (staged +
+# unstaged tracked changes). Untracked files are counted separately because
+# they have no diff baseline. Each marker is omitted when its count is zero.
+# Dark-on-color pills are used for +N/-N because solarized accent fg on the
+# chip's mid-luminance bg is too low-contrast.
 
 set -e
 pwd_in="${1:-$PWD}"
@@ -19,10 +31,14 @@ next_bg="${3:-#073642}"
 fg_text="#073642"   # base02 — dark text on bright chip
 bg_main="#2aa198"   # cyan
 bg_wt="#b58900"     # yellow
-# Nerd Font glyphs as UTF-8 byte sequences (avoids editor-dependent literal embedding)
+bg_ins="#859900"    # green pill — inserted-lines marker
+bg_del="#dc322f"    # red pill   — deleted-lines marker
+# Nerd Font / unicode glyphs as UTF-8 byte sequences (avoids editor-dependent literal embedding)
 icon=$(printf '\xef\x84\xa6')      # U+F126 nf-fa-code_branch
 tri_l=$(printf '\xee\x82\xb6')     # U+E0B6 powerline rounded left cap (filled)
 tri_r=$(printf '\xee\x82\xb4')     # U+E0B4 powerline rounded right cap (filled)
+g_up=$(printf '\xe2\x86\x91')      # U+2191 ↑ (ahead)
+g_dn=$(printf '\xe2\x86\x93')      # U+2193 ↓ (behind)
 
 cd "$pwd_in" 2>/dev/null || exit 0
 
@@ -45,6 +61,47 @@ else
   bg=$bg_main
   label="$icon $branch"
 fi
+
+# Untracked file count + upstream divergence from porcelain v2. The
+# `# branch.ab` line only appears when the branch has an upstream, so we
+# default ahead/behind to zero and stay silent for branches without one.
+ahead=0; behind=0; untracked=0
+if status_out=$(git status --porcelain=v2 --branch 2>/dev/null); then
+  while IFS= read -r line; do
+    case "$line" in
+      "# branch.ab "*)
+        set -- $line
+        ahead=${3#+}
+        behind=${4#-}
+        ;;
+      "? "*)
+        untracked=$((untracked+1))
+        ;;
+    esac
+  done <<< "$status_out"
+fi
+
+# Total inserted/deleted lines across staged + unstaged tracked changes.
+# Binary files render as `-\t-` in numstat — skip them rather than treat as 0.
+ins=0; del=0
+if numstat=$(git diff --numstat HEAD 2>/dev/null); then
+  while IFS=$'\t' read -r a d _; do
+    if [ -z "$a" ]; then continue; fi
+    if [ "$a" = "-" ] || [ "$d" = "-" ]; then continue; fi
+    ins=$((ins + a))
+    del=$((del + d))
+  done <<< "$numstat"
+fi
+
+# +N/-N render as dark-text pills on green/red bg, separated from the chip
+# body by a chip-bg space on each side. Other markers stay on the chip bg.
+extras=""
+if [ "$ins"       -gt 0 ]; then extras="$extras #[fg=${fg_text},bg=${bg_ins}]+${ins}#[fg=${fg_text},bg=${bg}]"; fi
+if [ "$del"       -gt 0 ]; then extras="$extras #[fg=${fg_text},bg=${bg_del}]-${del}#[fg=${fg_text},bg=${bg}]"; fi
+if [ "$untracked" -gt 0 ]; then extras="$extras ${untracked}?";    fi
+if [ "$ahead"     -gt 0 ]; then extras="$extras ${g_up}${ahead}";  fi
+if [ "$behind"    -gt 0 ]; then extras="$extras ${g_dn}${behind}"; fi
+label="$label$extras"
 
 # Powerline rounded caps: prev_bg -> bg (left cap), then bg -> next_bg (right cap).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
