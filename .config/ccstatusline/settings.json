@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      {
+        "id": "250d05d8-db5f-4f09-b30b-a1ff647ac7d3",
+        "type": "model",
+        "backgroundColor": "bgBrightMagenta"
+      },
+      {
+        "id": "a5bf6779-0585-49c1-981b-86fe0fa8fc4e",
+        "type": "weekly-usage",
+        "backgroundColor": "bgBrightGreen"
+      },
+      {
+        "id": "41900a0a-d664-4970-a166-bf3ff25c9ee2",
+        "type": "session-usage",
+        "backgroundColor": "bgBrightYellow",
+        "metadata": {
+          "display": "time"
+        }
+      },
+      {
+        "id": "ad5155b2-d186-47dd-9732-61b3b6d48be7",
+        "type": "context-percentage-usable",
+        "backgroundColor": "bgBrightBlack",
+        "metadata": {
+          "inverse": "false"
+        }
+      },
+      {
+        "id": "28da2a14-b3e3-4f1f-8c6d-8b026332be14",
+        "type": "reset-timer",
+        "backgroundColor": "bgCyan"
+      },
+      {
+        "id": "8e379731-4323-48a7-b798-cd10701104e3",
+        "type": "tokens-total",
+        "backgroundColor": "bgBlue"
+      }
+    ],
+    [
+      {
+        "id": "3f0351b3-58eb-4f52-bc0a-722c20a34ea7",
+        "type": "skills",
+        "backgroundColor": "bgBrightBlue",
+        "metadata": {
+          "mode": "list",
+          "listLimit": "3"
+        }
+      },
+      {
+        "id": "80f24c74-f0b5-4883-97de-60bacdf2c504",
+        "type": "skills",
+        "backgroundColor": "bgBrightRed",
+        "metadata": {
+          "mode": "count"
+        }
+      }
+    ]
+  ],
+  "flexMode": "full-minus-40",
+  "compactThreshold": 60,
+  "colorLevel": 3,
+  "defaultPadding": " ",
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "minimalistMode": true,
+  "powerline": {
+    "enabled": true,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [
+      ""
+    ],
+    "endCaps": [
+      ""
+    ],
+    "theme": "nord-aurora",
+    "autoAlign": false,
+    "continueThemeAcrossLines": true
+  }
+}
