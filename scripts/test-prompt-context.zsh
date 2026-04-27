@@ -19,7 +19,7 @@ assert_eq() {
 # ── function under test ──────────────────────────────────────────────────────
 # Keep in sync with .zshrc
 _p9k_project_context() {
-  local projects="${PROJECTS_HOME:-$HOME/code}"
+  local projects="$PROJECTS_HOME"
   if [[ -n $TMUX && $PWD == ${projects}/?* ]]; then
     local rel="${PWD#${projects}/}"
     local -a parts=("${(@s:/:)rel}")

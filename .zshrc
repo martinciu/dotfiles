@@ -68,7 +68,7 @@ add-zsh-hook preexec _tmux_rename
 
 # Keep in sync with scripts/test-prompt-context.zsh
 _p9k_project_context() {
-  local projects="${PROJECTS_HOME:-$HOME/code}"
+  local projects="$PROJECTS_HOME"
   if [[ -n $TMUX && $PWD == ${projects}/?* ]]; then
     local rel="${PWD#${projects}/}"
     local -a parts=("${(@s:/:)rel}")
