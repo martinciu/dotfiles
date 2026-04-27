@@ -81,10 +81,17 @@ else
     git worktree add -q wt-foo -b feat/bar >/dev/null 2>&1
   )
 
-  # main checkout — cyan chip implied via bg color
+  # main checkout — chipless rendering (no cyan), branch label on bar bg
   out=$("$GIT_STATUS" "$fixture" "#073642" "#586e75")
   assert_contains "$out" "main" "main checkout shows branch 'main'"
-  assert_contains "$out" "#2aa198" "main checkout uses cyan bg"
+  if printf '%s' "$out" | grep -q -F -- "#2aa198"; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  main checkout should not use cyan bg (chipless)"$'\n'"        got:  '$out'")
+    echo "  FAIL  main checkout should not use cyan bg (chipless)"
+  else
+    pass=$((pass+1))
+    echo "  PASS  main checkout omits cyan bg (chipless)"
+  fi
 
   # worktree where branch == dir name → no wt: suffix, yellow chip
   out=$("$GIT_STATUS" "$fixture/same" "#073642" "#586e75")
@@ -147,23 +154,30 @@ else
   assert_contains "$out" "1?" "untracked file -> 1?"
   ( cd "$changes_repo" && rm -f new.txt )
 
-  # Staged new file (1 line) → "+1" wrapped in solarized green
+  # Staged new file (1 line) → "1" in lifted green (ins-only path, no slash)
   (
     cd "$changes_repo"
     echo a > a.txt
     git add a.txt
   )
   out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
-  assert_contains "$out" "+1"         "staged new file (1 line) -> +1"
-  assert_contains "$out" "bg=#859900" "insertions render on solarized green pill"
+  assert_contains "$out" "fg=#b8d65c]1" "ins-only emits ins fg directive followed by '1'"
+  if printf '%s' "$out" | grep -q -F -- "/"; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  ins-only path should not contain '/'"$'\n'"        got:  '$out'")
+    echo "  FAIL  ins-only path should not contain '/'"
+  else
+    pass=$((pass+1))
+    echo "  PASS  ins-only path has no slash separator"
+  fi
   ( cd "$changes_repo" && git commit -q -m "add a" && git push -q )
 
-  # Replace 1 line with 2 → "+2" on green pill AND "-1" on red pill
+  # Replace 1 line with 2 → "2/1" inline ratio with both colors
   ( cd "$changes_repo" && printf 'b\nc\n' > a.txt )
   out=$("$GIT_STATUS" "$changes_repo" "#073642" "#586e75")
-  assert_contains "$out" "+2"         "replace 1 line with 2 -> +2"
-  assert_contains "$out" "-1"         "replace 1 line with 2 -> -1"
-  assert_contains "$out" "bg=#dc322f" "deletions render on solarized red pill"
+  assert_contains "$out" "2/1"         "both ins+del renders as '2/1' ratio"
+  assert_contains "$out" "fg=#b8d65c"  "ratio uses lifted green for insertions"
+  assert_contains "$out" "fg=#ff7770"  "ratio uses lifted red for deletions"
   ( cd "$changes_repo" && git commit -q -am "edit a" && git push -q )
 
   # Ahead by 1 → "↑1"
