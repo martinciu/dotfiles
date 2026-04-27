@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Prints a fully-formatted tmux status segment for the current git/worktree
+# state, or an empty string if not in a git repo.
+#
+# Usage: tmux-git-status <pwd> <prev-bg-hex> <next-bg-hex>
+#
+# Output rules:
+#   - not in a git repo                  -> empty
+#   - main checkout                      -> cyan chip,   BRANCH
+#   - worktree, branch == wt-dir name    -> yellow chip,  BRANCH
+#   - worktree, branch != wt-dir name    -> yellow chip,  BRANCH · wt:WT_NAME
+
+set -e
+pwd_in="${1:-$PWD}"
+prev_bg="${2:-#073642}"
+next_bg="${3:-#073642}"
+
+# Solarized base16
+fg_text="#073642"   # base02 — dark text on bright chip
+bg_main="#2aa198"   # cyan
+bg_wt="#b58900"     # yellow
+# Nerd Font glyphs as UTF-8 byte sequences (avoids editor-dependent literal embedding)
+icon=$(printf '\xef\x84\xa6')      # U+F126 nf-fa-code_branch
+tri_l=$(printf '\xee\x82\xb6')     # U+E0B6 powerline rounded left cap (filled)
+tri_r=$(printf '\xee\x82\xb4')     # U+E0B4 powerline rounded right cap (filled)
+
+cd "$pwd_in" 2>/dev/null || exit 0
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || \
+  branch=$(git rev-parse --short HEAD 2>/dev/null) || \
+  exit 0
+
+git_dir=$(git rev-parse --git-dir 2>/dev/null)
+common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+
+if [ "$git_dir" != "$common_dir" ]; then
+  bg=$bg_wt
+  wt=$(basename "$(git rev-parse --show-toplevel)")
+  if [ "$wt" = "$branch" ]; then
+    label="$icon $branch"
+  else
+    label="$icon $branch · wt:$wt"
+  fi
+else
+  bg=$bg_main
+  label="$icon $branch"
+fi
+
+# Powerline rounded caps: prev_bg -> bg (left cap), then bg -> next_bg (right cap).
+printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
+  "$bg" "$prev_bg" "$tri_l" \
+  "$fg_text" "$bg" \
+  "$label" \
+  "$bg" "$next_bg" "$tri_r"

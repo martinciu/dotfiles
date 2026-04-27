@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Prints the top-level directory under $PROJECTS_HOME for the given path,
+# or empty string if outside $PROJECTS_HOME.
+# Mirrors project_name() from ~/.zshrc so the status bar agrees with the prompt.
+#
+# Usage: tmux-project-name [pwd]
+
+set -e
+projects="${PROJECTS_HOME:-$HOME/projects}"
+pwd_in="${1:-$PWD}"
+
+case "$pwd_in/" in
+  "$projects"/*) ;;
+  *) exit 0 ;;
+esac
+
+rel="${pwd_in#$projects/}"
+# Empty rel means pwd_in == $projects exactly
+[ -n "$rel" ] || exit 0
+printf '%s' "${rel%%/*}"
