@@ -16,7 +16,8 @@ assert_eq() {
   fi
 }
 
-# ── function under test (stub — replace with real implementation in Task 3) ──
+# ── function under test ──────────────────────────────────────────────────────
+# Keep in sync with .zshrc
 _p9k_project_context() {
   local projects="${PROJECTS_HOME:-$HOME/code}"
   if [[ -n $TMUX && $PWD == ${projects}/?* ]]; then
