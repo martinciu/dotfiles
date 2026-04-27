@@ -21,6 +21,9 @@ tmp/
 # macOS
 .DS_Store
 
+# brainstorming visual companion session files
+.superpowers/
+
 # editor swap
 *.swp
 *~
