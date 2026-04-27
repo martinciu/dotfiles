@@ -8,9 +8,9 @@
         "backgroundColor": "bgBrightMagenta"
       },
       {
-        "id": "67ec2370-00c3-4cd7-80ae-ec661a522b28",
-        "type": "context-percentage",
-        "backgroundColor": "bgCyan"
+        "id": "78ae8085-cfdc-4cbf-ac4e-f40547408f77",
+        "type": "context-percentage-usable",
+        "backgroundColor": "bgBlue"
       },
       {
         "id": "41900a0a-d664-4970-a166-bf3ff25c9ee2",
@@ -24,35 +24,6 @@
         "id": "28da2a14-b3e3-4f1f-8c6d-8b026332be14",
         "type": "reset-timer",
         "backgroundColor": "bgCyan"
-      },
-      {
-        "id": "8e379731-4323-48a7-b798-cd10701104e3",
-        "type": "tokens-total",
-        "backgroundColor": "bgBlue"
-      },
-      {
-        "id": "e4d3272d-104a-4c96-9d53-c262312549e1",
-        "type": "git-worktree",
-        "backgroundColor": "bgWhite"
-      }
-    ],
-    [
-      {
-        "id": "3f0351b3-58eb-4f52-bc0a-722c20a34ea7",
-        "type": "skills",
-        "backgroundColor": "bgBrightBlue",
-        "metadata": {
-          "mode": "list",
-          "listLimit": "3"
-        }
-      },
-      {
-        "id": "80f24c74-f0b5-4883-97de-60bacdf2c504",
-        "type": "skills",
-        "backgroundColor": "bgBrightRed",
-        "metadata": {
-          "mode": "count"
-        }
       }
     ]
   ],
