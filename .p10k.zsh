@@ -287,7 +287,9 @@
   # Can also be handy when the directory is shortened, as it allows you to see
   # the full directory that was used in previous commands.
   typeset -g POWERLEVEL9K_DIR_HYPERLINK=false
-  typeset -g POWERLEVEL9K_DIR_DEFAULT_CONTENT_EXPANSION='${_p9k_project_path:-${P9K_CONTENT}}'
+  # POWERLEVEL9K_DIR_CLASSES is empty (line 352), so the dir state has no
+  # `_DEFAULT` suffix; using the segment-default name instead of `_DEFAULT_*`.
+  typeset -g POWERLEVEL9K_DIR_CONTENT_EXPANSION='${_p9k_project_path:-${P9K_CONTENT}}'
 
   # Enable special styling for non-writable and non-existent directories. See POWERLEVEL9K_LOCK_ICON
   # and POWERLEVEL9K_DIR_CLASSES below.
