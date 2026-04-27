@@ -48,6 +48,14 @@ if typeset -f nvm > /dev/null 2>&1; then
   load-nvmrc
 fi
 
+_tmux_rename() {
+  [[ -z $TMUX ]] && return
+  local cmd="${1%% *}"
+  [[ -z $cmd ]] && return
+  tmux rename-window -- "$cmd"
+}
+add-zsh-hook preexec _tmux_rename
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
