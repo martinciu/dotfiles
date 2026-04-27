@@ -33,6 +33,9 @@ link ".config/ghostty" "$HOME/.config/ghostty"
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"
 
+# --- ccstatusline
+link ".config/ccstatusline" "$HOME/.config/ccstatusline"
+
 # --- vim
 link ".vimrc"          "$HOME/.vimrc"
 link ".vim/colors"     "$HOME/.vim/colors"
