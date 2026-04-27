@@ -48,6 +48,10 @@ if typeset -f nvm > /dev/null 2>&1; then
   load-nvmrc
 fi
 
+# Force Claude Code to emit truecolor inside tmux (it downgrades to a 256-color
+# palette by default when $TMUX is set). See anthropics/claude-code#36785.
+[[ -n $TMUX ]] && export CLAUDE_CODE_TMUX_TRUECOLOR=1
+
 _tmux_rename() {
   [[ -z $TMUX ]] && return
   local cmd="${1%% *}"
