@@ -29,11 +29,6 @@
         "id": "8e379731-4323-48a7-b798-cd10701104e3",
         "type": "tokens-total",
         "backgroundColor": "bgBlue"
-      },
-      {
-        "id": "a5bf6779-0585-49c1-981b-86fe0fa8fc4e",
-        "type": "weekly-usage",
-        "backgroundColor": "bgBrightGreen"
       }
     ],
     [
