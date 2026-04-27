@@ -44,7 +44,7 @@ Order and content of the tracked `.zshrc`:
 3. **oh-my-zsh** — `$ZSH`, `ZSH_THEME=powerlevel10k/powerlevel10k`, `plugins=(git nvm brew rbenv node)`, `source $ZSH/oh-my-zsh.sh`
 4. **Locale** — `LANG=en_US.UTF-8`, `LC_ALL=en_US.UTF-8`
 5. **PATH additions** — cargo, asdf shims, `~/.local/bin` (all using `$HOME`, not hardcoded `/Users/martinciu/`)
-6. **Project roots** — `PROJECTS_ROOT` and `PROJECTS_HOME` (both kept; `PROJECTS_HOME` is used by `bootstrap.sh`)
+6. **Project roots** — `PROJECTS_HOME` only (`PROJECTS_ROOT` removed as redundant)
 7. **load-nvmrc hook** — `autoload -U add-zsh-hook` + hook function + `add-zsh-hook chpwd` + initial call
 8. **p10k source** — `[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh`
 9. **wt init** — `if command -v wt ...; then eval "$(command wt config shell init zsh)"; fi`
@@ -57,6 +57,7 @@ Order and content of the tracked `.zshrc`:
 |---|---|---|
 | Manual NVM block (lines 34–36 of current) | Remove | `nvm` oh-my-zsh plugin already loads NVM; double-loading slows startup |
 | All `/Users/martinciu/` paths | Replace with `$HOME` | Portability |
+| `PROJECTS_ROOT` | Remove | Identical to `PROJECTS_HOME`; redundant |
 
 ## .zshrc.local Contents (machine-specific)
 
