@@ -59,6 +59,28 @@ add-zsh-hook preexec _tmux_rename
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# Keep in sync with scripts/test-prompt-context.zsh
+_p9k_project_context() {
+  local projects="${PROJECTS_HOME:-$HOME/code}"
+  if [[ -n $TMUX && $PWD == ${projects}/?* ]]; then
+    local rel="${PWD#${projects}/}"
+    local -a parts=("${(@s:/:)rel}")
+    local out="${parts[1]}"
+    local i
+    for (( i=2; i<${#parts[@]}; i++ )); do
+      out+="/${parts[i][1]}"
+    done
+    (( ${#parts[@]} > 1 )) && out+="/${parts[-1]}"
+    _p9k_project_path="$out"
+    typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='*'
+  else
+    unset _p9k_project_path
+    typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~'
+  fi
+}
+add-zsh-hook chpwd _p9k_project_context
+precmd_functions=(_p9k_project_context ${precmd_functions:#_p9k_project_context})
+
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 [[ -f ~/.secrets ]] && source ~/.secrets
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
