@@ -72,5 +72,6 @@ keybind = cmd+alt+down=goto_split:down
 
 alpha-blending = native
 macos-window-shadow = true
+bell-features = system
 
 
