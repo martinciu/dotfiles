@@ -34,6 +34,11 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 - Git chip is **cyan** in main checkout, **yellow** in a worktree.
   Worktree label `wt:NAME` only shows when branch name differs from worktree dir name.
 
+## Quirks
+
+- URLs in tmux panes open with **Shift+Cmd+click**, not Cmd+click.
+- Why: with `set -g mouse on`, Ghostty defers all mouse interactions (incl. URL hover/click detection) to tmux. Ghostty's default `mouse-shift-capture = false` makes Shift the bypass modifier — Shift releases the click from tmux and Cmd reaches Ghostty's URL handler.
+
 ## Future work
 
 - Move `~/.zshrc` and `~/.p10k.zsh` into the repo
