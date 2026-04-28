@@ -19,3 +19,11 @@ brew "ripgrep"   # snacks.picker live grep
 brew "fd"        # snacks.picker file find
 brew "lazygit"   # <leader>gg in LazyVim
 brew "tree-sitter-cli" # nvim-treesitter parser builds
+
+# Shell colors & appearance
+brew "eza"                      # ls replacement with icons + git status
+brew "bat"                      # syntax-highlighted cat / man pager backend
+brew "git-delta"                # git diff/log/blame pager
+brew "vivid"                    # generates LS_COLORS palettes
+brew "zsh-syntax-highlighting"  # live command-line highlighting
+brew "zsh-autosuggestions"      # ghost-text completion from history
