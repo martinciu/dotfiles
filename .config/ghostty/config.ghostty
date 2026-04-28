@@ -47,8 +47,10 @@ resize-overlay = always
 confirm-close-surface = false
 
 # ─── macOS app icon ───────────────────────────
-macos-icon = glass
+macos-icon = custom-style
 macos-icon-frame = plastic
+macos-icon-ghost-color = #ffffff
+macos-icon-screen-color = #1a1b26,#7aa2f7
 
 # ─── Shell integration ────────────────────────
 shell-integration = detect
