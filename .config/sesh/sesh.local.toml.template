@@ -1,0 +1,8 @@
+# Machine-local sesh sessions — untracked, edited per-machine.
+# This file is imported by ~/.config/sesh/sesh.toml.
+#
+# Add your project sessions below.
+
+# [[session]]
+# name = "example"
+# path = "~/code/example"

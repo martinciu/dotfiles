@@ -42,10 +42,11 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
-# --- sesh (machine-local config; report-only, like .zshrc.local)
-if [ ! -f "$HOME/.config/sesh/sesh.toml" ]; then
-  mkdir -p "$HOME/.config/sesh"
-  echo "TODO:   cp $DOTFILES/.config/sesh/sesh.toml.template ~/.config/sesh/sesh.toml && \$EDITOR ~/.config/sesh/sesh.toml"
+# --- sesh: shared config is symlinked; machine-local sessions in sesh.local.toml
+link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
+if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
+  cp "$DOTFILES/.config/sesh/sesh.local.toml.template" "$HOME/.config/sesh/sesh.local.toml"
+  echo "created: ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
 fi
 
 # --- nvim
@@ -84,5 +85,5 @@ echo
 echo "next steps:"
 echo "  1. start tmux:               tmux"
 echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
-echo "  3. test sesh popup:          <prefix> T"
+echo "  3. test sesh popup:          <prefix> t"
 echo "  4. create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"

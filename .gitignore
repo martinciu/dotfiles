@@ -12,8 +12,7 @@
 # worktrunk runtime state — per-project hook approvals are machine-local
 .config/worktrunk/approvals.toml
 
-# sesh — live config is machine-local (see .config/sesh/sesh.toml.template)
-.config/sesh/sesh.toml
+# sesh — shared config tracked; machine-local sessions in ~/.config/sesh/sesh.local.toml (outside repo)
 
 # vim runtime files (real dirs in $HOME, not symlinks; never tracked)
 .vim/undo/*

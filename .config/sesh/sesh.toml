@@ -1,0 +1,7 @@
+# Shared sesh config — tracked in dotfiles.
+# Machine-local sessions live in ~/.config/sesh/sesh.local.toml (untracked).
+import = ["~/.config/sesh/sesh.local.toml"]
+
+[[session]]
+name = "Home 🏠"
+path = "~"

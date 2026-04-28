@@ -14,16 +14,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
   input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
-- **Sesh sessions are machine-local.** `.config/sesh/sesh.toml.template`
-  is tracked; `~/.config/sesh/sesh.toml` is gitignored and populated
-  per-machine (different machines have different project sets). The
-  picker (`<prefix> t`, swapped with the default clock-mode binding which
-  moved to `<prefix> T`) is `sesh picker -i -d -H` — full vanilla, all
-  sources (configured / tmux / zoxide / tmuxinator). Don't re-introduce
-  a custom fzf wrapper script. Zoxide is on but `_ZO_EXCLUDE_DIRS`
-  blocks `~/`, `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being
-  indexed — keeps the picker focused on real projects under
-  `$PROJECTS_HOME`.
+- **Sesh config is split: shared + machine-local.** The repo tracks
+  `.config/sesh/sesh.toml` (symlinked into `~/.config/sesh/sesh.toml`)
+  with a `Home 🏠` session for `~` and a top-level
+  `import = ["~/.config/sesh/sesh.local.toml"]` directive. Machine-local
+  project sessions go in `~/.config/sesh/sesh.local.toml` (untracked,
+  outside the repo, copied from `sesh.local.toml.template` by
+  `bootstrap.sh` on first run). Don't add machine-specific entries to
+  the shared file; don't drop the `import` line — sesh hard-errors on
+  a missing import target. The picker (`<prefix> t`, swapped with the
+  default clock-mode binding which moved to `<prefix> T`) is
+  `sesh picker -i -d -H` — full vanilla, all sources (configured /
+  tmux / zoxide / tmuxinator). Don't re-introduce a custom fzf wrapper
+  script. Zoxide is on but `_ZO_EXCLUDE_DIRS` blocks `~/`,
+  `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being indexed —
+  keeps the picker focused on real projects under `$PROJECTS_HOME`.
 - **`vim` and `vimdiff` are zsh aliases to nvim**; **`vi` is a zsh alias
   to the legacy minimal vim** (`alias vi='command vim'` — `command`
   suppresses recursive alias expansion). All three are defined in
