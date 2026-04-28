@@ -23,7 +23,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't
   re-add Alt bindings.
 - **Mason-managed LSPs are pinned** via `mason-lock.json`. The lockfile
-  is committed; updates go through `:MasonLock` then a commit.
+  is committed. `:MasonLock` snapshots the current state; `:MasonLockUpdate`
+  upgrades to latest then snapshots — use the latter to bump versions.
 - **`lazy-lock.json` and `mason-lock.json` are committed** for
   reproducibility across machines.
 - **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without

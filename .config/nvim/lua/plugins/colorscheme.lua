@@ -5,6 +5,7 @@ return {
     lazy = false,
     priority = 1000,
     opts = {
+      -- maxmx03/solarized.nvim's API takes a table here, not a bool.
       transparent = {
         enabled = false,
       },
