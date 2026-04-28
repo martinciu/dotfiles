@@ -25,6 +25,12 @@ export LC_ALL=en_US.UTF-8
 # LS_COLORS for eza (and GNU ls if present); BSD `\ls` keeps OMZ default LSCOLORS.
 command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate solarized-dark)"
 
+# Use bat as MANPAGER when available; MANROFFOPT=-c keeps ANSI sequences intact.
+if command -v bat >/dev/null 2>&1; then
+  export MANPAGER="sh -c 'col -bx | bat -l man -p --paging=always'"
+  export MANROFFOPT="-c"
+fi
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -101,6 +107,7 @@ if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)
 [[ -f ~/.secrets ]] && source ~/.secrets
 
 # ─── Aliases (color-aware tools) ────────────
+command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --group-directories-first --icons'
   alias ll='eza -lh --git --icons --group-directories-first'
