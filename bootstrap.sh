@@ -51,6 +51,9 @@ mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 link ".zshrc"     "$HOME/.zshrc"
 link ".p10k.zsh"  "$HOME/.p10k.zsh"
 
+# --- claude
+link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then

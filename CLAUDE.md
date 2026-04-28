@@ -43,8 +43,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}` (`.config/` includes `nvim/`, `worktrunk/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
