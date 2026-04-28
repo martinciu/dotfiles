@@ -1,0 +1,20 @@
+{
+  "name": "my-solarized",
+  "base": "dark",
+  "overrides": {
+    "claude": "#cb4b16",
+    "claudeShimmer": "#b58900",
+    "success": "#859900",
+    "error": "#dc322f",
+    "warning": "#b58900",
+    "merged": "#6c71c4",
+    "promptBorder": "#586e75",
+    "planMode": "#268bd2",
+    "autoAccept": "#2aa198",
+    "bashBorder": "#d33682",
+    "diffAdded": "#0d3a1d",
+    "diffRemoved": "#3a0d10",
+    "diffAddedWord": "#1d6b35",
+    "diffRemovedWord": "#6b1d20"
+  }
+}
