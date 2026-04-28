@@ -55,6 +55,15 @@ shell-integration = detect
 # Defaults plus `sudo` so sudo preserves terminfo/cursor/title. Default leaves sudo off.
 shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
 
+# ─── Working directory ────────────────────────
+# Always open new surfaces in $HOME — fresh start on cmd+t, no project leakage.
+# `working-directory` alone isn't enough: the three `*-inherit-working-directory`
+# flags default to true and take precedence, so they must also be disabled.
+working-directory = home
+tab-inherit-working-directory = false
+window-inherit-working-directory = false
+split-inherit-working-directory = false
+
 # ─── Keybindings (config reload) ──────────────
 # Three-modifier combo to avoid clashes with launchers / menu shortcuts.
 # (The Polish-Pro layout broke the default `cmd+shift+,` for this user.)
