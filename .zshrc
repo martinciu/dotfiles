@@ -150,6 +150,9 @@ if command -v eza >/dev/null 2>&1; then
   alias ll='eza -lh --git --icons --group-directories-first'
   alias la='ll -a'
 fi
+if command -v glow >/dev/null 2>&1; then
+  alias md='glow --style $HOME/.config/glow/glamour.json'
+fi
 
 # ─── Plugins (order matters; syntax-highlighting MUST be last) ─
 [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
