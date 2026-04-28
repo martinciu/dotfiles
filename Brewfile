@@ -18,3 +18,4 @@ brew "neovim"
 brew "ripgrep"   # snacks.picker live grep
 brew "fd"        # snacks.picker file find
 brew "lazygit"   # <leader>gg in LazyVim
+brew "tree-sitter-cli" # nvim-treesitter parser builds
