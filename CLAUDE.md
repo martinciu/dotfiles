@@ -25,11 +25,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `~/projects/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}`
-- Targets: `~/.config/{ghostty,tmux}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}`
+- Targets: `~/.config/{ghostty,tmux,ccstatusline}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
+
+## Verify changes
+
+- Helper smoke tests: `scripts/test-helpers.sh`
+- Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
+- Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
+- Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 
 ## Out of scope (future work, separate spec)
 

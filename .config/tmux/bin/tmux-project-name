@@ -6,7 +6,7 @@
 # Usage: tmux-project-name [pwd]
 
 set -e
-projects="${PROJECTS_HOME:-$HOME/projects}"
+projects="$PROJECTS_HOME"
 pwd_in="${1:-$PWD}"
 
 case "$pwd_in/" in
