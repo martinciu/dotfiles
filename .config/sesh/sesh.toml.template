@@ -1,0 +1,9 @@
+# Sesh configuration — see https://github.com/joshmedeski/sesh#configuration
+#
+# Copy this file to ~/.config/sesh/sesh.toml and add machine-local
+# session entries. The live file is gitignored — different machines
+# have different project sets.
+
+# [[session]]
+# name = "example"
+# path = "~/code/example"
