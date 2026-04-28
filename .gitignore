@@ -6,6 +6,9 @@
 .config/nvim/mason/
 .config/nvim/site/
 
+# LazyVim per-machine state (tracks read news + extras opt-ins)
+.config/nvim/lazyvim.json
+
 # vim runtime files (real dirs in $HOME, not symlinks; never tracked)
 .vim/undo/*
 .vim/backup/*
