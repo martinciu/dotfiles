@@ -11,6 +11,7 @@ set cursorline
 set showcmd
 set wildmenu
 set wildmode=list:longest,full
+set belloff=all      " no audio bell, no visual flash, ever
 
 " ─── Search ─────────────────────────────────
 set hlsearch
