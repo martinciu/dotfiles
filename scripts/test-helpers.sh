@@ -205,6 +205,61 @@ else
   rm -rf "$changes_repo" "$upstream" "$clone_dir"
 fi
 
+# ─── glow ───────────────────────────────────
+echo
+echo "glow"
+echo "────"
+
+if ! command -v glow >/dev/null 2>&1; then
+  echo "  SKIP — glow not installed (run 'brew bundle')"
+else
+  glamour_json="$HOME/.config/glow/glamour.json"
+
+  if [ -L "$glamour_json" ] && [ "$(readlink "$glamour_json")" = "$REPO/.config/glow/glamour.json" ]; then
+    pass=$((pass+1)); echo "  PASS  ~/.config/glow/glamour.json symlinks into dotfiles"
+  else
+    # Accept directory-level symlink (~/.config/glow -> $REPO/.config/glow) too,
+    # since bootstrap.sh links the dir, not the file. The realpath check below
+    # catches both shapes.
+    if [ -e "$glamour_json" ] && [ "$(cd "$(dirname "$glamour_json")" && pwd -P)/$(basename "$glamour_json")" = "$REPO/.config/glow/glamour.json" ]; then
+      pass=$((pass+1)); echo "  PASS  ~/.config/glow/glamour.json resolves into dotfiles"
+    else
+      fail=$((fail+1))
+      fail_msgs+=("FAIL  ~/.config/glow/glamour.json does not resolve into dotfiles")
+      echo "  FAIL  ~/.config/glow/glamour.json does not resolve into dotfiles"
+    fi
+  fi
+
+  # JSON parse check (uses python3, available on macOS by default).
+  if python3 -m json.tool "$REPO/.config/glow/glamour.json" >/dev/null 2>&1; then
+    pass=$((pass+1)); echo "  PASS  glamour.json parses as JSON"
+  else
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  glamour.json failed to parse")
+    echo "  FAIL  glamour.json failed to parse"
+  fi
+
+  # End-to-end: render a small fixture from stdin via the same flag the alias
+  # uses. Exit 0, non-empty output.
+  out=$(printf '# Hi\n\n**bold**\n' | glow --style "$REPO/.config/glow/glamour.json" - 2>/dev/null)
+  if [ "$?" -eq 0 ] && [ -n "$out" ]; then
+    pass=$((pass+1)); echo "  PASS  stdin render via --style exits 0 with non-empty output"
+  else
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  stdin render failed or empty"$'\n'"        out: '$out'")
+    echo "  FAIL  stdin render failed or empty"
+  fi
+
+  # Render an actual repo file (catches stylesheet parse regressions).
+  if glow --style "$REPO/.config/glow/glamour.json" "$REPO/README.md" >/dev/null 2>&1; then
+    pass=$((pass+1)); echo "  PASS  glow --style glamour.json README.md exits 0"
+  else
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  glow refused glamour.json on README.md")
+    echo "  FAIL  glow refused glamour.json on README.md"
+  fi
+fi
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
