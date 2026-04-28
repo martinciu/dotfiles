@@ -34,6 +34,13 @@ fi
 # zsh-autosuggestions: dim ghost text, readable on Solarized Dark.
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
+# fzf — Solarized Dark palette.
+export FZF_DEFAULT_OPTS='
+  --color=fg:#839496,bg:#002b36,hl:#268bd2
+  --color=fg+:#eee8d5,bg+:#073642,hl+:#268bd2
+  --color=info:#b58900,prompt:#dc322f,pointer:#d33682
+  --color=marker:#2aa198,spinner:#dc322f,header:#586e75'
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -120,6 +127,17 @@ fi
 # ─── Plugins (order matters; syntax-highlighting MUST be last) ─
 [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
   source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# fzf shell integration (Ctrl-R history, Ctrl-T file picker).
+[[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ]] && \
+  source /opt/homebrew/opt/fzf/shell/completion.zsh
+[[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]] && \
+  source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+# Alt-C is reserved for Polish diacritics; remove fzf's cd-widget binding in
+# every keymap fzf might have bound it in.
+bindkey -M emacs -r '^[c' 2>/dev/null
+bindkey -M viins -r '^[c' 2>/dev/null
+bindkey -M vicmd -r '^[c' 2>/dev/null
 
 # zsh-syntax-highlighting MUST be the last sourced plugin.
 [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
