@@ -23,7 +23,19 @@ require("lazy").setup({
   spec = {
     -- LazyVim core
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- LazyVim language/util extras (added in Task 4)
+
+    -- Language extras
+    { import = "lazyvim.plugins.extras.lang.ruby" },
+    { import = "lazyvim.plugins.extras.lang.typescript" },
+    { import = "lazyvim.plugins.extras.lang.tailwind" },
+    { import = "lazyvim.plugins.extras.lang.eslint" },
+    { import = "lazyvim.plugins.extras.lang.json" },
+    { import = "lazyvim.plugins.extras.lang.yaml" },
+    { import = "lazyvim.plugins.extras.lang.markdown" },
+
+    -- Util extras
+    { import = "lazyvim.plugins.extras.util.test" },
+
     -- Custom plugins
     { import = "plugins" },
   },
