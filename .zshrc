@@ -21,6 +21,26 @@ unsetopt LIST_BEEP   # ambiguous completion
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+# ─── Colors & appearance ────────────────────
+# LS_COLORS for eza (and GNU ls if present); BSD `\ls` keeps OMZ default LSCOLORS.
+command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate solarized-dark)"
+
+# Use bat as MANPAGER when available; MANROFFOPT=-c keeps ANSI sequences intact.
+if command -v bat >/dev/null 2>&1; then
+  export MANPAGER="sh -c 'col -bx | bat -l man -p --paging=always'"
+  export MANROFFOPT="-c"
+fi
+
+# zsh-autosuggestions: dim ghost text, readable on Solarized Dark.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
+# fzf — Solarized Dark palette.
+export FZF_DEFAULT_OPTS='
+  --color=fg:#839496,bg:#002b36,hl:#268bd2
+  --color=fg+:#eee8d5,bg+:#073642,hl+:#268bd2
+  --color=info:#b58900,prompt:#dc322f,pointer:#d33682
+  --color=marker:#2aa198,spinner:#dc322f,header:#586e75'
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -95,3 +115,30 @@ precmd_functions=(_p9k_project_context ${precmd_functions:#_p9k_project_context}
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 [[ -f ~/.secrets ]] && source ~/.secrets
+
+# ─── Aliases (color-aware tools) ────────────
+command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --group-directories-first --icons'
+  alias ll='eza -lh --git --icons --group-directories-first'
+  alias la='ll -a'
+fi
+
+# ─── Plugins (order matters; syntax-highlighting MUST be last) ─
+[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# fzf shell integration (Ctrl-R history, Ctrl-T file picker).
+[[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ]] && \
+  source /opt/homebrew/opt/fzf/shell/completion.zsh
+[[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]] && \
+  source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+# Alt-C is reserved for Polish diacritics; remove fzf's cd-widget binding in
+# every keymap fzf might have bound it in.
+bindkey -M emacs -r '^[c' 2>/dev/null
+bindkey -M viins -r '^[c' 2>/dev/null
+bindkey -M vicmd -r '^[c' 2>/dev/null
+
+# zsh-syntax-highlighting MUST be the last sourced plugin.
+[[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
