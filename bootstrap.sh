@@ -62,7 +62,8 @@ link ".zshrc"     "$HOME/.zshrc"
 link ".p10k.zsh"  "$HOME/.p10k.zsh"
 
 # --- claude
-link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+link ".claude/CLAUDE.md"                "$HOME/.claude/CLAUDE.md"
+link ".claude/themes/my-solarized.json" "$HOME/.claude/themes/my-solarized.json"
 
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
