@@ -17,7 +17,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Sesh sessions are machine-local.** `.config/sesh/sesh.toml.template`
   is tracked; `~/.config/sesh/sesh.toml` is gitignored and populated
   per-machine (different machines have different project sets). The
-  picker (`<prefix> T`) is `sesh picker -i -d -H` — full vanilla, all
+  picker (`<prefix> t`, swapped with the default clock-mode binding which
+  moved to `<prefix> T`) is `sesh picker -i -d -H` — full vanilla, all
   sources (configured / tmux / zoxide / tmuxinator). Don't re-introduce
   a custom fzf wrapper script. Zoxide is on but `_ZO_EXCLUDE_DIRS`
   blocks `~/`, `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being
