@@ -16,6 +16,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
 - **vim is intentionally minimal** (~30 lines, no plugin manager).
   Don't add vim-plug, LSP, or fuzzy finders without an explicit ask.
+- **nvim is built on LazyVim**, themed Solarized, configured at
+  `.config/nvim/`. Don't replace LazyVim with another distro or
+  hand-roll a different plugin manager without an explicit ask.
+- **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
+  (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't
+  re-add Alt bindings.
+- **Mason-managed LSPs are pinned** via `mason-lock.json`. The lockfile
+  is committed; updates go through `:MasonLock` then a commit.
+- **`lazy-lock.json` and `mason-lock.json` are committed** for
+  reproducibility across machines.
 - **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without
   asking.
 - **Worktree status segment** uses `git rev-parse --git-dir` vs
@@ -29,8 +39,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}`
-- Targets: `~/.config/{ghostty,tmux,ccstatusline}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}` (`.config/` includes `nvim/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
@@ -41,6 +51,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
+- nvim plugin smoke test: `scripts/test-nvim.sh`
 
 ## Out of scope (future work, separate spec)
 
