@@ -31,6 +31,9 @@ if command -v bat >/dev/null 2>&1; then
   export MANROFFOPT="-c"
 fi
 
+# zsh-autosuggestions: dim ghost text, readable on Solarized Dark.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -113,3 +116,7 @@ if command -v eza >/dev/null 2>&1; then
   alias ll='eza -lh --git --icons --group-directories-first'
   alias la='ll -a'
 fi
+
+# ─── Plugins (order matters; syntax-highlighting MUST be last) ─
+[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
