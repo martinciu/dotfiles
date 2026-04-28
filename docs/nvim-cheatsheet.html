@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Neovim — Getting Started &amp; Cheatsheet</title>
+<style>
+  /* Solarized Dark palette — to match the dotfiles convention */
+  :root {
+    --base03:  #002b36;
+    --base02:  #073642;
+    --base01:  #586e75;
+    --base00:  #657b83;
+    --base0:   #839496;
+    --base1:   #93a1a1;
+    --base2:   #eee8d5;
+    --base3:   #fdf6e3;
+    --yellow:  #b58900;
+    --orange:  #cb4b16;
+    --red:     #dc322f;
+    --magenta: #d33682;
+    --violet:  #6c71c4;
+    --blue:    #268bd2;
+    --cyan:    #2aa198;
+    --green:   #859900;
+    --mono: "JetBrainsMono Nerd Font", "JetBrainsMono", "Menlo", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--base03);
+    color: var(--base1);
+    font-family: var(--sans);
+    line-height: 1.55;
+    font-size: 14.5px;
+    padding: 2.2rem clamp(1rem, 4vw, 3rem) 4rem;
+  }
+
+  header {
+    border-bottom: 1px solid var(--base02);
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.6rem;
+  }
+  header h1 {
+    margin: 0 0 .35rem 0;
+    font-size: 1.8rem;
+    color: var(--base3);
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+  header .sub {
+    color: var(--base0);
+    font-size: .95rem;
+  }
+  header .sub code { color: var(--cyan); }
+
+  nav.toc {
+    margin: 1rem 0 1.6rem;
+    padding: .65rem .9rem;
+    background: var(--base02);
+    border-radius: 6px;
+    font-size: .9rem;
+    color: var(--base0);
+  }
+  nav.toc a {
+    color: var(--blue);
+    text-decoration: none;
+    margin-right: 1.1rem;
+    white-space: nowrap;
+  }
+  nav.toc a:hover { color: var(--cyan); text-decoration: underline; }
+
+  h2 {
+    color: var(--base2);
+    border-left: 3px solid var(--blue);
+    padding-left: .6rem;
+    margin: 2.2rem 0 .9rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  h2 .accent { color: var(--blue); font-weight: 400; font-size: .85em; margin-left: .4rem; }
+  h3 {
+    color: var(--base2);
+    margin: 1.4rem 0 .55rem;
+    font-size: 1.02rem;
+    font-weight: 600;
+  }
+  p { margin: .55rem 0; }
+
+  code, kbd, .k {
+    font-family: var(--mono);
+    font-size: .88em;
+  }
+  code {
+    background: var(--base02);
+    color: var(--cyan);
+    padding: .08em .35em;
+    border-radius: 3px;
+  }
+  kbd, .k {
+    display: inline-block;
+    background: var(--base02);
+    color: var(--yellow);
+    border: 1px solid #0a4655;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: .05em .42em;
+    font-size: .82em;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .k.leader { color: var(--magenta); }
+  .k.mode   { color: var(--green); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--base02);
+    border: 1px solid #0a4655;
+    border-radius: 8px;
+    padding: .9rem 1rem 1rem;
+  }
+  .card h3 {
+    margin-top: 0;
+    color: var(--base2);
+    border-bottom: 1px dashed #0a4655;
+    padding-bottom: .35rem;
+  }
+  .card h3 .pill {
+    background: var(--base03);
+    color: var(--blue);
+    font-size: .68em;
+    font-weight: 500;
+    padding: .15em .5em;
+    border-radius: 3px;
+    margin-left: .5em;
+    vertical-align: middle;
+    letter-spacing: .03em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: .25rem 0;
+  }
+  td {
+    padding: .25rem .35rem;
+    vertical-align: top;
+    border-bottom: 1px solid #073642;
+  }
+  tr:last-child td { border-bottom: 0; }
+  td.key   { width: 38%; white-space: nowrap; }
+  td.desc  { color: var(--base1); }
+  td .sep  { color: var(--base01); margin: 0 .15em; }
+  .muted   { color: var(--base0); }
+  .note    { color: var(--base0); font-size: .88em; font-style: italic; }
+  .warn    { color: var(--orange); }
+
+  ul.compact { margin: .35rem 0 .25rem; padding-left: 1.2rem; }
+  ul.compact li { margin: .15rem 0; }
+
+  pre {
+    background: var(--base02);
+    border: 1px solid #0a4655;
+    border-radius: 6px;
+    padding: .7rem .9rem;
+    overflow-x: auto;
+    color: var(--base1);
+    font-family: var(--mono);
+    font-size: .85em;
+    line-height: 1.5;
+  }
+  pre .c   { color: var(--base01); font-style: italic; }
+  pre .cmd { color: var(--green); }
+  pre .arg { color: var(--yellow); }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--base02);
+    color: var(--base01);
+    font-size: .85em;
+  }
+
+  @media print {
+    body { background: white; color: #222; padding: 1rem; font-size: 11px; }
+    .card { background: #fafafa; border-color: #ccc; break-inside: avoid; }
+    h2 { color: #111; border-color: #888; }
+    h3, header h1 { color: #111; }
+    kbd, .k { background: #eee; color: #b58900; border-color: #bbb; }
+    code { background: #f3f3f3; color: #2aa198; }
+    nav.toc { display: none; }
+    a { color: #268bd2 !important; }
+    pre { background: #f6f6f6; color: #222; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Neovim — Getting Started &amp; Cheatsheet</h1>
+  <div class="sub">
+    LazyVim &middot; Solarized &middot; leader = <code>&lt;Space&gt;</code> &middot; localleader = <code>\</code>
+    &middot; Polish keyboard: <span class="warn">no Alt-bindings</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong style="color:var(--base2)">Jump:</strong>
+  <a href="#start">Getting started</a>
+  <a href="#essentials">Vim essentials</a>
+  <a href="#leader">Leader cheatsheet</a>
+  <a href="#picker">Picker (Snacks)</a>
+  <a href="#lsp">LSP &amp; Code</a>
+  <a href="#git">Git</a>
+  <a href="#test">Tests (neotest)</a>
+  <a href="#nav">Movement &amp; Flash</a>
+  <a href="#text">Text objects</a>
+  <a href="#mason">Mason / Lazy</a>
+  <a href="#options">Editor options</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="start">Getting started <span class="accent">/ what you have</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Stack at a glance</h3>
+    <table>
+      <tr><td class="key">Distro</td><td class="desc">LazyVim core (<code>~/.config/nvim/</code>)</td></tr>
+      <tr><td class="key">Plugin manager</td><td class="desc"><code>lazy.nvim</code> — pinned in <code>lazy-lock.json</code></td></tr>
+      <tr><td class="key">LSP installer</td><td class="desc"><code>mason.nvim</code> — pinned in <code>mason-lock.json</code></td></tr>
+      <tr><td class="key">Theme</td><td class="desc"><code>maxmx03/solarized.nvim</code> (dark)</td></tr>
+      <tr><td class="key">Completion</td><td class="desc"><code>blink.cmp</code></td></tr>
+      <tr><td class="key">Picker / UI</td><td class="desc"><code>snacks.nvim</code> (replaces Telescope) + <code>noice</code></td></tr>
+      <tr><td class="key">Tests</td><td class="desc"><code>neotest</code> + rspec, vitest, jest</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Languages enabled</h3>
+    <p class="muted" style="margin-top:0">LazyVim "extras" loaded — full LSP / formatter / linter setup:</p>
+    <ul class="compact">
+      <li>Ruby (ruby-lsp, rubocop, erb-formatter/lint)</li>
+      <li>TypeScript / JavaScript (vtsls, eslint-lsp)</li>
+      <li>Tailwind CSS (tailwindcss-language-server)</li>
+      <li>JSON, YAML, Markdown (+ marksman, markdownlint, markdown-toc)</li>
+      <li>Lua (lua-language-server, stylua)</li>
+      <li>Shell formatting (shfmt)</li>
+    </ul>
+    <p class="note">Treesitter highlighting is also on for Python and SQL (no LSP).</p>
+  </div>
+
+  <div class="card">
+    <h3>First-run checklist</h3>
+    <ol class="compact">
+      <li>Open nvim: <code>nvim</code></li>
+      <li>Lazy will install plugins on first start; wait for the splash to settle.</li>
+      <li>Run <code>:checkhealth</code> — fix any red items (clipboard, node, ripgrep).</li>
+      <li>Run <code>:Mason</code> — confirm everything from <code>mason-lock.json</code> is installed.</li>
+      <li>Open a file in a project to trigger LSP attach; check <code>:LspInfo</code>.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>House rules (per CLAUDE.md)</h3>
+    <ul class="compact">
+      <li><strong>No Alt mappings.</strong> Alt is reserved for Polish diacritics. <code>&lt;A-j&gt;</code>/<code>&lt;A-k&gt;</code> are explicitly removed.</li>
+      <li><strong>Solarized + JetBrainsMono Nerd Font</strong> only.</li>
+      <li><strong>Lockfiles committed:</strong> <code>lazy-lock.json</code>, <code>mason-lock.json</code>.</li>
+      <li>Mason: <code>:MasonLock</code> snapshots, <code>:MasonLockUpdate</code> upgrades + snapshots.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="essentials">Vim essentials <span class="accent">/ the always-there ones</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Modes</h3>
+    <table>
+      <tr><td class="key"><span class="k">Esc</span> <span class="muted">or</span> <span class="k">Ctrl-[</span></td><td class="desc">→ normal</td></tr>
+      <tr><td class="key"><span class="k">i</span> / <span class="k">a</span></td><td class="desc">insert before / after cursor</td></tr>
+      <tr><td class="key"><span class="k">I</span> / <span class="k">A</span></td><td class="desc">insert at first non-blank / end of line</td></tr>
+      <tr><td class="key"><span class="k">o</span> / <span class="k">O</span></td><td class="desc">open line below / above</td></tr>
+      <tr><td class="key"><span class="k">v</span> / <span class="k">V</span> / <span class="k">Ctrl-v</span></td><td class="desc">visual char / line / block</td></tr>
+      <tr><td class="key"><span class="k">R</span></td><td class="desc">replace mode</td></tr>
+      <tr><td class="key"><span class="k">:</span></td><td class="desc">command-line</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Files &amp; buffers</h3>
+    <table>
+      <tr><td class="key"><code>:e &lt;path&gt;</code></td><td class="desc">edit file</td></tr>
+      <tr><td class="key"><code>:w</code> / <code>:wa</code></td><td class="desc">write / write all</td></tr>
+      <tr><td class="key"><code>:q</code> / <code>:qa</code></td><td class="desc">quit / quit all</td></tr>
+      <tr><td class="key"><code>:wq</code> / <code>ZZ</code></td><td class="desc">save &amp; quit</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-^</span></td><td class="desc">switch to alternate buffer</td></tr>
+      <tr><td class="key"><span class="k">Shift-h</span> / <span class="k">Shift-l</span></td><td class="desc">prev / next buffer (LazyVim)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">b</span><span class="k">d</span></td><td class="desc">delete buffer (keep window)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Edit / undo</h3>
+    <table>
+      <tr><td class="key"><span class="k">u</span> / <span class="k">Ctrl-r</span></td><td class="desc">undo / redo</td></tr>
+      <tr><td class="key"><span class="k">.</span></td><td class="desc">repeat last change</td></tr>
+      <tr><td class="key"><span class="k">y</span><i>motion</i> / <span class="k">yy</span></td><td class="desc">yank / yank line</td></tr>
+      <tr><td class="key"><span class="k">d</span><i>motion</i> / <span class="k">dd</span></td><td class="desc">delete</td></tr>
+      <tr><td class="key"><span class="k">c</span><i>motion</i> / <span class="k">cc</span></td><td class="desc">change</td></tr>
+      <tr><td class="key"><span class="k">p</span> / <span class="k">P</span></td><td class="desc">paste after / before</td></tr>
+      <tr><td class="key"><span class="k">&gt;</span><span class="k">&gt;</span> / <span class="k">&lt;</span><span class="k">&lt;</span></td><td class="desc">indent / dedent line</td></tr>
+      <tr><td class="key"><span class="k">=</span><i>motion</i></td><td class="desc">auto-indent range</td></tr>
+    </table>
+    <p class="note">Clipboard = system (<code>unnamed</code>): <code>y</code>/<code>p</code> already use the OS clipboard.</p>
+  </div>
+
+  <div class="card">
+    <h3>Search / replace</h3>
+    <table>
+      <tr><td class="key"><span class="k">/</span><i>pat</i> / <span class="k">?</span><i>pat</i></td><td class="desc">forward / backward search</td></tr>
+      <tr><td class="key"><span class="k">n</span> / <span class="k">N</span></td><td class="desc">next / previous match</td></tr>
+      <tr><td class="key"><span class="k">*</span> / <span class="k">#</span></td><td class="desc">word under cursor → next / prev</td></tr>
+      <tr><td class="key"><code>:%s/foo/bar/g</code></td><td class="desc">replace in file</td></tr>
+      <tr><td class="key"><code>:s/foo/bar/g</code></td><td class="desc">replace in line / selection</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">s</span><span class="k">r</span></td><td class="desc">project search/replace (grug-far)</td></tr>
+    </table>
+    <p class="note"><code>smartcase</code> is on: lowercase = case-insensitive, mixed = sensitive.</p>
+  </div>
+
+  <div class="card">
+    <h3>Windows &amp; splits</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-w</span> <span class="k">s</span> / <span class="k">v</span></td><td class="desc">split horizontal / vertical</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-w</span> <span class="k">h/j/k/l</span></td><td class="desc">move between splits</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-w</span> <span class="k">q</span></td><td class="desc">close window</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-w</span> <span class="k">=</span></td><td class="desc">equalize sizes</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-Up/Down</span></td><td class="desc">resize height (LazyVim)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-Left/Right</span></td><td class="desc">resize width (LazyVim)</td></tr>
+    </table>
+    <p class="note">New splits open <em>right</em> / <em>below</em> (your <code>splitright</code>/<code>splitbelow</code>).</p>
+  </div>
+
+  <div class="card">
+    <h3>Marks, registers, macros</h3>
+    <table>
+      <tr><td class="key"><span class="k">m</span><i>a</i> / <span class="k">'</span><i>a</i></td><td class="desc">set mark / jump to it</td></tr>
+      <tr><td class="key"><span class="k">"</span><i>a</i><span class="k">y</span><i>motion</i></td><td class="desc">yank into register <code>a</code></td></tr>
+      <tr><td class="key"><span class="k">"</span><i>a</i><span class="k">p</span></td><td class="desc">paste from register <code>a</code></td></tr>
+      <tr><td class="key"><span class="k">q</span><i>a</i> ... <span class="k">q</span></td><td class="desc">record macro to <code>a</code></td></tr>
+      <tr><td class="key"><span class="k">@</span><i>a</i> / <span class="k">@@</span></td><td class="desc">play macro / replay last</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="leader">Leader cheatsheet <span class="accent">/ <span class="k leader">␣</span> = Space</span></h2>
+
+<p class="muted">
+  Press <span class="k leader">␣</span> and wait — <strong>which-key</strong> shows you the live menu.
+  Below is the most-used subset.
+</p>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Top-level <span class="pill">most used</span></h3>
+    <table>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">␣</span></td><td class="desc">find file (smart picker)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">/</span></td><td class="desc">grep across project (live)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">,</span></td><td class="desc">switch buffer</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">:</span></td><td class="desc">command history</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">e</span></td><td class="desc">file explorer (Snacks)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">E</span></td><td class="desc">explorer at cwd</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">w</span></td><td class="desc">write file</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">q</span><span class="k">q</span></td><td class="desc">quit all</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">|</span> / <span class="k leader">␣</span><span class="k">-</span></td><td class="desc">vsplit / split</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">l</span></td><td class="desc">Lazy plugin UI</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">f</span> &mdash; find</h3>
+    <table>
+      <tr><td class="key"><span class="k">f</span><span class="k">f</span></td><td class="desc">files (root)</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">F</span></td><td class="desc">files (cwd)</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">b</span></td><td class="desc">buffers</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">r</span></td><td class="desc">recent files</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">g</span></td><td class="desc">git files</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">c</span></td><td class="desc">config files</td></tr>
+      <tr><td class="key"><span class="k">f</span><span class="k">p</span></td><td class="desc">projects</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">s</span> &mdash; search</h3>
+    <table>
+      <tr><td class="key"><span class="k">s</span><span class="k">g</span></td><td class="desc">grep (live, project)</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">w</span></td><td class="desc">grep word under cursor</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">b</span></td><td class="desc">search current buffer</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">s</span></td><td class="desc">document symbols</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">S</span></td><td class="desc">workspace symbols</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">d</span></td><td class="desc">diagnostics (buffer)</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">D</span></td><td class="desc">diagnostics (workspace)</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">k</span></td><td class="desc">keymaps</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">h</span></td><td class="desc">help tags</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">r</span></td><td class="desc">grug-far replace</td></tr>
+      <tr><td class="key"><span class="k">s</span><span class="k">"</span></td><td class="desc">registers</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">b</span> &mdash; buffers / <span class="k leader">␣</span><span class="k">w</span> &mdash; windows</h3>
+    <table>
+      <tr><td class="key"><span class="k">b</span><span class="k">d</span></td><td class="desc">delete buffer</td></tr>
+      <tr><td class="key"><span class="k">b</span><span class="k">o</span></td><td class="desc">delete other buffers</td></tr>
+      <tr><td class="key"><span class="k">b</span><span class="k">p</span></td><td class="desc">toggle pin</td></tr>
+      <tr><td class="key"><span class="k">b</span><span class="k">P</span></td><td class="desc">delete non-pinned</td></tr>
+      <tr><td class="key"><span class="k">b</span><span class="k">b</span></td><td class="desc">switch to other buffer</td></tr>
+      <tr><td class="key"><span class="k">w</span><span class="k">d</span></td><td class="desc">delete window</td></tr>
+      <tr><td class="key"><span class="k">w</span><span class="k">m</span></td><td class="desc">maximize window toggle</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">u</span> &mdash; UI toggles</h3>
+    <table>
+      <tr><td class="key"><span class="k">u</span><span class="k">w</span></td><td class="desc">word wrap</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">s</span></td><td class="desc">spell check</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">l</span></td><td class="desc">line numbers</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">L</span></td><td class="desc">relative numbers</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">d</span></td><td class="desc">diagnostics</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">f</span></td><td class="desc">auto-format (buffer)</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">F</span></td><td class="desc">auto-format (global)</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">h</span></td><td class="desc">inlay hints</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">c</span></td><td class="desc">conceal level</td></tr>
+      <tr><td class="key"><span class="k">u</span><span class="k">T</span></td><td class="desc">treesitter</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">x</span> &mdash; trouble / diagnostics</h3>
+    <table>
+      <tr><td class="key"><span class="k">x</span><span class="k">x</span></td><td class="desc">document diagnostics</td></tr>
+      <tr><td class="key"><span class="k">x</span><span class="k">X</span></td><td class="desc">workspace diagnostics</td></tr>
+      <tr><td class="key"><span class="k">x</span><span class="k">L</span></td><td class="desc">location list</td></tr>
+      <tr><td class="key"><span class="k">x</span><span class="k">Q</span></td><td class="desc">quickfix list</td></tr>
+      <tr><td class="key"><span class="k">x</span><span class="k">t</span></td><td class="desc">TODO / FIX / NOTE comments</td></tr>
+      <tr><td class="key"><span class="k">]</span><span class="k">d</span> / <span class="k">[</span><span class="k">d</span></td><td class="desc">next / prev diagnostic</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="picker">Picker (Snacks) <span class="accent">/ inside the prompt</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Inside any picker</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-j</span> / <span class="k">Ctrl-k</span></td><td class="desc">next / prev item</td></tr>
+      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">open in current window</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-x</span></td><td class="desc">open in horizontal split</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-v</span></td><td class="desc">open in vertical split</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-t</span></td><td class="desc">open in new tab</td></tr>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">multi-select</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-q</span></td><td class="desc">send to quickfix</td></tr>
+      <tr><td class="key"><span class="k">Esc</span> / <span class="k">Ctrl-c</span></td><td class="desc">close</td></tr>
+      <tr><td class="key"><span class="k">?</span></td><td class="desc">show all picker keymaps</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Tip</h3>
+    <p>For project-wide grep, prefer <span class="k leader">␣</span><span class="k">/</span> over <span class="k leader">␣</span><span class="k">s</span><span class="k">g</span> &mdash; both are live grep, but the first is the "fast lane" alias.</p>
+    <p>Start typing inside a picker; results filter as you type. Use <code>!</code> at the start to <em>negate</em> a term. Glob-ish path filters work in file pickers (<code>'src</code>, <code>!test</code>).</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="lsp">LSP &amp; code <span class="accent">/ <span class="k leader">␣</span><span class="k">c</span></span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Navigate code</h3>
+    <table>
+      <tr><td class="key"><span class="k">g</span><span class="k">d</span></td><td class="desc">go to definition</td></tr>
+      <tr><td class="key"><span class="k">g</span><span class="k">D</span></td><td class="desc">go to declaration</td></tr>
+      <tr><td class="key"><span class="k">g</span><span class="k">r</span></td><td class="desc">references</td></tr>
+      <tr><td class="key"><span class="k">g</span><span class="k">I</span></td><td class="desc">implementation</td></tr>
+      <tr><td class="key"><span class="k">g</span><span class="k">y</span></td><td class="desc">type definition</td></tr>
+      <tr><td class="key"><span class="k">K</span></td><td class="desc">hover docs</td></tr>
+      <tr><td class="key"><span class="k">g</span><span class="k">K</span></td><td class="desc">signature help</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Edit code</h3>
+    <table>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">a</span></td><td class="desc">code action</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">r</span></td><td class="desc">rename symbol</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">f</span></td><td class="desc">format buffer / range</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">d</span></td><td class="desc">line diagnostics</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">l</span></td><td class="desc">LSP info</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">m</span></td><td class="desc">Mason</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">c</span><span class="k">s</span></td><td class="desc">symbols outline</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Completion (blink.cmp)</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-Space</span></td><td class="desc">trigger completion</td></tr>
+      <tr><td class="key"><span class="k">Tab</span> / <span class="k">Shift-Tab</span></td><td class="desc">next / prev item, snippet jump</td></tr>
+      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">accept</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-e</span></td><td class="desc">cancel / hide menu</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-d</span> / <span class="k">Ctrl-f</span></td><td class="desc">scroll docs up / down</td></tr>
+    </table>
+    <p class="note">No <code>&lt;A-...&gt;</code> bindings — Polish diacritics policy.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="git">Git <span class="accent">/ gitsigns + snacks</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Hunks &amp; blame</h3>
+    <table>
+      <tr><td class="key"><span class="k">]</span><span class="k">h</span> / <span class="k">[</span><span class="k">h</span></td><td class="desc">next / prev hunk</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">s</span></td><td class="desc">stage hunk</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">r</span></td><td class="desc">reset hunk</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">p</span></td><td class="desc">preview hunk</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">b</span></td><td class="desc">blame line (full)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">d</span></td><td class="desc">diff this</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">h</span><span class="k">u</span></td><td class="desc">undo stage hunk</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Pickers &amp; UI</h3>
+    <table>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">g</span></td><td class="desc">Lazygit (full TUI)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">b</span></td><td class="desc">git branches picker</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">l</span></td><td class="desc">git log</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">L</span></td><td class="desc">git log (file)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">s</span></td><td class="desc">git status picker</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">d</span></td><td class="desc">diff (current file)</td></tr>
+      <tr><td class="key"><span class="k leader">␣</span><span class="k">g</span><span class="k">f</span></td><td class="desc">file history</td></tr>
+    </table>
+    <p class="note">CLI <code>git</code> uses <code>delta</code> as pager (Solarized Dark theme).</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="test">Tests (neotest) <span class="accent">/ rspec, vitest, jest</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3><span class="k leader">␣</span><span class="k">t</span> menu</h3>
+    <table>
+      <tr><td class="key"><span class="k">t</span><span class="k">t</span></td><td class="desc">run file</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">T</span></td><td class="desc">run all (test files in cwd)</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">r</span></td><td class="desc">run nearest</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">l</span></td><td class="desc">run last</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">s</span></td><td class="desc">toggle summary panel</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">o</span></td><td class="desc">show output (split)</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">O</span></td><td class="desc">show output (panel)</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">S</span></td><td class="desc">stop</td></tr>
+      <tr><td class="key"><span class="k">t</span><span class="k">w</span></td><td class="desc">toggle watch</td></tr>
+    </table>
+    <p class="note">Adapter is auto-picked by filetype: <code>*_spec.rb</code> → rspec, <code>*.test.ts</code> → vitest, <code>*.test.js</code> → jest.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="nav">Movement &amp; Flash <span class="accent">/ jump anywhere</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Within line / file</h3>
+    <table>
+      <tr><td class="key"><span class="k">w</span> / <span class="k">b</span></td><td class="desc">next / prev word start</td></tr>
+      <tr><td class="key"><span class="k">e</span> / <span class="k">ge</span></td><td class="desc">next / prev word end</td></tr>
+      <tr><td class="key"><span class="k">0</span> / <span class="k">^</span> / <span class="k">$</span></td><td class="desc">line start / first non-blank / end</td></tr>
+      <tr><td class="key"><span class="k">f</span><i>x</i> / <span class="k">F</span><i>x</i></td><td class="desc">forward / back to char <i>x</i></td></tr>
+      <tr><td class="key"><span class="k">t</span><i>x</i> / <span class="k">T</span><i>x</i></td><td class="desc">till char <i>x</i></td></tr>
+      <tr><td class="key"><span class="k">;</span> / <span class="k">,</span></td><td class="desc">repeat <code>f/t</code> forward / back</td></tr>
+      <tr><td class="key"><span class="k">gg</span> / <span class="k">G</span></td><td class="desc">top / bottom of file</td></tr>
+      <tr><td class="key"><span class="k">{</span> / <span class="k">}</span></td><td class="desc">prev / next paragraph</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-d</span> / <span class="k">Ctrl-u</span></td><td class="desc">half page down / up</td></tr>
+      <tr><td class="key"><span class="k">zz</span> / <span class="k">zt</span> / <span class="k">zb</span></td><td class="desc">center / top / bottom cursor</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Flash (jump labels)</h3>
+    <table>
+      <tr><td class="key"><span class="k">s</span></td><td class="desc">Flash jump (type 2 chars, then label)</td></tr>
+      <tr><td class="key"><span class="k">S</span></td><td class="desc">Flash treesitter</td></tr>
+      <tr><td class="key"><span class="k">r</span> <span class="muted">(op-pending)</span></td><td class="desc">Flash remote (operate at distance)</td></tr>
+      <tr><td class="key"><span class="k">R</span> <span class="muted">(op-pending/visual)</span></td><td class="desc">Flash treesitter search</td></tr>
+    </table>
+    <p class="note">In normal mode, <span class="k">s</span> is overridden by Flash. Use <code>cl</code> instead of substitute-char.</p>
+  </div>
+
+  <div class="card">
+    <h3>Jumps &amp; tags</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-o</span> / <span class="k">Ctrl-i</span></td><td class="desc">jump back / forward</td></tr>
+      <tr><td class="key"><span class="k">''</span> / <span class="k">``</span></td><td class="desc">last jump position</td></tr>
+      <tr><td class="key"><code>:jumps</code></td><td class="desc">jump list</td></tr>
+      <tr><td class="key"><code>:changes</code></td><td class="desc">change list</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="text">Text objects <span class="accent">/ <code>v</code>/<code>d</code>/<code>c</code>/<code>y</code> + object</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Built-in &amp; mini.ai</h3>
+    <table>
+      <tr><td class="key"><span class="k">i</span><span class="k">w</span> / <span class="k">a</span><span class="k">w</span></td><td class="desc">inner / a word</td></tr>
+      <tr><td class="key"><span class="k">i</span><span class="k">s</span> / <span class="k">a</span><span class="k">s</span></td><td class="desc">inner / a sentence</td></tr>
+      <tr><td class="key"><span class="k">i</span><span class="k">p</span> / <span class="k">a</span><span class="k">p</span></td><td class="desc">inner / a paragraph</td></tr>
+      <tr><td class="key"><span class="k">i</span><span class="k">"</span> / <span class="k">a</span><span class="k">"</span></td><td class="desc">inside / around quotes (also <code>'</code>, <code>`</code>)</td></tr>
+      <tr><td class="key"><span class="k">i</span><span class="k">(</span> / <span class="k">a</span><span class="k">(</span></td><td class="desc">inside / around parens (also <code>{}</code>, <code>[]</code>, <code>&lt;&gt;</code>)</td></tr>
+      <tr><td class="key"><span class="k">i</span><span class="k">t</span> / <span class="k">a</span><span class="k">t</span></td><td class="desc">inside / around HTML tag</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Treesitter text objects</h3>
+    <table>
+      <tr><td class="key"><span class="k">a</span><span class="k">f</span> / <span class="k">i</span><span class="k">f</span></td><td class="desc">a / inner function</td></tr>
+      <tr><td class="key"><span class="k">a</span><span class="k">c</span> / <span class="k">i</span><span class="k">c</span></td><td class="desc">a / inner class</td></tr>
+      <tr><td class="key"><span class="k">]</span><span class="k">f</span> / <span class="k">[</span><span class="k">f</span></td><td class="desc">next / prev function</td></tr>
+      <tr><td class="key"><span class="k">]</span><span class="k">c</span> / <span class="k">[</span><span class="k">c</span></td><td class="desc">next / prev class</td></tr>
+    </table>
+    <p class="note">Examples: <code>vaf</code> selects a function, <code>cif</code> changes its body, <code>daf</code> deletes the function.</p>
+  </div>
+
+  <div class="card">
+    <h3>Examples</h3>
+    <table>
+      <tr><td class="key"><code>ci"</code></td><td class="desc">change inside quotes</td></tr>
+      <tr><td class="key"><code>da{</code></td><td class="desc">delete a brace block</td></tr>
+      <tr><td class="key"><code>yi(</code></td><td class="desc">yank inside parens</td></tr>
+      <tr><td class="key"><code>vap</code></td><td class="desc">visual-select a paragraph</td></tr>
+      <tr><td class="key"><code>gcip</code></td><td class="desc">comment-toggle a paragraph (Comment / ts-comments)</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="mason">Mason / Lazy <span class="accent">/ managing plugins &amp; LSPs</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Lazy commands</h3>
+    <table>
+      <tr><td class="key"><code>:Lazy</code></td><td class="desc">open Lazy UI</td></tr>
+      <tr><td class="key"><code>:Lazy sync</code></td><td class="desc">install + update + clean</td></tr>
+      <tr><td class="key"><code>:Lazy update</code></td><td class="desc">update plugins</td></tr>
+      <tr><td class="key"><code>:Lazy restore</code></td><td class="desc">match <code>lazy-lock.json</code></td></tr>
+      <tr><td class="key"><code>:Lazy profile</code></td><td class="desc">startup profiling</td></tr>
+    </table>
+    <p class="note">Update workflow: <code>:Lazy update</code> → test → if good, commit the new <code>lazy-lock.json</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Mason commands</h3>
+    <table>
+      <tr><td class="key"><code>:Mason</code></td><td class="desc">open Mason UI</td></tr>
+      <tr><td class="key"><code>:MasonInstall &lt;pkg&gt;</code></td><td class="desc">install package</td></tr>
+      <tr><td class="key"><code>:MasonUpdate</code></td><td class="desc">update registry</td></tr>
+      <tr><td class="key"><code>:MasonLock</code></td><td class="desc">snapshot current versions → <code>mason-lock.json</code></td></tr>
+      <tr><td class="key"><code>:MasonLockUpdate</code></td><td class="desc">upgrade to latest then snapshot</td></tr>
+      <tr><td class="key"><code>:MasonLockRestore</code></td><td class="desc">install pinned versions</td></tr>
+    </table>
+    <p class="note">On a new machine: <code>nvim --headless "+MasonLockRestore" +qa</code> to bootstrap LSPs.</p>
+  </div>
+
+  <div class="card">
+    <h3>LazyVim extras &amp; news</h3>
+    <table>
+      <tr><td class="key"><code>:LazyExtras</code></td><td class="desc">browse / toggle extras (langs, etc.)</td></tr>
+      <tr><td class="key"><code>:LazyHealth</code></td><td class="desc">LazyVim-specific health check</td></tr>
+      <tr><td class="key"><code>:Tutor</code></td><td class="desc"><span class="muted">disabled here</span></td></tr>
+      <tr><td class="key"><code>:checkhealth</code></td><td class="desc">run all health checks</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="options">Editor options <span class="accent">/ what's set in <code>options.lua</code></span></h2>
+
+<pre><span class="c">-- UI</span>
+<span class="cmd">number</span>           <span class="arg">true</span>          <span class="c">-- absolute line numbers</span>
+<span class="cmd">relativenumber</span>   <span class="arg">true</span>          <span class="c">-- relative line numbers (hybrid)</span>
+<span class="cmd">cursorline</span>       <span class="arg">true</span>
+<span class="cmd">belloff</span>          <span class="arg">all</span>           <span class="c">-- bells silenced (matches dotfiles)</span>
+
+<span class="c">-- Search</span>
+<span class="cmd">ignorecase</span>       <span class="arg">true</span>
+<span class="cmd">smartcase</span>        <span class="arg">true</span>          <span class="c">-- mixed-case = case-sensitive</span>
+
+<span class="c">-- Indent — 2 spaces, expandtab</span>
+<span class="cmd">expandtab</span>        <span class="arg">true</span>
+<span class="cmd">tabstop</span>          <span class="arg">2</span>
+<span class="cmd">shiftwidth</span>       <span class="arg">2</span>
+<span class="cmd">softtabstop</span>      <span class="arg">2</span>
+
+<span class="c">-- Editing</span>
+<span class="cmd">scrolloff</span>        <span class="arg">4</span>             <span class="c">-- keep 4 lines above/below cursor</span>
+<span class="cmd">sidescrolloff</span>    <span class="arg">8</span>
+<span class="cmd">splitright</span>       <span class="arg">true</span>          <span class="c">-- :vsplit goes right</span>
+<span class="cmd">splitbelow</span>       <span class="arg">true</span>          <span class="c">-- :split goes below</span>
+<span class="cmd">mouse</span>            <span class="arg">a</span>
+<span class="cmd">clipboard</span>        <span class="arg">unnamed</span>       <span class="c">-- y/p use the system clipboard</span>
+<span class="cmd">undofile</span>         <span class="arg">true</span>          <span class="c">-- persistent undo across restarts</span>
+
+<span class="c">-- Color</span>
+<span class="cmd">termguicolors</span>    <span class="arg">true</span>
+<span class="cmd">background</span>       <span class="arg">dark</span>          <span class="c">-- Solarized Dark</span></pre>
+
+<h3>Removed defaults</h3>
+<ul class="compact">
+  <li><code>&lt;A-j&gt;</code>, <code>&lt;A-k&gt;</code> (move-line) — Alt is reserved for Polish diacritics.</li>
+  <li><code>gzip</code>, <code>tarPlugin</code>, <code>tohtml</code>, <code>tutor</code>, <code>zipPlugin</code> are disabled in <code>lazy.lua</code>.</li>
+</ul>
+
+<footer>
+  Built from <code>~/.config/nvim/</code> on 2026-04-28. Refresh after meaningful config changes.
+  <br>
+  Cheat-skill: when in doubt, press <span class="k leader">␣</span> and read which-key.
+</footer>
+
+</body>
+</html>

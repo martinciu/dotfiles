@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>tmux — Getting Started &amp; Cheatsheet</title>
+<style>
+  :root {
+    --base03:  #002b36; --base02: #073642; --base01: #586e75; --base00: #657b83;
+    --base0:   #839496; --base1:  #93a1a1; --base2:  #eee8d5; --base3:  #fdf6e3;
+    --yellow:  #b58900; --orange: #cb4b16; --red:    #dc322f; --magenta: #d33682;
+    --violet:  #6c71c4; --blue:   #268bd2; --cyan:   #2aa198; --green:  #859900;
+    --mono: "JetBrainsMono Nerd Font", "JetBrainsMono", "Menlo", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--base03); color: var(--base1); font-family: var(--sans);
+    line-height: 1.55; font-size: 14.5px; padding: 2.2rem clamp(1rem, 4vw, 3rem) 4rem; }
+  header { border-bottom: 1px solid var(--base02); padding-bottom: 1.2rem; margin-bottom: 1.6rem; }
+  header h1 { margin: 0 0 .35rem; font-size: 1.8rem; color: var(--base3); font-weight: 600; letter-spacing: -.01em; }
+  header .sub { color: var(--base0); font-size: .95rem; }
+  header .sub code { color: var(--cyan); }
+  nav.toc { margin: 1rem 0 1.6rem; padding: .65rem .9rem; background: var(--base02); border-radius: 6px; font-size: .9rem; color: var(--base0); }
+  nav.toc a { color: var(--blue); text-decoration: none; margin-right: 1.1rem; white-space: nowrap; }
+  nav.toc a:hover { color: var(--cyan); text-decoration: underline; }
+  h2 { color: var(--base2); border-left: 3px solid var(--blue); padding-left: .6rem; margin: 2.2rem 0 .9rem; font-size: 1.25rem; font-weight: 600; }
+  h2 .accent { color: var(--blue); font-weight: 400; font-size: .85em; margin-left: .4rem; }
+  h3 { color: var(--base2); margin: 1.4rem 0 .55rem; font-size: 1.02rem; font-weight: 600; }
+  p { margin: .55rem 0; }
+  code, kbd, .k { font-family: var(--mono); font-size: .88em; }
+  code { background: var(--base02); color: var(--cyan); padding: .08em .35em; border-radius: 3px; }
+  kbd, .k { display: inline-block; background: var(--base02); color: var(--yellow); border: 1px solid #0a4655;
+    border-bottom-width: 2px; border-radius: 4px; padding: .05em .42em; font-size: .82em; line-height: 1.4; white-space: nowrap; }
+  .k.prefix { color: var(--magenta); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1rem; }
+  .card { background: var(--base02); border: 1px solid #0a4655; border-radius: 8px; padding: .9rem 1rem 1rem; }
+  .card h3 { margin-top: 0; color: var(--base2); border-bottom: 1px dashed #0a4655; padding-bottom: .35rem; }
+  .card h3 .pill { background: var(--base03); color: var(--blue); font-size: .68em; font-weight: 500;
+    padding: .15em .5em; border-radius: 3px; margin-left: .5em; vertical-align: middle; letter-spacing: .03em; }
+  table { width: 100%; border-collapse: collapse; margin: .25rem 0; }
+  td { padding: .25rem .35rem; vertical-align: top; border-bottom: 1px solid #073642; }
+  tr:last-child td { border-bottom: 0; }
+  td.key { width: 38%; white-space: nowrap; }
+  td.desc { color: var(--base1); }
+  .muted { color: var(--base0); }
+  .note { color: var(--base0); font-size: .88em; font-style: italic; }
+  .warn { color: var(--orange); }
+  ul.compact { margin: .35rem 0 .25rem; padding-left: 1.2rem; }
+  ul.compact li { margin: .15rem 0; }
+  pre { background: var(--base02); border: 1px solid #0a4655; border-radius: 6px; padding: .7rem .9rem;
+    overflow-x: auto; color: var(--base1); font-family: var(--mono); font-size: .85em; line-height: 1.5; }
+  pre .c   { color: var(--base01); font-style: italic; }
+  pre .cmd { color: var(--green); }
+  pre .arg { color: var(--yellow); }
+  pre .kw  { color: var(--blue); }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--base02); color: var(--base01); font-size: .85em; }
+  .swatch-row { display: flex; flex-wrap: wrap; gap: .35rem .55rem; margin: .4rem 0 .25rem; }
+  .swatch { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .4rem; background: var(--base03);
+    border-radius: 3px; font-family: var(--mono); font-size: .78em; color: var(--base1); border: 1px solid #0a4655; }
+  .swatch i { width: .85em; height: .85em; border-radius: 2px; display: inline-block; }
+  @media print {
+    body { background: white; color: #222; padding: 1rem; font-size: 11px; }
+    .card { background: #fafafa; border-color: #ccc; break-inside: avoid; }
+    h2 { color: #111; border-color: #888; } h3, header h1 { color: #111; }
+    kbd, .k { background: #eee; color: #b58900; border-color: #bbb; }
+    code { background: #f3f3f3; color: #2aa198; }
+    nav.toc { display: none; } a { color: #268bd2 !important; }
+    pre { background: #f6f6f6; color: #222; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>tmux — Getting Started &amp; Cheatsheet</h1>
+  <div class="sub">
+    Prefix = <code>C-a</code> &middot; Solarized hand-rolled status bar &middot; vim-style pane nav
+    &middot; Polish keyboard: <span class="warn">no Alt-bindings</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong style="color:var(--base2)">Jump:</strong>
+  <a href="#start">Getting started</a>
+  <a href="#sessions">Sessions</a>
+  <a href="#windows">Windows</a>
+  <a href="#panes">Panes</a>
+  <a href="#splits">Splits</a>
+  <a href="#copy">Copy / scroll</a>
+  <a href="#status">Status bar</a>
+  <a href="#cli">CLI commands</a>
+  <a href="#config">Config</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="start">Getting started <span class="accent">/ what's set</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>At a glance</h3>
+    <table>
+      <tr><td class="key">Prefix</td><td class="desc"><span class="k prefix">C-a</span> (screen-style)</td></tr>
+      <tr><td class="key">Why not <code>C-Space</code></td><td class="desc">conflicts with macOS input-source switching</td></tr>
+      <tr><td class="key">Pane nav</td><td class="desc"><span class="k prefix">C-a</span> + <span class="k">h/j/k/l</span></td></tr>
+      <tr><td class="key">Splits</td><td class="desc"><span class="k prefix">C-a</span> + <span class="k">|</span> / <span class="k">-</span> (cwd inherited)</td></tr>
+      <tr><td class="key">Indexing</td><td class="desc">windows + panes start at <code>1</code>, auto-renumber</td></tr>
+      <tr><td class="key">Mouse</td><td class="desc">on (URLs need <span class="k">⇧⌘ click</span>)</td></tr>
+      <tr><td class="key">History</td><td class="desc">50,000 lines</td></tr>
+      <tr><td class="key">Bells</td><td class="desc">silenced (<code>bell-action/visual-bell/monitor-bell off</code>)</td></tr>
+      <tr><td class="key">TPM plugins</td><td class="desc">tpm + tmux-sensible only (raw-tmux trial)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Open / quit</h3>
+    <table>
+      <tr><td class="key"><code>tmux</code></td><td class="desc">start a new session</td></tr>
+      <tr><td class="key"><code>tmux new -s &lt;name&gt;</code></td><td class="desc">named session</td></tr>
+      <tr><td class="key"><code>tmux a</code> / <code>tmux a -t &lt;name&gt;</code></td><td class="desc">attach to last / named session</td></tr>
+      <tr><td class="key"><code>tmux ls</code></td><td class="desc">list sessions</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach (session keeps running)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">r</span></td><td class="desc">reload <code>~/.config/tmux/tmux.conf</code></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / zoxide / tmuxinator)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">?</span></td><td class="desc">list all keybindings</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">:</span></td><td class="desc">command prompt</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>House rules (per CLAUDE.md)</h3>
+    <ul class="compact">
+      <li><strong>Hand-rolled status bar.</strong> No catppuccin/powerline plugins.</li>
+      <li><strong>Prefix is <code>C-a</code></strong>, not <code>C-Space</code>.</li>
+      <li><strong>No <code>bind -n M-*</code></strong> — Alt is reserved for Polish diacritics.</li>
+      <li><strong>Windows auto-rename</strong> from the active pane's last typed command (zsh <code>preexec</code> sets <code>@last_cmd</code>). <code>allow-rename off</code> stays so OSC titles can't override.</li>
+      <li><strong>Worktree status segment</strong> uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code>. Don't replace with <code>git worktree list</code> parsing.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="sessions">Sessions <span class="accent">/ persistent workspaces</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>From inside tmux</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">s</span></td><td class="desc">session picker (tree)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">$</span></td><td class="desc">rename current session</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">(</span> / <span class="k">)</span></td><td class="desc">prev / next session</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">L</span></td><td class="desc">switch to last session</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>From the shell</h3>
+    <table>
+      <tr><td class="key"><code>tmux new -s work</code></td><td class="desc">create "work"</td></tr>
+      <tr><td class="key"><code>tmux a -t work</code></td><td class="desc">attach to "work"</td></tr>
+      <tr><td class="key"><code>tmux kill-session -t work</code></td><td class="desc">kill "work"</td></tr>
+      <tr><td class="key"><code>tmux kill-server</code></td><td class="desc">kill all sessions</td></tr>
+    </table>
+    <p class="note">tmux-resurrect / continuum are currently disabled (raw-tmux trial — see <code>tmux.conf</code>).</p>
+  </div>
+
+  <div class="card">
+    <h3>Sesh picker <span class="pill">prefix t</span></h3>
+    <p>
+      <span class="k prefix">C-a</span><span class="k">t</span> opens a popup running
+      <code>sesh picker -i -d -H</code> — full vanilla, all sources (configured / tmux /
+      zoxide / tmuxinator). The shared config lives at
+      <code>.config/sesh/sesh.toml</code> with an <code>import</code> directive pulling
+      machine-local sessions from <code>~/.config/sesh/sesh.local.toml</code> (untracked,
+      copied from a template by <code>bootstrap.sh</code>).
+    </p>
+    <p class="note">
+      <code>_ZO_EXCLUDE_DIRS</code> blocks <code>~/</code>, <code>~/Downloads/*</code>,
+      <code>~/.config/*</code>, <code>~/Library/*</code> from zoxide indexing — keeps the
+      picker focused on real projects under <code>$PROJECTS_HOME</code>. Don't re-introduce
+      a custom fzf wrapper script.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="windows">Windows <span class="accent">/ tabs in a session</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Manage</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">c</span></td><td class="desc">create window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">,</span></td><td class="desc">rename window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&amp;</span></td><td class="desc">kill window (confirm)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">w</span></td><td class="desc">window picker (tree)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">.</span></td><td class="desc">move window (renumber)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Switch</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">n</span> / <span class="k">p</span></td><td class="desc">next / prev window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">1</span>…<span class="k">9</span></td><td class="desc">window 1–9 by number</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">l</span></td><td class="desc">last window <span class="muted">(but <code>l</code> is also pane-right here — see "Quirks")</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">f</span></td><td class="desc">find by name (search)</td></tr>
+    </table>
+    <p class="note"><strong>Quirk:</strong> we rebind <span class="k prefix">C-a</span><span class="k">l</span> to <em>pane-right</em> (vim style). To go to the previous window, use <span class="k prefix">C-a</span><span class="k">n</span>/<span class="k">p</span> or the picker.</p>
+  </div>
+
+  <div class="card">
+    <h3>Auto-rename (custom)</h3>
+    <p>Window name follows the active pane's <strong>last typed command</strong>, set by zsh <code>preexec</code> via <code>@last_cmd</code>. Env-var assignments are stripped first; the first two whitespace-separated tokens are used.</p>
+    <ul class="compact">
+      <li><code>vim foo.rb</code> → window name: <code>vim foo.rb</code></li>
+      <li><code>FOO=bar bundle exec rspec</code> → <code>bundle exec</code></li>
+      <li>Idle pane / non-zsh shell → falls back to <code>pane_current_command</code> (usually <code>zsh</code>)</li>
+    </ul>
+    <p class="note"><code>allow-rename off</code> stays — OSC titles from apps (e.g. Claude Code) cannot override.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="panes">Panes <span class="accent">/ splits inside a window</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Move &amp; close</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">h</span> / <span class="k">j</span> / <span class="k">k</span> / <span class="k">l</span></td><td class="desc">left / down / up / right</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">o</span></td><td class="desc">cycle to next pane</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">;</span></td><td class="desc">last (most-recent) pane</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">x</span></td><td class="desc">kill pane (confirm)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">q</span></td><td class="desc">show pane numbers (then number to jump)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">z</span></td><td class="desc">zoom toggle (full-screen pane)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">!</span></td><td class="desc">break pane → its own window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">{</span> / <span class="k">}</span></td><td class="desc">swap pane left / right in layout</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Resize / layout</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">H</span> / <span class="k">J</span> / <span class="k">K</span> / <span class="k">L</span></td><td class="desc">resize 5 cells (when bound by tmux-sensible)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">Space</span></td><td class="desc">cycle preset layouts</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">M-1</span> … <span class="k">M-5</span></td><td class="desc">specific layouts <span class="warn">(M = Alt; avoid here)</span></td></tr>
+      <tr><td class="key"><code>:resize-pane -D 5</code></td><td class="desc">resize from prompt (D/U/L/R)</td></tr>
+      <tr><td class="key"><code>:select-layout main-vertical</code></td><td class="desc">force a layout by name</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="splits">Splits <span class="accent">/ keep cwd, mirror Ghostty</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Create</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">|</span></td><td class="desc">vertical split (right) — keeps cwd</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">-</span></td><td class="desc">horizontal split (below) — keeps cwd</td></tr>
+    </table>
+    <p class="note">Defaults <span class="k">"</span> and <span class="k">%</span> are unbound — use <span class="k">|</span>/<span class="k">-</span>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="copy">Copy mode &amp; scrollback <span class="accent">/ vi-style</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Enter / exit</h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">[</span></td><td class="desc">enter copy mode</td></tr>
+      <tr><td class="key"><span class="k">q</span> / <span class="k">Esc</span></td><td class="desc">exit copy mode</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">]</span></td><td class="desc">paste tmux buffer</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">=</span></td><td class="desc">choose buffer to paste</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Inside copy mode</h3>
+    <table>
+      <tr><td class="key"><span class="k">h</span> <span class="k">j</span> <span class="k">k</span> <span class="k">l</span></td><td class="desc">move cursor</td></tr>
+      <tr><td class="key"><span class="k">w</span> / <span class="k">b</span></td><td class="desc">word forward / back</td></tr>
+      <tr><td class="key"><span class="k">0</span> / <span class="k">$</span></td><td class="desc">line start / end</td></tr>
+      <tr><td class="key"><span class="k">g</span> / <span class="k">G</span></td><td class="desc">top / bottom</td></tr>
+      <tr><td class="key"><span class="k">/</span> / <span class="k">?</span></td><td class="desc">search forward / back</td></tr>
+      <tr><td class="key"><span class="k">n</span> / <span class="k">N</span></td><td class="desc">next / prev match</td></tr>
+      <tr><td class="key"><span class="k">Space</span></td><td class="desc">begin selection</td></tr>
+      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">copy selection (to tmux buffer)</td></tr>
+      <tr><td class="key"><span class="k">v</span> / <span class="k">V</span></td><td class="desc">char / line selection (vi-mode)</td></tr>
+    </table>
+    <p class="note">Mouse drag also selects. macOS clipboard is wired through tmux's default OSC 52 path; if your terminal supports it (Ghostty does) <span class="k">Enter</span> reaches the system clipboard.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="status">Status bar <span class="accent">/ hand-rolled Solarized</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Layout</h3>
+    <p>Bottom bar, <code>bg=base02</code> / <code>fg=base0</code>. Three segments:</p>
+    <ul class="compact">
+      <li><strong>Left:</strong> session name on a blue chip with a powerline arrow.</li>
+      <li><strong>Center:</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>yellow</code>-on-<code>base02</code> chip.</li>
+      <li><strong>Right:</strong> project name (violet chip) → git/worktree status from <code>tmux-git-status</code>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Solarized palette in use</h3>
+    <div class="swatch-row">
+      <span class="swatch"><i style="background:#002b36"></i> base03</span>
+      <span class="swatch"><i style="background:#073642"></i> base02</span>
+      <span class="swatch"><i style="background:#586e75"></i> base01</span>
+      <span class="swatch"><i style="background:#839496"></i> base0</span>
+      <span class="swatch"><i style="background:#eee8d5"></i> base2</span>
+      <span class="swatch"><i style="background:#fdf6e3"></i> base3</span>
+    </div>
+    <div class="swatch-row">
+      <span class="swatch"><i style="background:#268bd2"></i> blue (session)</span>
+      <span class="swatch"><i style="background:#b58900"></i> yellow (active win)</span>
+      <span class="swatch"><i style="background:#6c71c4"></i> violet (project)</span>
+      <span class="swatch"><i style="background:#2aa198"></i> cyan (selection)</span>
+      <span class="swatch"><i style="background:#dc322f"></i> red</span>
+    </div>
+    <p class="note">Selection / message style uses cyan-on-base03; pane border switches base01 → blue when active.</p>
+  </div>
+
+  <div class="card">
+    <h3>Status helpers</h3>
+    <table>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-project-name</code></td><td class="desc">prints the project label for the right side</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
+      <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
+    </table>
+    <p class="note">Worktree detection uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code> so it works for <code>.claude/worktrees/*</code>, worktrunk paths, and sibling worktrees alike.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="cli">Useful command-prompt commands <span class="accent">/ <span class="k prefix">C-a</span> <span class="k">:</span></span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Common</h3>
+    <table>
+      <tr><td class="key"><code>:new-window -c "#{pane_current_path}"</code></td><td class="desc">new window in same dir</td></tr>
+      <tr><td class="key"><code>:swap-window -t :+1</code></td><td class="desc">move window right</td></tr>
+      <tr><td class="key"><code>:movew -r</code></td><td class="desc">renumber windows now</td></tr>
+      <tr><td class="key"><code>:setw synchronize-panes</code></td><td class="desc">type to all panes (toggle)</td></tr>
+      <tr><td class="key"><code>:clear-history</code></td><td class="desc">clear scrollback</td></tr>
+      <tr><td class="key"><code>:source-file ~/.config/tmux/tmux.conf</code></td><td class="desc">reload (also <span class="k prefix">C-a</span><span class="k">r</span>)</td></tr>
+      <tr><td class="key"><code>:show -g | grep …</code></td><td class="desc">inspect global options</td></tr>
+      <tr><td class="key"><code>:list-keys</code></td><td class="desc">all bindings</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Tmux from outside</h3>
+    <table>
+      <tr><td class="key"><code>tmux send-keys -t mywin "ls" Enter</code></td><td class="desc">type into a target pane</td></tr>
+      <tr><td class="key"><code>tmux display-message -p '#S'</code></td><td class="desc">print current session name</td></tr>
+      <tr><td class="key"><code>tmux info | grep …</code></td><td class="desc">debug runtime state</td></tr>
+      <tr><td class="key"><code>tmux show -p @last_cmd</code></td><td class="desc">read this pane's last command</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="config">Config notes <span class="accent">/ <code>~/.config/tmux/tmux.conf</code></span></h2>
+
+<pre><span class="c"># Prefix</span>
+<span class="kw">set</span> -g <span class="cmd">prefix</span> <span class="arg">C-a</span>            <span class="c"># C-Space conflicts with macOS input-source switching</span>
+
+<span class="c"># Terminal — truecolor</span>
+<span class="kw">set</span> -as <span class="cmd">terminal-features</span> <span class="arg">",xterm-ghostty:RGB"</span>
+<span class="kw">set</span> -as <span class="cmd">terminal-features</span> <span class="arg">",xterm-256color:RGB"</span>
+
+<span class="c"># Sane defaults</span>
+<span class="kw">set</span> -g <span class="cmd">mouse</span> <span class="arg">on</span>
+<span class="kw">set</span> -g <span class="cmd">base-index</span> <span class="arg">1</span>
+<span class="kw">set</span> -g <span class="cmd">renumber-windows</span> <span class="arg">on</span>
+<span class="kw">set</span> -g <span class="cmd">history-limit</span> <span class="arg">50000</span>
+<span class="kw">set</span> -g <span class="cmd">escape-time</span> <span class="arg">10</span>          <span class="c"># vim-friendly</span>
+<span class="kw">set</span> -g <span class="cmd">focus-events</span> <span class="arg">on</span>
+
+<span class="c"># Bells silenced everywhere</span>
+<span class="kw">set</span> -g <span class="cmd">bell-action</span>  <span class="arg">none</span>
+<span class="kw">set</span> -g <span class="cmd">visual-bell</span>  <span class="arg">off</span>
+<span class="kw">set</span> -g <span class="cmd">monitor-bell</span> <span class="arg">off</span>
+
+<span class="c"># Window naming follows active pane via @last_cmd (set in zsh preexec)</span>
+<span class="kw">set</span> -g <span class="cmd">allow-rename</span> <span class="arg">off</span>
+<span class="kw">set</span> -g <span class="cmd">automatic-rename</span> <span class="arg">on</span>
+<span class="kw">set</span> -g <span class="cmd">automatic-rename-format</span> '#{?#{==:#{@last_cmd},},#{pane_current_command},#{@last_cmd}}'</pre>
+
+<h3>Reload &amp; verify</h3>
+<table style="max-width:780px">
+  <tr><td class="key"><span class="k prefix">C-a</span><span class="k">r</span></td><td class="desc">reload config inside running tmux</td></tr>
+  <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for status helpers</td></tr>
+  <tr><td class="key"><code>scripts/test-tmux-window-label.zsh</code></td><td class="desc">window-label extraction tests (mirror of <code>_tmux_window_label</code> in <code>.zshrc</code>)</td></tr>
+</table>
+
+<footer>
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-28. Refresh after meaningful config changes.
+  <br>
+  When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
+</footer>
+
+</body>
+</html>
