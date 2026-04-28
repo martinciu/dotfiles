@@ -42,6 +42,12 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
+# --- sesh (machine-local config; report-only, like .zshrc.local)
+if [ ! -f "$HOME/.config/sesh/sesh.toml" ]; then
+  mkdir -p "$HOME/.config/sesh"
+  echo "TODO:   cp $DOTFILES/.config/sesh/sesh.toml.template ~/.config/sesh/sesh.toml && \$EDITOR ~/.config/sesh/sesh.toml"
+fi
+
 # --- nvim
 link ".config/nvim"    "$HOME/.config/nvim"
 
