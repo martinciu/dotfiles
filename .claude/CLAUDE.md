@@ -2,17 +2,17 @@
 
 ## Git and GitHub
 
-Never add cloude code as git commit co-author!
-When pushing branch to remote remove "worktree-" prefix from the branch name on remote.
+- Never add Claude Code as a git commit co-author.
+- When pushing a branch to remote, strip the `worktree-` prefix from the
+  branch name. Why: local worktree branches are namespaced with `worktree-`
+  for the worktrunk/`EnterWorktree` workflow, but the remote should see the
+  clean feature-branch name.
 
-## Superpowers
+## Planning artifacts (Superpowers, Compound Engineering, etc.)
 
-  Superpowers specs and plans must be saved to `tmp/` (e.g. `tmp/specs/` and `tmp/plans/`).
-  Never write to `docs/superpowers/` — skills default to that path but it is wrong here.
-  Never commit superpowers documents.
-  Worktree directory: `.claude/worktrees/` (project-local, under `.claude/`).
-
-## Compound Engineering
-
-Design docs and specs are stored in `tmp/`.
+- All specs, plans, and design docs go in `tmp/` (e.g. `tmp/specs/`,
+  `tmp/plans/`). `tmp/` is gitignored — these are never committed.
+- Never write to `docs/superpowers/`. Superpowers skills default to that
+  path, but it is wrong here.
+- Worktree directory: `.claude/worktrees/` (project-local; gitignored).
 
