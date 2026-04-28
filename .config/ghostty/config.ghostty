@@ -81,6 +81,8 @@ keybind = cmd+alt+down=goto_split:down
 
 alpha-blending = native
 macos-window-shadow = true
-bell-features = system
+# All bell channels disabled (audio/system/border/attention/title).
+# Empty value is explicit: keeps intent visible if Ghostty defaults change.
+bell-features =
 
 
