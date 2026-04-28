@@ -8,9 +8,9 @@
         "backgroundColor": "bgBrightMagenta"
       },
       {
-        "id": "78ae8085-cfdc-4cbf-ac4e-f40547408f77",
-        "type": "context-percentage-usable",
-        "backgroundColor": "bgBlue"
+        "id": "a83ffe56-6074-4e7d-826b-e4f89c4904f7",
+        "type": "context-percentage",
+        "backgroundColor": "bgBrightWhite"
       },
       {
         "id": "41900a0a-d664-4970-a166-bf3ff25c9ee2",
