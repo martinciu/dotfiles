@@ -14,8 +14,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
   input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
-- **vim is intentionally minimal** (~30 lines, no plugin manager).
-  Don't add vim-plug, LSP, or fuzzy finders without an explicit ask.
+- **`vim` and `vimdiff` are zsh aliases to nvim**; **`vi` is a zsh alias
+  to the legacy minimal vim** (`alias vi='command vim'` — `command`
+  suppresses recursive alias expansion). All three are defined in
+  `.zshrc`, guarded on `command -v nvim`. The minimal vim config
+  (`.vimrc` ~30 lines, no plugin manager, `.vim/colors/solarized8.vim`)
+  is reachable via `vi`, `command vim`, or `\vim`. Don't add vim-plug,
+  LSP, or fuzzy finders to the minimal vim config without an explicit
+  ask.
 - **nvim is built on LazyVim**, themed Solarized, configured at
   `.config/nvim/`. Don't replace LazyVim with another distro or
   hand-roll a different plugin manager without an explicit ask.

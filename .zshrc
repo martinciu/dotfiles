@@ -153,6 +153,11 @@ fi
 if command -v glow >/dev/null 2>&1; then
   alias md='glow --style $HOME/.config/glow/glamour.json'
 fi
+if command -v nvim >/dev/null 2>&1; then
+  alias vim='nvim'
+  alias vi='command vim'
+  alias vimdiff='vim -d'
+fi
 
 # ─── Plugins (order matters; syntax-highlighting MUST be last) ─
 [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
