@@ -21,6 +21,10 @@ unsetopt LIST_BEEP   # ambiguous completion
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+# ─── Colors & appearance ────────────────────
+# LS_COLORS for eza (and GNU ls if present); BSD `\ls` keeps OMZ default LSCOLORS.
+command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate solarized-dark)"
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -95,3 +99,10 @@ precmd_functions=(_p9k_project_context ${precmd_functions:#_p9k_project_context}
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 [[ -f ~/.secrets ]] && source ~/.secrets
+
+# ─── Aliases (color-aware tools) ────────────
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --group-directories-first --icons'
+  alias ll='eza -lh --git --icons --group-directories-first'
+  alias la='ll -a'
+fi
