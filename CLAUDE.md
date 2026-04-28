@@ -36,6 +36,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `--git-common-dir` for detection (works for `.claude/worktrees/*`,
   worktrunk paths, sibling worktrees alike). Don't replace with
   `git worktree list` parsing.
+- **tmux window name follows the active pane's last typed command.**
+  zsh `preexec` hook (`_tmux_record_last_cmd` in `.zshrc`) sets a per-pane
+  `@last_cmd` user variable; `tmux.conf` enables `automatic-rename` with a
+  format that reads it. Env-var assignments are stripped, then the first
+  two whitespace-separated tokens are used. `allow-rename off` stays so
+  OSC titles from apps (e.g. Claude Code) cannot override. Don't replace
+  with `automatic-rename off` or wire app-specific renames without an
+  explicit ask. The label function `_tmux_window_label` in `.zshrc` is
+  duplicated in `scripts/test-tmux-window-label.zsh` — keep both copies
+  in sync.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
   `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
   `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
@@ -67,6 +77,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
+- Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`
