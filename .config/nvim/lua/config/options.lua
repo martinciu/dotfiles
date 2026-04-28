@@ -37,6 +37,7 @@ opt.splitbelow = true
 opt.mouse = "a"
 opt.clipboard = "unnamed"
 opt.hidden = true
+opt.spell = false
 
 -- Persistent files (nvim uses XDG state by default; explicit for clarity)
 opt.undofile = true
