@@ -64,6 +64,12 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `git config --global delta.navigate true`,
   `git config --global delta.line-numbers true`,
   `git config --global delta.syntax-theme "Solarized (dark)"`.
+- **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
+  `cat` alias). Files get bat's full decoration; piped input uses `--plain` so
+  `cmd | less` stays clean. `command less` reaches real `less` for `less +F`,
+  `-R`, etc. Don't replace with `alias less='bat …'` — the function exists so
+  stdin doesn't get bat's `STDIN` header. Don't set `$PAGER=bat` globally —
+  git/delta and other tools manage their own pager.
 
 ## Where things live
 
