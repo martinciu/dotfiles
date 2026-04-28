@@ -27,8 +27,8 @@ window-padding-color = extend
 window-colorspace = display-p3
 # Bold text uses the bright palette — more visual variety in ls/prompts/logs.
 bold-is-bright = true
-# Native macOS tab bar in the titlebar.
-macos-titlebar-style = tabs
+# Native macOS tab bar — auto-hides when only one tab is open.
+macos-titlebar-style = transparent
 # Restore tabs/splits on reopen.
 window-save-state = always
 mouse-hide-while-typing = true
