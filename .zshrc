@@ -13,6 +13,11 @@ plugins=(git nvm brew rbenv node)
 
 source "$ZSH/oh-my-zsh.sh"
 
+# ─── No bells ───────────────────────────────
+unsetopt BEEP        # shell errors
+unsetopt HIST_BEEP   # history expansion errors
+unsetopt LIST_BEEP   # ambiguous completion
+
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
