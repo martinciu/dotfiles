@@ -16,3 +16,6 @@
   path, but it is wrong here.
 - Worktree directory: `.claude/worktrees/` (project-local; gitignored).
 
+
+@~/.claude/CLAUDE.local.md
+
