@@ -39,6 +39,9 @@ link ".config/ccstatusline" "$HOME/.config/ccstatusline"
 # --- worktrunk
 link ".config/worktrunk" "$HOME/.config/worktrunk"
 
+# --- glow
+link ".config/glow"    "$HOME/.config/glow"
+
 # --- nvim
 link ".config/nvim"    "$HOME/.config/nvim"
 
