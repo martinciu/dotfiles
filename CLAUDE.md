@@ -22,6 +22,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `--git-common-dir` for detection (works for `.claude/worktrees/*`,
   worktrunk paths, sibling worktrees alike). Don't replace with
   `git worktree list` parsing.
+- **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
+  `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
+  `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
+  an explicit ask.
 
 ## Where things live
 
