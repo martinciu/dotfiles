@@ -1,5 +1,8 @@
 # Global Claude Instructions
 
+This file = cross-project rules every machine should follow (committed via the dotfiles repo).
+`~/.claude/CLAUDE.local.md` = personal/machine-local notes (untracked, imported below).
+
 ## Git and GitHub
 
 - Never add Claude Code as a git commit co-author.

@@ -58,12 +58,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, etc.) without
   asking. Plugin source order in `.zshrc` is fixed: zsh-autosuggestions →
   fzf → `bindkey -r '^[c'` (Alt-C unbind) → zsh-syntax-highlighting (must
-  be last). On a new machine, after `brew bundle`, run once:
-  `git config --global core.pager delta`,
-  `git config --global interactive.diffFilter "delta --color-only"`,
-  `git config --global delta.navigate true`,
-  `git config --global delta.line-numbers true`,
-  `git config --global delta.syntax-theme "Solarized (dark)"`.
+  be last). The first-time `git config` recipe wiring delta as git's pager
+  lives in **First-time setup on a new machine** below.
 - **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
   `cat` alias). Files get bat's full decoration; piped input uses `--plain` so
   `cmd | less` stays clean. `command less` reaches real `less` for `less +F`,
@@ -75,6 +71,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 - Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`)
 - Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
+- The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
@@ -87,6 +84,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`
+
+## First-time setup on a new machine
+
+After `brew bundle` and `bootstrap.sh`, run once to wire git → delta:
+
+```bash
+git config --global core.pager delta
+git config --global interactive.diffFilter "delta --color-only"
+git config --global delta.navigate true
+git config --global delta.line-numbers true
+git config --global delta.syntax-theme "Solarized (dark)"
+```
 
 ## Out of scope (future work, separate spec)
 
