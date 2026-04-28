@@ -9,6 +9,9 @@
 # LazyVim per-machine state (tracks read news + extras opt-ins)
 .config/nvim/lazyvim.json
 
+# worktrunk runtime state — per-project hook approvals are machine-local
+.config/worktrunk/approvals.toml
+
 # vim runtime files (real dirs in $HOME, not symlinks; never tracked)
 .vim/undo/*
 .vim/backup/*
