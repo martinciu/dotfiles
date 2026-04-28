@@ -1,6 +1,11 @@
 # tmux plugin clones (managed by TPM at runtime)
 .config/tmux/plugins/
 
+# nvim runtime state — installed under ~/.local/share/nvim/, never the repo
+.config/nvim/lazy/
+.config/nvim/mason/
+.config/nvim/site/
+
 # vim runtime files (real dirs in $HOME, not symlinks; never tracked)
 .vim/undo/*
 .vim/backup/*
