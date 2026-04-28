@@ -37,6 +37,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
   `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
   an explicit ask.
+- **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
+  `bat` (cat + `MANPAGER`), `git-delta` (git pager), `vivid` (`LS_COLORS`),
+  `zsh-syntax-highlighting`, `zsh-autosuggestions`. Palette pins:
+  `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
+  `delta.syntax-theme = "Solarized (dark)"`. Don't swap themes or
+  introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, etc.) without
+  asking. Plugin source order in `.zshrc` is fixed: zsh-autosuggestions →
+  fzf → `bindkey -r '^[c'` (Alt-C unbind) → zsh-syntax-highlighting (must
+  be last). On a new machine, after `brew bundle`, run once:
+  `git config --global core.pager delta`,
+  `git config --global interactive.diffFilter "delta --color-only"`,
+  `git config --global delta.navigate true`,
+  `git config --global delta.line-numbers true`,
+  `git config --global delta.syntax-theme "Solarized (dark)"`.
 
 ## Where things live
 
