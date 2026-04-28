@@ -29,6 +29,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   reproducibility across machines.
 - **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without
   asking.
+- **wt user config is symlinked from `.config/worktrunk/config.toml`.**
+  Per-project hook approvals (`approvals.toml`) are machine-local and
+  gitignored.
 - **Worktree status segment** uses `git rev-parse --git-dir` vs
   `--git-common-dir` for detection (works for `.claude/worktrees/*`,
   worktrunk paths, sibling worktrees alike). Don't replace with
@@ -40,8 +43,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}` (`.config/` includes `nvim/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh}` (`.config/` includes `nvim/`, `worktrunk/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
