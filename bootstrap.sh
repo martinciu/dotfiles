@@ -3,7 +3,7 @@
 # Re-running is safe: every step checks "already done" and skips.
 set -euo pipefail
 
-DOTFILES="$PROJECTS_HOME/dotfiles"
+DOTFILES="${DOTFILES:-$PROJECTS_HOME/dotfiles}"
 
 # link <source-relative-to-DOTFILES> <target-absolute>
 link() {
