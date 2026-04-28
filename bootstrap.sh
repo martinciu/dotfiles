@@ -36,6 +36,9 @@ link ".config/tmux"    "$HOME/.config/tmux"
 # --- ccstatusline
 link ".config/ccstatusline" "$HOME/.config/ccstatusline"
 
+# --- nvim
+link ".config/nvim"    "$HOME/.config/nvim"
+
 # --- vim
 link ".vimrc"          "$HOME/.vimrc"
 link ".vim/colors"     "$HOME/.vim/colors"
