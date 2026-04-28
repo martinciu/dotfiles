@@ -51,12 +51,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
   an explicit ask.
 - **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
-  `bat` (cat + `MANPAGER`), `git-delta` (git pager), `vivid` (`LS_COLORS`),
-  `zsh-syntax-highlighting`, `zsh-autosuggestions`. Palette pins:
+  `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
+  renderer), `vivid` (`LS_COLORS`), `zsh-syntax-highlighting`,
+  `zsh-autosuggestions`. Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
-  `delta.syntax-theme = "Solarized (dark)"`. Don't swap themes or
-  introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, etc.) without
-  asking. Plugin source order in `.zshrc` is fixed: zsh-autosuggestions →
+  `delta.syntax-theme = "Solarized (dark)"`,
+  `md` alias passes `--style .config/glow/glamour.json` (chroma
+  `solarized-dark` for fenced code blocks). Don't swap themes or
+  introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, etc.)
+  without asking. Plugin source order in `.zshrc` is fixed: zsh-autosuggestions →
   fzf → `bindkey -r '^[c'` (Alt-C unbind) → zsh-syntax-highlighting (must
   be last). The first-time `git config` recipe wiring delta as git's pager
   lives in **First-time setup on a new machine** below.
@@ -66,11 +69,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `-R`, etc. Don't replace with `alias less='bat …'` — the function exists so
   stdin doesn't get bat's `STDIN` header. Don't set `$PAGER=bat` globally —
   git/delta and other tools manage their own pager.
+- **`md` renders markdown via `glow`** with a pinned Solarized JSON style at
+  `.config/glow/glamour.json`. `bat`/`less`/`cat` still show source with syntax
+  highlighting; `md` shows rendered output. The alias passes `--style` directly
+  rather than relying on `glow.yml` because glow on macOS reads its yml from
+  `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to `mdcat`,
+  `frogmouth`, or another renderer without an explicit ask. (`mdcat` was
+  considered and ruled out: archived upstream as of 2025-01-10.)
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
