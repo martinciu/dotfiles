@@ -9,6 +9,7 @@ brew "tmux"
 brew "fzf"
 tap  "joshmedeski/sesh"
 brew "joshmedeski/sesh/sesh"
+brew "zoxide"  # frecency-ranked dir jumping; sesh picker source
 
 # Worktree manager
 brew "worktrunk"
