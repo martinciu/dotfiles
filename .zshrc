@@ -135,7 +135,16 @@ if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)
 [[ -f ~/.secrets ]] && source ~/.secrets
 
 # ─── Aliases (color-aware tools) ────────────
-command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat --paging=never'
+  less() {
+    if [[ -t 0 ]]; then
+      command bat --paging=always "$@"
+    else
+      command bat --paging=always --plain "$@"
+    fi
+  }
+fi
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --group-directories-first --icons'
   alias ll='eza -lh --git --icons --group-directories-first'
