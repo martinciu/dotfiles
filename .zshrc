@@ -80,13 +80,31 @@ fi
 # palette by default when $TMUX is set). See anthropics/claude-code#36785.
 [[ -n $TMUX ]] && export CLAUDE_CODE_TMUX_TRUECOLOR=1
 
-_tmux_rename() {
-  [[ -z $TMUX ]] && return
-  local cmd="${1%% *}"
-  [[ -z $cmd ]] && return
-  tmux rename-window -- "$cmd"
+# Keep _tmux_window_label in sync with scripts/test-tmux-window-label.zsh
+_tmux_window_label() {
+  emulate -L zsh
+  local cmd="$1"
+  # Strip leading KEY=value tokens (each followed by whitespace, or end-of-string).
+  while [[ $cmd =~ '^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*([[:space:]]+|$)' ]]; do
+    cmd="${cmd#$MATCH}"
+  done
+  local -a words=( ${=cmd} )
+  case $#words in
+    0) _tmux_window_label_out="" ;;
+    1) _tmux_window_label_out="${words[1]}" ;;
+    *) _tmux_window_label_out="${words[1]} ${words[2]}" ;;
+  esac
 }
-add-zsh-hook preexec _tmux_rename
+
+# Per-pane "last command" recorder. tmux.conf reads @last_cmd via
+# automatic-rename-format so the window name follows the active pane.
+_tmux_record_last_cmd() {
+  [[ -z $TMUX ]] && return
+  _tmux_window_label "$1"
+  [[ -z $_tmux_window_label_out ]] && return
+  tmux set -p @last_cmd "$_tmux_window_label_out"
+}
+add-zsh-hook preexec _tmux_record_last_cmd
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
