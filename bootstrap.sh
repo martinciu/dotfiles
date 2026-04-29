@@ -42,6 +42,13 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
+# --- atuin: shared config; one-time import of legacy zsh history
+link ".config/atuin"   "$HOME/.config/atuin"
+if command -v atuin >/dev/null 2>&1 && [ ! -f "$HOME/.local/share/atuin/history.db" ]; then
+  echo "importing zsh history into atuin (one-time)..."
+  atuin import zsh || echo "WARN:   atuin import failed (continuing)"
+fi
+
 # --- sesh: shared config is symlinked; machine-local sessions in sesh.local.toml
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
 if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
