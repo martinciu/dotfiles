@@ -1,0 +1,23 @@
+# atuin — SQLite-backed shell history.
+# Single source of truth for atuin behaviour in this dotfiles repo.
+# Symlinked into ~/.config/atuin/ by bootstrap.sh.
+
+# UI: inline picker matching fzf-style muscle memory.
+# Ctrl-R opens a 20-row picker below the prompt.
+# Ctrl-X Ctrl-R (defined in .zshrc) opens full-screen.
+inline_height = 20
+style = "compact"
+
+# Default filter: Workspace = current git repo (any subdirectory).
+# Cycle modes inside the picker with Ctrl-R: Workspace -> Global -> Host -> Session -> Directory.
+filter_mode = "workspace"
+
+# Enter from the picker runs the selected command immediately.
+enter_accept = true
+
+# Match the zsh keymap.
+keymap_mode = "emacs"
+
+# Background daemon handles SQLite writes off the prompt path.
+[daemon]
+enabled = true
