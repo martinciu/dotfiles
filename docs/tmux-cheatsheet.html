@@ -109,7 +109,7 @@
       <tr><td class="key">Mouse</td><td class="desc">on (URLs need <span class="k">⇧⌘ click</span>)</td></tr>
       <tr><td class="key">History</td><td class="desc">50,000 lines</td></tr>
       <tr><td class="key">Bells</td><td class="desc">silenced (<code>bell-action/visual-bell/monitor-bell off</code>)</td></tr>
-      <tr><td class="key">TPM plugins</td><td class="desc">tpm + tmux-sensible only (raw-tmux trial)</td></tr>
+      <tr><td class="key">TPM plugins</td><td class="desc">tpm, tmux-sensible, tmux-resurrect, tmux-continuum</td></tr>
     </table>
   </div>
 
@@ -165,7 +165,7 @@
       <tr><td class="key"><code>tmux kill-session -t work</code></td><td class="desc">kill "work"</td></tr>
       <tr><td class="key"><code>tmux kill-server</code></td><td class="desc">kill all sessions</td></tr>
     </table>
-    <p class="note">tmux-resurrect / continuum are currently disabled (raw-tmux trial — see <code>tmux.conf</code>).</p>
+    <p class="note">tmux-resurrect + tmux-continuum auto-save sessions every 15 min and auto-restore on a fresh server. See the "Persistence" card below for bindings.</p>
   </div>
 
   <div class="card">
@@ -184,6 +184,18 @@
       picker focused on real projects under <code>$PROJECTS_HOME</code>. Don't re-introduce
       a custom fzf wrapper script.
     </p>
+  </div>
+
+  <div class="card">
+    <h3>Persistence <span class="pill">resurrect + continuum</span></h3>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">C-s</span></td><td class="desc">save snapshot now (manual)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">C-r</span></td><td class="desc">restore latest snapshot (manual)</td></tr>
+      <tr><td class="key">auto-save</td><td class="desc">every 15 min (continuum default)</td></tr>
+      <tr><td class="key">auto-restore</td><td class="desc">on fresh tmux server start (<code>@continuum-restore 'on'</code>)</td></tr>
+      <tr><td class="key">snapshots in</td><td class="desc"><code>~/.local/share/tmux/resurrect/</code></td></tr>
+    </table>
+    <p class="note">Defaults only: no <code>@resurrect-processes</code> (panes get fresh shells in <code>cwd</code>; nvim/ssh are NOT relaunched), no <code>@resurrect-capture-pane-contents</code> (scrollback is not saved). Auto-restore only fires on a brand-new server with zero sessions, so attaching to an already-running server (sesh's normal flow) is unaffected.</p>
   </div>
 </div>
 
@@ -410,7 +422,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-28. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-29. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
