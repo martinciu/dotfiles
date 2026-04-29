@@ -40,6 +40,16 @@ rarely justifies. Match the existing setup instead of forcing one shape.
   path, but it is wrong here.
 - Worktree directory: `.claude/worktrees/` (project-local; gitignored).
 
+## Superpowers in auto mode
+
+Auto mode doesn't relax Superpowers' clarifying-question phase. When a
+Superpowers skill (`brainstorming`, `writing-plans`, etc.) is active,
+ask every clarifying question the skill prescribes — one at a time —
+before proposing a design, approach, or plan. Don't bundle questions,
+don't shortcut to a recommendation, don't assume on the user's behalf.
+Auto mode's "prefer action, make reasonable assumptions" applies to
+mechanical execution, not to intent gathering.
+
 
 @~/.claude/CLAUDE.local.md
 
