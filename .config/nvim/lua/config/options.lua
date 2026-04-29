@@ -45,3 +45,8 @@ opt.undofile = true
 -- Color
 opt.termguicolors = true
 opt.background = "dark"
+
+-- Never descend into worktree directories from built-in completion (`:e <Tab>`,
+-- `:find`, netrw, wildmenu). Snacks pickers are handled separately in
+-- lua/plugins/snacks.lua.
+vim.opt.wildignore:append({ "*/.claude/worktrees/*" })
