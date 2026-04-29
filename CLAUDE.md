@@ -50,6 +50,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   reproducibility across machines.
 - **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without
   asking.
+- **Claude Code TUI uses the custom `my-solarized` theme** at
+  `.claude/themes/my-solarized.json` (symlinked into `~/.claude/themes/`
+  by `bootstrap.sh`, mirroring the `.claude/CLAUDE.md` pattern). Selected
+  via `/theme` → `custom:my-solarized`. Live-reloads on file change. The
+  14 overrides map Claude Code tokens onto Solarized base16 — keep the
+  brand accent at magenta `#d33682` (picked after smoke-testing — orange
+  was too close to the default coral to read as a different theme), the
+  shimmer pair at violet, and mode borders distinct (default base01 /
+  plan blue / auto cyan / bash orange). Don't switch to a built-in
+  preset, ship a light variant, or remap the `<color>_FOR_SUBAGENTS_ONLY`
+  tokens without an explicit ask.
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
