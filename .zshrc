@@ -183,16 +183,6 @@ if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
 fi
 
-# atuin — SQLite-backed shell history. Owns Ctrl-R (inline picker, Workspace filter).
-# --disable-up-arrow keeps Up-arrow on vanilla zsh history scrollback.
-# Custom widget on Ctrl-X Ctrl-R launches full-screen via inline-height override.
-if command -v atuin >/dev/null 2>&1; then
-  eval "$(atuin init zsh --disable-up-arrow)"
-  atuin-search-fullscreen() { ATUIN_INLINE_HEIGHT=0 atuin search -i }
-  zle -N atuin-search-fullscreen
-  bindkey '^X^R' atuin-search-fullscreen
-fi
-
 # zsh-syntax-highlighting MUST be the last sourced plugin.
 [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
   source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

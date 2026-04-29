@@ -11,9 +11,6 @@ tap  "joshmedeski/sesh"
 brew "joshmedeski/sesh/sesh"
 brew "zoxide"  # frecency-ranked dir jumping; sesh picker source
 
-# Shell history
-brew "atuin"  # SQLite-backed shell history with cwd/exit/time filters
-
 # Worktree manager
 brew "worktrunk"
 
