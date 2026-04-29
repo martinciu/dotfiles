@@ -73,7 +73,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · atuin · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -87,7 +87,6 @@
   <a href="#glow">glow / md</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
-  <a href="#atuin">atuin</a>
   <a href="#autosuggestions">autosuggestions</a>
   <a href="#syntax">syntax-highlighting</a>
   <a href="#bootstrap">Bootstrap a new machine</a>
@@ -108,8 +107,7 @@
       <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
       <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
       <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
-      <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-T file picker</td></tr>
-      <tr><td class="key"><code>atuin</code></td><td class="desc">SQLite-backed shell history; owns Ctrl-R</td></tr>
+      <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
     </table>
   </div>
 
@@ -356,7 +354,7 @@
   <div class="card">
     <h3>Shell key bindings</h3>
     <table>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc warn">handed off to atuin (see below)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">fuzzy history search</td></tr>
       <tr><td class="key"><span class="k">Ctrl-T</span></td><td class="desc">file picker → inserts paths at the cursor</td></tr>
       <tr><td class="key"><span class="k">Alt-C</span></td><td class="desc warn">UNBOUND — Alt is reserved for Polish diacritics</td></tr>
     </table>
@@ -386,44 +384,6 @@
       <tr><td class="key"><code>history | fzf</code></td><td class="desc">manual history search</td></tr>
     </table>
     <p class="note">FZF colors are pinned to Solarized via <code>$FZF_DEFAULT_OPTS</code> in <code>.zshrc</code>.</p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<h2 id="atuin">atuin <span class="tool-tag">shell history</span></h2>
-
-<div class="grid">
-  <div class="card">
-    <h3>Shell key bindings</h3>
-    <table>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">inline picker, Workspace filter (current git repo)</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-X Ctrl-R</span></td><td class="desc">full-screen picker with metadata columns</td></tr>
-      <tr><td class="key"><span class="k">↑</span> <span class="muted">(Up arrow)</span></td><td class="desc warn">UNCHANGED — vanilla zsh history scrollback</td></tr>
-    </table>
-    <p class="note">Init runs with <code>--disable-up-arrow</code> so Up keeps its zsh-native behaviour.</p>
-  </div>
-
-  <div class="card">
-    <h3>Inside the picker</h3>
-    <table>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle filter mode: Workspace → Global → Host → Session → Directory</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-S</span></td><td class="desc">cycle search mode: Fuzzy → Prefix → Substring</td></tr>
-      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">toggle inspect view</td></tr>
-      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">run selected command immediately (<code>enter_accept = true</code>)</td></tr>
-      <tr><td class="key"><span class="k">Esc</span> / <span class="k">Ctrl-C</span></td><td class="desc">cancel</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Setup notes</h3>
-    <table>
-      <tr><td class="key"><code>filter_mode = "workspace"</code></td><td class="desc">default scope = current git repo</td></tr>
-      <tr><td class="key"><code>inline_height = 20</code></td><td class="desc">picker rows when inline</td></tr>
-      <tr><td class="key"><code>[daemon] enabled = true</code></td><td class="desc">async SQLite writes off the prompt path</td></tr>
-      <tr><td class="key"><code>atuin import zsh</code></td><td class="desc">one-shot legacy import at bootstrap; only Global filter sees those rows</td></tr>
-      <tr><td class="key"><code>atuin stats</code></td><td class="desc">most-used commands, time spent</td></tr>
-    </table>
-    <p class="note">Config lives in <code>.config/atuin/config.toml</code>, symlinked by <code>bootstrap.sh</code>.</p>
   </div>
 </div>
 
@@ -502,13 +462,11 @@
   <li><code>zsh-autosuggestions.zsh</code></li>
   <li>fzf <code>completion.zsh</code> + <code>key-bindings.zsh</code></li>
   <li><code>bindkey -r '^[c'</code> &mdash; remove fzf's Alt-C binding (Polish diacritics)</li>
-  <li><code>zoxide init</code></li>
-  <li><code>atuin init zsh --disable-up-arrow</code> + Ctrl-X Ctrl-R widget</li>
   <li><code>zsh-syntax-highlighting.zsh</code> &mdash; <strong>must be last</strong></li>
 </ol>
 
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-29.
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-28.
   Refresh after meaningful color-tooling changes.
 </footer>
 
