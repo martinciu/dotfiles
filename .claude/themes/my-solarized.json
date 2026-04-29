@@ -2,8 +2,8 @@
   "name": "my-solarized",
   "base": "dark",
   "overrides": {
-    "claude": "#cb4b16",
-    "claudeShimmer": "#b58900",
+    "claude": "#d33682",
+    "claudeShimmer": "#6c71c4",
     "success": "#859900",
     "error": "#dc322f",
     "warning": "#b58900",
