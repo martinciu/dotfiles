@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Shell Colors — Getting Started &amp; Cheatsheet</title>
+<style>
+  :root {
+    --base03:  #002b36; --base02: #073642; --base01: #586e75; --base00: #657b83;
+    --base0:   #839496; --base1:  #93a1a1; --base2:  #eee8d5; --base3:  #fdf6e3;
+    --yellow:  #b58900; --orange: #cb4b16; --red:    #dc322f; --magenta: #d33682;
+    --violet:  #6c71c4; --blue:   #268bd2; --cyan:   #2aa198; --green:  #859900;
+    --mono: "JetBrainsMono Nerd Font", "JetBrainsMono", "Menlo", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--base03); color: var(--base1); font-family: var(--sans);
+    line-height: 1.55; font-size: 14.5px; padding: 2.2rem clamp(1rem, 4vw, 3rem) 4rem; }
+  header { border-bottom: 1px solid var(--base02); padding-bottom: 1.2rem; margin-bottom: 1.6rem; }
+  header h1 { margin: 0 0 .35rem; font-size: 1.8rem; color: var(--base3); font-weight: 600; letter-spacing: -.01em; }
+  header .sub { color: var(--base0); font-size: .95rem; }
+  header .sub code { color: var(--cyan); }
+  nav.toc { margin: 1rem 0 1.6rem; padding: .65rem .9rem; background: var(--base02); border-radius: 6px; font-size: .9rem; color: var(--base0); }
+  nav.toc a { color: var(--blue); text-decoration: none; margin-right: 1.1rem; white-space: nowrap; }
+  nav.toc a:hover { color: var(--cyan); text-decoration: underline; }
+  h2 { color: var(--base2); border-left: 3px solid var(--blue); padding-left: .6rem; margin: 2.2rem 0 .9rem; font-size: 1.25rem; font-weight: 600; }
+  h2 .accent { color: var(--blue); font-weight: 400; font-size: .85em; margin-left: .4rem; }
+  h2 .tool-tag { background: var(--base02); color: var(--green); border: 1px solid #0a4655; padding: .1em .55em; border-radius: 4px;
+    font-size: .65em; font-family: var(--mono); margin-left: .55em; vertical-align: middle; letter-spacing: .03em; }
+  h3 { color: var(--base2); margin: 1.4rem 0 .55rem; font-size: 1.02rem; font-weight: 600; }
+  p { margin: .55rem 0; }
+  code, kbd, .k { font-family: var(--mono); font-size: .88em; }
+  code { background: var(--base02); color: var(--cyan); padding: .08em .35em; border-radius: 3px; }
+  kbd, .k { display: inline-block; background: var(--base02); color: var(--yellow); border: 1px solid #0a4655;
+    border-bottom-width: 2px; border-radius: 4px; padding: .05em .42em; font-size: .82em; line-height: 1.4; white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1rem; }
+  .card { background: var(--base02); border: 1px solid #0a4655; border-radius: 8px; padding: .9rem 1rem 1rem; }
+  .card h3 { margin-top: 0; color: var(--base2); border-bottom: 1px dashed #0a4655; padding-bottom: .35rem; }
+  .card h3 .pill { background: var(--base03); color: var(--blue); font-size: .68em; font-weight: 500;
+    padding: .15em .5em; border-radius: 3px; margin-left: .5em; vertical-align: middle; letter-spacing: .03em; }
+  table { width: 100%; border-collapse: collapse; margin: .25rem 0; }
+  td { padding: .25rem .35rem; vertical-align: top; border-bottom: 1px solid #073642; }
+  tr:last-child td { border-bottom: 0; }
+  td.key { width: 38%; white-space: nowrap; }
+  td.desc { color: var(--base1); }
+  .muted { color: var(--base0); }
+  .note { color: var(--base0); font-size: .88em; font-style: italic; }
+  .warn { color: var(--orange); }
+  ul.compact { margin: .35rem 0 .25rem; padding-left: 1.2rem; }
+  ul.compact li { margin: .15rem 0; }
+  pre { background: var(--base02); border: 1px solid #0a4655; border-radius: 6px; padding: .7rem .9rem;
+    overflow-x: auto; color: var(--base1); font-family: var(--mono); font-size: .85em; line-height: 1.5; }
+  pre .c   { color: var(--base01); font-style: italic; }
+  pre .cmd { color: var(--green); }
+  pre .arg { color: var(--yellow); }
+  pre .kw  { color: var(--blue); }
+  pre .str { color: var(--cyan); }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--base02); color: var(--base01); font-size: .85em; }
+  @media print {
+    body { background: white; color: #222; padding: 1rem; font-size: 11px; }
+    .card { background: #fafafa; border-color: #ccc; break-inside: avoid; }
+    h2 { color: #111; border-color: #888; } h3, header h1 { color: #111; }
+    kbd, .k { background: #eee; color: #b58900; border-color: #bbb; }
+    code { background: #f3f3f3; color: #2aa198; }
+    nav.toc { display: none; } a { color: #268bd2 !important; }
+    pre { background: #f6f6f6; color: #222; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
+  <div class="sub">
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+  </div>
+</header>
+
+<nav class="toc">
+  <strong style="color:var(--base2)">Jump:</strong>
+  <a href="#start">Getting started</a>
+  <a href="#eza">eza</a>
+  <a href="#bat">bat</a>
+  <a href="#less">less wrapper</a>
+  <a href="#delta">git-delta</a>
+  <a href="#glow">glow / md</a>
+  <a href="#vivid">vivid / LS_COLORS</a>
+  <a href="#fzf">fzf</a>
+  <a href="#fzf-tab">fzf-tab</a>
+  <a href="#autosuggestions">autosuggestions</a>
+  <a href="#syntax">syntax-highlighting</a>
+  <a href="#bootstrap">Bootstrap a new machine</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="start">Getting started <span class="accent">/ what's installed</span></h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Brew packages (recently added)</h3>
+    <table>
+      <tr><td class="key"><code>eza</code></td><td class="desc">ls replacement with icons + git status</td></tr>
+      <tr><td class="key"><code>bat</code></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
+      <tr><td class="key"><code>git-delta</code></td><td class="desc">git diff/log/blame pager</td></tr>
+      <tr><td class="key"><code>glow</code></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
+      <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
+      <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
+      <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
+      <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
+      <tr><td class="key"><code>fzf-tab</code></td><td class="desc">replaces zsh's Tab menu with an fzf picker</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>House rules (per CLAUDE.md)</h3>
+    <ul class="compact">
+      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, …) without asking.</li>
+      <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zoxide → fzf-tab → zsh-autosuggestions → zsh-syntax-highlighting (must be last).</li>
+      <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
+      <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>What aliases you get</h3>
+    <table>
+      <tr><td class="key"><code>cat</code></td><td class="desc">→ <code>bat --paging=never</code></td></tr>
+      <tr><td class="key"><code>less</code></td><td class="desc">function → <code>bat</code> wrapper (file = full decoration; pipe = <code>--plain</code>)</td></tr>
+      <tr><td class="key"><code>md</code></td><td class="desc">→ <code>glow --style ~/.config/glow/glamour.json</code></td></tr>
+      <tr><td class="key"><code>ls</code></td><td class="desc">→ <code>eza --group-directories-first --icons</code></td></tr>
+      <tr><td class="key"><code>ll</code></td><td class="desc">→ <code>eza -lh --git --icons --group-directories-first</code></td></tr>
+      <tr><td class="key"><code>la</code></td><td class="desc">→ <code>ll -a</code></td></tr>
+      <tr><td class="key"><code>vim</code> / <code>vimdiff</code></td><td class="desc">→ <code>nvim</code> (guarded on <code>command -v nvim</code>)</td></tr>
+      <tr><td class="key"><code>vi</code></td><td class="desc">→ <code>command vim</code> (legacy minimal vim, suppresses recursive alias)</td></tr>
+    </table>
+    <p class="note">BSD <code>\ls</code> still works (escape skips alias) and uses OMZ's default LSCOLORS. Use <code>command less</code> to reach real <code>less</code> for <code>less +F</code>, <code>-R</code>, etc.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="eza">eza <span class="tool-tag">ls replacement</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Most-used flags</h3>
+    <table>
+      <tr><td class="key"><code>eza</code></td><td class="desc">simple list (icons via alias)</td></tr>
+      <tr><td class="key"><code>eza -l</code></td><td class="desc">long form</td></tr>
+      <tr><td class="key"><code>eza -lh</code></td><td class="desc">long + human sizes</td></tr>
+      <tr><td class="key"><code>eza -la</code></td><td class="desc">show hidden</td></tr>
+      <tr><td class="key"><code>eza --git</code></td><td class="desc">add a git-status column</td></tr>
+      <tr><td class="key"><code>eza --tree -L 2</code></td><td class="desc">tree view, depth 2</td></tr>
+      <tr><td class="key"><code>eza -s modified</code></td><td class="desc">sort by mtime</td></tr>
+      <tr><td class="key"><code>eza -s size</code></td><td class="desc">sort by size</td></tr>
+      <tr><td class="key"><code>eza --group-directories-first</code></td><td class="desc">dirs on top (default in alias)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Recipes</h3>
+    <table>
+      <tr><td class="key"><code>ll -s modified -r</code></td><td class="desc">most recently changed first</td></tr>
+      <tr><td class="key"><code>ll --git-ignore</code></td><td class="desc">hide gitignored files</td></tr>
+      <tr><td class="key"><code>eza -laT --git-ignore -L 3</code></td><td class="desc">tree, hidden, no gitignored, 3 deep</td></tr>
+      <tr><td class="key"><code>eza -l --time-style=long-iso</code></td><td class="desc">ISO timestamps</td></tr>
+    </table>
+    <p class="note">Colors come from <code>LS_COLORS</code> (set by <code>vivid</code>). Icons need a Nerd Font in your terminal.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="bat">bat <span class="tool-tag">cat with syntax highlighting</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Daily use</h3>
+    <table>
+      <tr><td class="key"><code>cat file.rb</code></td><td class="desc">aliased to <code>bat --paging=never</code></td></tr>
+      <tr><td class="key"><code>bat file.rb</code></td><td class="desc">paged, with line numbers + git gutter</td></tr>
+      <tr><td class="key"><code>bat -p file</code></td><td class="desc">plain (no decoration)</td></tr>
+      <tr><td class="key"><code>bat -A file</code></td><td class="desc">show non-printables (whitespace, line endings)</td></tr>
+      <tr><td class="key"><code>bat -r 10:50 file</code></td><td class="desc">range lines 10–50</td></tr>
+      <tr><td class="key"><code>bat -l json data</code></td><td class="desc">force language</td></tr>
+      <tr><td class="key"><code>bat --diff file</code></td><td class="desc">only show modified hunks</td></tr>
+      <tr><td class="key"><code>man &lt;cmd&gt;</code></td><td class="desc">uses <code>bat -l man</code> via <code>$MANPAGER</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Theme &amp; introspection</h3>
+    <table>
+      <tr><td class="key"><code>bat --list-themes</code></td><td class="desc">all themes</td></tr>
+      <tr><td class="key"><code>bat --list-languages</code></td><td class="desc">supported languages</td></tr>
+      <tr><td class="key"><code>bat --theme="Solarized (dark)"</code></td><td class="desc">force theme</td></tr>
+      <tr><td class="key"><code>$BAT_THEME</code></td><td class="desc">env override</td></tr>
+    </table>
+    <p class="note">$MANPAGER is set so <code>man</code> stays Solarized: <code>sh -c 'col -bx | bat -l man -p --paging=always'</code>. <code>$MANROFFOPT=-c</code> keeps ANSI sequences intact.</p>
+  </div>
+
+  <div class="card">
+    <h3>Inside the pager</h3>
+    <table>
+      <tr><td class="key"><span class="k">Space</span> / <span class="k">b</span></td><td class="desc">page down / up</td></tr>
+      <tr><td class="key"><span class="k">/</span><i>pat</i> / <span class="k">n</span></td><td class="desc">search / next match</td></tr>
+      <tr><td class="key"><span class="k">g</span> / <span class="k">G</span></td><td class="desc">top / bottom</td></tr>
+      <tr><td class="key"><span class="k">q</span></td><td class="desc">quit</td></tr>
+    </table>
+    <p class="note">bat shells out to <code>less</code> by default — these are <code>less</code> keys.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="less">less wrapper <span class="tool-tag">bat for files, plain for pipes</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Why a function, not an alias</h3>
+    <p>
+      <code>less</code> is a zsh function (defined next to the <code>cat</code> alias in
+      <code>.zshrc</code>) that delegates to <code>bat</code>. File arguments get bat's full
+      decoration (line numbers, git gutter); piped input falls back to <code>bat --plain</code>
+      so <code>cmd | less</code> doesn't get bat's <code>STDIN</code> header and stays clean.
+    </p>
+    <p class="note">
+      <code>$PAGER</code> is <strong>not</strong> set to <code>bat</code> globally — git/delta
+      and other tools manage their own pagers. The wrapper only shadows interactive
+      <code>less</code> use.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Usage</h3>
+    <table>
+      <tr><td class="key"><code>less file.rb</code></td><td class="desc">bat with full decoration (paged)</td></tr>
+      <tr><td class="key"><code>cat file | less</code></td><td class="desc">bat <code>--plain</code> (no header)</td></tr>
+      <tr><td class="key"><code>command less +F log</code></td><td class="desc">real <code>less</code> follow-mode</td></tr>
+      <tr><td class="key"><code>command less -R</code></td><td class="desc">real <code>less</code> raw control chars</td></tr>
+    </table>
+    <p class="note">Inside the pager, all <code>less</code> keys work (<code>Space/b</code>, <code>/pat</code>, <code>g/G</code>, <code>q</code>) — bat shells out to less.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="delta">git-delta <span class="tool-tag">git diff pager</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Where it kicks in</h3>
+    <p>Wired through git config — anything that paginates a diff uses delta:</p>
+    <table>
+      <tr><td class="key"><code>git diff</code></td><td class="desc">side-by-side or unified, syntax-highlighted</td></tr>
+      <tr><td class="key"><code>git log -p</code></td><td class="desc">commit-by-commit diff</td></tr>
+      <tr><td class="key"><code>git show &lt;rev&gt;</code></td><td class="desc">single commit</td></tr>
+      <tr><td class="key"><code>git blame</code></td><td class="desc">styled blame</td></tr>
+      <tr><td class="key"><code>git add -p</code></td><td class="desc">interactive — uses delta as the diff filter</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Inside delta's pager</h3>
+    <table>
+      <tr><td class="key"><span class="k">n</span> / <span class="k">N</span></td><td class="desc">next / prev file (navigate=true)</td></tr>
+      <tr><td class="key"><span class="k">/</span> / <span class="k">?</span></td><td class="desc">search</td></tr>
+      <tr><td class="key"><span class="k">Space</span> / <span class="k">b</span></td><td class="desc">page down / up</td></tr>
+      <tr><td class="key"><span class="k">q</span></td><td class="desc">quit</td></tr>
+    </table>
+    <p class="note">Built on <code>less</code>, so <code>less</code> keys all work.</p>
+  </div>
+
+  <div class="card">
+    <h3>Useful flags</h3>
+    <table>
+      <tr><td class="key"><code>git diff --side-by-side</code></td><td class="desc">two-column layout</td></tr>
+      <tr><td class="key"><code>delta --light</code></td><td class="desc">force light theme one-shot</td></tr>
+      <tr><td class="key"><code>delta --no-gitconfig --diff-highlight</code></td><td class="desc">minimal preview</td></tr>
+      <tr><td class="key"><code>git -c core.pager=cat diff</code></td><td class="desc">bypass delta one-shot</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="glow">glow / md <span class="tool-tag">markdown renderer</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>The <code>md</code> alias</h3>
+    <p>
+      <code>md</code> renders markdown to ANSI via <code>glow</code> with a pinned Solarized
+      style:
+    </p>
+    <pre><span class="kw">alias</span> <span class="cmd">md</span>=<span class="str">'glow --style $HOME/.config/glow/glamour.json'</span></pre>
+    <p>
+      <code>bat</code> / <code>less</code> / <code>cat</code> still show the source with
+      syntax highlighting; <code>md</code> shows the rendered output (headings, lists,
+      code-block themes).
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Why <code>--style</code>, not <code>glow.yml</code></h3>
+    <p>
+      glow on macOS reads its yaml from <code>~/Library/Preferences/glow/</code>, not
+      <code>~/.config/glow/</code>. The alias passes <code>--style</code> directly so the
+      Solarized JSON in this repo (<code>.config/glow/glamour.json</code>) is used regardless.
+    </p>
+    <p class="note">
+      Fenced code blocks inside markdown use chroma's <code>solarized-dark</code> theme to
+      stay on-palette.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Usage</h3>
+    <table>
+      <tr><td class="key"><code>md README.md</code></td><td class="desc">render to terminal</td></tr>
+      <tr><td class="key"><code>md -p README.md</code></td><td class="desc">paged (uses <code>$PAGER</code> / less)</td></tr>
+      <tr><td class="key"><code>md -w 100 README.md</code></td><td class="desc">force width 100</td></tr>
+      <tr><td class="key"><code>cat foo.md | md -</code></td><td class="desc">render from stdin</td></tr>
+      <tr><td class="key"><code>command glow ...</code></td><td class="desc">bypass alias (no <code>--style</code>)</td></tr>
+    </table>
+    <p class="note">Don't swap to <code>mdcat</code> / <code>frogmouth</code> without an explicit ask — <code>mdcat</code> was archived upstream 2025-01-10.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="vivid">vivid &amp; LS_COLORS</h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What &amp; how</h3>
+    <p><code>vivid</code> generates a <code>LS_COLORS</code> string from a named palette. <code>.zshrc</code> exports it on startup:</p>
+    <pre><span class="cmd">command -v vivid</span> &gt;/dev/null 2&gt;&amp;1 &amp;&amp; \
+  <span class="kw">export</span> LS_COLORS=<span class="str">"$(vivid generate solarized-dark)"</span></pre>
+    <p>Both <code>eza</code> and GNU <code>ls</code> read <code>$LS_COLORS</code>. BSD <code>ls</code> uses <code>$LSCOLORS</code> (different format) — left at OMZ default.</p>
+  </div>
+
+  <div class="card">
+    <h3>Tweak / preview</h3>
+    <table>
+      <tr><td class="key"><code>vivid themes</code></td><td class="desc">list available palettes</td></tr>
+      <tr><td class="key"><code>vivid generate molokai</code></td><td class="desc">try another palette one-shot</td></tr>
+      <tr><td class="key"><code>echo $LS_COLORS | tr ':' '\n'</code></td><td class="desc">inspect current rules</td></tr>
+      <tr><td class="key"><code>vivid -m 8-bit generate solarized-dark</code></td><td class="desc">256-color mode (24-bit is default)</td></tr>
+    </table>
+    <p class="note">Solarized-dark is the pinned palette — switching is OK to try, but persist anything else only after asking.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="fzf">fzf <span class="tool-tag">fuzzy finder</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Shell key bindings</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">fuzzy history search</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-T</span></td><td class="desc">file picker → inserts paths at the cursor</td></tr>
+      <tr><td class="key"><span class="k">Alt-C</span></td><td class="desc warn">UNBOUND — Alt is reserved for Polish diacritics</td></tr>
+    </table>
+    <p class="note">Tab-complete works through fzf for <code>kill **&lt;Tab&gt;</code>, <code>cd **&lt;Tab&gt;</code>, <code>ssh **&lt;Tab&gt;</code>, etc.</p>
+  </div>
+
+  <div class="card">
+    <h3>Inside the prompt</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-J</span> / <span class="k">Ctrl-K</span></td><td class="desc">next / prev item</td></tr>
+      <tr><td class="key"><span class="k">Tab</span> / <span class="k">Shift-Tab</span></td><td class="desc">multi-select</td></tr>
+      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">accept</td></tr>
+      <tr><td class="key"><span class="k">Esc</span> / <span class="k">Ctrl-C</span></td><td class="desc">cancel</td></tr>
+      <tr><td class="key"><code>'foo</code></td><td class="desc">exact match (single-quote prefix)</td></tr>
+      <tr><td class="key"><code>!foo</code></td><td class="desc">negate</td></tr>
+      <tr><td class="key"><code>^foo</code> / <code>foo$</code></td><td class="desc">prefix / suffix anchor</td></tr>
+      <tr><td class="key"><code>foo | bar</code></td><td class="desc">OR</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Common one-liners</h3>
+    <table>
+      <tr><td class="key"><code>vim $(fzf)</code></td><td class="desc">pick a file, open in vim</td></tr>
+      <tr><td class="key"><code>git checkout $(git branch | fzf)</code></td><td class="desc">branch picker</td></tr>
+      <tr><td class="key"><code>fd | fzf --preview 'bat --color=always {}'</code></td><td class="desc">live preview</td></tr>
+      <tr><td class="key"><code>history | fzf</code></td><td class="desc">manual history search</td></tr>
+    </table>
+    <p class="note">FZF colors are pinned to Solarized via <code>$FZF_DEFAULT_OPTS</code> in <code>.zshrc</code>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="fzf-tab">fzf-tab <span class="tool-tag">Tab completion picker</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What it does</h3>
+    <p>Replaces zsh's default <kbd>Tab</kbd> completion menu with an fzf picker — fuzzy filter as you type, arrow-key navigation, and per-command previews. Works for <strong>every</strong> command (cd, git, kill, ssh, brew, &hellip;).</p>
+    <p class="note">For <code>z</code> with zoxide-ranked results, use <code>zi &lt;query&gt;</code> — fzf-tab won't show zoxide entries because <code>zoxide init zsh</code> doesn't register a <code>_z</code> completion function.</p>
+  </div>
+
+  <div class="card">
+    <h3>Key bindings (inside the picker)</h3>
+    <table>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">accept selected completion</td></tr>
+      <tr><td class="key"><span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">switch between completion groups (e.g. <code>[heads]</code> ↔ <code>[tags]</code> for git checkout)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-Space</span></td><td class="desc">multi-select</td></tr>
+      <tr><td class="key"><span class="k">/</span></td><td class="desc">continuous completion (useful for deep paths)</td></tr>
+      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">cancel</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Examples</h3>
+    <table>
+      <tr><td class="key"><code>cd &lt;Tab&gt;</code></td><td class="desc">directory picker with eza preview pane</td></tr>
+      <tr><td class="key"><code>git checkout &lt;Tab&gt;</code></td><td class="desc">branches + tags grouped with headers</td></tr>
+      <tr><td class="key"><code>kill &lt;Tab&gt;</code></td><td class="desc">process picker</td></tr>
+      <tr><td class="key"><code>brew install &lt;Tab&gt;</code></td><td class="desc">formula picker</td></tr>
+    </table>
+    <p class="note">Picker colors inherit <code>$FZF_DEFAULT_OPTS</code> via <code>use-fzf-default-opts yes</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Commands</h3>
+    <table>
+      <tr><td class="key"><code>disable-fzf-tab</code></td><td class="desc">fall back to compsys for this shell</td></tr>
+      <tr><td class="key"><code>enable-fzf-tab</code></td><td class="desc">re-enable</td></tr>
+      <tr><td class="key"><code>toggle-fzf-tab</code></td><td class="desc">flip between the two</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="autosuggestions">zsh-autosuggestions <span class="tool-tag">ghost text from history</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Accept the suggestion</h3>
+    <table>
+      <tr><td class="key"><span class="k">→</span> <span class="muted">(right arrow)</span></td><td class="desc">accept entire suggestion (end-of-line)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-E</span></td><td class="desc">same — move to end of line (accepts)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-F</span> / <span class="k">M-f</span></td><td class="desc warn">forward by char/word — Alt is unbound here</td></tr>
+      <tr><td class="key"><span class="k">Esc</span> <span class="muted">then</span> <span class="k">Enter</span></td><td class="desc">discard suggestion, run only what you typed</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Notes</h3>
+    <ul class="compact">
+      <li>Ghost text is rendered with <code>fg=8</code> (bright black) — readable on Solarized Dark.</li>
+      <li>Strategy is whatever ships by default: history-based.</li>
+      <li>The plugin is sourced <strong>before</strong> fzf and <strong>before</strong> syntax-highlighting on purpose; reordering breaks both.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="syntax">zsh-syntax-highlighting <span class="tool-tag">live command line</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What you'll see</h3>
+    <ul class="compact">
+      <li><strong>Green</strong> command name: it's an executable / alias / builtin / function.</li>
+      <li><strong>Red</strong> command name: not found on your <code>$PATH</code>.</li>
+      <li>Colored quotes / strings / globbing for visual sanity.</li>
+      <li>Mismatched quotes / brackets glow red while you type.</li>
+    </ul>
+    <p class="note">It's the <em>last</em> sourced plugin — that's a hard requirement of the project, not a style choice. Sourcing it earlier breaks coloring of subsequent plugins' bindings.</p>
+  </div>
+
+  <div class="card">
+    <h3>Tweak (rarely needed)</h3>
+    <pre><span class="c"># In ~/.zshrc.local (machine-local, untracked)</span>
+<span class="kw">typeset</span> -A ZSH_HIGHLIGHT_STYLES
+<span class="cmd">ZSH_HIGHLIGHT_STYLES[command]</span>=<span class="str">'fg=#859900,bold'</span>  <span class="c"># green</span>
+<span class="cmd">ZSH_HIGHLIGHT_STYLES[unknown-token]</span>=<span class="str">'fg=#dc322f'</span>     <span class="c"># red</span></pre>
+    <p class="note">Don't change the global Solarized palette — palette pins are intentional.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="bootstrap">Bootstrap a new machine</h2>
+
+<pre><span class="c"># 1) Brew packages</span>
+<span class="cmd">brew bundle</span> --file=<span class="arg">$PROJECTS_HOME/dotfiles/Brewfile</span>
+
+<span class="c"># 2) Symlinks (idempotent)</span>
+<span class="arg">$PROJECTS_HOME/dotfiles/bootstrap.sh</span>
+
+<span class="c"># 3) Wire delta into git (one-time, global)</span>
+<span class="cmd">git config</span> --global core.pager <span class="arg">delta</span>
+<span class="cmd">git config</span> --global interactive.diffFilter <span class="str">"delta --color-only"</span>
+<span class="cmd">git config</span> --global delta.navigate <span class="arg">true</span>
+<span class="cmd">git config</span> --global delta.line-numbers <span class="arg">true</span>
+<span class="cmd">git config</span> --global delta.syntax-theme <span class="str">"Solarized (dark)"</span>
+
+<span class="c"># 4) Verify</span>
+<span class="cmd">brew bundle check</span> --file=<span class="arg">$PROJECTS_HOME/dotfiles/Brewfile</span> --verbose
+<span class="cmd">echo</span> $LS_COLORS | <span class="cmd">head -c 80</span>      <span class="c"># should not be empty</span>
+<span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
+
+<h3>Plugin source order in <code>.zshrc</code> (do not reorder)</h3>
+<ol class="compact">
+  <li><code>zsh-autosuggestions.zsh</code></li>
+  <li>fzf <code>completion.zsh</code> + <code>key-bindings.zsh</code></li>
+  <li><code>bindkey -r '^[c'</code> &mdash; remove fzf's Alt-C binding (Polish diacritics)</li>
+  <li><code>zsh-syntax-highlighting.zsh</code> &mdash; <strong>must be last</strong></li>
+</ol>
+
+<footer>
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-29.
+  Refresh after meaningful color-tooling changes.
+</footer>
+
+</body>
+</html>
