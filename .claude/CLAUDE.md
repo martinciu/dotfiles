@@ -32,6 +32,22 @@ Why: worktrees are useful when you're already invested in the parallel-task
 workflow, but adding one from a clean main checkout is overhead the work
 rarely justifies. Match the existing setup instead of forcing one shape.
 
+## Exploration scope — ignore other worktrees
+
+When exploring a repo (Read, Grep, Glob, or shell `find`/`rg`), never
+descend into `.claude/worktrees/`. Those directories are isolated checkouts
+of the same repo used for parallel task work — they are not additional
+source. Reading them duplicates results, pollutes search output with stale
+branches, and risks acting on code from an unrelated task.
+
+How to apply:
+
+- Skip `.claude/worktrees/**` when listing files, grepping, or globbing.
+- When running `rg`/`find` via Bash, exclude the path explicitly
+  (`rg --glob '!.claude/worktrees'`, `find . -path ./.claude/worktrees -prune -o ...`).
+- If a search legitimately needs to span worktrees (rare — usually only
+  when comparing branches), say so first and confirm before proceeding.
+
 ## Planning artifacts (Superpowers, Compound Engineering, etc.)
 
 - All specs, plans, and design docs go in `tmp/` (e.g. `tmp/specs/`,
