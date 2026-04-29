@@ -14,6 +14,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
   input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
+- **TPM is the tmux plugin manager.** Loaded plugins: `tmux-sensible`,
+  `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'` —
+  auto-restores the last saved env on tmux start), `tmux-fzf-url`. Don't
+  remove TPM ("we hand-roll everything") without an explicit ask — the
+  status bar is hand-rolled, behavior plugins aren't.
+- **tmux URL picker is `<prefix> u` via `tmux-fzf-url`** (`wfxr/tmux-fzf-url`,
+  loaded by TPM). Scope is visible pane + 2000-line scrollback (not the full
+  50k history). Popup geometry matches the sesh picker (`-w 70% -h 70%`).
+  `--tac` is intentional so the newest URL lands at the cursor — don't drop
+  it. Don't replace with a custom shell script; the plugin already does
+  regex extraction efficiently.
 - **Sesh config is split: shared + machine-local.** The repo tracks
   `.config/sesh/sesh.toml` (symlinked into `~/.config/sesh/sesh.toml`)
   with a `Home 🏠` session for `~` and a top-level

@@ -276,6 +276,10 @@
       <li><strong>Solarized + JetBrainsMono Nerd Font</strong> only.</li>
       <li><strong>Lockfiles committed:</strong> <code>lazy-lock.json</code>, <code>mason-lock.json</code>.</li>
       <li>Mason: <code>:MasonLock</code> snapshots, <code>:MasonLockUpdate</code> upgrades + snapshots.</li>
+      <li><strong><code>.claude/worktrees/</code> is hidden from pickers and built-in completion.</strong>
+        Snacks excludes it from <code>files</code>, <code>grep</code>, <code>explorer</code>, and <code>recent</code> (see <code>lua/plugins/snacks.lua</code>);
+        <code>wildignore</code> in <code>lua/config/options.lua</code> drops it from <code>:e</code>/glob expansion.
+        If <span class="k leader">␣</span><span class="k">␣</span> or <span class="k leader">␣</span><span class="k">/</span> can't find a file under there, that's why.</li>
     </ul>
   </div>
 
@@ -761,7 +765,7 @@
 </ul>
 
 <footer>
-  Built from <code>~/.config/nvim/</code> on 2026-04-28. Refresh after meaningful config changes.
+  Built from <code>~/.config/nvim/</code> on 2026-04-29. Refresh after meaningful config changes.
   <br>
   Cheat-skill: when in doubt, press <span class="k leader">␣</span> and read which-key.
 </footer>
