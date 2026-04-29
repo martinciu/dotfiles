@@ -74,15 +74,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
   `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
   renderer), `vivid` (`LS_COLORS`), `zsh-syntax-highlighting`,
-  `zsh-autosuggestions`. Palette pins:
+  `zsh-autosuggestions`, `fzf-tab` (Tab completion picker). Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
   `delta.syntax-theme = "Solarized (dark)"`,
   `md` alias passes `--style .config/glow/glamour.json` (chroma
   `solarized-dark` for fenced code blocks). Don't swap themes or
   introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, etc.)
-  without asking. Plugin source order in `.zshrc` is fixed: zsh-autosuggestions →
-  fzf → `bindkey -r '^[c'` (Alt-C unbind) → zsh-syntax-highlighting (must
-  be last). The first-time `git config` recipe wiring delta as git's pager
+  without asking. Plugin source order in `.zshrc` is fixed: fzf →
+  `bindkey -r '^[c'` (Alt-C unbind) → zoxide → fzf-tab →
+  zsh-autosuggestions → zsh-syntax-highlighting (must be last).
+  fzf-tab needs fzf's `^I` binding already in place and must be sourced
+  before any plugin that wraps widgets. The first-time `git config`
+  recipe wiring delta as git's pager
   lives in **First-time setup on a new machine** below.
 - **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
   `cat` alias). Files get bat's full decoration; piped input uses `--plain` so

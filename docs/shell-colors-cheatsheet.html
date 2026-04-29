@@ -73,7 +73,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -87,6 +87,7 @@
   <a href="#glow">glow / md</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
+  <a href="#fzf-tab">fzf-tab</a>
   <a href="#autosuggestions">autosuggestions</a>
   <a href="#syntax">syntax-highlighting</a>
   <a href="#bootstrap">Bootstrap a new machine</a>
@@ -108,6 +109,7 @@
       <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
       <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
       <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
+      <tr><td class="key"><code>fzf-tab</code></td><td class="desc">replaces zsh's Tab menu with an fzf picker</td></tr>
     </table>
   </div>
 
@@ -115,7 +117,7 @@
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
       <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, …) without asking.</li>
-      <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> zsh-autosuggestions → fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zsh-syntax-highlighting (must be last).</li>
+      <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zoxide → fzf-tab → zsh-autosuggestions → zsh-syntax-highlighting (must be last).</li>
       <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
       <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
     </ul>
@@ -388,6 +390,48 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="fzf-tab">fzf-tab <span class="tool-tag">Tab completion picker</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What it does</h3>
+    <p>Replaces zsh's default <kbd>Tab</kbd> completion menu with an fzf picker — fuzzy filter as you type, arrow-key navigation, and per-command previews. Works for <strong>every</strong> command (cd, git, kill, ssh, brew, &hellip;).</p>
+    <p class="note">For <code>z</code> with zoxide-ranked results, use <code>zi &lt;query&gt;</code> — fzf-tab won't show zoxide entries because <code>zoxide init zsh</code> doesn't register a <code>_z</code> completion function.</p>
+  </div>
+
+  <div class="card">
+    <h3>Key bindings (inside the picker)</h3>
+    <table>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">accept selected completion</td></tr>
+      <tr><td class="key"><span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">switch between completion groups (e.g. <code>[heads]</code> ↔ <code>[tags]</code> for git checkout)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-Space</span></td><td class="desc">multi-select</td></tr>
+      <tr><td class="key"><span class="k">/</span></td><td class="desc">continuous completion (useful for deep paths)</td></tr>
+      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">cancel</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Examples</h3>
+    <table>
+      <tr><td class="key"><code>cd &lt;Tab&gt;</code></td><td class="desc">directory picker with eza preview pane</td></tr>
+      <tr><td class="key"><code>git checkout &lt;Tab&gt;</code></td><td class="desc">branches + tags grouped with headers</td></tr>
+      <tr><td class="key"><code>kill &lt;Tab&gt;</code></td><td class="desc">process picker</td></tr>
+      <tr><td class="key"><code>brew install &lt;Tab&gt;</code></td><td class="desc">formula picker</td></tr>
+    </table>
+    <p class="note">Picker colors inherit <code>$FZF_DEFAULT_OPTS</code> via <code>use-fzf-default-opts yes</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Commands</h3>
+    <table>
+      <tr><td class="key"><code>disable-fzf-tab</code></td><td class="desc">fall back to compsys for this shell</td></tr>
+      <tr><td class="key"><code>enable-fzf-tab</code></td><td class="desc">re-enable</td></tr>
+      <tr><td class="key"><code>toggle-fzf-tab</code></td><td class="desc">flip between the two</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="autosuggestions">zsh-autosuggestions <span class="tool-tag">ghost text from history</span></h2>
 
 <div class="grid">
@@ -466,7 +510,7 @@
 </ol>
 
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-28.
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-29.
   Refresh after meaningful color-tooling changes.
 </footer>
 
