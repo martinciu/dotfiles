@@ -159,9 +159,14 @@ if command -v nvim >/dev/null 2>&1; then
   alias vimdiff='vim -d'
 fi
 
-# ─── Plugins (order matters; syntax-highlighting MUST be last) ─
-[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# ─── Plugins (order matters) ─────────────────────────────────────
+# Required order:
+#   fzf shell integration  → binds ^I; must come first so subsequent
+#                            plugins that wrap completion can chain to it
+#   Alt-C unbind           → adjacent to fzf since it removes a binding fzf set
+#   zoxide                 → independent; doesn't bind ^I or wrap widgets
+#   zsh-autosuggestions    → wraps widgets; must be after fzf integration
+#   zsh-syntax-highlighting → MUST be last (wraps every other widget)
 
 # fzf shell integration (Ctrl-R history, Ctrl-T file picker).
 [[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ]] && \
@@ -182,6 +187,9 @@ if command -v zoxide >/dev/null 2>&1; then
   export _ZO_EXCLUDE_DIRS="$HOME:$HOME/Downloads/*:$HOME/.config/*:$HOME/Library/*"
   eval "$(zoxide init zsh)"
 fi
+
+[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # zsh-syntax-highlighting MUST be the last sourced plugin.
 [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
