@@ -428,6 +428,8 @@
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="bootstrap">Bootstrap a new machine</h2>
 
+<p class="note">Full new-machine setup is in <a href="../README.md"><code>README.md</code></a> &rarr; "Setup (new machine)". The steps below are the shell-colors-relevant subset.</p>
+
 <pre><span class="c"># 1) Brew packages</span>
 <span class="cmd">brew bundle</span> --file=<span class="arg">$PROJECTS_HOME/dotfiles/Brewfile</span>
 
@@ -448,9 +450,11 @@
 
 <h3>Plugin source order in <code>.zshrc</code> (do not reorder)</h3>
 <ol class="compact">
-  <li><code>zsh-autosuggestions.zsh</code></li>
-  <li>fzf <code>completion.zsh</code> + <code>key-bindings.zsh</code></li>
+  <li>fzf <code>completion.zsh</code> + <code>key-bindings.zsh</code> &mdash; binds <code>^I</code></li>
   <li><code>bindkey -r '^[c'</code> &mdash; remove fzf's Alt-C binding (Polish diacritics)</li>
+  <li><code>zoxide init zsh</code></li>
+  <li><code>fzf-tab.zsh</code> &mdash; needs fzf's <code>^I</code> already bound; must be before any plugin that wraps widgets</li>
+  <li><code>zsh-autosuggestions.zsh</code></li>
   <li><code>zsh-syntax-highlighting.zsh</code> &mdash; <strong>must be last</strong></li>
 </ol>
 
