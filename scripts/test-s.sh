@@ -82,6 +82,21 @@ SHIM
   assert_eq "$rc" "1" "explicit project not in sesh -> exit 1"
   assert_contains "$out" "no project named 'nope'" "explicit project not in sesh -> error message"
   rm -rf "$shimdir"
+
+  # ─── project lookup: sesh missing -> meaningful error, not silent abort
+  # Use a shimdir that shadows sesh (and jq/head) with nothing, but keep
+  # system dirs so the zsh shebang still resolves. A no-op sesh shim that
+  # exits non-zero simulates a broken/missing tool without stripping PATH.
+  shimdir=$(make_shimdir)
+  cat >"$shimdir/sesh" <<'SHIM'
+#!/usr/bin/env bash
+exit 1
+SHIM
+  chmod +x "$shimdir/sesh"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" anything 2>&1); rc=$?
+  assert_eq "$rc" "1" "sesh missing -> exit 1 (not 127)"
+  assert_contains "$out" "no project named 'anything'" "sesh missing -> error message"
+  rm -rf "$shimdir"
 fi
 
 # ─── Summary ────────────────────────────────
