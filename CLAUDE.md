@@ -232,7 +232,3 @@ entries inside the `hooks` object:
 `~/.claude/settings.json` is not symlinked from this repo (it accumulates
 machine-local permission state), so this is a one-time manual edit per
 machine.
-
-## Out of scope (future work, separate spec)
-
-- Lifting API tokens out of `~/.zshrc` into `~/.secrets`
