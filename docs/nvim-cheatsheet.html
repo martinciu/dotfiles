@@ -758,6 +758,12 @@
 <span class="cmd">termguicolors</span>    <span class="arg">true</span>
 <span class="cmd">background</span>       <span class="arg">dark</span>          <span class="c">-- Solarized Dark</span></pre>
 
+<h3>Auto-server</h3>
+<p class="note">When launched inside tmux, nvim auto-listens on
+<code>$XDG_RUNTIME_DIR/nvim-tmux-&lt;session&gt;.sock</code> (Linux) or
+<code>$TMPDIR/nvim.$USER/nvim-tmux-&lt;session&gt;.sock</code> (macOS) so the
+<code>&lt;prefix&gt; o</code> tmux binding can remote-send <code>:edit</code>.</p>
+
 <h3>Removed defaults</h3>
 <ul class="compact">
   <li><code>&lt;A-j&gt;</code>, <code>&lt;A-k&gt;</code> (move-line) — Alt is reserved for Polish diacritics.</li>
@@ -765,7 +771,7 @@
 </ul>
 
 <footer>
-  Built from <code>~/.config/nvim/</code> on 2026-04-29. Refresh after meaningful config changes.
+  Built from <code>~/.config/nvim/</code> on 2026-04-30. Refresh after meaningful config changes.
   <br>
   Cheat-skill: when in doubt, press <span class="k leader">␣</span> and read which-key.
 </footer>

@@ -22,6 +22,7 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 - pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
 - URL picker (current pane): `<prefix> u`
+- file picker (current pane → nvim): `<prefix> o`
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)
 - worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker
@@ -47,6 +48,10 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
   ```
 
   Shift+Cmd+click the rendered "`.zshrc`" — your default `.zshrc` editor should open the file.
+- File-path picker (`<prefix> o`): scans the current pane + 2000 scrollback
+  lines for paths that exist on disk (OSC 8 hyperlinks + plain `path:line`
+  regex), fzf-picks one, jumps the per-session nvim. Falls back to a fresh
+  nvim in a new tmux window if no live nvim socket exists for the session.
 
 ## Future work
 
