@@ -75,16 +75,19 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## What's where
 
-| Tool      | Source path                          | Target              |
-| --------- | ------------------------------------ | ------------------- |
-| Ghostty   | `.config/ghostty/`                   | `~/.config/ghostty` |
-| tmux      | `.config/tmux/`                      | `~/.config/tmux`    |
-| nvim      | `.config/nvim/`                      | `~/.config/nvim`    |
-| vim       | `.vimrc`, `.vim/colors/`             | `~/.vimrc`, `~/.vim/colors` |
-| zsh       | `.zshrc`, `.p10k.zsh`                | `~/.zshrc`, `~/.p10k.zsh` |
-| sesh      | `.config/sesh/sesh.toml`             | `~/.config/sesh/sesh.toml` |
-| worktrunk | `.config/worktrunk/config.toml`      | `~/.config/worktrunk/config.toml` |
-| glow      | `.config/glow/glamour.json`          | `~/.config/glow/glamour.json` |
+| Tool         | Source path                          | Target              |
+| ------------ | ------------------------------------ | ------------------- |
+| Ghostty      | `.config/ghostty/`                   | `~/.config/ghostty` |
+| tmux         | `.config/tmux/`                      | `~/.config/tmux`    |
+| nvim         | `.config/nvim/`                      | `~/.config/nvim`    |
+| vim          | `.vimrc`, `.vim/colors/`             | `~/.vimrc`, `~/.vim/colors` |
+| zsh          | `.zshrc`, `.p10k.zsh`                | `~/.zshrc`, `~/.p10k.zsh` |
+| sesh         | `.config/sesh/sesh.toml`             | `~/.config/sesh/sesh.toml` |
+| worktrunk    | `.config/worktrunk/`                 | `~/.config/worktrunk` |
+| glow         | `.config/glow/`                      | `~/.config/glow` |
+| ccstatusline | `.config/ccstatusline/`              | `~/.config/ccstatusline` |
+| Claude       | `.claude/CLAUDE.md`                  | `~/.claude/CLAUDE.md` |
+| user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
 
 ## Keymaps quick-ref
 
