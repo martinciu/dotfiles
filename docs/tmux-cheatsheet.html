@@ -298,6 +298,9 @@
     <table>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-project-name</code></td><td class="desc">prints the project label for the right side</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-file</code></td><td class="desc">scans pane + scrollback for paths, fzf picker — backs <span class="k prefix">C-a</span> <span class="k">o</span></td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-open-in-nvim</code></td><td class="desc">remote-sends <code>:edit</code> to the per-session nvim socket; falls back to a fresh nvim in a new window</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
     </table>
     <p class="note">Worktree detection uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code> so it works for <code>.claude/worktrees/*</code>, worktrunk paths, and sibling worktrees alike.</p>
@@ -367,6 +370,7 @@
   <tr><td class="key"><span class="k prefix">C-a</span><span class="k">r</span></td><td class="desc">reload config inside running tmux</td></tr>
   <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for status helpers</td></tr>
   <tr><td class="key"><code>scripts/test-tmux-window-label.zsh</code></td><td class="desc">window-label extraction tests (mirror of <code>_tmux_window_label</code> in <code>.zshrc</code>)</td></tr>
+  <tr><td class="key"><code>scripts/test-fzf-file-extract.sh</code></td><td class="desc">file-picker path-extraction tests (regex + OSC 8)</td></tr>
   <tr><td class="key"><code>scripts/test-claude-tmux-window-name.zsh</code></td><td class="desc">tests for the <code>claude[&lt;name&gt;]</code> window-title helper</td></tr>
 </table>
 
