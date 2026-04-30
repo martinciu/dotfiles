@@ -127,7 +127,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
+- Helpers: `.config/tmux/bin/{tmux-project-name,tmux-git-status,claude-tmux-window-name}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
