@@ -4,6 +4,7 @@
 # Core
 brew "git"
 brew "tmux"
+brew "jq"   # JSON parsing in shell helpers
 
 # Session switcher (sesh + fzf, sesh comes from a tap)
 brew "fzf"
