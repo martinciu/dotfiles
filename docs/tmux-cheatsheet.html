@@ -233,6 +233,7 @@
       <li><code>vim foo.rb</code> → window name: <code>vim foo.rb</code></li>
       <li><code>FOO=bar bundle exec rspec</code> → <code>bundle exec</code></li>
       <li>Idle pane / non-zsh shell → falls back to <code>pane_current_command</code> (usually <code>zsh</code>)</li>
+      <li><strong>Claude session active</strong> — window renders <code>claude[&lt;session-name&gt;]</code> (overrides last-typed-command label until Claude exits)</li>
     </ul>
     <p class="note"><code>allow-rename off</code> stays — OSC titles from apps (e.g. Claude Code) cannot override.</p>
   </div>
@@ -423,7 +424,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-29. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-30. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
