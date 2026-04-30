@@ -95,6 +95,8 @@ else
   out=$(printf '%s\n' "$mixed" | "$EXTRACT" --extract-only "$fake_root")
   count=$(printf '%s\n' "$out" | grep -c "lib/foo.rb" || true)
   assert_eq "$count" "2" "OSC 8 and bare:line are both kept (different line specs are different candidates)"
+  assert_contains "$out" "$fake_root/lib/foo.rb"$'\n' "OSC 8 form is emitted as bare absolute path (no line spec)"
+  assert_contains "$out" "$fake_root/lib/foo.rb:1" "bare:line form is emitted with line spec preserved"
 
   rm -rf "$fake_root"
 fi
