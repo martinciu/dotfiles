@@ -113,7 +113,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `claude[<name>]`. Set/cleared by `~/.config/tmux/bin/claude-tmux-window-name`
   via Claude Code hooks (`SessionStart`, `Stop`, `SessionEnd`) wired in
   `~/.claude/settings.json`. The hook config is per-machine (not symlinked
-  from this repo — see "First-time setup on a new machine"). The script's
+  from this repo — see [`README.md`](README.md) → "Setup (new machine)"). The script's
   test mock and the script itself live separately —
   `scripts/test-claude-tmux-window-name.zsh` exercises the script through a
   temp `$HOME` and a `tmux` PATH shim, so no in-place duplication of logic.
@@ -136,7 +136,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   fzf-tab needs fzf's `^I` binding already in place and must be sourced
   before any plugin that wraps widgets. The first-time `git config`
   recipe wiring delta as git's pager
-  lives in **First-time setup on a new machine** below.
+  lives in [`README.md`](README.md) → "Setup (new machine)".
 - **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
   `cat` alias). Files get bat's full decoration; piped input uses `--plain` so
   `cmd | less` stays clean. `command less` reaches real `less` for `less +F`,
@@ -157,10 +157,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 ## Where things live
 
 - Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/{tmux-project-name,tmux-git-status,claude-tmux-window-name}`
+- Helpers: `.config/tmux/bin/{tmux-project-name,tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-open-in-nvim}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
@@ -191,6 +191,7 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 ## Verify changes
 
 - Helper smoke tests: `scripts/test-helpers.sh`
+- File-picker path-extraction tests: `scripts/test-fzf-file-extract.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
@@ -200,35 +201,4 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 
 ## First-time setup on a new machine
 
-After `brew bundle` and `bootstrap.sh`, run once to wire git → delta:
-
-```bash
-git config --global core.pager delta
-git config --global interactive.diffFilter "delta --color-only"
-git config --global delta.navigate true
-git config --global delta.line-numbers true
-git config --global delta.syntax-theme "Solarized (dark)"
-```
-
-Then add the Claude Code hooks that drive the `claude[<name>]` window title.
-Open `~/.claude/settings.json` and add (or merge into) these top-level
-entries inside the `hooks` object:
-
-```json
-"SessionStart": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
-],
-"Stop": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
-],
-"SessionEnd": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name clear" } ] }
-]
-```
-
-`~/.claude/settings.json` is not symlinked from this repo (it accumulates
-machine-local permission state), so this is a one-time manual edit per
-machine.
+See [`README.md`](README.md) → "Setup (new machine)".
