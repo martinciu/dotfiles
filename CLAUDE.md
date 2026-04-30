@@ -40,6 +40,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   script. Zoxide is on but `_ZO_EXCLUDE_DIRS` blocks `~/`,
   `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being indexed —
   keeps the picker focused on real projects under `$PROJECTS_HOME`.
+- **`s` is the worktree+session command** (`bin/s`, symlinked to
+  `~/.local/bin/s` by `bootstrap.sh`). Surface:
+  `s [<project>] [<name>]`. Inside tmux a single arg is the worktree
+  name (project inferred from cwd's main worktree); outside tmux a
+  single arg is a project name (no worktree, attaches to project's
+  main session). Two args are always `<project> <worktree-name>`.
+  Tmux session naming uses `/` as separator (`<project>/<name>`)
+  because tmux disallows `:` and `.`. The branch name is used
+  verbatim — `s` does **not** apply the `worktree-` prefix; that
+  prefix is reserved for the `EnterWorktree` Claude Code workflow.
+  Project list comes from `sesh list -c -j` (the configured-sessions
+  source); no separate registry. Don't wrap `<prefix> t` to add
+  create-on-miss — the picker stays vanilla per the existing house
+  rule.
 - **`vim` and `vimdiff` are zsh aliases to nvim**; **`vi` is a zsh alias
   to the legacy minimal vim** (`alias vi='command vim'` — `command`
   suppresses recursive alias expansion). All three are defined in
@@ -165,4 +179,3 @@ git config --global delta.syntax-theme "Solarized (dark)"
 ## Out of scope (future work, separate spec)
 
 - Lifting API tokens out of `~/.zshrc` into `~/.secrets`
-- tmux ↔ `EnterWorktree` auto-window integration
