@@ -106,7 +106,7 @@ SHIM
   ( cd "$fixture/dotfiles" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
   ( cd "$fixture/strava"   && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
   json=$(printf '[{"Name":"home","Path":"%s"},{"Name":"dotfiles","Path":"%s"},{"Name":"strava","Path":"%s"}]' \
-    "$HOME" "$fixture/dotfiles" "$fixture/strava")
+    "$fixture" "$fixture/dotfiles" "$fixture/strava")
   write_sesh_shim "$shimdir" "$json"
   # fzf shim: log stdin, emit the first line back (auto-pick).
   cat >"$shimdir/fzf" <<'SHIM'
