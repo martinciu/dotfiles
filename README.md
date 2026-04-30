@@ -39,6 +39,14 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 - URLs in tmux panes open with **Shift+Cmd+click**, not Cmd+click.
 - Why: with `set -g mouse on`, Ghostty defers all mouse interactions (incl. URL hover/click detection) to tmux. Ghostty's default `mouse-shift-capture = false` makes Shift the bypass modifier — Shift releases the click from tmux and Cmd reaches Ghostty's URL handler.
 - Or, keyboard-only: `<prefix> u` opens an fzf picker of URLs from the current pane (visible + last 2000 lines), Enter opens in the default browser. Provided by [`wfxr/tmux-fzf-url`](https://github.com/wfxr/tmux-fzf-url).
+- File-reference links printed by Claude Code (OSC 8 hyperlinks to `file:///abs/path`) open with **Shift+Cmd+click** — same modifier as URLs. Routing to VS Code (or whichever editor) happens via the existing macOS file-type defaults (Finder → Get Info → "Open with" → "Change All"); no extra config in this repo.
+- Smoke-test that the chain works end-to-end:
+
+  ```sh
+  printf '\e]8;;file://%s/.zshrc\e\\.zshrc\e]8;;\e\\\n' "$HOME"
+  ```
+
+  Shift+Cmd+click the rendered "`.zshrc`" — your default `.zshrc` editor should open the file.
 
 ## Future work
 

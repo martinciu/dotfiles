@@ -25,6 +25,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `--tac` is intentional so the newest URL lands at the cursor — don't drop
   it. Don't replace with a custom shell script; the plugin already does
   regex extraction efficiently.
+- **OSC 8 hyperlinks pass through tmux to Ghostty.** Two `terminal-features`
+  declarations in `.config/tmux/tmux.conf` (`xterm-ghostty:hyperlinks` and
+  `xterm-256color:hyperlinks`) enable hyperlink passthrough; without them
+  tmux strips OSC 8 sequences and Claude Code's file-reference links don't
+  render. Don't remove. Routing of `file://` clicks is handled by the user's
+  existing macOS file-type defaults — the repo deliberately ships no `duti`
+  config, no Claude Code setting override, no Ghostty `link` rule. If the
+  user wants VS Code (or another editor) for a given extension, they set it
+  via Finder → Get Info → Open with → Change All.
 - **Sesh config is split: shared + machine-local.** The repo tracks
   `.config/sesh/sesh.toml` (symlinked into `~/.config/sesh/sesh.toml`)
   with a `Home 🏠` session for `~` and a top-level
