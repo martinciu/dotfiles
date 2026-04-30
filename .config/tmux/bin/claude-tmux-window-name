@@ -1,0 +1,45 @@
+#!/usr/bin/env zsh
+# claude-tmux-window-name {set|clear}
+#
+# Invoked by Claude Code hooks. In `set` mode, reads JSON from stdin
+# (containing `session_id`), looks up the matching ~/.claude/sessions/<pid>.json
+# entry, and sets the tmux per-pane user variable @claude_session_name to
+# the session's `name`. In `clear` mode, unsets @claude_session_name and
+# @last_cmd on the current pane.
+#
+# Spec: tmp/specs/2026-04-30-claude-session-window-name-design.md
+# Tests: scripts/test-claude-tmux-window-name.zsh
+emulate -L zsh
+set -u
+
+[[ -z ${TMUX_PANE:-} ]] && exit 0
+mode="${1:-}"
+
+case $mode in
+  clear)
+    tmux set -p -t "$TMUX_PANE" -u @claude_session_name 2>/dev/null
+    tmux set -p -t "$TMUX_PANE" -u @last_cmd 2>/dev/null
+    exit 0
+    ;;
+  set)
+    # NULL_GLOB: when ~/.claude/sessions/ is empty (e.g. first run on a fresh
+    # machine, before Claude has written any session file), the *.json glob
+    # below would otherwise emit "no matches found" to stderr and abort the
+    # script. With NULL_GLOB the unmatched pattern expands to nothing and jq
+    # exits cleanly with empty output.
+    setopt NULL_GLOB
+    local payload session_id name
+    payload="$(cat)"
+    session_id="$(printf '%s' "$payload" | jq -r '.session_id // empty' 2>/dev/null)"
+    [[ -z $session_id ]] && exit 0
+
+    name="$(jq -r --arg sid "$session_id" \
+      'select(.sessionId == $sid) | .name // empty' \
+      "$HOME"/.claude/sessions/*.json 2>/dev/null | grep -m1 -v '^$' || true)"
+
+    [[ -z $name ]] && exit 0
+    tmux set -p -t "$TMUX_PANE" @claude_session_name "$name"
+    exit 0
+    ;;
+  *) exit 0 ;;
+esac

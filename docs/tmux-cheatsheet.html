@@ -233,6 +233,7 @@
       <li><code>vim foo.rb</code> → window name: <code>vim foo.rb</code></li>
       <li><code>FOO=bar bundle exec rspec</code> → <code>bundle exec</code></li>
       <li>Idle pane / non-zsh shell → falls back to <code>pane_current_command</code> (usually <code>zsh</code>)</li>
+      <li><strong>Claude session active</strong> — window renders <code>claude[&lt;session-name&gt;]</code> (overrides last-typed-command label until Claude exits)</li>
     </ul>
     <p class="note"><code>allow-rename off</code> stays — OSC titles from apps (e.g. Claude Code) cannot override.</p>
   </div>
@@ -410,20 +411,22 @@
 <span class="kw">set</span> -g <span class="cmd">visual-bell</span>  <span class="arg">off</span>
 <span class="kw">set</span> -g <span class="cmd">monitor-bell</span> <span class="arg">off</span>
 
-<span class="c"># Window naming follows active pane via @last_cmd (set in zsh preexec)</span>
+<span class="c"># Window naming: @claude_session_name (Claude hooks) overrides</span>
+<span class="c"># @last_cmd (zsh preexec) overrides pane_current_command (fallback)</span>
 <span class="kw">set</span> -g <span class="cmd">allow-rename</span> <span class="arg">off</span>
 <span class="kw">set</span> -g <span class="cmd">automatic-rename</span> <span class="arg">on</span>
-<span class="kw">set</span> -g <span class="cmd">automatic-rename-format</span> '#{?#{==:#{@last_cmd},},#{pane_current_command},#{@last_cmd}}'</pre>
+<span class="kw">set</span> -g <span class="cmd">automatic-rename-format</span> '#{?#{!=:#{@claude_session_name},},claude[#{@claude_session_name}],#{?#{==:#{@last_cmd},},#{pane_current_command},#{@last_cmd}}}'</pre>
 
 <h3>Reload &amp; verify</h3>
 <table style="max-width:780px">
   <tr><td class="key"><span class="k prefix">C-a</span><span class="k">r</span></td><td class="desc">reload config inside running tmux</td></tr>
   <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for status helpers</td></tr>
   <tr><td class="key"><code>scripts/test-tmux-window-label.zsh</code></td><td class="desc">window-label extraction tests (mirror of <code>_tmux_window_label</code> in <code>.zshrc</code>)</td></tr>
+  <tr><td class="key"><code>scripts/test-claude-tmux-window-name.zsh</code></td><td class="desc">tests for the <code>claude[&lt;name&gt;]</code> window-title helper</td></tr>
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-29. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-04-30. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>

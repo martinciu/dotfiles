@@ -78,6 +78,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   explicit ask. The label function `_tmux_window_label` in `.zshrc` is
   duplicated in `scripts/test-tmux-window-label.zsh` — keep both copies
   in sync.
+  When a Claude Code session is active in the pane,
+  `@claude_session_name` overrides `@last_cmd` and the window renders
+  `claude[<name>]`. Set/cleared by `~/.config/tmux/bin/claude-tmux-window-name`
+  via Claude Code hooks (`SessionStart`, `Stop`, `SessionEnd`) wired in
+  `~/.claude/settings.json`. The hook config is per-machine (not symlinked
+  from this repo — see "First-time setup on a new machine"). The script's
+  test mock and the script itself live separately —
+  `scripts/test-claude-tmux-window-name.zsh` exercises the script through a
+  temp `$HOME` and a `tmux` PATH shim, so no in-place duplication of logic.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
   `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
   `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
@@ -121,7 +130,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/tmux-{project-name,git-status}`
+- Helpers: `.config/tmux/bin/{tmux-project-name,tmux-git-status,claude-tmux-window-name}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
@@ -146,6 +155,7 @@ reference; open them locally with `open docs/<name>.html`.
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
+- Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`
@@ -161,6 +171,29 @@ git config --global delta.navigate true
 git config --global delta.line-numbers true
 git config --global delta.syntax-theme "Solarized (dark)"
 ```
+
+Then add the Claude Code hooks that drive the `claude[<name>]` window title.
+Open `~/.claude/settings.json` and add (or merge into) these top-level
+entries inside the `hooks` object:
+
+```json
+"SessionStart": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
+],
+"Stop": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
+],
+"SessionEnd": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name clear" } ] }
+]
+```
+
+`~/.claude/settings.json` is not symlinked from this repo (it accumulates
+machine-local permission state), so this is a one-time manual edit per
+machine.
 
 ## Out of scope (future work, separate spec)
 
