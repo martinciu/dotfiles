@@ -108,6 +108,36 @@ assert_eq "$ok" "1" "set writes name into @claude_session_name"
 unset TMUX_PANE
 teardown_env
 
+# 4. set mode, session file present but has no `name` field → no tmux call.
+setup_env
+TMUX_PANE="%7"; export TMUX_PANE
+cat > "$HOME/.claude/sessions/99.json" <<'JSON'
+{ "pid": 99, "sessionId": "no-name-sid" }
+JSON
+run_script set '{"session_id":"no-name-sid"}'
+assert_eq "$(tmux_call_count)" "0" "set with unnamed session → no tmux call"
+unset TMUX_PANE
+teardown_env
+
+# 5. set mode, stdin missing session_id → no tmux call.
+setup_env
+TMUX_PANE="%7"; export TMUX_PANE
+run_script set '{}'
+assert_eq "$(tmux_call_count)" "0" "set with empty payload → no tmux call"
+unset TMUX_PANE
+teardown_env
+
+# 6. set mode, no matching session file → no tmux call.
+setup_env
+TMUX_PANE="%7"; export TMUX_PANE
+cat > "$HOME/.claude/sessions/77.json" <<'JSON'
+{ "pid": 77, "sessionId": "different", "name": "elsewhere" }
+JSON
+run_script set '{"session_id":"abc-123"}'
+assert_eq "$(tmux_call_count)" "0" "set with unmatched sessionId → no tmux call"
+unset TMUX_PANE
+teardown_env
+
 # ── summary ──────────────────────────────────────────────────────────────────
 echo
 echo "───────────────────────"
