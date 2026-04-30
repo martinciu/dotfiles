@@ -33,6 +33,15 @@ resolve_project_path() {
   printf '%s\n' "$result"
 }
 
+# Reverse lookup: given a path, find the matching sesh-configured project
+# Name. Echoes the Name on stdout, empty string if not found.
+resolve_project_name() {
+  local dir="$1"
+  sesh list -c -j 2>/dev/null \
+    | jq -r --arg p "$dir" '.[] | select(.Path == $p) | .Name' \
+    | head -n1
+}
+
 # Arg parsing. Final dispatch is filled in over later tasks.
 (( $# > 2 )) && usage
 
@@ -48,7 +57,19 @@ case $# in
   1)
     if [[ -n ${TMUX:-} ]]; then
       # 1-arg-in-tmux: name only, project inferred (Task 4)
-      echo "TODO: 1-arg-in-tmux flow name=$1" >&2
+      name="$1"
+      # Find the main worktree path even if cwd is inside a secondary worktree.
+      common=$(git -C "$PWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+        echo "s: not in a git repo" >&2; exit 1
+      }
+      # Resolve symlinks so the path matches what sesh stores (real paths).
+      project_path=$(cd "$(dirname "$common")" && pwd -P)
+      project=$(resolve_project_name "$project_path")
+      if [[ -z $project ]]; then
+        echo "s: cwd's repo is not in your sesh config" >&2
+        exit 1
+      fi
+      echo "TODO: 1-arg-in-tmux flow name=$name project=$project" >&2
       exit 1
     else
       project="$1"

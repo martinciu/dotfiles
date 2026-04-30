@@ -142,6 +142,43 @@ SHIM
   out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" 2>&1); rc=$?
   assert_eq "$rc" "0" "fzf cancel -> exit 0"
   rm -rf "$shimdir"
+
+  # ─── infer project from cwd (inside tmux) ──────────────────────────
+  shimdir=$(make_shimdir)
+  fixture=$(mktemp -d)
+  ( cd "$fixture" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  # Add a worktree so we can verify --git-common-dir resolves to the main repo.
+  ( cd "$fixture" && git worktree add -q wt-x -b feat/x >/dev/null 2>&1 )
+  # Use physical path (resolves macOS /var -> /private/var symlink) to match
+  # what git rev-parse --path-format=absolute returns.
+  fixture_real=$(cd "$fixture" && pwd -P)
+  json=$(printf '[{"Name":"fixproject","Path":"%s"}]' "$fixture_real")
+  write_sesh_shim "$shimdir" "$json"
+  # Run from inside the worktree subdir.
+  out=$( cd "$fixture/wt-x" && env TMUX=fake PATH="$shimdir:$PATH" "$S" feature-y 2>&1 ); rc=$?
+  assert_eq "$rc" "1" "inferred-project flow reaches placeholder"
+  assert_contains "$out" "1-arg-in-tmux flow name=feature-y project=fixproject" \
+    "infers project name 'fixproject' from cwd's main worktree path"
+  rm -rf "$shimdir" "$fixture"
+
+  # ─── infer fail: cwd not in any git repo ───────────────────────────
+  shimdir=$(make_shimdir)
+  fixture=$(mktemp -d)  # not a git repo
+  write_sesh_shim "$shimdir" '[]'
+  out=$( cd "$fixture" && env TMUX=fake PATH="$shimdir:$PATH" "$S" feature-y 2>&1 ); rc=$?
+  assert_eq "$rc" "1" "cwd not in repo -> exit 1"
+  assert_contains "$out" "not in a git repo" "cwd not in repo -> error message"
+  rm -rf "$shimdir" "$fixture"
+
+  # ─── infer fail: cwd's repo not in sesh config ─────────────────────
+  shimdir=$(make_shimdir)
+  fixture=$(mktemp -d)
+  ( cd "$fixture" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  write_sesh_shim "$shimdir" '[{"Name":"otherproject","Path":"/some/other/path"}]'
+  out=$( cd "$fixture" && env TMUX=fake PATH="$shimdir:$PATH" "$S" feature-y 2>&1 ); rc=$?
+  assert_eq "$rc" "1" "cwd repo not in sesh -> exit 1"
+  assert_contains "$out" "cwd's repo is not in your sesh config" "cwd repo not in sesh -> error message"
+  rm -rf "$shimdir" "$fixture"
 fi
 
 # ─── Summary ────────────────────────────────
