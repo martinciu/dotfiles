@@ -29,12 +29,18 @@ ensure_worktree() {
 }
 
 # Look up a project by Name in sesh's configured sessions. Echoes the
-# Path on stdout. Exits 1 with a clear error if not found.
+# Path on stdout. Exits 1 with a clear error if sesh fails or name is
+# unknown. Distinguishing the two avoids sending users typo-hunting
+# in sesh.local.toml when sesh itself is the problem.
 resolve_project_path() {
-  local name="$1" result
-  result=$(sesh list -c -j 2>/dev/null \
+  local name="$1" sesh_out result
+  if ! sesh_out=$(sesh list -c -j 2>/dev/null); then
+    echo "s: sesh list failed (is sesh installed?)" >&2
+    exit 1
+  fi
+  result=$(printf '%s' "$sesh_out" \
     | jq -r --arg n "$name" '.[] | select(.Name == $n) | .Path' \
-    | head -n1) || true
+    | head -n1)
   if [[ -z $result ]]; then
     echo "s: no project named '$name'" >&2
     exit 1

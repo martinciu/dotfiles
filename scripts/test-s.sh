@@ -55,6 +55,11 @@ else
   assert_eq "$rc" "1" "too many args -> exit 1"
   assert_contains "$out" "Usage:" "too many args -> usage on stderr"
 
+  # 0 args inside tmux -> usage (spec: in-tmux requires at least 1 arg)
+  out=$(env TMUX=fake "$S" 2>&1); rc=$?
+  assert_eq "$rc" "1" "0-arg in-tmux -> exit 1"
+  assert_contains "$out" "Usage:" "0-arg in-tmux -> usage on stderr"
+
   # ─── shim helpers ──────────────────────────
   # Each test creates a fresh shimdir, writes shims, and prepends to PATH.
   # Shims that record args write to "$shimdir/<name>.log".
@@ -102,10 +107,9 @@ SHIM
   assert_contains "$out" "no project named 'nope'" "explicit project not in sesh -> error message"
   rm -rf "$shimdir"
 
-  # ─── project lookup: sesh missing -> meaningful error, not silent abort
-  # Use a shimdir that shadows sesh (and jq/head) with nothing, but keep
-  # system dirs so the zsh shebang still resolves. A no-op sesh shim that
-  # exits non-zero simulates a broken/missing tool without stripping PATH.
+  # ─── project lookup: sesh broken -> distinct error (not "no project named")
+  # Without this distinction, a broken sesh sends users hunting for a typo in
+  # sesh.local.toml when the real fix is to install/repair sesh.
   shimdir=$(make_shimdir)
   cat >"$shimdir/sesh" <<'SHIM'
 #!/usr/bin/env bash
@@ -113,8 +117,8 @@ exit 1
 SHIM
   chmod +x "$shimdir/sesh"
   out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" anything 2>&1); rc=$?
-  assert_eq "$rc" "1" "sesh missing -> exit 1 (not 127)"
-  assert_contains "$out" "no project named 'anything'" "sesh missing -> error message"
+  assert_eq "$rc" "1" "sesh broken -> exit 1 (not 127)"
+  assert_contains "$out" "sesh list failed" "sesh broken -> distinct error, not 'no project named'"
   rm -rf "$shimdir"
 
   # ─── picker: outside tmux, 0 args, mocked fzf auto-selects ─────────
