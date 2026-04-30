@@ -260,11 +260,6 @@ else
   fi
 fi
 
-# ─── bin/s ──────────────────────────────────
-echo
-echo "bin/s"
-echo "─────"
-
 if ! bash "$(dirname "$0")/test-s.sh"; then
   fail=$((fail+1))
   fail_msgs+=("FAIL  scripts/test-s.sh reported failures")
