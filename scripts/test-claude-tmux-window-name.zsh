@@ -91,6 +91,23 @@ assert_eq "$last_unset" "1" "clear unsets @last_cmd"
 unset TMUX_PANE
 teardown_env
 
+# 3. set mode, session has a name → @claude_session_name set to that name.
+setup_env
+TMUX_PANE="%7"; export TMUX_PANE
+cat > "$HOME/.claude/sessions/12345.json" <<'JSON'
+{ "pid": 12345, "sessionId": "abc-123", "name": "my-session" }
+JSON
+run_script set '{"session_id":"abc-123"}'
+assert_eq "$(tmux_call_count)" "1" "set with named session → one tmux call"
+calls=$(cat "$TMUX_CALLS")
+case "$calls" in
+  *@claude_session_name*my-session*) ok=1 ;;
+  *)                                  ok=0 ;;
+esac
+assert_eq "$ok" "1" "set writes name into @claude_session_name"
+unset TMUX_PANE
+teardown_env
+
 # ── summary ──────────────────────────────────────────────────────────────────
 echo
 echo "───────────────────────"
