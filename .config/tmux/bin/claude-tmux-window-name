@@ -1,0 +1,21 @@
+#!/usr/bin/env zsh
+# claude-tmux-window-name {set|clear}
+#
+# Invoked by Claude Code hooks. In `set` mode, reads JSON from stdin
+# (containing `session_id`), looks up the matching ~/.claude/sessions/<pid>.json
+# entry, and sets the tmux per-pane user variable @claude_session_name to
+# the session's `name`. In `clear` mode, unsets @claude_session_name and
+# @last_cmd on the current pane.
+#
+# Spec: tmp/specs/2026-04-30-claude-session-window-name-design.md
+# Tests: scripts/test-claude-tmux-window-name.zsh
+emulate -L zsh
+set -u
+
+[[ -z ${TMUX_PANE:-} ]] && exit 0
+mode="${1:-}"
+
+case $mode in
+  set|clear) ;;
+  *) exit 0 ;;
+esac
