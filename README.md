@@ -52,7 +52,3 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
   lines for paths that exist on disk (OSC 8 hyperlinks + plain `path:line`
   regex), fzf-picks one, jumps the per-session nvim. Falls back to a fresh
   nvim in a new tmux window if no live nvim socket exists for the session.
-
-## Future work
-
-- Lift API tokens out of `~/.zshrc` into a gitignored `~/.secrets`
