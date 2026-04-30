@@ -138,6 +138,18 @@ assert_eq "$(tmux_call_count)" "0" "set with unmatched sessionId → no tmux cal
 unset TMUX_PANE
 teardown_env
 
+# 7. set mode, ~/.claude/sessions/ empty → no tmux call AND no stderr noise.
+#    Regression test for "zsh: no matches found" leaking when the *.json glob
+#    expands to nothing. NULL_GLOB in the script suppresses it.
+setup_env
+TMUX_PANE="%7"; export TMUX_PANE
+STDERR_LOG="$TEST_HOME/stderr.log"
+printf '%s' '{"session_id":"abc"}' | "$SCRIPT" set 2>"$STDERR_LOG"
+assert_eq "$(tmux_call_count)" "0" "set with empty sessions/ dir → no tmux call"
+assert_eq "$(wc -c <"$STDERR_LOG" | tr -d ' ')" "0" "set with empty sessions/ dir → no stderr noise"
+unset TMUX_PANE STDERR_LOG
+teardown_env
+
 # ── summary ──────────────────────────────────────────────────────────────────
 echo
 echo "───────────────────────"

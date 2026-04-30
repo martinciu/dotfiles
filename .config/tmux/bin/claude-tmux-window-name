@@ -22,6 +22,12 @@ case $mode in
     exit 0
     ;;
   set)
+    # NULL_GLOB: when ~/.claude/sessions/ is empty (e.g. first run on a fresh
+    # machine, before Claude has written any session file), the *.json glob
+    # below would otherwise emit "no matches found" to stderr and abort the
+    # script. With NULL_GLOB the unmatched pattern expands to nothing and jq
+    # exits cleanly with empty output.
+    setopt NULL_GLOB
     local payload session_id name
     payload="$(cat)"
     session_id="$(printf '%s' "$payload" | jq -r '.session_id // empty' 2>/dev/null)"
