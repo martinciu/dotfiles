@@ -62,10 +62,21 @@ vim.opt.wildignore:append({ "*/.claude/worktrees/*" })
 -- same session, serverstart errors (already-bound); pcall swallows it and the
 -- first nvim wins. Acceptable trade-off for the sesh-style "one project per
 -- session" workflow.
+--
+-- Path scheme (mirrors tmux-open-in-nvim):
+--   $XDG_RUNTIME_DIR/nvim-tmux-<session>.sock              (Linux)
+--   $TMPDIR/nvim.$USER/nvim-tmux-<session>.sock            (macOS)
+-- We can't use vim.fn.stdpath("run") because on macOS it appends a
+-- per-process random subdirectory the dispatcher can't predict.
 if vim.env.TMUX and not vim.env.NVIM then
   local session = vim.fn.system("tmux display-message -p '#S'"):gsub("\n", "")
   if session ~= "" then
-    local sock = string.format("%s/nvim-tmux-%s.sock", vim.fn.stdpath("run"), session)
+    local run_dir = vim.env.XDG_RUNTIME_DIR
+    if not run_dir or run_dir == "" then
+      run_dir = string.format("%s/nvim.%s", vim.env.TMPDIR or "/tmp", vim.env.USER or "")
+    end
+    vim.fn.mkdir(run_dir, "p")
+    local sock = string.format("%s/nvim-tmux-%s.sock", run_dir, session)
     pcall(vim.fn.serverstart, sock)
   end
 end
