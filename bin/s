@@ -19,10 +19,51 @@ EOF
   exit 1
 }
 
-# Arg parsing. Dispatch is filled in over later tasks; for now anything
-# beyond 2 args is rejected.
+# Look up a project by Name in sesh's configured sessions. Echoes the
+# Path on stdout. Exits 1 with a clear error if not found.
+resolve_project_path() {
+  local name="$1" result
+  result=$(sesh list -c -j 2>/dev/null \
+    | jq -r --arg n "$name" '.[] | select(.Name == $n) | .Path' \
+    | head -n1)
+  if [[ -z $result ]]; then
+    echo "s: no project named '$name'" >&2
+    exit 1
+  fi
+  printf '%s\n' "$result"
+}
+
+# Arg parsing. Final dispatch is filled in over later tasks.
 (( $# > 2 )) && usage
 
-# Stub: until later tasks wire actual behavior, every other invocation
-# is also a usage error.
-usage
+case $# in
+  2)
+    project="$1"
+    name="$2"
+    project_path=$(resolve_project_path "$project")
+    # placeholder: full session-create flow lands in Task 6
+    echo "TODO: 2-arg flow project=$project name=$name path=$project_path" >&2
+    exit 1
+    ;;
+  1)
+    if [[ -n ${TMUX:-} ]]; then
+      # 1-arg-in-tmux: name only, project inferred (Task 4)
+      echo "TODO: 1-arg-in-tmux flow name=$1" >&2
+      exit 1
+    else
+      project="$1"
+      project_path=$(resolve_project_path "$project")
+      echo "TODO: 1-arg-out flow project=$project path=$project_path" >&2
+      exit 1
+    fi
+    ;;
+  0)
+    if [[ -n ${TMUX:-} ]]; then
+      usage
+    else
+      # 0-arg-out-of-tmux: fzf picker (Task 3)
+      echo "TODO: picker flow" >&2
+      exit 1
+    fi
+    ;;
+esac

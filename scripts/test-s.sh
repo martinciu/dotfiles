@@ -54,6 +54,34 @@ else
   out=$(env -u TMUX "$S" a b c 2>&1); rc=$?
   assert_eq "$rc" "1" "too many args -> exit 1"
   assert_contains "$out" "Usage:" "too many args -> usage on stderr"
+
+  # ─── shim helpers ──────────────────────────
+  # Each test creates a fresh shimdir, writes shims, and prepends to PATH.
+  # Shims that record args write to "$shimdir/<name>.log".
+  make_shimdir() { mktemp -d; }
+
+  write_sesh_shim() {
+    # $1 = shimdir, $2 = JSON to emit for `sesh list -c -j`
+    local d="$1" json="$2"
+    cat >"$d/sesh" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$d/sesh.log"
+if [ "\$1" = "list" ]; then
+  printf '%s\n' '$json'
+  exit 0
+fi
+echo "sesh shim: unsupported args: \$*" >&2; exit 99
+SHIM
+    chmod +x "$d/sesh"
+  }
+
+  # ─── project lookup: not found ─────────────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/dotfiles"}]'
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" nope 2>&1); rc=$?
+  assert_eq "$rc" "1" "explicit project not in sesh -> exit 1"
+  assert_contains "$out" "no project named 'nope'" "explicit project not in sesh -> error message"
+  rm -rf "$shimdir"
 fi
 
 # ─── Summary ────────────────────────────────
