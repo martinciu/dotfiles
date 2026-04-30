@@ -50,3 +50,22 @@ opt.background = "dark"
 -- `:find`, netrw, wildmenu). Snacks pickers are handled separately in
 -- lua/plugins/snacks.lua.
 vim.opt.wildignore:append({ "*/.claude/worktrees/*" })
+
+-- ─── Per-tmux-session RPC server ─────────────────────────────────────────
+-- When launched inside tmux (and not as a child of another nvim), start a
+-- server on a per-tmux-session socket so external tools can target this
+-- nvim by tmux session name.
+--
+-- Used by ~/.config/tmux/bin/tmux-open-in-nvim (bound to <prefix> o).
+--
+-- Granularity: one socket per tmux session. If a second nvim launches in the
+-- same session, serverstart errors (already-bound); pcall swallows it and the
+-- first nvim wins. Acceptable trade-off for the sesh-style "one project per
+-- session" workflow.
+if vim.env.TMUX and not vim.env.NVIM then
+  local session = vim.fn.system("tmux display-message -p '#S'"):gsub("\n", "")
+  if session ~= "" then
+    local sock = string.format("%s/nvim-tmux-%s.sock", vim.fn.stdpath("run"), session)
+    pcall(vim.fn.serverstart, sock)
+  end
+end
