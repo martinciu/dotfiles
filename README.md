@@ -24,6 +24,7 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 - URL picker (current pane): `<prefix> u`
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)
+- worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker
 
 ## Status bar (right side)
 
@@ -42,4 +43,3 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 ## Future work
 
 - Lift API tokens out of `~/.zshrc` into a gitignored `~/.secrets`
-- `EnterWorktree` ↔ tmux integration (auto-spawn window per worktree)

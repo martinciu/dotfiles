@@ -64,6 +64,15 @@ link ".p10k.zsh"  "$HOME/.p10k.zsh"
 # --- claude
 link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
+# --- bin (user commands on $PATH)
+# Symlink each file individually because ~/.local/bin/ typically contains
+# other user-installed binaries that shouldn't be displaced by linking the
+# whole directory.
+for src in "$DOTFILES"/bin/*; do
+  [ -e "$src" ] || continue
+  link "bin/$(basename "$src")" "$HOME/.local/bin/$(basename "$src")"
+done
+
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then

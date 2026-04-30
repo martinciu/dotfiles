@@ -1,0 +1,137 @@
+#!/usr/bin/env zsh
+# s — one-command worktree + tmux session.
+# See tmp/specs/2026-04-30-s-worktree-session-design.md for design rationale.
+set -euo pipefail
+
+usage() {
+  cat <<'EOF' >&2
+Usage: s [<project>] [<name>]
+
+  Inside tmux:
+    1 arg  -> name=<arg>; project inferred from cwd's repo
+    2 args -> project=<arg1>, name=<arg2>
+
+  Outside tmux:
+    0 args -> fzf picker over sesh's configured projects
+    1 arg  -> project=<arg>, no worktree (open project's main session)
+    2 args -> project=<arg1>, name=<arg2>
+EOF
+  exit 1
+}
+
+# Create or find a worktree for <name> in <project_path>. Echoes the
+# worktree path on stdout. wt is itself idempotent: if branch+worktree
+# already exist, it reports their location instead of erroring.
+ensure_worktree() {
+  local project_path="$1" name="$2" json
+  json=$(wt -C "$project_path" switch --create --no-cd --format=json "$name") || return $?
+  printf '%s\n' "$json" | jq -r '.path'
+}
+
+# Look up a project by Name in sesh's configured sessions. Echoes the
+# Path on stdout. Exits 1 with a clear error if sesh fails or name is
+# unknown. Distinguishing the two avoids sending users typo-hunting
+# in sesh.local.toml when sesh itself is the problem.
+resolve_project_path() {
+  local name="$1" sesh_out result
+  if ! sesh_out=$(sesh list -c -j 2>/dev/null); then
+    echo "s: sesh list failed (is sesh installed?)" >&2
+    exit 1
+  fi
+  result=$(printf '%s' "$sesh_out" \
+    | jq -r --arg n "$name" '.[] | select(.Name == $n) | .Path' \
+    | head -n1)
+  if [[ -z $result ]]; then
+    echo "s: no project named '$name'" >&2
+    exit 1
+  fi
+  printf '%s\n' "$result"
+}
+
+# Reverse lookup: given a path, find the matching sesh-configured project
+# Name. Echoes the Name on stdout, empty string if not found.
+resolve_project_name() {
+  local dir="$1"
+  sesh list -c -j 2>/dev/null \
+    | jq -r --arg p "$dir" '.[] | select(.Path == $p) | .Name' \
+    | head -n1
+}
+
+# Final stage: switch-client (in tmux) or attach (out) to an existing session.
+# The caller is responsible for creating the session with new-session first.
+finish() {
+  local session="$1"
+  if [[ -n ${TMUX:-} ]]; then
+    exec tmux switch-client -t "$session"
+  else
+    exec tmux attach -t "$session"
+  fi
+}
+
+# Arg parsing. Final dispatch is filled in over later tasks.
+(( $# > 2 )) && usage
+
+case $# in
+  2)
+    project="$1"
+    name="$2"
+    session="$project/$name"
+    project_path=$(resolve_project_path "$project")
+    if ! tmux has-session -t "$session" 2>/dev/null; then
+      target_path=$(ensure_worktree "$project_path" "$name")
+      tmux new-session -d -s "$session" -c "$target_path"
+    fi
+    finish "$session"
+    ;;
+  1)
+    if [[ -n ${TMUX:-} ]]; then
+      # 1-arg-in-tmux: name only, project inferred (Task 4)
+      name="$1"
+      # Find the main worktree path even if cwd is inside a secondary worktree.
+      common=$(git -C "$PWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+        echo "s: not in a git repo" >&2; exit 1
+      }
+      # Resolve symlinks so the path matches what sesh stores (real paths).
+      project_path=$(cd "$(dirname "$common")" && pwd -P)
+      project=$(resolve_project_name "$project_path")
+      if [[ -z $project ]]; then
+        echo "s: cwd's repo is not in your sesh config" >&2
+        exit 1
+      fi
+      session="$project/$name"
+      if ! tmux has-session -t "$session" 2>/dev/null; then
+        target_path=$(ensure_worktree "$project_path" "$name")
+        tmux new-session -d -s "$session" -c "$target_path"
+      fi
+      finish "$session"
+    else
+      project="$1"
+      project_path=$(resolve_project_path "$project")
+      if ! tmux has-session -t "$project" 2>/dev/null; then
+        tmux new-session -d -s "$project" -c "$project_path"
+      fi
+      finish "$project"
+    fi
+    ;;
+  0)
+    if [[ -n ${TMUX:-} ]]; then
+      usage
+    else
+      # 0-arg-out-of-tmux: fzf picker (Task 3)
+      pick=$(sesh list -c -j 2>/dev/null \
+        | jq -r '.[] | "\(.Name)\t\(.Path)"' \
+        | while IFS=$'\t' read -r n p; do
+            git -C "$p" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+              && printf '%s\t%s\n' "$n" "$p"
+          done \
+        | fzf --with-nth=1 --delimiter=$'\t' --prompt='project: ') || pick=""
+      [[ -z $pick ]] && exit 0
+      project="${pick%%$'\t'*}"
+      project_path="${pick#*$'\t'}"
+      if ! tmux has-session -t "$project" 2>/dev/null; then
+        tmux new-session -d -s "$project" -c "$project_path"
+      fi
+      finish "$project"
+    fi
+    ;;
+esac
