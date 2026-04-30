@@ -97,6 +97,51 @@ SHIM
   assert_eq "$rc" "1" "sesh missing -> exit 1 (not 127)"
   assert_contains "$out" "no project named 'anything'" "sesh missing -> error message"
   rm -rf "$shimdir"
+
+  # ─── picker: outside tmux, 0 args, mocked fzf auto-selects ─────────
+  shimdir=$(make_shimdir)
+  # Two real-repo fixtures + one non-repo to verify filtering.
+  fixture=$(mktemp -d)
+  mkdir -p "$fixture/dotfiles" "$fixture/strava"
+  ( cd "$fixture/dotfiles" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  ( cd "$fixture/strava"   && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  json=$(printf '[{"Name":"home","Path":"%s"},{"Name":"dotfiles","Path":"%s"},{"Name":"strava","Path":"%s"}]' \
+    "$HOME" "$fixture/dotfiles" "$fixture/strava")
+  write_sesh_shim "$shimdir" "$json"
+  # fzf shim: log stdin, emit the first line back (auto-pick).
+  cat >"$shimdir/fzf" <<'SHIM'
+#!/usr/bin/env bash
+input=$(cat)
+echo "$input" >"$(dirname "$0")/fzf.stdin"
+printf '%s\n' "$input" | head -n1
+SHIM
+  chmod +x "$shimdir/fzf"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" 2>&1); rc=$?
+  assert_eq "$rc" "1" "picker auto-pick reaches placeholder for 1-arg-out flow"
+  assert_contains "$out" "1-arg-out flow project=dotfiles" "picker selects first git-repo entry (dotfiles)"
+  # The picker input must NOT contain the non-repo "home" entry.
+  picker_in=$(cat "$shimdir/fzf.stdin")
+  if printf '%s' "$picker_in" | grep -q '^home	'; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  picker should filter out non-repo 'home' entry"$'\n'"        input: '$picker_in'")
+    echo "  FAIL  picker should filter out non-repo 'home' entry"
+  else
+    pass=$((pass+1))
+    echo "  PASS  picker filters non-repo entries"
+  fi
+  rm -rf "$shimdir" "$fixture"
+
+  # ─── picker: user cancels (fzf exits 130) -> clean exit 0 ──────────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp"}]'
+  cat >"$shimdir/fzf" <<'SHIM'
+#!/usr/bin/env bash
+exit 130
+SHIM
+  chmod +x "$shimdir/fzf"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" 2>&1); rc=$?
+  assert_eq "$rc" "0" "fzf cancel -> exit 0"
+  rm -rf "$shimdir"
 fi
 
 # ─── Summary ────────────────────────────────

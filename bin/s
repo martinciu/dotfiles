@@ -62,7 +62,17 @@ case $# in
       usage
     else
       # 0-arg-out-of-tmux: fzf picker (Task 3)
-      echo "TODO: picker flow" >&2
+      pick=$(sesh list -c -j 2>/dev/null \
+        | jq -r '.[] | "\(.Name)\t\(.Path)"' \
+        | while IFS=$'\t' read -r n p; do
+            git -C "$p" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+              && printf '%s\t%s\n' "$n" "$p"
+          done \
+        | fzf --with-nth=1 --delimiter=$'\t' --prompt='project: ') || pick=""
+      [[ -z $pick ]] && exit 0
+      project="${pick%%$'\t'*}"
+      project_path="${pick#*$'\t'}"
+      echo "TODO: 1-arg-out flow project=$project path=$project_path" >&2
       exit 1
     fi
     ;;
