@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# tmux-fzf-file — fzf picker over file paths in the current pane + scrollback.
+#
+# Usage: tmux-fzf-file <pane_id> <pane_cwd>
+#        tmux-fzf-file --extract-only <cwd>     (testing mode; reads stdin)
+#
+# Extracts candidates two ways:
+#   1. OSC 8 hyperlinks (Claude Code, eza --hyperlink, delta) — most reliable
+#   2. plain path[:line[:col]] regex — covers tools that don't emit OSC 8
+#
+# Filters to paths that actually exist on disk (rejects host:port, dates, etc.).
+# Pipes survivors to fzf; on selection, exec ./tmux-open-in-nvim.
+
+set -u
+
+extract_paths() {
+  local cwd="$1"
+  # Read all of stdin into a variable so we can run two passes.
+  local input; input="$(cat)"
+
+  {
+    # Pass 1: OSC 8 hyperlinks.
+    # Format: ESC]8;<params>;<URL>ESC\<text>ESC]8;;ESC\
+    # We grab everything between `;<URL_START>` and the next `\x1b\\` or `\x07`.
+    # `file://` URIs get the path portion extracted; other schemes are skipped.
+    printf '%s' "$input" \
+      | LC_ALL=C grep -aoE $'\x1b\\]8;[^\x07\x1b]*' \
+      | LC_ALL=C sed -nE 's|^.*;file://([^[:space:]]+).*$|\1|p'
+
+    # Pass 2: plain path[:line[:col]] regex on the cleaned text.
+    # Strip ANSI escape sequences first so they don't break path matching.
+    printf '%s' "$input" \
+      | LC_ALL=C sed -E -e $'s/\x1b\\[[0-9;]*[a-zA-Z]//g' -e $'s/\x1b\\][^\x07\x1b]*(\x07|\x1b\\\\)//g' \
+      | LC_ALL=C grep -oE '([./~][[:alnum:]_./-]*|[[:alnum:]_-]+(/[[:alnum:]_.-]+)+|[[:alnum:]_-]+)\.[[:alnum:]]+(:[0-9]+(:[0-9]+)?)?' \
+      || true
+  } | while IFS= read -r raw; do
+    [ -z "$raw" ] && continue
+    # Split candidate into path / line / col.
+    local rest="$raw"
+    local file="${rest%%:*}"; rest="${rest#"$file"}"
+    local line=""; local col=""
+    if [[ "$rest" == :* ]]; then
+      rest="${rest#:}"
+      line="${rest%%:*}"; rest="${rest#"$line"}"
+      [[ "$rest" == :* ]] && col="${rest#:}"
+    fi
+    # Resolve relative paths against cwd.
+    local abs="$file"
+    case "$file" in
+      /*) ;;                      # absolute
+      ~*) abs="${file/#\~/$HOME}";;
+      *)  abs="$cwd/$file" ;;
+    esac
+    # Filter: must exist on disk and be a regular file.
+    [ -f "$abs" ] || continue
+    # Re-emit canonical form.
+    if [ -n "$line" ] && [ -n "$col" ]; then
+      printf '%s:%s:%s\n' "$abs" "$line" "$col"
+    elif [ -n "$line" ]; then
+      printf '%s:%s\n' "$abs" "$line"
+    else
+      printf '%s\n' "$abs"
+    fi
+  done
+}
+
+if [ "${1:-}" = "--extract-only" ]; then
+  cwd="${2:-$PWD}"
+  extract_paths "$cwd"
+  exit 0
+fi
+
+pane_id="${1:?pane_id required}"
+pane_cwd="${2:?pane_cwd required}"
+
+content=$(tmux capture-pane -t "$pane_id" -p -e -J -S -2000)
+candidates=$(printf '%s' "$content" | extract_paths "$pane_cwd")
+
+[ -z "$candidates" ] && exit 0
+
+# fzf options match @fzf-url-fzf-options for visual parity, except --multi is
+# disabled (one file at a time).
+selection=$(printf '%s\n' "$candidates" \
+  | fzf --no-multi -0 --no-preview --border --tac \
+        --prompt 'file > ' --height '70%' --layout reverse)
+
+[ -z "$selection" ] && exit 0
+
+exec "$(dirname "$0")/tmux-open-in-nvim" "$selection"

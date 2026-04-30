@@ -25,6 +25,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `--tac` is intentional so the newest URL lands at the cursor — don't drop
   it. Don't replace with a custom shell script; the plugin already does
   regex extraction efficiently.
+- **`<prefix> o` is the file-picker binding** (sibling of `<prefix> u` URL
+  picker). Implemented by `.config/tmux/bin/tmux-fzf-file` (picker) +
+  `tmux-open-in-nvim` (dispatcher). nvim auto-listens on
+  `$XDG_RUNTIME_DIR/nvim-tmux-<session>.sock` from
+  `lua/config/options.lua`. Don't replace with `<prefix> f` (used by other
+  tmux plugins as "next session") or `<prefix> p` (used for paste-buffer in
+  copy-mode).
 - **OSC 8 hyperlinks pass through tmux to Ghostty.** Two `terminal-features`
   declarations in `.config/tmux/tmux.conf` (`xterm-ghostty:hyperlinks` and
   `xterm-256color:hyperlinks`) enable hyperlink passthrough; without them

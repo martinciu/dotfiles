@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# tmux-open-in-nvim — open <file>[:line[:col]] in the tmux-session-scoped nvim,
+# falling back to a fresh nvim in a new tmux window if no live socket is found.
+#
+# Usage: tmux-open-in-nvim <file>[:line[:col]]
+#
+# Socket scheme: $XDG_RUNTIME_DIR/nvim-tmux-<session>.sock
+# (matches the per-session listener in .config/nvim/lua/config/options.lua)
+
+set -u
+
+target="${1:?target required}"
+
+# Parse target into file/line/col. Handles: file, file:42, file:42:7
+file="$target"; line=""; col=""
+if [[ "$target" =~ :([0-9]+)(:([0-9]+))?$ ]]; then
+  line="${BASH_REMATCH[1]}"
+  col="${BASH_REMATCH[3]:-}"
+  file="${target%:*}"
+  [ -n "$col" ] && file="${file%:*}"
+fi
+line="${line:-1}"
+col="${col:-1}"
+
+# Compute socket path. nvim's stdpath("run") on macOS adds a per-process
+# random subdirectory we can't predict, so we mirror the deterministic path
+# the nvim listener writes to: $XDG_RUNTIME_DIR (Linux) or $TMPDIR/nvim.$USER
+# (macOS).
+session=$(tmux display-message -p '#S' 2>/dev/null || echo "")
+runtime_dir="${XDG_RUNTIME_DIR:-$TMPDIR/nvim.$USER}"
+sock="$runtime_dir/nvim-tmux-${session}.sock"
+
+remote_send() {
+  # nvim --server <sock> --remote-send sends keystrokes; <C-\><C-N> exits any
+  # mode, then we drop into command-line mode for :edit and :call cursor.
+  local quoted_file
+  quoted_file=$(printf '%q' "$file")
+  nvim --server "$sock" --remote-send \
+    "<C-\\><C-N>:edit ${quoted_file}<CR>:call cursor(${line},${col})<CR>" \
+    >/dev/null 2>&1
+}
+
+focus_nvim_window() {
+  # Find a window in the current session whose active pane is running nvim
+  # and select it. Best-effort — silent if not found.
+  local target_window
+  target_window=$(tmux list-windows -F '#{window_id} #{pane_current_command}' \
+    | awk '$2 == "nvim" { print $1; exit }')
+  [ -n "$target_window" ] && tmux select-window -t "$target_window"
+}
+
+fallback_new_window() {
+  # Project root: nearest git toplevel from file's dir, else file's dir.
+  local file_dir root
+  file_dir=$(dirname "$file")
+  root=$(git -C "$file_dir" rev-parse --show-toplevel 2>/dev/null || echo "$file_dir")
+  tmux new-window -c "$root" -- nvim "+call cursor(${line},${col})" "$file"
+}
+
+if [ -S "$sock" ] && remote_send; then
+  focus_nvim_window
+else
+  fallback_new_window
+fi
