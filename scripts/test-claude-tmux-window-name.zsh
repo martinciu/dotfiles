@@ -71,6 +71,26 @@ run_script set '{"session_id":"any"}'
 assert_eq "$(tmux_call_count)" "0" "no \$TMUX_PANE → script no-ops"
 teardown_env
 
+# 2. clear mode → tmux invoked twice (unset @claude_session_name + @last_cmd).
+setup_env
+TMUX_PANE="%42"; export TMUX_PANE
+run_script clear
+assert_eq "$(tmux_call_count)" "2" "clear → two tmux unset calls"
+# Verify each call passes -p -t %42 -u <var>
+calls=$(cat "$TMUX_CALLS")
+case "$calls" in
+  *@claude_session_name*) name_unset=1 ;;
+  *)                      name_unset=0 ;;
+esac
+case "$calls" in
+  *@last_cmd*) last_unset=1 ;;
+  *)           last_unset=0 ;;
+esac
+assert_eq "$name_unset" "1" "clear unsets @claude_session_name"
+assert_eq "$last_unset" "1" "clear unsets @last_cmd"
+unset TMUX_PANE
+teardown_env
+
 # ── summary ──────────────────────────────────────────────────────────────────
 echo
 echo "───────────────────────"

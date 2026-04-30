@@ -16,6 +16,13 @@ set -u
 mode="${1:-}"
 
 case $mode in
-  set|clear) ;;
+  clear)
+    tmux set -p -t "$TMUX_PANE" -u @claude_session_name 2>/dev/null
+    tmux set -p -t "$TMUX_PANE" -u @last_cmd 2>/dev/null
+    exit 0
+    ;;
+  set)
+    : # implemented in next task
+    ;;
   *) exit 0 ;;
 esac
