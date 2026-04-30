@@ -75,6 +75,25 @@ SHIM
     chmod +x "$d/sesh"
   }
 
+  write_tmux_shim() {
+    local d="$1"
+    cat >"$d/tmux" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$d/tmux.log"
+case "\$1" in
+  has-session)
+    if [ -f "$d/tmux.has_session_exit" ]; then
+      exit "\$(cat "$d/tmux.has_session_exit")"
+    fi
+    exit 1
+    ;;
+  *)
+    exit 0 ;;
+esac
+SHIM
+    chmod +x "$d/tmux"
+  }
+
   # ─── project lookup: not found ─────────────
   shimdir=$(make_shimdir)
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/dotfiles"}]'
@@ -108,6 +127,7 @@ SHIM
   json=$(printf '[{"Name":"home","Path":"%s"},{"Name":"dotfiles","Path":"%s"},{"Name":"strava","Path":"%s"}]' \
     "$fixture" "$fixture/dotfiles" "$fixture/strava")
   write_sesh_shim "$shimdir" "$json"
+  write_tmux_shim "$shimdir"
   # fzf shim: log stdin, emit the first line back (auto-pick).
   cat >"$shimdir/fzf" <<'SHIM'
 #!/usr/bin/env bash
@@ -117,8 +137,7 @@ printf '%s\n' "$input" | head -n1
 SHIM
   chmod +x "$shimdir/fzf"
   out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" 2>&1); rc=$?
-  assert_eq "$rc" "1" "picker auto-pick reaches placeholder for 1-arg-out flow"
-  assert_contains "$out" "1-arg-out flow project=dotfiles" "picker selects first git-repo entry (dotfiles)"
+  assert_eq "$rc" "0" "picker auto-pick completes successfully"
   # The picker input must NOT contain the non-repo "home" entry.
   picker_in=$(cat "$shimdir/fzf.stdin")
   if printf '%s' "$picker_in" | grep -q '^home	'; then
@@ -154,10 +173,17 @@ SHIM
   fixture_real=$(cd "$fixture" && pwd -P)
   json=$(printf '[{"Name":"fixproject","Path":"%s"}]' "$fixture_real")
   write_sesh_shim "$shimdir" "$json"
+  write_tmux_shim "$shimdir"
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$shimdir/wt.log"
+printf '{"action":"created","branch":"feature-y","path":"$fixture_real/.claude/worktrees/feature-y"}\n'
+SHIM
+  chmod +x "$shimdir/wt"
   # Run from inside the worktree subdir.
   out=$( cd "$fixture/wt-x" && env TMUX=fake PATH="$shimdir:$PATH" "$S" feature-y 2>&1 ); rc=$?
-  assert_eq "$rc" "1" "inferred-project flow reaches placeholder"
-  assert_contains "$out" "1-arg-in-tmux flow name=feature-y project=fixproject" \
+  assert_eq "$rc" "0" "inferred-project flow completes (switch-client)"
+  assert_contains "$(cat "$shimdir/tmux.log")" "switch-client -t fixproject/feature-y" \
     "infers project name 'fixproject' from cwd's main worktree path"
   rm -rf "$shimdir" "$fixture"
 
@@ -183,6 +209,7 @@ SHIM
   # ─── worktree creation: 2-arg flow invokes wt with correct args ────
   shimdir=$(make_shimdir)
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
 #!/usr/bin/env bash
 echo "\$@" >>"$shimdir/wt.log"
@@ -191,13 +218,141 @@ printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/w
 SHIM
   chmod +x "$shimdir/wt"
   out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
-  assert_eq "$rc" "1" "2-arg flow reaches placeholder after wt"
-  assert_contains "$out" "target_path=/tmp/fakerepo/.claude/worktrees/feature-x" \
-    "2-arg flow uses worktree path from wt JSON"
+  assert_eq "$rc" "0" "2-arg flow completes after wt (attach)"
   wt_args=$(cat "$shimdir/wt.log")
   assert_contains "$wt_args" "-C /tmp/fakerepo switch --create --no-cd --format=json feature-x" \
     "wt invoked with -C <project_path> switch --create --no-cd --format=json <name>"
   rm -rf "$shimdir"
+
+  # ─── 1-arg out: session=<project>, no worktree, no wt call ─────────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  write_tmux_shim "$shimdir"
+  # wt shim that fails loudly if invoked
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "wt should not be called in 1-arg-out flow" >&2; exit 99
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles 2>&1); rc=$?
+  assert_eq "$rc" "0" "1-arg-out happy path -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "has-session -t dotfiles" "1-arg-out checks has-session for project name"
+  assert_contains "$log" "new-session -d -s dotfiles -c /tmp/fakerepo" \
+    "1-arg-out creates tmux session at project path"
+  assert_contains "$log" "attach -t dotfiles" "1-arg-out attaches (TMUX unset)"
+  rm -rf "$shimdir"
+
+  # ─── 2-arg out: session=<project>/<name>, wt creates worktree ──────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  write_tmux_shim "$shimdir"
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$shimdir/wt.log"
+printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
+  assert_eq "$rc" "0" "2-arg out happy path -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "new-session -d -s dotfiles/feature-x -c /tmp/fakerepo/.claude/worktrees/feature-x" \
+    "2-arg-out creates tmux session named <project>/<name> at worktree path"
+  assert_contains "$log" "attach -t dotfiles/feature-x" "2-arg-out attaches (TMUX unset)"
+  rm -rf "$shimdir"
+
+  # ─── 2-arg in tmux: switch-client instead of attach ─────────────────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  write_tmux_shim "$shimdir"
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$shimdir/wt.log"
+printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$(env TMUX=fake PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
+  assert_eq "$rc" "0" "2-arg in tmux happy path -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "switch-client -t dotfiles/feature-x" \
+    "2-arg-in uses switch-client (TMUX set)"
+  if printf '%s' "$log" | grep -q "attach -t"; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  in-tmux must not use 'attach -t'"$'\n'"        log: '$log'")
+    echo "  FAIL  in-tmux must not use 'attach -t'"
+  else
+    pass=$((pass+1))
+    echo "  PASS  in-tmux does not use 'attach -t'"
+  fi
+  rm -rf "$shimdir"
+
+  # ─── has-session short-circuit: no wt call, no new-session ─────────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  write_tmux_shim "$shimdir"
+  echo 0 >"$shimdir/tmux.has_session_exit"   # session "exists"
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "wt should not be called when session already exists" >&2; exit 99
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
+  assert_eq "$rc" "0" "has-session=0 short-circuit -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  if printf '%s' "$log" | grep -q "new-session"; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  has-session=0 should skip new-session"$'\n'"        log: '$log'")
+    echo "  FAIL  has-session=0 should skip new-session"
+  else
+    pass=$((pass+1))
+    echo "  PASS  has-session=0 skips new-session"
+  fi
+  assert_contains "$log" "attach -t dotfiles/feature-x" "has-session=0 still attaches"
+  rm -rf "$shimdir"
+
+  # ─── 0-arg picker -> session=<project>, no worktree ────────────────
+  shimdir=$(make_shimdir)
+  fixture=$(mktemp -d)
+  mkdir -p "$fixture/dotfiles"
+  ( cd "$fixture/dotfiles" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  fixture_real=$(cd "$fixture/dotfiles" && pwd -P)
+  json=$(printf '[{"Name":"dotfiles","Path":"%s"}]' "$fixture_real")
+  write_sesh_shim "$shimdir" "$json"
+  write_tmux_shim "$shimdir"
+  cat >"$shimdir/fzf" <<'SHIM'
+#!/usr/bin/env bash
+head -n1
+SHIM
+  chmod +x "$shimdir/fzf"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" 2>&1); rc=$?
+  assert_eq "$rc" "0" "picker happy path -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "new-session -d -s dotfiles -c $fixture_real" \
+    "picker creates session at picked project path"
+  rm -rf "$shimdir" "$fixture"
+
+  # ─── 1-arg in tmux: session=<project>/<name>, wt creates worktree ──
+  shimdir=$(make_shimdir)
+  fixture=$(mktemp -d)
+  ( cd "$fixture" && git init -q && git -c user.email=t@t -c user.name=t commit --allow-empty -q -m i )
+  fixture_real=$(cd "$fixture" && pwd -P)
+  json=$(printf '[{"Name":"fixproject","Path":"%s"}]' "$fixture_real")
+  write_sesh_shim "$shimdir" "$json"
+  write_tmux_shim "$shimdir"
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$shimdir/wt.log"
+printf '{"action":"created","branch":"feature-y","path":"$fixture_real/.claude/worktrees/feature-y"}\n'
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$( cd "$fixture" && env TMUX=fake PATH="$shimdir:$PATH" "$S" feature-y 2>&1 ); rc=$?
+  assert_eq "$rc" "0" "1-arg in-tmux happy path -> exit 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "new-session -d -s fixproject/feature-y -c $fixture_real/.claude/worktrees/feature-y" \
+    "1-arg in-tmux creates session named <inferred-project>/<name> at worktree"
+  assert_contains "$log" "switch-client -t fixproject/feature-y" \
+    "1-arg in-tmux uses switch-client"
+  rm -rf "$shimdir" "$fixture"
 fi
 
 # ─── Summary ────────────────────────────────

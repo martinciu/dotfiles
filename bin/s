@@ -51,6 +51,17 @@ resolve_project_name() {
     | head -n1
 }
 
+# Final stage: switch-client (in tmux) or attach (out) to an existing session.
+# The caller is responsible for creating the session with new-session first.
+finish() {
+  local session="$1"
+  if [[ -n ${TMUX:-} ]]; then
+    exec tmux switch-client -t "$session"
+  else
+    exec tmux attach -t "$session"
+  fi
+}
+
 # Arg parsing. Final dispatch is filled in over later tasks.
 (( $# > 2 )) && usage
 
@@ -58,11 +69,13 @@ case $# in
   2)
     project="$1"
     name="$2"
+    session="$project/$name"
     project_path=$(resolve_project_path "$project")
-    target_path=$(ensure_worktree "$project_path" "$name")
-    # placeholder: tmux session create/attach lands in Task 6
-    echo "TODO: 2-arg flow project=$project name=$name target_path=$target_path" >&2
-    exit 1
+    if ! tmux has-session -t "$session" 2>/dev/null; then
+      target_path=$(ensure_worktree "$project_path" "$name")
+      tmux new-session -d -s "$session" -c "$target_path"
+    fi
+    finish "$session"
     ;;
   1)
     if [[ -n ${TMUX:-} ]]; then
@@ -79,13 +92,19 @@ case $# in
         echo "s: cwd's repo is not in your sesh config" >&2
         exit 1
       fi
-      echo "TODO: 1-arg-in-tmux flow name=$name project=$project" >&2
-      exit 1
+      session="$project/$name"
+      if ! tmux has-session -t "$session" 2>/dev/null; then
+        target_path=$(ensure_worktree "$project_path" "$name")
+        tmux new-session -d -s "$session" -c "$target_path"
+      fi
+      finish "$session"
     else
       project="$1"
       project_path=$(resolve_project_path "$project")
-      echo "TODO: 1-arg-out flow project=$project path=$project_path" >&2
-      exit 1
+      if ! tmux has-session -t "$project" 2>/dev/null; then
+        tmux new-session -d -s "$project" -c "$project_path"
+      fi
+      finish "$project"
     fi
     ;;
   0)
@@ -103,8 +122,10 @@ case $# in
       [[ -z $pick ]] && exit 0
       project="${pick%%$'\t'*}"
       project_path="${pick#*$'\t'}"
-      echo "TODO: 1-arg-out flow project=$project path=$project_path" >&2
-      exit 1
+      if ! tmux has-session -t "$project" 2>/dev/null; then
+        tmux new-session -d -s "$project" -c "$project_path"
+      fi
+      finish "$project"
     fi
     ;;
 esac
