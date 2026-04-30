@@ -152,6 +152,7 @@ if command -v eza >/dev/null 2>&1; then
 fi
 if command -v glow >/dev/null 2>&1; then
   alias md='glow --style $HOME/.config/glow/glamour.json'
+  alias mdp='md -p'
 fi
 if command -v nvim >/dev/null 2>&1; then
   alias vim='nvim'

@@ -106,8 +106,11 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   git/delta and other tools manage their own pager.
 - **`md` renders markdown via `glow`** with a pinned Solarized JSON style at
   `.config/glow/glamour.json`. `bat`/`less`/`cat` still show source with syntax
-  highlighting; `md` shows rendered output. The alias passes `--style` directly
-  rather than relying on `glow.yml` because glow on macOS reads its yml from
+  highlighting; `md` shows rendered output. **`mdp` is `md -p`** — same render,
+  through a pager (real `less`, not the shell `less` wrapper, since glow spawns
+  the pager as a subprocess and shell functions don't apply across that
+  boundary). The alias passes `--style` directly rather than relying on
+  `glow.yml` because glow on macOS reads its yml from
   `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to `mdcat`,
   `frogmouth`, or another renderer without an explicit ask. (`mdcat` was
   considered and ruled out: archived upstream as of 2025-01-10.)
