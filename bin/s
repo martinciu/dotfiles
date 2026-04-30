@@ -1,0 +1,28 @@
+#!/usr/bin/env zsh
+# s — one-command worktree + tmux session.
+# See tmp/specs/2026-04-30-s-worktree-session-design.md for design rationale.
+set -euo pipefail
+
+usage() {
+  cat <<'EOF' >&2
+Usage: s [<project>] [<name>]
+
+  Inside tmux:
+    1 arg  -> name=<arg>; project inferred from cwd's repo
+    2 args -> project=<arg1>, name=<arg2>
+
+  Outside tmux:
+    0 args -> fzf picker over sesh's configured projects
+    1 arg  -> project=<arg>, no worktree (open project's main session)
+    2 args -> project=<arg1>, name=<arg2>
+EOF
+  exit 1
+}
+
+# Arg parsing. Dispatch is filled in over later tasks; for now anything
+# beyond 2 args is rejected.
+(( $# > 2 )) && usage
+
+# Stub: until later tasks wire actual behavior, every other invocation
+# is also a usage error.
+usage
