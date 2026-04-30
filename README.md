@@ -2,6 +2,68 @@
 
 Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono Nerd Font.
 
+## Setup (new machine)
+
+Detailed conventions and reasoning live in `CLAUDE.md`. This section is the
+operational checklist.
+
+1. Install Homebrew (https://brew.sh).
+2. Export `PROJECTS_HOME` (e.g. `export PROJECTS_HOME="$HOME/code"`) and
+   clone this repo to `$PROJECTS_HOME/dotfiles`.
+3. Install brew packages: `brew bundle --file=$PROJECTS_HOME/dotfiles/Brewfile`.
+4. Run the symlinker: `$PROJECTS_HOME/dotfiles/bootstrap.sh` (idempotent;
+   safe to re-run).
+5. Apply the **manual extras** below — `bootstrap.sh` cannot automate these.
+6. Open tmux and press `<prefix> I` (capital I, prefix = `C-a`) to install
+   TPM plugins.
+
+### Manual extras
+
+**1. `~/.zshrc.local`** — per-machine env (e.g. `PROJECTS_HOME` and any
+secrets paths).
+
+```sh
+cp $PROJECTS_HOME/dotfiles/.zshrc.local.template ~/.zshrc.local
+$EDITOR ~/.zshrc.local
+```
+
+**2. `~/.config/sesh/sesh.local.toml`** — `bootstrap.sh` copies the template
+on first run. Edit it to add machine-local project sessions; the shared
+`sesh.toml` is the wrong place for them.
+
+**3. Wire delta into git** (one-time, global).
+
+```sh
+git config --global core.pager delta
+git config --global interactive.diffFilter "delta --color-only"
+git config --global delta.navigate true
+git config --global delta.line-numbers true
+git config --global delta.syntax-theme "Solarized (dark)"
+```
+
+**4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
+symlinked from this repo (it accumulates machine-local permission state),
+so this is a one-time manual edit. Add (or merge into) the top-level
+`hooks` object:
+
+```json
+"SessionStart": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
+],
+"Stop": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
+],
+"SessionEnd": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/bin/claude-tmux-window-name clear" } ] }
+]
+```
+
+These drive the `claude[<name>]` window title (tmux's
+`automatic-rename-format` reads `@claude_session_name`).
+
 ## What's where
 
 | Tool      | Source path                          | Target              |
