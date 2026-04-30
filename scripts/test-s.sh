@@ -179,6 +179,25 @@ SHIM
   assert_eq "$rc" "1" "cwd repo not in sesh -> exit 1"
   assert_contains "$out" "cwd's repo is not in your sesh config" "cwd repo not in sesh -> error message"
   rm -rf "$shimdir" "$fixture"
+
+  # ─── worktree creation: 2-arg flow invokes wt with correct args ────
+  shimdir=$(make_shimdir)
+  write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
+  cat >"$shimdir/wt" <<SHIM
+#!/usr/bin/env bash
+echo "\$@" >>"$shimdir/wt.log"
+# Emit the same JSON shape as real wt --format=json
+printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
+SHIM
+  chmod +x "$shimdir/wt"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
+  assert_eq "$rc" "1" "2-arg flow reaches placeholder after wt"
+  assert_contains "$out" "target_path=/tmp/fakerepo/.claude/worktrees/feature-x" \
+    "2-arg flow uses worktree path from wt JSON"
+  wt_args=$(cat "$shimdir/wt.log")
+  assert_contains "$wt_args" "-C /tmp/fakerepo switch --create --no-cd --format=json feature-x" \
+    "wt invoked with -C <project_path> switch --create --no-cd --format=json <name>"
+  rm -rf "$shimdir"
 fi
 
 # ─── Summary ────────────────────────────────

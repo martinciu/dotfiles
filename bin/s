@@ -19,6 +19,15 @@ EOF
   exit 1
 }
 
+# Create or find a worktree for <name> in <project_path>. Echoes the
+# worktree path on stdout. wt is itself idempotent: if branch+worktree
+# already exist, it reports their location instead of erroring.
+ensure_worktree() {
+  local project_path="$1" name="$2" json
+  json=$(wt -C "$project_path" switch --create --no-cd --format=json "$name") || return $?
+  printf '%s\n' "$json" | jq -r '.path'
+}
+
 # Look up a project by Name in sesh's configured sessions. Echoes the
 # Path on stdout. Exits 1 with a clear error if not found.
 resolve_project_path() {
@@ -50,8 +59,9 @@ case $# in
     project="$1"
     name="$2"
     project_path=$(resolve_project_path "$project")
-    # placeholder: full session-create flow lands in Task 6
-    echo "TODO: 2-arg flow project=$project name=$name path=$project_path" >&2
+    target_path=$(ensure_worktree "$project_path" "$name")
+    # placeholder: tmux session create/attach lands in Task 6
+    echo "TODO: 2-arg flow project=$project name=$name target_path=$target_path" >&2
     exit 1
     ;;
   1)
