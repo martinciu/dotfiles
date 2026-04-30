@@ -180,6 +180,14 @@ swapped tools, etc. Each footer is dated; refresh that date when content is touc
 The sheets are committed (not gitignored) so anyone cloning the repo gets the same
 reference; open them locally with `open docs/<name>.html`.
 
+Shared styles (Solarized palette, base typography, kbd/code/grid/card/footer/
+print rules) live in `docs/style.css`; each cheatsheet's residual inline
+`<style>` block holds only page-specific rules. When editing a cheatsheet,
+prefer adding new shared rules to `docs/style.css` rather than re-inlining.
+A landing page at `docs/index.html` lists the three cheatsheets and is
+served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
+(source: `main`, folder `/docs`, with a `docs/.nojekyll` marker).
+
 ## Verify changes
 
 - Helper smoke tests: `scripts/test-helpers.sh`
