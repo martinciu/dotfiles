@@ -129,6 +129,7 @@
       <tr><td class="key"><code>cat</code></td><td class="desc">→ <code>bat --paging=never</code></td></tr>
       <tr><td class="key"><code>less</code></td><td class="desc">function → <code>bat</code> wrapper (file = full decoration; pipe = <code>--plain</code>)</td></tr>
       <tr><td class="key"><code>md</code></td><td class="desc">→ <code>glow --style ~/.config/glow/glamour.json</code></td></tr>
+      <tr><td class="key"><code>mdp</code></td><td class="desc">→ <code>md -p</code> (paged via real <code>less</code>)</td></tr>
       <tr><td class="key"><code>ls</code></td><td class="desc">→ <code>eza --group-directories-first --icons</code></td></tr>
       <tr><td class="key"><code>ll</code></td><td class="desc">→ <code>eza -lh --git --icons --group-directories-first</code></td></tr>
       <tr><td class="key"><code>la</code></td><td class="desc">→ <code>ll -a</code></td></tr>
@@ -317,6 +318,7 @@
     <table>
       <tr><td class="key"><code>md README.md</code></td><td class="desc">render to terminal</td></tr>
       <tr><td class="key"><code>md -p README.md</code></td><td class="desc">paged (uses <code>$PAGER</code> / less)</td></tr>
+      <tr><td class="key"><code>mdp README.md</code></td><td class="desc">same as <code>md -p</code> (dedicated alias)</td></tr>
       <tr><td class="key"><code>md -w 100 README.md</code></td><td class="desc">force width 100</td></tr>
       <tr><td class="key"><code>cat foo.md | md -</code></td><td class="desc">render from stdin</td></tr>
       <tr><td class="key"><code>command glow ...</code></td><td class="desc">bypass alias (no <code>--style</code>)</td></tr>
@@ -510,7 +512,7 @@
 </ol>
 
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-29.
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-04-30.
   Refresh after meaningful color-tooling changes.
 </footer>
 
