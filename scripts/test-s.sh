@@ -245,6 +245,8 @@ SHIM
   assert_contains "$log" "new-session -d -s dotfiles -c /tmp/fakerepo" \
     "1-arg-out creates tmux session at project path"
   assert_contains "$log" "attach -t dotfiles" "1-arg-out attaches (TMUX unset)"
+  assert_contains "$log" "set-option -t dotfiles @session_root /tmp/fakerepo" \
+    "1-arg-out stamps @session_root with project root"
   rm -rf "$shimdir"
 
   # ─── 2-arg out: session=<project>/<name>, wt creates worktree ──────
@@ -263,6 +265,8 @@ SHIM
   assert_contains "$log" "new-session -d -s dotfiles/feature-x -c /tmp/fakerepo/.claude/worktrees/feature-x" \
     "2-arg-out creates tmux session named <project>/<name> at worktree path"
   assert_contains "$log" "attach -t dotfiles/feature-x" "2-arg-out attaches (TMUX unset)"
+  assert_contains "$log" "set-option -t dotfiles/feature-x @session_root /tmp/fakerepo/.claude/worktrees/feature-x" \
+    "2-arg-out stamps @session_root on the session"
   rm -rf "$shimdir"
 
   # ─── 2-arg in tmux: switch-client instead of attach ─────────────────
@@ -288,16 +292,22 @@ SHIM
     pass=$((pass+1))
     echo "  PASS  in-tmux does not use 'attach -t'"
   fi
+  assert_contains "$log" "set-option -t dotfiles/feature-x @session_root /tmp/fakerepo/.claude/worktrees/feature-x" \
+    "2-arg-in stamps @session_root on the session"
   rm -rf "$shimdir"
 
-  # ─── has-session short-circuit: no wt call, no new-session ─────────
+  # ─── has-session short-circuit: no new-session, but wt + stamp still run ──
+  # When the session already exists, we skip new-session creation but STILL
+  # call wt (idempotent per bin/s:25) and re-stamp @session_root — the latter
+  # is how we self-heal after tmux-continuum restores wipe session options.
   shimdir=$(make_shimdir)
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
   write_tmux_shim "$shimdir"
   echo 0 >"$shimdir/tmux.has_session_exit"   # session "exists"
   cat >"$shimdir/wt" <<SHIM
 #!/usr/bin/env bash
-echo "wt should not be called when session already exists" >&2; exit 99
+echo "\$@" >>"$shimdir/wt.log"
+printf '{"action":"existing","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
 SHIM
   chmod +x "$shimdir/wt"
   out=$(env -u TMUX PATH="$shimdir:$PATH" "$S" dotfiles feature-x 2>&1); rc=$?
@@ -311,6 +321,8 @@ SHIM
     pass=$((pass+1))
     echo "  PASS  has-session=0 skips new-session"
   fi
+  assert_contains "$log" "set-option -t dotfiles/feature-x @session_root /tmp/fakerepo/.claude/worktrees/feature-x" \
+    "has-session=0 still stamps @session_root (handles post-restore wipe)"
   assert_contains "$log" "attach -t dotfiles/feature-x" "has-session=0 still attaches"
   rm -rf "$shimdir"
 
@@ -333,6 +345,8 @@ SHIM
   log=$(cat "$shimdir/tmux.log")
   assert_contains "$log" "new-session -d -s dotfiles -c $fixture_real" \
     "picker creates session at picked project path"
+  assert_contains "$log" "set-option -t dotfiles @session_root $fixture_real" \
+    "picker stamps @session_root with picked project path"
   rm -rf "$shimdir" "$fixture"
 
   # ─── 1-arg in tmux: session=<project>/<name>, wt creates worktree ──
@@ -356,6 +370,8 @@ SHIM
     "1-arg in-tmux creates session named <inferred-project>/<name> at worktree"
   assert_contains "$log" "switch-client -t fixproject/feature-y" \
     "1-arg in-tmux uses switch-client"
+  assert_contains "$log" "set-option -t fixproject/feature-y @session_root $fixture_real/.claude/worktrees/feature-y" \
+    "1-arg-in stamps @session_root with worktree path"
   rm -rf "$shimdir" "$fixture"
 fi
 
