@@ -180,10 +180,11 @@ bindkey -M emacs -r '^[c' 2>/dev/null
 bindkey -M viins -r '^[c' 2>/dev/null
 bindkey -M vicmd -r '^[c' 2>/dev/null
 
-# zoxide — frecency-ranked `cd` (`z foo`) and source for sesh picker.
-# _ZO_EXCLUDE_DIRS is colon-separated globs (per `man zoxide`); we block
-# the home root + three noise sources so the sesh picker stays focused on
-# real projects under $PROJECTS_HOME.
+# zoxide — frecency-ranked `cd` (`z foo`). The sesh picker no longer
+# reads zoxide (see tmux.conf: `sesh picker ... -c -t -T`), so these
+# excludes exist purely for `z` discipline: `z lib` should not jump
+# into ~/Library, `z config` should not jump into ~/.config, etc.
+# _ZO_EXCLUDE_DIRS is colon-separated globs (per `man zoxide`).
 if command -v zoxide >/dev/null 2>&1; then
   export _ZO_EXCLUDE_DIRS="$HOME:$HOME/Downloads/*:$HOME/.config/*:$HOME/Library/*"
   eval "$(zoxide init zsh)"
