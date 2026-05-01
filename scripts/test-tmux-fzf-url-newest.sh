@@ -88,6 +88,46 @@ check "wrapper $WRAPPER exists and is executable" \
   test_wrapper_executable
 
 # ---------------------------------------------------------------------------
+# Test 4: wrapper exits 0 when the fzf picker is cancelled with ESC.
+# fzf returns 130 on ESC; with `set -euo pipefail` that propagates as the
+# wrapper's own exit code, and tmux's `run -b` then surfaces it as
+# `'... tmux-fzf-url-newest 50000' returned 130`. Mock tmux + fzf-tmux to
+# simulate ESC and assert the wrapper finishes silently.
+# ---------------------------------------------------------------------------
+test_esc_exits_zero() {
+  [ -d "$PLUGIN_DIR" ] || { echo "  plugin not installed at $PLUGIN_DIR"; return 1; }
+  [ -x "$PLUGIN_DIR/bin/xre" ] || { echo "  xre binary not present at $PLUGIN_DIR/bin/xre"; return 1; }
+
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # shellcheck disable=SC2064
+  trap "rm -rf '$tmpdir'" RETURN
+
+  cat > "$tmpdir/tmux" <<'EOF'
+#!/usr/bin/env bash
+case "$1" in
+  capture-pane) printf 'visit https://example.com today\n' ;;
+  show)         printf '%s\n' '-w 70% -h 70% --multi -0 --no-preview --border --tac' ;;
+  display)      ;;
+  *)            ;;
+esac
+EOF
+  chmod +x "$tmpdir/tmux"
+
+  cat > "$tmpdir/fzf-tmux" <<'EOF'
+#!/usr/bin/env bash
+exit 130
+EOF
+  chmod +x "$tmpdir/fzf-tmux"
+
+  local status=0
+  PATH="$tmpdir:$PATH" "$WRAPPER" 100 >/dev/null 2>&1 || status=$?
+  [ "$status" -eq 0 ] || { echo "  wrapper exited $status, expected 0 (ESC cancellation should be silent)"; return 1; }
+}
+check "wrapper exits 0 when fzf is cancelled with ESC (exit 130)" \
+  test_esc_exits_zero
+
+# ---------------------------------------------------------------------------
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 if [ "$fail" -gt 0 ]; then
   printf 'Failed:\n'
