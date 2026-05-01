@@ -65,7 +65,7 @@
       <tr><td class="key"><code>tmux ls</code></td><td class="desc">list sessions</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach (session keeps running)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">r</span></td><td class="desc">reload <code>~/.config/tmux/tmux.conf</code></td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / tmuxinator)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / tmuxinator) — height sized to entry count</td></tr>
       <tr><td class="key"><code>s [&lt;project&gt;] [&lt;name&gt;]</code></td><td class="desc">create-or-attach worktree+session — inside tmux 1 arg = worktree name in current project, outside tmux 1 arg = project, 0 args = fzf picker</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">u</span></td><td class="desc">URL picker (fzf, current pane full 50k scrollback, latest occurrence of duplicates wins) — opens in default browser</td></tr>
@@ -119,12 +119,21 @@
   <div class="card">
     <h3>Sesh picker <span class="pill">prefix t</span></h3>
     <p>
-      <span class="k prefix">C-a</span><span class="k">t</span> opens a popup running
+      <span class="k prefix">C-a</span><span class="k">t</span> runs
+      <code>~/.config/tmux/bin/tmux-sesh-picker</code>, which opens a popup over
       <code>sesh picker -i -d -H -c -t -T</code> — three sources (configured / tmux /
       tmuxinator). Zoxide is intentionally not a picker source. The shared config
       lives at <code>.config/sesh/sesh.toml</code> with an <code>import</code> directive
       pulling machine-local sessions from <code>~/.config/sesh/sesh.local.toml</code>
       (untracked, copied from a template by <code>bootstrap.sh</code>).
+    </p>
+    <p class="note">
+      Popup width is fixed at 70% (shared anchor with the URL and file pickers);
+      height is dynamic — <code>items + 4</code>, clamped to <code>[6, 80% of
+      client height]</code>, falling back to <code>15</code> if
+      <code>sesh list</code> fails. Width gives long
+      <code>&lt;project&gt;/&lt;worktree&gt;</code> session names room; sizing
+      height to the entry count keeps the popup compact.
     </p>
     <p class="note">
       <code>_ZO_EXCLUDE_DIRS</code> blocks <code>~/</code>, <code>~/Downloads/*</code>,
