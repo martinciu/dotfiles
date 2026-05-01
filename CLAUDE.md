@@ -62,11 +62,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   the shared file; don't drop the `import` line — sesh hard-errors on
   a missing import target. The picker (`<prefix> t`, swapped with the
   default clock-mode binding which moved to `<prefix> T`) is
-  `sesh picker -i -d -H` — full vanilla, all sources (configured /
-  tmux / zoxide / tmuxinator). Don't re-introduce a custom fzf wrapper
-  script. Zoxide is on but `_ZO_EXCLUDE_DIRS` blocks `~/`,
+  `sesh picker -i -d -H -c -t -T` — three sources only (configured /
+  tmux / tmuxinator). Zoxide is intentionally **not** a picker source:
+  the `-c -t -T` flags are inclusive opt-in, so omitting `-z` drops
+  zoxide. Don't re-introduce a custom fzf wrapper script. Zoxide is
+  still loaded for `z`-cd, and `_ZO_EXCLUDE_DIRS` blocks `~/`,
   `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being indexed —
-  keeps the picker focused on real projects under `$PROJECTS_HOME`.
+  keeps `z lib`/`z config`/etc. from jumping into noise dirs.
 - **`s` is the worktree+session command** (`bin/s`, symlinked to
   `~/.local/bin/s` by `bootstrap.sh`). Surface:
   `s [<project>] [<name>]`. Inside tmux a single arg is the worktree
