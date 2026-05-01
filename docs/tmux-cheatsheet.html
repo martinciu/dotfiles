@@ -65,7 +65,7 @@
       <tr><td class="key"><code>tmux ls</code></td><td class="desc">list sessions</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach (session keeps running)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">r</span></td><td class="desc">reload <code>~/.config/tmux/tmux.conf</code></td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / zoxide / tmuxinator)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / tmuxinator)</td></tr>
       <tr><td class="key"><code>s [&lt;project&gt;] [&lt;name&gt;]</code></td><td class="desc">create-or-attach worktree+session — inside tmux 1 arg = worktree name in current project, outside tmux 1 arg = project, 0 args = fzf picker</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">u</span></td><td class="desc">URL picker (fzf, current pane full 50k scrollback, latest occurrence of duplicates wins) — opens in default browser</td></tr>
@@ -120,17 +120,17 @@
     <h3>Sesh picker <span class="pill">prefix t</span></h3>
     <p>
       <span class="k prefix">C-a</span><span class="k">t</span> opens a popup running
-      <code>sesh picker -i -d -H</code> — full vanilla, all sources (configured / tmux /
-      zoxide / tmuxinator). The shared config lives at
-      <code>.config/sesh/sesh.toml</code> with an <code>import</code> directive pulling
-      machine-local sessions from <code>~/.config/sesh/sesh.local.toml</code> (untracked,
-      copied from a template by <code>bootstrap.sh</code>).
+      <code>sesh picker -i -d -H -c -t -T</code> — three sources (configured / tmux /
+      tmuxinator). Zoxide is intentionally not a picker source. The shared config
+      lives at <code>.config/sesh/sesh.toml</code> with an <code>import</code> directive
+      pulling machine-local sessions from <code>~/.config/sesh/sesh.local.toml</code>
+      (untracked, copied from a template by <code>bootstrap.sh</code>).
     </p>
     <p class="note">
       <code>_ZO_EXCLUDE_DIRS</code> blocks <code>~/</code>, <code>~/Downloads/*</code>,
-      <code>~/.config/*</code>, <code>~/Library/*</code> from zoxide indexing — keeps the
-      picker focused on real projects under <code>$PROJECTS_HOME</code>. Don't re-introduce
-      a custom fzf wrapper script.
+      <code>~/.config/*</code>, <code>~/Library/*</code> from zoxide indexing — these
+      excludes now exist for <code>z</code>-cd hygiene only (the picker no longer
+      reads zoxide). Don't re-introduce a custom fzf wrapper script.
     </p>
   </div>
 
