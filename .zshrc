@@ -159,6 +159,9 @@ if command -v nvim >/dev/null 2>&1; then
   alias vi='command vim'
   alias vimdiff='vim -d'
 fi
+if command -v btop >/dev/null 2>&1; then
+  alias top='btop'
+fi
 
 # ─── Plugins (order matters) ─────────────────────────────────────
 # Required order:
