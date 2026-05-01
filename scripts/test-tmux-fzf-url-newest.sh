@@ -128,6 +128,53 @@ check "wrapper exits 0 when fzf is cancelled with ESC (exit 130)" \
   test_esc_exits_zero
 
 # ---------------------------------------------------------------------------
+# Test 5: wrapper exits 0 when the user picks a URL.
+# Regression for: open_url checks `[[ -n $custom_open ]]` unconditionally;
+# without `custom_open=""` defined, `set -u` makes it an unbound-variable
+# error and the wrapper exits 1 — tmux surfaces it as `'... returned 1'`.
+# Mock tmux + fzf-tmux so fzf-tmux returns a numbered URL line and the
+# wrapper's `open_url` runs through a stub `open` on PATH.
+# ---------------------------------------------------------------------------
+test_selection_exits_zero() {
+  [ -d "$PLUGIN_DIR" ] || { echo "  plugin not installed at $PLUGIN_DIR"; return 1; }
+  [ -x "$PLUGIN_DIR/bin/xre" ] || { echo "  xre binary not present at $PLUGIN_DIR/bin/xre"; return 1; }
+
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # shellcheck disable=SC2064
+  trap "rm -rf '$tmpdir'" RETURN
+
+  cat > "$tmpdir/tmux" <<'EOF'
+#!/usr/bin/env bash
+case "$1" in
+  capture-pane) printf 'visit https://example.com today\n' ;;
+  show)         printf '%s\n' '-w 70% -h 70% --multi -0 --no-preview --border --tac' ;;
+  display)      ;;
+  *)            ;;
+esac
+EOF
+  chmod +x "$tmpdir/tmux"
+
+  cat > "$tmpdir/fzf-tmux" <<'EOF'
+#!/usr/bin/env bash
+printf '  1  https://example.com\n'
+EOF
+  chmod +x "$tmpdir/fzf-tmux"
+
+  cat > "$tmpdir/open" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+  chmod +x "$tmpdir/open"
+
+  local status=0
+  PATH="$tmpdir:$PATH" "$WRAPPER" 100 >/dev/null 2>&1 || status=$?
+  [ "$status" -eq 0 ] || { echo "  wrapper exited $status, expected 0 (URL selection should succeed)"; return 1; }
+}
+check "wrapper exits 0 when a URL is selected" \
+  test_selection_exits_zero
+
+# ---------------------------------------------------------------------------
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 if [ "$fail" -gt 0 ]; then
   printf 'Failed:\n'
