@@ -11,7 +11,14 @@
 # sourcing fzf-url.sh past its test guard
 # (`[[ "${__FZF_URL_TESTING:-}" == 1 ]] && return 0`). Plugin pattern
 # updates flow through automatically; we only own the `tail -r` step.
-set -euo pipefail
+#
+# No `pipefail`: matches the upstream plugin script. fzf returns 130 on
+# ESC; with pipefail, that propagates through `fzf_filter | awk | while`
+# as the wrapper's own exit code, and tmux's `run -b` then surfaces it
+# as `'... tmux-fzf-url-newest 50000' returned 130`. Without pipefail
+# the pipeline takes the `while read` loop's status (0 on no input),
+# so cancelling the picker is silent.
+set -eu
 
 PLUGIN_DIR="$HOME/.config/tmux/plugins/tmux-fzf-url"
 
