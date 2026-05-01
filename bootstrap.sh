@@ -42,6 +42,9 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
+# --- btop
+link ".config/btop"    "$HOME/.config/btop"
+
 # --- sesh: shared config is symlinked; machine-local sessions in sesh.local.toml
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
 if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
