@@ -31,3 +31,6 @@ brew "vivid"                    # generates LS_COLORS palettes
 brew "zsh-syntax-highlighting"  # live command-line highlighting
 brew "zsh-autosuggestions"      # ghost-text completion from history
 brew "fzf-tab"                  # fzf-driven Tab completion menu
+
+# System monitoring
+brew "btop"                     # modern top replacement (themed Solarized)
