@@ -222,6 +222,7 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
+- Session-root binding tests: `scripts/test-s-session-root.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`

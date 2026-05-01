@@ -77,10 +77,14 @@ case $# in
     name="$2"
     session="$project/$name"
     project_path=$(resolve_project_path "$project")
+    # Resolve worktree path unconditionally so we can re-stamp @session_root
+    # on every invocation (handles tmux-continuum restores wiping options).
+    # `wt switch --create --no-cd` is idempotent — see ensure_worktree above.
+    target_path=$(ensure_worktree "$project_path" "$name")
     if ! tmux has-session -t "$session" 2>/dev/null; then
-      target_path=$(ensure_worktree "$project_path" "$name")
       tmux new-session -d -s "$session" -c "$target_path"
     fi
+    tmux set-option -t "$session" @session_root "$target_path"
     finish "$session"
     ;;
   1)
@@ -99,10 +103,11 @@ case $# in
         exit 1
       fi
       session="$project/$name"
+      target_path=$(ensure_worktree "$project_path" "$name")
       if ! tmux has-session -t "$session" 2>/dev/null; then
-        target_path=$(ensure_worktree "$project_path" "$name")
         tmux new-session -d -s "$session" -c "$target_path"
       fi
+      tmux set-option -t "$session" @session_root "$target_path"
       finish "$session"
     else
       project="$1"
@@ -110,6 +115,7 @@ case $# in
       if ! tmux has-session -t "$project" 2>/dev/null; then
         tmux new-session -d -s "$project" -c "$project_path"
       fi
+      tmux set-option -t "$project" @session_root "$project_path"
       finish "$project"
     fi
     ;;
@@ -131,6 +137,7 @@ case $# in
       if ! tmux has-session -t "$project" 2>/dev/null; then
         tmux new-session -d -s "$project" -c "$project_path"
       fi
+      tmux set-option -t "$project" @session_root "$project_path"
       finish "$project"
     fi
     ;;
