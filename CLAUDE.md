@@ -28,8 +28,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   scrollback, reverses it with `tail -r` (BSD; macOS native — no
   coreutils dependency, so don't swap to `tac`) so `xre`'s
   first-appearance dedup keeps the LATEST occurrence of each URL, and
-  pipes through the plugin's helpers unchanged. Popup geometry matches
-  the sesh picker (`-w 70% -h 70%`). `--tac` in `@fzf-url-fzf-options`
+  pipes through the plugin's helpers unchanged. Popup geometry: `-w 70% -h 70%`. Width matches the sesh and file pickers; the sesh picker's height is now dynamic (see the sesh bullet) but width is the shared anchor. `--tac` in `@fzf-url-fzf-options`
   is intentional so the newest URL lands at the cursor — don't drop it.
   The wrapper owns the binding (added after the TPM `run` line in
   `tmux.conf`); don't remove the wrapper either (without it the
@@ -63,7 +62,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   a missing import target. The picker (`<prefix> t`, swapped with the
   default clock-mode binding which moved to `<prefix> T`) is
   `sesh picker -i -d -H -c -t -T` — three sources only (configured /
-  tmux / tmuxinator). Zoxide is intentionally **not** a picker source:
+  tmux / tmuxinator). The binding is `run -b ~/.config/tmux/bin/tmux-sesh-picker` (not inline `display-popup`): the wrapper counts entries via `sesh list -c -t -T`, then opens `display-popup -E -w 70% -h "$H"` where `H = items + 4` clamped to `[6, 80% of client height]` (fallback `15` if `sesh list` fails). Width stays at 70%; height is dynamic. Don't fold the wrapper back inline — recomputing the height per keypress requires a real script.
+  Zoxide is intentionally **not** a picker source:
   the `-c -t -T` flags are inclusive opt-in, so omitting `-z` drops
   zoxide. Don't re-introduce a custom fzf wrapper script. Zoxide is
   still loaded for `z`-cd, and `_ZO_EXCLUDE_DIRS` blocks `~/`,
