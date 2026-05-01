@@ -33,6 +33,10 @@ items="$(printf '%s\n' "$content" | xre_extract | nl -w3 -s '  ')"
 [ -z "$items" ] && { tmux display 'tmux-fzf-url: no URLs found'; exit 0; }
 
 _copy_cmd="$(get_copy_cmd '')"
+# open_url checks `[[ -n $custom_open ]]` unconditionally; the plugin's main
+# flow sets it from $2 but we skip that path via the test guard, so define
+# it here or `set -u` makes the lookup an unbound-variable error.
+custom_open=""
 fzf_filter <<<"$items" | awk '{print $2}' | while read -r chosen; do
   open_url "$chosen" &>"/tmp/tmux-$(id -u)-fzf-url.log"
 done
