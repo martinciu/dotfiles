@@ -70,9 +70,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   tmux / tmuxinator). The binding is
   `run -b ~/.config/tmux/bin/tmux-sesh-picker` (not inline
   `display-popup`): the wrapper counts entries via
-  `sesh list -c -t -T`, then opens
-  `display-popup -E -w 70% -h "$H"` where `H = items + 4` clamped
-  to `[6, 80% of client height]` (fallback `15` if `sesh list`
+  `sesh list -d -H -c -t -T` (mirrors the picker's flag set), then opens
+  `display-popup -E -w 70% -h "$H"` where
+  `H = items + 11` (sesh chrome 9 + tmux popup border 2), clamped
+  to `[12, 80% of client height]` (fallback `15` if `sesh list`
   fails). Width stays at 70% — shared anchor with the URL and
   file pickers; height is dynamic. Don't fold the wrapper back
   inline — recomputing the height per keypress requires a real
