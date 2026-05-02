@@ -9,7 +9,7 @@ Solarized-themed quick references — also browseable at
 
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 - [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
-- [Shell colors](https://martinciu.github.io/dotfiles/shell-colors-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
+- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
 
 ## Setup (new machine)
 
