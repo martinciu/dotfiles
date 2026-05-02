@@ -26,6 +26,7 @@ brew "tree-sitter-cli" # nvim-treesitter parser builds
 brew "eza"                      # ls replacement with icons + git status
 brew "bat"                      # syntax-highlighted cat / man pager backend
 brew "git-delta"                # git diff/log/blame pager
+brew "difftastic"               # syntactic diff for ad-hoc compares (non-git)
 brew "glow"                     # render markdown to ANSI
 brew "vivid"                    # generates LS_COLORS palettes
 brew "procs"                    # modern ps replacement (Rust)
