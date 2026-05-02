@@ -129,8 +129,9 @@
     </p>
     <p class="note">
       Popup width is fixed at 70% (shared anchor with the URL and file pickers);
-      height is dynamic — <code>items + 4</code>, clamped to <code>[6, 80% of
-      client height]</code>, falling back to <code>15</code> if
+      height is dynamic — <code>items + 11</code> (sesh chrome 9 + popup border 2),
+      clamped to <code>[12, 80% of client height]</code>, falling back to
+      <code>15</code> if
       <code>sesh list</code> fails. Width gives long
       <code>&lt;project&gt;/&lt;worktree&gt;</code> session names room; sizing
       height to the entry count keeps the popup compact.
@@ -385,7 +386,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-01. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-02. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
