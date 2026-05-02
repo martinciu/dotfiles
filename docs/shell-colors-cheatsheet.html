@@ -16,7 +16,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · procs · lnav · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -29,7 +29,9 @@
   <a href="#bat">bat</a>
   <a href="#less">less wrapper</a>
   <a href="#delta">git-delta</a>
+  <a href="#difftastic">difftastic</a>
   <a href="#glow">glow / md</a>
+  <a href="#tspin">tspin</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
   <a href="#fzf-tab">fzf-tab</a>
@@ -49,9 +51,11 @@
       <tr><td class="key"><code>eza</code></td><td class="desc">ls replacement with icons + git status</td></tr>
       <tr><td class="key"><code>bat</code></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
       <tr><td class="key"><code>git-delta</code></td><td class="desc">git diff/log/blame pager</td></tr>
+      <tr><td class="key"><code>difftastic</code></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
       <tr><td class="key"><code>glow</code></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
       <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
       <tr><td class="key"><code>procs</code></td><td class="desc">modern ps replacement (Rust)</td></tr>
+      <tr><td class="key"><code>tailspin</code></td><td class="desc">live-log highlighter (<code>tspin</code>); Solarized via <code>~/.config/tailspin/theme.toml</code></td></tr>
       <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
       <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
       <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
@@ -62,7 +66,7 @@
   <div class="card">
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
-      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, …) without asking.</li>
+      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
       <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zoxide → fzf-tab → zsh-autosuggestions → zsh-syntax-highlighting (must be last).</li>
       <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
       <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
@@ -311,6 +315,37 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="difftastic">difftastic <span class="tool-tag">non-git diff</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Where it kicks in</h3>
+    <p>Aliased over <code>diff</code> for ad-hoc file compares outside git. Git diffs still flow through <code>delta</code> (see above) — the two cover different surfaces.</p>
+    <table>
+      <tr><td class="key"><code>diff a b</code></td><td class="desc">syntactic, language-aware diff between two files</td></tr>
+      <tr><td class="key"><code>diff a/ b/</code></td><td class="desc">recursive directory diff</td></tr>
+      <tr><td class="key"><code>diff old.json new.json</code></td><td class="desc">tree-sitter parses each side; structural moves are recognized</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Bypass to legacy <code>diff</code></h3>
+    <table>
+      <tr><td class="key"><code>command diff a b</code></td><td class="desc">skip the alias (zsh built-in)</td></tr>
+      <tr><td class="key"><code>\diff a b</code></td><td class="desc">same; backslash quotes the alias name</td></tr>
+      <tr><td class="key"><code>/usr/bin/diff a b</code></td><td class="desc">absolute path bypasses <code>$PATH</code></td></tr>
+    </table>
+    <p class="note">Non-interactive shells (scripts, Make, CI) never see the alias — zsh aliases don't propagate without <code>-i</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Why no theme pin</h3>
+    <p>Difftastic uses ANSI 16-color directly; Ghostty's terminal palette is already Solarized Dark, so it inherits on-palette colors with no extra config. The default <code>--background dark</code> matches; nothing to wire.</p>
+    <p class="note">Don't introduce <code>delta</code>, <code>diff-so-fancy</code>, or another diff renderer for non-git — they're line-based, not syntactic, and would duplicate what delta already does for git.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="glow">glow / md <span class="tool-tag">markdown renderer</span></h2>
 
 <div class="grid">
@@ -352,6 +387,50 @@
       <tr><td class="key"><code>command glow ...</code></td><td class="desc">bypass alias (no <code>--style</code>)</td></tr>
     </table>
     <p class="note">Don't swap to <code>mdcat</code> / <code>frogmouth</code> without an explicit ask — <code>mdcat</code> was archived upstream 2025-01-10.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="tspin">tailspin / tspin <span class="tool-tag">live-log highlighter</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Daily use</h3>
+    <table>
+      <tr><td class="key"><code>tspin file.log</code></td><td class="desc">open file (paged via <code>less</code>)</td></tr>
+      <tr><td class="key"><code>tspin -f file.log</code></td><td class="desc">follow (live tail with highlights)</td></tr>
+      <tr><td class="key"><code>cmd | tspin -p</code></td><td class="desc">pipe stdin, print to stdout (no pager)</td></tr>
+      <tr><td class="key"><code>tspin -e 'kubectl logs -f pod'</code></td><td class="desc">run command, view paged output</td></tr>
+    </table>
+    <p class="note">No <code>tail</code> alias and no <code>t</code> shortcut — <code>tail</code> / <code>tail -n</code> stay vanilla. tspin's CLI isn't a <code>tail</code> superset (no <code>-n</code>), so wrapping <code>tail</code> would break common uses.</p>
+  </div>
+
+  <div class="card">
+    <h3>Theme — Solarized via <code>theme.toml</code></h3>
+    <p>
+      tspin reads <code>~/.config/tailspin/theme.toml</code>. It accepts ANSI color
+      <em>names</em> only (<code>red</code>, <code>blue</code>, <code>bright_red</code>, …);
+      Ghostty's Solarized Dark palette resolves them to hex via the canonical
+      Solarized terminal mapping:
+    </p>
+    <table>
+      <tr><td class="key"><code>red</code></td><td class="desc">red <code>#dc322f</code></td></tr>
+      <tr><td class="key"><code>bright_red</code></td><td class="desc">orange <code>#cb4b16</code></td></tr>
+      <tr><td class="key"><code>bright_magenta</code></td><td class="desc">violet <code>#6c71c4</code></td></tr>
+      <tr><td class="key"><code>bright_green</code></td><td class="desc">base01 <code>#586e75</code></td></tr>
+      <tr><td class="key"><code>bright_cyan</code></td><td class="desc">base1 <code>#93a1a1</code></td></tr>
+    </table>
+    <p class="note">Severity (<code>error</code> / <code>warn</code> / <code>info</code> / <code>debug</code>) is shipped as <code>[[keywords]]</code> blocks — tspin has no built-in groups for them.</p>
+  </div>
+
+  <div class="card">
+    <h3>What gets highlighted</h3>
+    <ul class="compact">
+      <li><strong>Severities</strong> — error/fatal/fail (red, bold), warn (orange), info (blue), debug/trace (base01).</li>
+      <li><strong>Built-ins</strong> — dates / times (cyan), numbers (magenta), URLs (blue + underline), paths (cyan), quotes (green), IPs (violet), kv-pair keys (base1).</li>
+      <li><strong>Inherited from upstream</strong> — UUIDs, pointers, processes, emails, JSON, JVM stack traces.</li>
+    </ul>
+    <p class="note">Schema: <code>github.com/bensadeh/tailspin/blob/main/src/theme/mod.rs</code>. Override anything with extra <code>[[keywords]]</code> or block-level entries.</p>
   </div>
 </div>
 

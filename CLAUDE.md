@@ -151,6 +151,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
   `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
   renderer), `vivid` (`LS_COLORS`), `procs` (`ps` replacement),
+  `tailspin` (`tspin`, live-log highlighter),
   `zsh-syntax-highlighting`, `zsh-autosuggestions`, `fzf-tab` (Tab completion
   picker). Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
@@ -158,9 +159,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `.config/procs/procs.toml` (Pid=violet, User=blue, percentage gradient
   blue→green→yellow→red),
   `md` alias passes `--style .config/glow/glamour.json` (chroma
-  `solarized-dark` for fenced code blocks). Don't swap themes or
-  introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, etc.)
-  without asking. Plugin source order in `.zshrc` is fixed: fzf →
+  `solarized-dark` for fenced code blocks),
+  `tspin` reads `.config/tailspin/theme.toml` — minimal pin via ANSI
+  color names (Ghostty's Solarized palette resolves them to hex; e.g.
+  `bright_red` → orange `#cb4b16`, `bright_magenta` → violet `#6c71c4`,
+  `bright_green` → base01). Severity keywords
+  (`error`/`warn`/`info`/`debug`) are shipped as `[[keywords]]` blocks
+  since tspin has no built-in groups for them. Invocation stays explicit
+  — `tspin file.log` / `tspin -f file.log` / `cmd | tspin -p`. No `tail`
+  alias, no `t` shortcut (keeps `tail` vanilla, limits surface area, and
+  avoids breaking `tail -n` since tspin's CLI isn't a `tail` superset).
+  Don't swap themes or introduce alternatives
+  (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, `lnav`, etc.) without asking.
+  Plugin source order in `.zshrc` is fixed: fzf →
   `bindkey -r '^[c'` (Alt-C unbind) → zoxide → fzf-tab →
   zsh-autosuggestions → zsh-syntax-highlighting (must be last).
   fzf-tab needs fzf's `^I` binding already in place and must be sourced
@@ -226,6 +237,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   repo — tracked files in `configs/installed/` and `formats/installed/`
   won't be clobbered. Don't replace lnav with another log TUI without
   an ask; don't add a shell alias or wrapper.
+- **`diff` is a zsh alias to `difft`** (defined in `.zshrc`, guarded on
+  `command -v difft`). Difftastic is a syntactic, language-aware diff for
+  ad-hoc, non-git file comparisons. Git diffs are unaffected — git's pager
+  is still `delta`, and that wiring is intentional. `vimdiff` is also
+  unaffected — it's a separate alias (`vim -d`, which resolves via the
+  `vim`→`nvim` alias). Escape hatches: `command diff`, `\diff`,
+  `/usr/bin/diff` reach legacy `diff`. Non-interactive shells (scripts,
+  Make, CI) never see the alias. Don't pin flags on the alias —
+  difftastic's defaults (`--background dark`, side-by-side, color auto)
+  already match the Solarized Dark setup; the terminal palette supplies
+  the colors.
 
 ## Where things live
 
