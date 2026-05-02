@@ -16,7 +16,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · procs · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · procs · lnav · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -25,6 +25,7 @@
   <a href="#start">Getting started</a>
   <a href="#eza">eza</a>
   <a href="#procs">procs</a>
+  <a href="#lnav">lnav</a>
   <a href="#bat">bat</a>
   <a href="#less">less wrapper</a>
   <a href="#delta">git-delta</a>
@@ -156,6 +157,46 @@
       <code>\ps&nbsp;-ax</code> or <code>command&nbsp;ps&nbsp;-ax</code>.
     </p>
     <p class="note">Pipes strip color (<code>color_mode = "Auto"</code>). Prefer <code>procs &lt;pat&gt;</code> over <code>ps&nbsp;|&nbsp;grep&nbsp;&lt;pat&gt;</code> — same result, colors preserved.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="lnav">lnav <span class="tool-tag">TUI log navigator</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Most-used invocations</h3>
+    <table>
+      <tr><td class="key"><code>lnav file.log</code></td><td class="desc">open one file (auto-tails new lines)</td></tr>
+      <tr><td class="key"><code>lnav dir/</code></td><td class="desc">open every log file in a directory; merged by timestamp</td></tr>
+      <tr><td class="key"><code>cmd | lnav</code></td><td class="desc">read from stdin (no positional arg)</td></tr>
+      <tr><td class="key"><code>lnav -n file.log</code></td><td class="desc">headless / no UI (useful for format debugging)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Files we ship</h3>
+    <table>
+      <tr><td class="key"><code>~/.config/lnav/configs/installed/solarized-dark.json</code></td><td class="desc">activates lnav's built-in Solarized Dark theme</td></tr>
+      <tr><td class="key"><code>~/.config/lnav/formats/installed/inngest.json</code></td><td class="desc">JSON format for <code>inngest-cli dev</code> stdout</td></tr>
+      <tr><td class="key"><code>~/.config/lnav/config.json</code></td><td class="desc">lnav's runtime mutable config (not in repo)</td></tr>
+    </table>
+    <p class="note">Add new formats by dropping a JSON file in <code>formats/installed/</code> — the parent dir is already symlinked, no <code>bootstrap.sh</code> re-run needed. Theme is lnav's built-in (palette matches <code>bat</code> / <code>delta</code> / <code>procs</code> / <code>btop</code>); we don't redefine slots.</p>
+  </div>
+
+  <div class="card">
+    <h3>Inside the TUI</h3>
+    <table>
+      <tr><td class="key"><span class="k">q</span></td><td class="desc">quit</td></tr>
+      <tr><td class="key"><span class="k">e</span> / <span class="k">E</span></td><td class="desc">next / prev error</td></tr>
+      <tr><td class="key"><span class="k">w</span> / <span class="k">W</span></td><td class="desc">next / prev warning</td></tr>
+      <tr><td class="key"><span class="k">/</span><i>pat</i> / <span class="k">n</span></td><td class="desc">search / next match</td></tr>
+      <tr><td class="key"><span class="k">:</span></td><td class="desc">command prompt (e.g. <code>:filter-in</code>, <code>:goto</code>)</td></tr>
+      <tr><td class="key"><span class="k">;</span></td><td class="desc">SQL prompt — query log lines as a table (e.g. <code>SELECT * FROM inngest_dev WHERE level = 'error'</code>)</td></tr>
+      <tr><td class="key"><span class="k">t</span> / <span class="k">i</span></td><td class="desc">time histogram / global histogram view</td></tr>
+      <tr><td class="key"><span class="k">TAB</span></td><td class="desc">switch between log view and bottom prompt</td></tr>
+    </table>
+    <p class="note">Bottom status bar shows the matched format name (e.g. <code>inngest_dev</code>) when an installed format matches the file.</p>
   </div>
 </div>
 
