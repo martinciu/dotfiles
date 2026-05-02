@@ -221,10 +221,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   pin more keys without a clear reason — small diff = easy upstream
   bumps.
 - **`lnav` is the TUI log navigator** (homebrew `lnav`; raw command, no
-  alias). The entire `.config/lnav/` directory is symlinked by
-  `bootstrap.sh`. Theme is lnav's **built-in** `solarized-dark`,
-  activated by `.config/lnav/configs/installed/solarized-dark.json` —
-  one tiny file that only sets `ui.theme`; no slot-mapping JSON because
+  alias). Only the two `installed/` subdirs are symlinked from the
+  repo: `bootstrap.sh` creates `~/.config/lnav/` as a real dir, then
+  links `~/.config/lnav/configs/installed` and
+  `~/.config/lnav/formats/installed` (dir-level) into the repo. lnav
+  owns the rest of the tree — built-in samples (`configs/default`,
+  `formats/default`), `crash/`, `staging/`, `log_metadata.db`,
+  per-PID `view-info-*.json`, and `:config`-written `config.json`
+  all live in the real `~/.config/lnav/` outside the repo. Don't
+  re-introduce the whole-dir symlink — the runtime artifacts polluted
+  `git status` (issue #64). Theme is lnav's **built-in**
+  `solarized-dark`, activated by
+  `.config/lnav/configs/installed/solarized-dark.json` — one tiny
+  file that only sets `ui.theme`; no slot-mapping JSON because
   upstream's built-in already uses the canonical Solarized palette
   (verified). Don't redefine the theme; if you need a tweak, prefer a
   separate config file that overrides specific slots rather than
@@ -233,13 +242,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   today: `inngest.json` for `inngest-cli dev` stdout — uses lnav's
   `"json": true` mode (Inngest CLI v1.x emits JSON-per-line) and maps
   `time`/`level`/`msg` to lnav's `__timestamp__`/`__level__`/body
-  slots. Add new formats by dropping a JSON file in the same directory
-  — re-running `bootstrap.sh` is **not** needed because the parent dir
-  is already symlinked. lnav writes runtime mutations (e.g. via
-  `:config`) to `~/.config/lnav/config.json`, which is **not** in the
-  repo — tracked files in `configs/installed/` and `formats/installed/`
-  won't be clobbered. Don't replace lnav with another log TUI without
-  an ask; don't add a shell alias or wrapper.
+  slots. Add new formats by dropping a JSON file in `installed/` — no
+  `bootstrap.sh` re-run needed because `installed/` itself is the
+  (dir-level) symlink. `lnav -i <path>` also writes into `installed/`
+  and therefore into the repo — that's intended (installed configs
+  become tracked dotfiles), but worth knowing. Don't replace lnav
+  with another log TUI without an ask; don't add a shell alias or
+  wrapper.
 - **`diff` is a zsh alias to `difft`** (defined in `.zshrc`, guarded on
   `command -v difft`). Difftastic is a syntactic, language-aware diff for
   ad-hoc, non-git file comparisons. Git diffs are unaffected — git's pager
