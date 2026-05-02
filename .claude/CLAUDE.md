@@ -66,6 +66,38 @@ don't shortcut to a recommendation, don't assume on the user's behalf.
 Auto mode's "prefer action, make reasonable assumptions" applies to
 mechanical execution, not to intent gathering.
 
+## Plan execution — SDD vs inline
+
+When a plan is ready to execute, choose between Subagent-Driven Development
+(SDD: a fresh subagent per task with two-stage review) and inline execution
+(run the tasks directly in the current session). Don't default to SDD just
+because Superpowers labels it "recommended" — that label is generic.
+
+- **Pick inline when** most tasks are mechanical edits where the plan
+  dictates the exact bytes (TOML/YAML/HTML fragments, single-line config
+  changes, dotfiles, cheatsheet updates), constrained to one or two files
+  per task with no branching judgment, or sensitive to working-directory
+  discipline (worktrees, monorepos with multiple checkouts) — a fresh
+  subagent can't inherit your `cd` context.
+- **Pick SDD when** most tasks are real code with logic, tests, and
+  multi-file integration; roughly 50–300 lines of new/changed code per
+  task with judgment calls the plan doesn't fully specify; and quality
+  matters enough that two-stage review (spec compliance, then code
+  quality) earns its cost.
+- **Mixed plan:** do the first task inline to feel out the profile, then
+  switch to SDD only if subsequent tasks are heavier than the first.
+
+State the choice and the reason in one sentence before starting
+("Inline — Tasks are TOML/HTML edits with bytes specified" / "SDD —
+each task is ~150 lines of TS with branching logic"). Forces honesty
+about the call.
+
+Why: SDD's value is fresh per-task context plus quality gates on judgment.
+Mechanical dotfiles/config work has no judgment surface for "code quality
+review" to assess, and the subagent's fresh context drops the working-
+directory discipline the controller is carrying — which is exactly the
+discipline that matters most in a worktree-heavy setup.
+
 
 @~/.claude/CLAUDE.local.md
 
