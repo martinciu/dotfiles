@@ -151,6 +151,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
   `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
   renderer), `vivid` (`LS_COLORS`), `procs` (`ps` replacement),
+  `tailspin` (`tspin`, live-log highlighter),
   `zsh-syntax-highlighting`, `zsh-autosuggestions`, `fzf-tab` (Tab completion
   picker). Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
@@ -158,9 +159,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `.config/procs/procs.toml` (Pid=violet, User=blue, percentage gradient
   blue→green→yellow→red),
   `md` alias passes `--style .config/glow/glamour.json` (chroma
-  `solarized-dark` for fenced code blocks). Don't swap themes or
-  introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, etc.)
-  without asking. Plugin source order in `.zshrc` is fixed: fzf →
+  `solarized-dark` for fenced code blocks),
+  `tspin` reads `.config/tailspin/theme.toml` — minimal pin via ANSI
+  color names (Ghostty's Solarized palette resolves them to hex; e.g.
+  `bright_red` → orange `#cb4b16`, `bright_magenta` → violet `#6c71c4`,
+  `bright_green` → base01). Severity keywords
+  (`error`/`warn`/`info`/`debug`) are shipped as `[[keywords]]` blocks
+  since tspin has no built-in groups for them. Invocation stays explicit
+  — `tspin file.log` / `tspin -f file.log` / `cmd | tspin -p`. No `tail`
+  alias, no `t` shortcut (keeps `tail` vanilla, limits surface area, and
+  avoids breaking `tail -n` since tspin's CLI isn't a `tail` superset).
+  Don't swap themes or introduce alternatives
+  (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, `lnav`, etc.) without asking.
+  Plugin source order in `.zshrc` is fixed: fzf →
   `bindkey -r '^[c'` (Alt-C unbind) → zoxide → fzf-tab →
   zsh-autosuggestions → zsh-syntax-highlighting (must be last).
   fzf-tab needs fzf's `^I` binding already in place and must be sourced

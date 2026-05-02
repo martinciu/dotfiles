@@ -85,6 +85,7 @@ These drive the `claude[<name>]` window title (tmux's
 | sesh         | `.config/sesh/sesh.toml`             | `~/.config/sesh/sesh.toml` |
 | worktrunk    | `.config/worktrunk/`                 | `~/.config/worktrunk` |
 | glow         | `.config/glow/`                      | `~/.config/glow` |
+| tailspin     | `.config/tailspin/`                  | `~/.config/tailspin` |
 | ccstatusline | `.config/ccstatusline/`              | `~/.config/ccstatusline` |
 | Claude       | `.claude/CLAUDE.md`                  | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |

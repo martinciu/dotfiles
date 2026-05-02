@@ -1,0 +1,57 @@
+# theme.toml — Solarized-aligned overrides for tailspin (tspin).
+#
+# tspin accepts ANSI color names only (red, blue, bright_red, …); Ghostty's
+# Solarized Dark theme resolves them per the canonical Solarized terminal
+# mapping (bright_red -> orange #cb4b16, bright_magenta -> violet #6c71c4,
+# bright_green -> base01 #586e75, bright_cyan -> base1 #93a1a1).
+#
+# Schema reference:
+#   https://github.com/bensadeh/tailspin/blob/main/src/theme/mod.rs
+#
+# Minimal pin: only override groups whose tspin defaults clash with Solarized.
+# Unspecified groups (uuids, pointers, processes, emails, json, jvm_stack_traces,
+# regexps) inherit upstream defaults.
+
+# --- Severity keywords (defined here; tspin has no built-in error/warn/info).
+
+[[keywords]]
+words = ["ERROR", "Error", "error", "FATAL", "Fatal", "fatal", "FAIL", "Fail", "fail"]
+style = { fg = "red", bold = true }
+
+[[keywords]]
+words = ["WARN", "Warn", "warn", "WARNING", "Warning", "warning"]
+style = { fg = "bright_red" }                    # Solarized orange
+
+[[keywords]]
+words = ["INFO", "Info", "info"]
+style = { fg = "blue" }
+
+[[keywords]]
+words = ["DEBUG", "Debug", "debug", "TRACE", "Trace", "trace"]
+style = { fg = "bright_green" }                  # Solarized base01 (muted)
+
+# --- Built-in groups.
+
+[dates]
+date = { fg = "cyan" }
+time = { fg = "cyan" }
+
+[numbers]
+number = { fg = "magenta" }
+
+[urls]
+http  = { fg = "blue", underline = true }
+https = { fg = "blue", underline = true }
+host  = { fg = "bright_cyan" }                   # Solarized base1
+
+[paths]
+segment = { fg = "cyan" }
+
+[quotes]
+style = { fg = "green" }
+
+[key_value_pairs]
+key = { fg = "bright_cyan" }                     # Solarized base1
+
+[ip_addresses]
+number = { fg = "bright_magenta" }               # Solarized violet
