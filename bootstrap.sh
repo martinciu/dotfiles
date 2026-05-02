@@ -42,6 +42,9 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
+# --- tailspin (tspin) — Solarized theme.toml
+link ".config/tailspin" "$HOME/.config/tailspin"
+
 # --- btop
 link ".config/btop"    "$HOME/.config/btop"
 
