@@ -217,6 +217,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   custom Solarized theme file — `solarized_dark` is built-in. Don't
   pin more keys without a clear reason — small diff = easy upstream
   bumps.
+- **`diff` is a zsh alias to `difft`** (defined in `.zshrc`, guarded on
+  `command -v difft`). Difftastic is a syntactic, language-aware diff for
+  ad-hoc, non-git file comparisons. Git diffs are unaffected — git's pager
+  is still `delta`, and that wiring is intentional. `vimdiff` is also
+  unaffected — it's a separate alias (`vim -d`, which resolves via the
+  `vim`→`nvim` alias). Escape hatches: `command diff`, `\diff`,
+  `/usr/bin/diff` reach legacy `diff`. Non-interactive shells (scripts,
+  Make, CI) never see the alias. Don't pin flags on the alias —
+  difftastic's defaults (`--background dark`, side-by-side, color auto)
+  already match the Solarized Dark setup; the terminal palette supplies
+  the colors.
 
 ## Where things live
 

@@ -16,7 +16,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · procs · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -28,6 +28,7 @@
   <a href="#bat">bat</a>
   <a href="#less">less wrapper</a>
   <a href="#delta">git-delta</a>
+  <a href="#difftastic">difftastic</a>
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
   <a href="#vivid">vivid / LS_COLORS</a>
@@ -49,6 +50,7 @@
       <tr><td class="key"><code>eza</code></td><td class="desc">ls replacement with icons + git status</td></tr>
       <tr><td class="key"><code>bat</code></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
       <tr><td class="key"><code>git-delta</code></td><td class="desc">git diff/log/blame pager</td></tr>
+      <tr><td class="key"><code>difftastic</code></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
       <tr><td class="key"><code>glow</code></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
       <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
       <tr><td class="key"><code>procs</code></td><td class="desc">modern ps replacement (Rust)</td></tr>
@@ -63,7 +65,7 @@
   <div class="card">
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
-      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, …) without asking.</li>
+      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
       <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zoxide → fzf-tab → zsh-autosuggestions → zsh-syntax-highlighting (must be last).</li>
       <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
       <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
@@ -268,6 +270,37 @@
       <tr><td class="key"><code>delta --no-gitconfig --diff-highlight</code></td><td class="desc">minimal preview</td></tr>
       <tr><td class="key"><code>git -c core.pager=cat diff</code></td><td class="desc">bypass delta one-shot</td></tr>
     </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="difftastic">difftastic <span class="tool-tag">non-git diff</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Where it kicks in</h3>
+    <p>Aliased over <code>diff</code> for ad-hoc file compares outside git. Git diffs still flow through <code>delta</code> (see above) — the two cover different surfaces.</p>
+    <table>
+      <tr><td class="key"><code>diff a b</code></td><td class="desc">syntactic, language-aware diff between two files</td></tr>
+      <tr><td class="key"><code>diff a/ b/</code></td><td class="desc">recursive directory diff</td></tr>
+      <tr><td class="key"><code>diff old.json new.json</code></td><td class="desc">tree-sitter parses each side; structural moves are recognized</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Bypass to legacy <code>diff</code></h3>
+    <table>
+      <tr><td class="key"><code>command diff a b</code></td><td class="desc">skip the alias (zsh built-in)</td></tr>
+      <tr><td class="key"><code>\diff a b</code></td><td class="desc">same; backslash quotes the alias name</td></tr>
+      <tr><td class="key"><code>/usr/bin/diff a b</code></td><td class="desc">absolute path bypasses <code>$PATH</code></td></tr>
+    </table>
+    <p class="note">Non-interactive shells (scripts, Make, CI) never see the alias — zsh aliases don't propagate without <code>-i</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Why no theme pin</h3>
+    <p>Difftastic uses ANSI 16-color directly; Ghostty's terminal palette is already Solarized Dark, so it inherits on-palette colors with no extra config. The default <code>--background dark</code> matches; nothing to wire.</p>
+    <p class="note">Don't introduce <code>delta</code>, <code>diff-so-fancy</code>, or another diff renderer for non-git — they're line-based, not syntactic, and would duplicate what delta already does for git.</p>
   </div>
 </div>
 
