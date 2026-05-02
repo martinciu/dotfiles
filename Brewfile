@@ -27,6 +27,7 @@ brew "eza"                      # ls replacement with icons + git status
 brew "bat"                      # syntax-highlighted cat / man pager backend
 brew "git-delta"                # git diff/log/blame pager
 brew "glow"                     # render markdown to ANSI
+brew "tailspin"                 # syntax-highlighted log viewer (tspin)
 brew "vivid"                    # generates LS_COLORS palettes
 brew "procs"                    # modern ps replacement (Rust)
 brew "zsh-syntax-highlighting"  # live command-line highlighting
