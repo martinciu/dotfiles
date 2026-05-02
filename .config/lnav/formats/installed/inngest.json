@@ -1,0 +1,50 @@
+{
+  "$schema": "https://lnav.org/schemas/format-v1.schema.json",
+  "inngest_dev": {
+    "title": "Inngest dev-server log",
+    "description": "JSON-per-line log output from `inngest-cli dev` (local development server, v1.x).",
+    "url": "https://www.inngest.com/docs/dev-server",
+    "json": true,
+    "timestamp-field": "time",
+    "level-field": "level",
+    "body-field": "msg",
+    "level": {
+      "fatal":    "FATAL",
+      "critical": "CRIT(ICAL)?",
+      "error":    "ERR(OR)?",
+      "warning":  "WARN(ING)?",
+      "info":     "INFO",
+      "debug":    "DEBUG",
+      "trace":    "TRACE"
+    },
+    "value": {
+      "msg":         { "kind": "string" },
+      "caller":      { "kind": "string", "identifier": true },
+      "service":     { "kind": "string", "identifier": true },
+      "svc":         { "kind": "string", "identifier": true },
+      "queue_shard": { "kind": "string", "identifier": true },
+      "run_id":      { "kind": "string", "identifier": true },
+      "function":    { "kind": "string", "identifier": true },
+      "step":        { "kind": "string", "identifier": true },
+      "event":       { "kind": "string", "identifier": true },
+      "addr":        { "kind": "string" },
+      "backend":     { "kind": "string" },
+      "db":          { "kind": "string" },
+      "mode":        { "kind": "string" },
+      "topic":       { "kind": "string" }
+    },
+    "line-format": [
+      { "field": "__timestamp__" },
+      " ",
+      { "field": "__level__" },
+      " ",
+      { "field": "caller", "default-value": "-", "max-width": 18 },
+      " ",
+      { "field": "msg" }
+    ],
+    "sample": [
+      { "line": "{\"time\":\"2026-05-02T15:23:14.748261Z\",\"level\":\"INFO\",\"msg\":\"initialized database\",\"db\":\"sqlite\",\"mode\":\"memory\"}" },
+      { "line": "{\"time\":\"2026-05-02T15:23:14.758771Z\",\"level\":\"INFO\",\"msg\":\"service starting\",\"caller\":\"executor\",\"service\":\"executor\"}" }
+    ]
+  }
+}
