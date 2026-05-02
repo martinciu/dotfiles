@@ -52,7 +52,7 @@
       <tr><td class="key">Mouse</td><td class="desc">on (URLs: <span class="k">⇧⌘ click</span> or <span class="k prefix">C-a</span> <span class="k">u</span> for fzf picker)</td></tr>
       <tr><td class="key">History</td><td class="desc">50,000 lines</td></tr>
       <tr><td class="key">Bells</td><td class="desc">silenced (<code>bell-action/visual-bell/monitor-bell off</code>)</td></tr>
-      <tr><td class="key">TPM plugins</td><td class="desc">tpm, tmux-sensible, tmux-resurrect, tmux-continuum, tmux-fzf-url</td></tr>
+      <tr><td class="key">TPM plugins</td><td class="desc">tpm, tmux-sensible, tmux-resurrect, tmux-continuum, tmux-fzf-url, tmux-sessionx</td></tr>
     </table>
   </div>
 
@@ -314,6 +314,7 @@
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-file</code></td><td class="desc">scans pane + scrollback for paths, fzf picker — backs <span class="k prefix">C-a</span> <span class="k">o</span></td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-url-newest</code></td><td class="desc">wraps <code>tmux-fzf-url</code> so the newest occurrence of duplicate URLs wins — backs <span class="k prefix">C-a</span> <span class="k">u</span></td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-open-in-nvim</code></td><td class="desc">remote-sends <code>:edit</code> to the per-session nvim socket; falls back to a fresh nvim in a new window</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
     </table>
@@ -385,6 +386,7 @@
   <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for status helpers</td></tr>
   <tr><td class="key"><code>scripts/test-tmux-window-label.zsh</code></td><td class="desc">window-label extraction tests (mirror of <code>_tmux_window_label</code> in <code>.zshrc</code>)</td></tr>
   <tr><td class="key"><code>scripts/test-fzf-file-extract.sh</code></td><td class="desc">file-picker path-extraction tests (regex + OSC 8)</td></tr>
+  <tr><td class="key"><code>scripts/test-tmux-fzf-url-newest.sh</code></td><td class="desc">URL-picker wrapper tests (newest-occurrence dedup)</td></tr>
   <tr><td class="key"><code>scripts/test-claude-tmux-window-name.zsh</code></td><td class="desc">tests for the <code>claude[&lt;name&gt;]</code> window-title helper</td></tr>
 </table>
 

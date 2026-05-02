@@ -86,6 +86,9 @@ These drive the `claude[<name>]` window title (tmux's
 | worktrunk    | `.config/worktrunk/`                 | `~/.config/worktrunk` |
 | glow         | `.config/glow/`                      | `~/.config/glow` |
 | tailspin     | `.config/tailspin/`                  | `~/.config/tailspin` |
+| lnav         | `.config/lnav/{configs,formats}/installed/` | `~/.config/lnav/{configs,formats}/installed` |
+| btop         | `.config/btop/`                      | `~/.config/btop`    |
+| procs        | `.config/procs/`                     | `~/.config/procs`   |
 | ccstatusline | `.config/ccstatusline/`              | `~/.config/ccstatusline` |
 | Claude       | `.claude/CLAUDE.md`                  | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
