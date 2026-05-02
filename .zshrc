@@ -154,6 +154,10 @@ if command -v glow >/dev/null 2>&1; then
   alias md='glow --style $HOME/.config/glow/glamour.json'
   alias mdp='md -p'
 fi
+if command -v procs >/dev/null 2>&1; then
+  alias ps='procs'
+  alias psh='procs --load-config $HOME/.config/procs/procs-heavy.toml'
+fi
 if command -v nvim >/dev/null 2>&1; then
   alias vim='nvim'
   alias vi='command vim'

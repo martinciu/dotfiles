@@ -28,6 +28,7 @@ brew "bat"                      # syntax-highlighted cat / man pager backend
 brew "git-delta"                # git diff/log/blame pager
 brew "glow"                     # render markdown to ANSI
 brew "vivid"                    # generates LS_COLORS palettes
+brew "procs"                    # modern ps replacement (Rust)
 brew "zsh-syntax-highlighting"  # live command-line highlighting
 brew "zsh-autosuggestions"      # ghost-text completion from history
 brew "fzf-tab"                  # fzf-driven Tab completion menu

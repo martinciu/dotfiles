@@ -1,0 +1,105 @@
+# .config/procs/procs-heavy.toml — "what's hot right now" view.
+# Loaded by `psh` (alias in .zshrc) via `--load-config`. Trimmed column set
+# (Pid, User, UsageCpu, UsageMem, VmRss, Command) and default sort by
+# UsageCpu descending so heavy processes float to the top.
+#
+# [style.*] blocks are kept in sync with .config/procs/procs.toml — `procs
+# --load-config` replaces the whole config (no inheritance), so duplication
+# is intentional. When tweaking colors, update both files.
+
+[[columns]]
+kind = "Pid"
+style = "BrightMagenta|Magenta"
+numeric_search = true
+nonnumeric_search = false
+align = "Left"
+
+[[columns]]
+kind = "User"
+style = "BrightBlue|Blue"
+numeric_search = false
+nonnumeric_search = true
+align = "Left"
+
+[[columns]]
+kind = "Separator"
+style = "White|BrightBlack"
+numeric_search = false
+nonnumeric_search = false
+align = "Left"
+
+[[columns]]
+kind = "UsageCpu"
+style = "ByPercentage"
+numeric_search = false
+nonnumeric_search = false
+align = "Right"
+
+[[columns]]
+kind = "UsageMem"
+style = "ByPercentage"
+numeric_search = false
+nonnumeric_search = false
+align = "Right"
+
+[[columns]]
+kind = "VmRss"
+style = "ByUnit"
+numeric_search = false
+nonnumeric_search = false
+align = "Right"
+
+[[columns]]
+kind = "Separator"
+style = "White|BrightBlack"
+numeric_search = false
+nonnumeric_search = false
+align = "Left"
+
+[[columns]]
+kind = "Command"
+style = "BrightWhite|Black"
+numeric_search = false
+nonnumeric_search = true
+align = "Left"
+
+[style]
+header = "BrightWhite|Black"
+unit = "BrightWhite|Black"
+tree = "BrightWhite|Black"
+
+[style.by_percentage]
+color_000 = "BrightBlue|Blue"
+color_025 = "BrightGreen|Green"
+color_050 = "BrightYellow|Yellow"
+color_075 = "BrightRed|Red"
+color_100 = "BrightRed|Red"
+
+[style.by_state]
+color_d = "BrightRed|Red"
+color_r = "BrightGreen|Green"
+color_s = "BrightBlue|Blue"
+color_t = "BrightCyan|Cyan"
+color_z = "BrightMagenta|Magenta"
+color_x = "BrightMagenta|Magenta"
+color_k = "BrightYellow|Yellow"
+color_w = "BrightYellow|Yellow"
+color_p = "BrightYellow|Yellow"
+
+[style.by_unit]
+color_k = "BrightBlue|Blue"
+color_m = "BrightGreen|Green"
+color_g = "BrightYellow|Yellow"
+color_t = "BrightRed|Red"
+color_p = "BrightRed|Red"
+color_x = "BrightBlue|Blue"
+
+[search]
+numeric_search = "Exact"
+nonnumeric_search = "Partial"
+logic = "And"
+case = "Smart"
+
+[sort]
+column = 3
+order = "Descending"

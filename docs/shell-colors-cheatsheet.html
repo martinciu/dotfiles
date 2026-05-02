@@ -16,7 +16,7 @@
 <header>
   <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · glow · vivid · procs · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -24,6 +24,7 @@
   <strong style="color:var(--base2)">Jump:</strong>
   <a href="#start">Getting started</a>
   <a href="#eza">eza</a>
+  <a href="#procs">procs</a>
   <a href="#bat">bat</a>
   <a href="#less">less wrapper</a>
   <a href="#delta">git-delta</a>
@@ -49,6 +50,7 @@
       <tr><td class="key"><code>git-delta</code></td><td class="desc">git diff/log/blame pager</td></tr>
       <tr><td class="key"><code>glow</code></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
       <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
+      <tr><td class="key"><code>procs</code></td><td class="desc">modern ps replacement (Rust)</td></tr>
       <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
       <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
       <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
@@ -78,9 +80,11 @@
       <tr><td class="key"><code>la</code></td><td class="desc">→ <code>ll -a</code></td></tr>
       <tr><td class="key"><code>vim</code> / <code>vimdiff</code></td><td class="desc">→ <code>nvim</code> (guarded on <code>command -v nvim</code>)</td></tr>
       <tr><td class="key"><code>vi</code></td><td class="desc">→ <code>command vim</code> (legacy minimal vim, suppresses recursive alias)</td></tr>
+      <tr><td class="key"><code>ps</code></td><td class="desc">→ <code>procs</code> (Solarized; PID asc; ps-like columns)</td></tr>
+      <tr><td class="key"><code>psh</code></td><td class="desc">→ <code>procs --load-config ~/.config/procs/procs-heavy.toml</code> (CPU desc, trimmed)</td></tr>
       <tr><td class="key"><code>top</code></td><td class="desc">→ <code>btop</code> (modern colorful TUI, Solarized; <code>command top</code> for BSD top)</td></tr>
     </table>
-    <p class="note">BSD <code>\ls</code> still works (escape skips alias) and uses OMZ's default LSCOLORS. Use <code>command less</code> to reach real <code>less</code> for <code>less +F</code>, <code>-R</code>, etc.</p>
+    <p class="note">BSD <code>\ls</code> still works (escape skips alias) and uses OMZ's default LSCOLORS. Use <code>command less</code> to reach real <code>less</code> for <code>less +F</code>, <code>-R</code>, etc. <code>command ps</code> / <code>\ps</code> / <code>/bin/ps</code> reach legacy <code>ps</code>.</p>
   </div>
 
 </div>
@@ -113,6 +117,45 @@
       <tr><td class="key"><code>eza -l --time-style=long-iso</code></td><td class="desc">ISO timestamps</td></tr>
     </table>
     <p class="note">Colors come from <code>LS_COLORS</code> (set by <code>vivid</code>). Icons need a Nerd Font in your terminal.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="procs">procs <span class="tool-tag">modern ps</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Most-used flags</h3>
+    <table>
+      <tr><td class="key"><code>procs</code></td><td class="desc">all your processes, Solarized columns, sort by PID</td></tr>
+      <tr><td class="key"><code>procs zsh</code></td><td class="desc">regex search across PID/User/Command (replaces <code>ps | grep</code>)</td></tr>
+      <tr><td class="key"><code>procs --tree</code></td><td class="desc">parent/child tree view</td></tr>
+      <tr><td class="key"><code>procs --watch</code></td><td class="desc">refresh every 1s; <code>--watch-interval N</code> for custom</td></tr>
+      <tr><td class="key"><code>procs --sortd UsageCpu</code></td><td class="desc">sort by CPU descending (asc = <code>--sorta</code>)</td></tr>
+      <tr><td class="key"><code>procs --insert VmRss</code></td><td class="desc">add a column on the fly (kinds: <code>procs --list</code>)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Aliases &amp; configs</h3>
+    <table>
+      <tr><td class="key"><code>ps</code></td><td class="desc">→ <code>procs</code> (default Solarized view)</td></tr>
+      <tr><td class="key"><code>psh</code></td><td class="desc">→ <code>procs --load-config ~/.config/procs/procs-heavy.toml</code> (CPU desc, trimmed)</td></tr>
+      <tr><td class="key"><code>~/.config/procs/procs.toml</code></td><td class="desc">default config (in-repo, symlinked)</td></tr>
+      <tr><td class="key"><code>~/.config/procs/procs-heavy.toml</code></td><td class="desc">trimmed columns + CPU-desc; loaded by <code>psh</code></td></tr>
+    </table>
+    <p class="note">Both TOMLs duplicate their <code>[style.*]</code> blocks; <code>procs --load-config</code> replaces the whole config (no inheritance). Edit both when tweaking colors.</p>
+  </div>
+
+  <div class="card">
+    <h3>macOS caveat</h3>
+    <p>
+      <code>procs</code> on macOS only shows <strong>your own</strong> processes — Apple gates
+      cross-user visibility behind elevated privileges. To see system daemons (the
+      <code>_appstore</code>, <code>_audiomxd</code>, etc. that <code>ps&nbsp;-ax</code> shows), fall through to legacy:
+      <code>\ps&nbsp;-ax</code> or <code>command&nbsp;ps&nbsp;-ax</code>.
+    </p>
+    <p class="note">Pipes strip color (<code>color_mode = "Auto"</code>). Prefer <code>procs &lt;pat&gt;</code> over <code>ps&nbsp;|&nbsp;grep&nbsp;&lt;pat&gt;</code> — same result, colors preserved.</p>
   </div>
 </div>
 
