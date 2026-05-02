@@ -48,6 +48,9 @@ link ".config/btop"    "$HOME/.config/btop"
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
 
+# --- lnav (TUI log navigator; theme activation + custom format files)
+link ".config/lnav"    "$HOME/.config/lnav"
+
 # --- sesh: shared config is symlinked; machine-local sessions in sesh.local.toml
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
 if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
