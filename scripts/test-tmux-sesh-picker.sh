@@ -2,7 +2,8 @@
 # Smoke tests for the <prefix> t sesh-picker wrapper.
 #
 # Verifies popup height math:
-#   H = max(MIN, count + BUFFER), clamped above by floor(client_height * MAX_PCT/100).
+#   H = max(MIN, count + SESH_CHROME + POPUP_BORDER),
+#   clamped above by floor(client_height * MAX_PCT/100).
 #   On `sesh list` failure, H = DEFAULT (still clamped above).
 #
 # Strategy: prepend a tempdir with fake `sesh` and `tmux` shims to PATH;
@@ -78,19 +79,23 @@ trap 'rm -rf "$SHIM_DIR"' EXIT
 setup_shims "$SHIM_DIR"
 export CAPTURE_FILE="$SHIM_DIR/captured-h"
 
-# Case 1: 0 items → MIN (6) — count+BUFFER=4, clamped up to MIN
+# Case 1: 0 items → MIN (12) — count+CHROME+BORDER=11, clamped up to MIN
 export FAKE_CLIENT_HEIGHT=30 FAKE_SESH_ITEMS=0; unset FAKE_SESH_FAIL
-run_case "0 items clamps to MIN" 6
+run_case "0 items clamps to MIN" 12
 
-# Case 2: 5 items → 5 + BUFFER (4) = 9
+# Case 2: 1 item → 1+9+2=12, equals MIN (boundary case proves the clamp engages)
+export FAKE_SESH_ITEMS=1
+run_case "1 item at MIN boundary" 12
+
+# Case 3: 5 items → 5 + SESH_CHROME (9) + POPUP_BORDER (2) = 16
 export FAKE_SESH_ITEMS=5
-run_case "5 items → count+BUFFER" 9
+run_case "5 items → count + SESH_CHROME + POPUP_BORDER" 16
 
-# Case 3: 100 items in 30-row terminal → cap at floor(30*0.8) = 24
+# Case 4: 100 items in 30-row terminal → cap at floor(30*0.8) = 24
 export FAKE_SESH_ITEMS=100
 run_case "100 items capped to 80% of client height" 24
 
-# Case 4: sesh fails → DEFAULT (15), still under 30-row cap of 24
+# Case 5: sesh fails → DEFAULT (15), still under 30-row cap of 24
 export FAKE_SESH_FAIL=1
 run_case "sesh failure falls back to DEFAULT" 15
 

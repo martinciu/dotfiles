@@ -7,16 +7,25 @@
 # tmux's event loop should not block on the wrapper itself.
 #
 # Sources for `sesh list` MUST mirror the `sesh picker` flag set so the
-# count matches what fzf will display.
+# count matches what the picker will display.
 set -euo pipefail
 
-readonly BUFFER=4         # popup border (top+bottom = 2) + fzf prompt + fzf info line
-readonly MIN=6            # smallest usable popup
+# Vertical overhead the wrapper has to budget for. Two distinct owners:
+#  - SESH_CHROME: rows sesh's bubbletea TUI subtracts in
+#    picker/tui.go visibleCount() (border + title + filter + counter +
+#    help + blanks). If sesh upstream changes this, bump SESH_CHROME.
+#  - POPUP_BORDER: rows tmux draws around its display-popup. If the popup
+#    is ever opened with `-B` (no border), drop POPUP_BORDER to 0.
+readonly SESH_CHROME=9
+readonly POPUP_BORDER=2
+readonly MIN=12           # SESH_CHROME + POPUP_BORDER + 1 visible item
 readonly DEFAULT=15       # fallback when `sesh list` fails (close to old visual size)
 readonly MAX_PCT=80       # cap as percentage of client height
 
 # Count entries; distinguish "0 items" from "command failed" by exit code.
-if list_output=$(sesh list -c -t -T 2>/dev/null); then
+# Flags MUST mirror the picker's non-display flags: -d -H -c -t -T.
+# (Picker also has -i, but icons are display-only and don't change the count.)
+if list_output=$(sesh list -d -H -c -t -T 2>/dev/null); then
   if [[ -n "$list_output" ]]; then
     count=$(printf '%s' "$list_output" | grep -c . || true)
   else
@@ -29,7 +38,7 @@ fi
 if [[ -z "$count" ]]; then
   H=$DEFAULT
 else
-  H=$((count + BUFFER))
+  H=$((count + SESH_CHROME + POPUP_BORDER))
   (( H < MIN )) && H=$MIN
 fi
 
