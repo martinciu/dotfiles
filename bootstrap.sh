@@ -51,8 +51,32 @@ link ".config/btop"    "$HOME/.config/btop"
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
 
-# --- lnav (TUI log navigator; theme activation + custom format files)
-link ".config/lnav"    "$HOME/.config/lnav"
+# --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
+# lnav writes its built-in samples (configs/default, formats/default), crash
+# dumps, staging area, log_metadata.db, view-info-*.json, and :config-written
+# config.json into the real ~/.config/lnav/ — outside the repo. We only own
+# the two installed/ subdirs.
+LNAV_HOME="$HOME/.config/lnav"
+LNAV_REPO=".config/lnav"
+# 1. Old whole-dir symlink → tear down so we can rebuild as a real dir
+if [ -L "$LNAV_HOME" ]; then
+  rm "$LNAV_HOME"
+  echo "removed: $LNAV_HOME (legacy whole-dir symlink)"
+fi
+# 2. Stale runtime artifacts inside the repo (from pre-migration lnav runs).
+#    Only the known set lnav itself emits — never touch installed/.
+rm -rf  "$DOTFILES/$LNAV_REPO/configs/default" \
+        "$DOTFILES/$LNAV_REPO/formats/default" \
+        "$DOTFILES/$LNAV_REPO/crash" \
+        "$DOTFILES/$LNAV_REPO/staging"
+rm -f   "$DOTFILES/$LNAV_REPO/log_metadata.db" \
+        "$DOTFILES/$LNAV_REPO/config.json"
+rm -f   "$DOTFILES/$LNAV_REPO"/view-info-*.json
+# 3. New shape: real parent dirs + dir-level symlinks for installed/
+mkdir -p "$LNAV_HOME/configs" "$LNAV_HOME/formats"
+link "$LNAV_REPO/configs/installed" "$LNAV_HOME/configs/installed"
+link "$LNAV_REPO/formats/installed" "$LNAV_HOME/formats/installed"
+unset LNAV_HOME LNAV_REPO
 
 # --- sesh: shared config is symlinked; machine-local sessions in sesh.local.toml
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
