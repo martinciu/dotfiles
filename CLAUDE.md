@@ -149,10 +149,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   an explicit ask.
 - **Shell colors are Solarized Dark, end-to-end.** Tools: `eza` (ls),
   `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
-  renderer), `vivid` (`LS_COLORS`), `zsh-syntax-highlighting`,
-  `zsh-autosuggestions`, `fzf-tab` (Tab completion picker). Palette pins:
+  renderer), `vivid` (`LS_COLORS`), `procs` (`ps` replacement),
+  `zsh-syntax-highlighting`, `zsh-autosuggestions`, `fzf-tab` (Tab completion
+  picker). Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
-  `delta.syntax-theme = "Solarized (dark)"`,
+  `delta.syntax-theme = "Solarized (dark)"`, `procs` reads
+  `.config/procs/procs.toml` (Pid=violet, User=blue, percentage gradient
+  blue→green→yellow→red),
   `md` alias passes `--style .config/glow/glamour.json` (chroma
   `solarized-dark` for fenced code blocks). Don't swap themes or
   introduce alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, etc.)
@@ -163,6 +166,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   before any plugin that wraps widgets. The first-time `git config`
   recipe wiring delta as git's pager
   lives in [`README.md`](README.md) → "Setup (new machine)".
+- **`ps` is aliased to `procs`** (modern ps replacement; Rust). Two
+  Solarized-themed configs live in `.config/procs/`: `procs.toml` (default,
+  PID asc, ps-like columns) is read by bare `procs` / `ps`;
+  `procs-heavy.toml` (UsageCpu desc, trimmed columns
+  `Pid User UsageCpu UsageMem VmRss Command`) is loaded by the `psh` alias
+  via `--load-config`. The two TOMLs duplicate their `[style.*]` blocks on
+  purpose — `procs --load-config` replaces the entire config (no
+  inheritance), so style edits must touch both files. Aliases are guarded
+  on `command -v procs`. Escape hatches: `command ps`, `\ps`, `/bin/ps`
+  reach legacy `ps`; non-interactive shells (scripts) never see the alias.
+  macOS caveat: `procs` only shows the current user's processes even with
+  no filter (Apple gates cross-user visibility behind elevated privileges);
+  for "show all system daemons" use `\ps -ax`. Don't add a `psx` alias for
+  the all-users view — legacy `ps` already serves it without a sudo prompt.
 - **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
   `cat` alias). Files get bat's full decoration; piped input uses `--plain` so
   `cmd | less` stays clean. `command less` reaches real `less` for `less +F`,
