@@ -106,5 +106,5 @@ echo
 echo "next steps:"
 echo "  1. start tmux:               tmux"
 echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
-echo "  3. test sesh popup:          <prefix> t"
+echo "  3. test session picker:      <prefix> t"
 echo "  4. create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"

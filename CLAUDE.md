@@ -29,10 +29,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   coreutils dependency, so don't swap to `tac`) so `xre`'s
   first-appearance dedup keeps the LATEST occurrence of each URL, and
   pipes through the plugin's helpers unchanged. Popup geometry:
-  `-w 70% -h 70%`. Width (70%) matches the sesh and file pickers — the
-  shared anchor across the three pickers. The sesh picker's height is
-  now dynamic (see the sesh bullet); URL height stays fixed because
-  scrollback URLs aren't a countable list. `--tac` in
+  `-w 70% -h 70%`. Width (70%) matches the sessionx and file pickers —
+  the shared anchor across the three pickers. Sessionx height is also
+  fixed at 70% (its preview pane uses the vertical space). `--tac` in
   `@fzf-url-fzf-options` is intentional so the newest URL lands at the
   cursor — don't drop it.
   The wrapper owns the binding (added after the TPM `run` line in
@@ -64,25 +63,30 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   outside the repo, copied from `sesh.local.toml.template` by
   `bootstrap.sh` on first run). Don't add machine-specific entries to
   the shared file; don't drop the `import` line — sesh hard-errors on
-  a missing import target. The picker (`<prefix> t`, swapped with the
-  default clock-mode binding which moved to `<prefix> T`) is
-  `sesh picker -i -d -H -c -t -T` — three sources only (configured /
-  tmux / tmuxinator). The binding is
-  `run -b ~/.config/tmux/bin/tmux-sesh-picker` (not inline
-  `display-popup`): the wrapper counts entries via
-  `sesh list -d -H -c -t -T` (mirrors the picker's flag set), then opens
-  `display-popup -E -w 70% -h "$H"` where
-  `H = items + 11` (sesh chrome 9 + tmux popup border 2), clamped
-  to `[12, 80% of client height]` (fallback `15` if `sesh list`
-  fails). Width stays at 70% — shared anchor with the URL and
-  file pickers; height is dynamic. Don't fold the wrapper back
-  inline — recomputing the height per keypress requires a real
-  script. Zoxide is intentionally **not** a picker source:
-  the `-c -t -T` flags are inclusive opt-in, so omitting `-z` drops
-  zoxide. Don't re-introduce a custom fzf wrapper script. Zoxide is
-  still loaded for `z`-cd, and `_ZO_EXCLUDE_DIRS` blocks `~/`,
-  `~/Downloads/*`, `~/.config/*`, `~/Library/*` from being indexed —
-  keeps `z lib`/`z config`/etc. from jumping into noise dirs.
+  a missing import target. Sesh itself stays installed only as
+  `bin/s`'s project registry — it's no longer the picker. The picker
+  is `tmux-sessionx` (see next bullet).
+- **tmux-sessionx is the session picker** (`<prefix> t`, swapped with
+  the default clock-mode binding which moved to `<prefix> T`). Loaded
+  via TPM (`omerxx/tmux-sessionx`); the plugin claims the binding via
+  `@sessionx-bind 't'` set during TPM `run`, so no manual bind-key
+  exists. Geometry is pinned `70% × 70%` (`@sessionx-window-width` /
+  `@sessionx-window-height`) — the shared anchor with the URL and
+  file pickers. Sources: tmux sessions + tmuxinator
+  (`@sessionx-tmuxinator-mode 'on'`); zoxide is intentionally
+  **not** a picker source (`@sessionx-zoxide-mode 'off'` set
+  explicitly so the house rule is visible in config).
+  `@sessionx-filter-current 'true'` hides the current session from
+  the list. Preview is sessionx's default — `tmux capture-pane -ep`
+  on the highlighted session's active pane (live content). The
+  preview script (`preview.sh`) is hardcoded inside the plugin;
+  there is no `@sessionx-preview-command` hook, so don't try to
+  customize the preview content via tmux options. No custom wrapper
+  script; geometry/sources are configured via `@sessionx-*` options
+  only. Zoxide is still loaded for `z`-cd, and `_ZO_EXCLUDE_DIRS`
+  blocks `~/`, `~/Downloads/*`, `~/.config/*`, `~/Library/*` from
+  being indexed — keeps `z lib`/`z config`/etc. from jumping into
+  noise dirs.
 - **`s` is the worktree+session command** (`bin/s`, symlinked to
   `~/.local/bin/s` by `bootstrap.sh`). Surface:
   `s [<project>] [<name>]`. Inside tmux a single arg is the worktree
@@ -94,9 +98,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   verbatim — `s` does **not** apply the `worktree-` prefix; that
   prefix is reserved for the `EnterWorktree` Claude Code workflow.
   Project list comes from `sesh list -c -j` (the configured-sessions
-  source); no separate registry. Don't wrap `<prefix> t` to add
-  create-on-miss — the picker stays vanilla per the existing house
-  rule.
+  source); no separate registry. The picker is tmux-sessionx (see
+  the sessionx bullet); `s` does not invoke it.
 - **`vim` and `vimdiff` are zsh aliases to nvim**; **`vi` is a zsh alias
   to the legacy minimal vim** (`alias vi='command vim'` — `command`
   suppresses recursive alias expansion). All three are defined in
