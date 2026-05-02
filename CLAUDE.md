@@ -206,6 +206,26 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   custom Solarized theme file — `solarized_dark` is built-in. Don't
   pin more keys without a clear reason — small diff = easy upstream
   bumps.
+- **`lnav` is the TUI log navigator** (homebrew `lnav`; raw command, no
+  alias). The entire `.config/lnav/` directory is symlinked by
+  `bootstrap.sh`. Theme is lnav's **built-in** `solarized-dark`,
+  activated by `.config/lnav/configs/installed/solarized-dark.json` —
+  one tiny file that only sets `ui.theme`; no slot-mapping JSON because
+  upstream's built-in already uses the canonical Solarized palette
+  (verified). Don't redefine the theme; if you need a tweak, prefer a
+  separate config file that overrides specific slots rather than
+  forking the whole theme. Custom log-format files live at
+  `.config/lnav/formats/installed/<name>.json`. One tracked format
+  today: `inngest.json` for `inngest-cli dev` stdout — uses lnav's
+  `"json": true` mode (Inngest CLI v1.x emits JSON-per-line) and maps
+  `time`/`level`/`msg` to lnav's `__timestamp__`/`__level__`/body
+  slots. Add new formats by dropping a JSON file in the same directory
+  — re-running `bootstrap.sh` is **not** needed because the parent dir
+  is already symlinked. lnav writes runtime mutations (e.g. via
+  `:config`) to `~/.config/lnav/config.json`, which is **not** in the
+  repo — tracked files in `configs/installed/` and `formats/installed/`
+  won't be clobbered. Don't replace lnav with another log TUI without
+  an ask; don't add a shell alias or wrapper.
 
 ## Where things live
 
