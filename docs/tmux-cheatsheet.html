@@ -65,7 +65,7 @@
       <tr><td class="key"><code>tmux ls</code></td><td class="desc">list sessions</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach (session keeps running)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">r</span></td><td class="desc">reload <code>~/.config/tmux/tmux.conf</code></td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">sesh picker popup (configured / tmux / tmuxinator) — height sized to entry count</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">t</span></td><td class="desc">tmux-sessionx picker popup (tmux / tmuxinator) — live pane preview for the highlighted session</td></tr>
       <tr><td class="key"><code>s [&lt;project&gt;] [&lt;name&gt;]</code></td><td class="desc">create-or-attach worktree+session — inside tmux 1 arg = worktree name in current project, outside tmux 1 arg = project, 0 args = fzf picker</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">u</span></td><td class="desc">URL picker (fzf, current pane full 50k scrollback, latest occurrence of duplicates wins) — opens in default browser</td></tr>
@@ -117,30 +117,33 @@
   </div>
 
   <div class="card">
-    <h3>Sesh picker <span class="pill">prefix t</span></h3>
+    <h3>Session picker <span class="pill">prefix t</span></h3>
     <p>
-      <span class="k prefix">C-a</span><span class="k">t</span> runs
-      <code>~/.config/tmux/bin/tmux-sesh-picker</code>, which opens a popup over
-      <code>sesh picker -i -d -H -c -t -T</code> — three sources (configured / tmux /
-      tmuxinator). Zoxide is intentionally not a picker source. The shared config
-      lives at <code>.config/sesh/sesh.toml</code> with an <code>import</code> directive
-      pulling machine-local sessions from <code>~/.config/sesh/sesh.local.toml</code>
-      (untracked, copied from a template by <code>bootstrap.sh</code>).
+      <span class="k prefix">C-a</span><span class="k">t</span> opens
+      <a href="https://github.com/omerxx/tmux-sessionx">tmux-sessionx</a>,
+      a TPM-loaded session picker. Sources: existing tmux sessions plus
+      tmuxinator projects (<code>@sessionx-tmuxinator-mode 'on'</code>).
+      Zoxide is intentionally not a picker source
+      (<code>@sessionx-zoxide-mode 'off'</code>). The current session is
+      hidden from the list (<code>@sessionx-filter-current 'true'</code>).
     </p>
     <p class="note">
-      Popup width is fixed at 70% (shared anchor with the URL and file pickers);
-      height is dynamic — <code>items + 11</code> (sesh chrome 9 + popup border 2),
-      clamped to <code>[12, 80% of client height]</code>, falling back to
-      <code>15</code> if
-      <code>sesh list</code> fails. Width gives long
-      <code>&lt;project&gt;/&lt;worktree&gt;</code> session names room; sizing
-      height to the entry count keeps the popup compact.
+      Highlighting an entry shows live pane content in the preview pane
+      (<code>tmux capture-pane -ep</code> on the session's active pane).
+      The plugin claims the binding via <code>@sessionx-bind 't'</code> —
+      no manual <code>bind-key</code> exists for this picker. Geometry is
+      pinned at 70% × 70% (<code>@sessionx-window-width</code> /
+      <code>@sessionx-window-height</code>), the shared anchor with the URL
+      and file pickers.
     </p>
     <p class="note">
-      <code>_ZO_EXCLUDE_DIRS</code> blocks <code>~/</code>, <code>~/Downloads/*</code>,
-      <code>~/.config/*</code>, <code>~/Library/*</code> from zoxide indexing — these
-      excludes now exist for <code>z</code>-cd hygiene only (the picker no longer
-      reads zoxide). Don't re-introduce a custom fzf wrapper script.
+      Sesh stays installed for <code>bin/s</code> (the worktree+session
+      command), which still reads <code>sesh list -c -j</code> as its
+      project registry. The shared <code>.config/sesh/sesh.toml</code> +
+      machine-local <code>~/.config/sesh/sesh.local.toml</code> split is
+      unchanged. <code>_ZO_EXCLUDE_DIRS</code> excludes (<code>~/</code>,
+      <code>~/Downloads/*</code>, <code>~/.config/*</code>,
+      <code>~/Library/*</code>) remain for <code>z</code>-cd hygiene.
     </p>
   </div>
 
