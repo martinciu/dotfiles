@@ -42,6 +42,9 @@ link ".config/worktrunk" "$HOME/.config/worktrunk"
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
 
+# --- btop
+link ".config/btop"    "$HOME/.config/btop"
+
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
 

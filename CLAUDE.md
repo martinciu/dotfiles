@@ -196,6 +196,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to `mdcat`,
   `frogmouth`, or another renderer without an explicit ask. (`mdcat` was
   considered and ruled out: archived upstream as of 2025-01-10.)
+- **`top` is a zsh alias to `btop`** (defined in `.zshrc`, guarded on
+  `command -v btop`). Theme is pinned `solarized_dark` via
+  `.config/btop/btop.conf` (only `color_theme`,
+  `theme_background = False`, and `vim_keys = True` are pinned —
+  everything else rides btop defaults). macOS `top` is reachable via
+  `command top` or `\top`. Don't replace btop with htop or vendor a
+  custom Solarized theme file — `solarized_dark` is built-in. Don't
+  pin more keys without a clear reason — small diff = easy upstream
+  bumps.
 
 ## Where things live
 
