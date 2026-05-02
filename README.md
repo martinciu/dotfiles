@@ -8,7 +8,7 @@ Solarized-themed quick references — also browseable at
 [martinciu.github.io/dotfiles](https://martinciu.github.io/dotfiles/):
 
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
-- [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, sesh picker, status bar, copy mode
+- [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
 - [Shell colors](https://martinciu.github.io/dotfiles/shell-colors-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
 
 ## Setup (new machine)
@@ -93,7 +93,7 @@ These drive the `claude[<name>]` window title (tmux's
 ## Keymaps quick-ref
 
 - tmux prefix: `C-a`
-- session switcher (sesh picker): `<prefix> t`  (clock-mode moved to `<prefix> T`)
+- session switcher (tmux-sessionx): `<prefix> t`  (clock-mode moved to `<prefix> T`)
 - pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
 - URL picker (current pane): `<prefix> u`
