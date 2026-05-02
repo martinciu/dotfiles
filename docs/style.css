@@ -17,8 +17,11 @@ header h1 { margin: 0 0 .35rem; font-size: 1.8rem; color: var(--base3); font-wei
 header .sub { color: var(--base0); font-size: .95rem; }
 header .sub code { color: var(--cyan); }
 nav.toc { margin: 1rem 0 1.6rem; padding: .65rem .9rem; background: var(--base02); border-radius: 6px; font-size: .9rem; color: var(--base0); }
-nav.toc a { color: var(--blue); text-decoration: none; margin-right: 1.1rem; white-space: nowrap; }
-nav.toc a:hover { color: var(--cyan); text-decoration: underline; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--cyan); text-decoration: underline; }
+a code { color: var(--blue); }
+a:hover code { color: var(--cyan); }
+nav.toc a { margin-right: 1.1rem; white-space: nowrap; }
 h2 { color: var(--base2); border-left: 3px solid var(--blue); padding-left: .6rem; margin: 2.2rem 0 .9rem; font-size: 1.25rem; font-weight: 600; }
 h2 .accent { color: var(--blue); font-weight: 400; font-size: .85em; margin-left: .4rem; }
 h3 { color: var(--base2); margin: 1.4rem 0 .55rem; font-size: 1.02rem; font-weight: 600; }

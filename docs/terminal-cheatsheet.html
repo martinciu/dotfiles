@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shell Colors — Getting Started &amp; Cheatsheet</title>
+<title>Terminal — Getting Started &amp; Cheatsheet</title>
 <link rel="stylesheet" href="style.css" />
 <style>
   h2 .tool-tag { background: var(--base02); color: var(--green); border: 1px solid #0a4655; padding: .1em .55em; border-radius: 4px;
@@ -14,7 +14,7 @@
 <body>
 
 <header>
-  <h1>Shell Colors — Getting Started &amp; Cheatsheet</h1>
+  <h1>Terminal — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
     Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
@@ -48,18 +48,20 @@
   <div class="card">
     <h3>Brew packages (recently added)</h3>
     <table>
-      <tr><td class="key"><code>eza</code></td><td class="desc">ls replacement with icons + git status</td></tr>
-      <tr><td class="key"><code>bat</code></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
-      <tr><td class="key"><code>git-delta</code></td><td class="desc">git diff/log/blame pager</td></tr>
-      <tr><td class="key"><code>difftastic</code></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
-      <tr><td class="key"><code>glow</code></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
-      <tr><td class="key"><code>vivid</code></td><td class="desc">generates LS_COLORS palettes</td></tr>
-      <tr><td class="key"><code>procs</code></td><td class="desc">modern ps replacement (Rust)</td></tr>
-      <tr><td class="key"><code>tailspin</code></td><td class="desc">live-log highlighter (<code>tspin</code>); Solarized via <code>~/.config/tailspin/theme.toml</code></td></tr>
-      <tr><td class="key"><code>zsh-autosuggestions</code></td><td class="desc">ghost-text completion from history</td></tr>
-      <tr><td class="key"><code>zsh-syntax-highlighting</code></td><td class="desc">live command-line highlighting</td></tr>
-      <tr><td class="key"><code>fzf</code></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
-      <tr><td class="key"><code>fzf-tab</code></td><td class="desc">replaces zsh's Tab menu with an fzf picker</td></tr>
+      <tr><td class="key"><a href="https://github.com/eza-community/eza"><code>eza</code></a></td><td class="desc">ls replacement with icons + git status</td></tr>
+      <tr><td class="key"><a href="https://github.com/sharkdp/bat"><code>bat</code></a></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
+      <tr><td class="key"><a href="https://github.com/dandavison/delta"><code>git-delta</code></a></td><td class="desc">git diff/log/blame pager</td></tr>
+      <tr><td class="key"><a href="https://difftastic.wilfred.me.uk/"><code>difftastic</code></a></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
+      <tr><td class="key"><a href="https://github.com/charmbracelet/glow"><code>glow</code></a></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
+      <tr><td class="key"><a href="https://github.com/sharkdp/vivid"><code>vivid</code></a></td><td class="desc">generates LS_COLORS palettes</td></tr>
+      <tr><td class="key"><a href="https://github.com/dalance/procs"><code>procs</code></a></td><td class="desc">modern ps replacement (Rust)</td></tr>
+      <tr><td class="key"><a href="https://github.com/bensadeh/tailspin"><code>tailspin</code></a></td><td class="desc">live-log highlighter (<code>tspin</code>); Solarized via <code>~/.config/tailspin/theme.toml</code></td></tr>
+      <tr><td class="key"><a href="https://lnav.org/"><code>lnav</code></a></td><td class="desc">TUI log navigator; Solarized via built-in theme (see lnav section)</td></tr>
+      <tr><td class="key"><a href="https://github.com/aristocratos/btop"><code>btop</code></a></td><td class="desc">modern <code>top</code> replacement; Solarized via <code>~/.config/btop/btop.conf</code></td></tr>
+      <tr><td class="key"><a href="https://github.com/zsh-users/zsh-autosuggestions"><code>zsh-autosuggestions</code></a></td><td class="desc">ghost-text completion from history</td></tr>
+      <tr><td class="key"><a href="https://github.com/zsh-users/zsh-syntax-highlighting"><code>zsh-syntax-highlighting</code></a></td><td class="desc">live command-line highlighting</td></tr>
+      <tr><td class="key"><a href="https://github.com/junegunn/fzf"><code>fzf</code></a></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
+      <tr><td class="key"><a href="https://github.com/Aloxaf/fzf-tab"><code>fzf-tab</code></a></td><td class="desc">replaces zsh's Tab menu with an fzf picker</td></tr>
     </table>
   </div>
 
@@ -592,7 +594,7 @@
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="bootstrap">Bootstrap a new machine</h2>
 
-<p class="note">Full new-machine setup is in <a href="../README.md"><code>README.md</code></a> &rarr; "Setup (new machine)". The steps below are the shell-colors-relevant subset.</p>
+<p class="note">Full new-machine setup is in <a href="../README.md"><code>README.md</code></a> &rarr; "Setup (new machine)". The steps below are the terminal-relevant subset.</p>
 
 <pre><span class="c"># 1) Brew packages</span>
 <span class="cmd">brew bundle</span> --file=<span class="arg">$PROJECTS_HOME/dotfiles/Brewfile</span>

@@ -9,7 +9,7 @@ Solarized-themed quick references — also browseable at
 
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 - [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
-- [Shell colors](https://martinciu.github.io/dotfiles/shell-colors-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
+- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
 
 ## Setup (new machine)
 
@@ -77,17 +77,20 @@ These drive the `claude[<name>]` window title (tmux's
 
 | Tool         | Source path                          | Target              |
 | ------------ | ------------------------------------ | ------------------- |
-| Ghostty      | `.config/ghostty/`                   | `~/.config/ghostty` |
-| tmux         | `.config/tmux/`                      | `~/.config/tmux`    |
-| nvim         | `.config/nvim/`                      | `~/.config/nvim`    |
-| vim          | `.vimrc`, `.vim/colors/`             | `~/.vimrc`, `~/.vim/colors` |
-| zsh          | `.zshrc`, `.p10k.zsh`                | `~/.zshrc`, `~/.p10k.zsh` |
-| sesh         | `.config/sesh/sesh.toml`             | `~/.config/sesh/sesh.toml` |
-| worktrunk    | `.config/worktrunk/`                 | `~/.config/worktrunk` |
-| glow         | `.config/glow/`                      | `~/.config/glow` |
-| tailspin     | `.config/tailspin/`                  | `~/.config/tailspin` |
-| ccstatusline | `.config/ccstatusline/`              | `~/.config/ccstatusline` |
-| Claude       | `.claude/CLAUDE.md`                  | `~/.claude/CLAUDE.md` |
+| [Ghostty](https://ghostty.org/) | `.config/ghostty/`        | `~/.config/ghostty` |
+| [tmux](https://github.com/tmux/tmux) | `.config/tmux/`      | `~/.config/tmux`    |
+| [nvim](https://neovim.io/) | `.config/nvim/`                | `~/.config/nvim`    |
+| [vim](https://www.vim.org/) | `.vimrc`, `.vim/colors/`      | `~/.vimrc`, `~/.vim/colors` |
+| [zsh](https://www.zsh.org/) | `.zshrc`, `.p10k.zsh`         | `~/.zshrc`, `~/.p10k.zsh` |
+| [sesh](https://github.com/joshmedeski/sesh) | `.config/sesh/sesh.toml` | `~/.config/sesh/sesh.toml` |
+| [worktrunk](https://worktrunk.dev/) | `.config/worktrunk/` | `~/.config/worktrunk` |
+| [glow](https://github.com/charmbracelet/glow) | `.config/glow/` | `~/.config/glow` |
+| [tailspin](https://github.com/bensadeh/tailspin) | `.config/tailspin/` | `~/.config/tailspin` |
+| [lnav](https://lnav.org/) | `.config/lnav/{configs,formats}/installed/` | `~/.config/lnav/{configs,formats}/installed` |
+| [btop](https://github.com/aristocratos/btop) | `.config/btop/` | `~/.config/btop`    |
+| [procs](https://github.com/dalance/procs) | `.config/procs/` | `~/.config/procs`   |
+| [ccstatusline](https://github.com/sirmalloc/ccstatusline) | `.config/ccstatusline/` | `~/.config/ccstatusline` |
+| [Claude](https://claude.com/claude-code) | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
 
 ## Keymaps quick-ref
