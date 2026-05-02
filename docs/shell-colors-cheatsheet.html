@@ -185,7 +185,7 @@
       <tr><td class="key"><code>~/.config/lnav/formats/installed/inngest.json</code></td><td class="desc">JSON format for <code>inngest-cli dev</code> stdout</td></tr>
       <tr><td class="key"><code>~/.config/lnav/config.json</code></td><td class="desc">lnav's runtime mutable config (not in repo)</td></tr>
     </table>
-    <p class="note">Add new formats by dropping a JSON file in <code>formats/installed/</code> — the parent dir is already symlinked, no <code>bootstrap.sh</code> re-run needed. Theme is lnav's built-in (palette matches <code>bat</code> / <code>delta</code> / <code>procs</code> / <code>btop</code>); we don't redefine slots.</p>
+    <p class="note">Add new formats by dropping a JSON file in <code>formats/installed/</code> — the <code>installed/</code> dir is symlinked from the repo, so no <code>bootstrap.sh</code> re-run is needed. (lnav owns the rest of <code>~/.config/lnav/</code>.) Theme is lnav's built-in (palette matches <code>bat</code> / <code>delta</code> / <code>procs</code> / <code>btop</code>); we don't redefine slots.</p>
   </div>
 
   <div class="card">
