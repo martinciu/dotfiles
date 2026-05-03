@@ -27,6 +27,36 @@ assert_not_contains() {
   fi
 }
 
+# Functions under test (keep in sync with .zshrc)
+typeset -gA _modern_reminder_pairs=(
+  [tail]=tspin
+  [grep]=rg
+  [curl]=xh
+)
+typeset -gA _modern_reminder_hints=(
+  [tail]="tspin is a modern alternative to tail. Try \`tspin -f app.log\`."
+  [grep]="rg is a modern alternative to grep."
+  [curl]="xh (HTTPie-compatible) is a modern alternative to curl."
+)
+typeset -gA _modern_reminder_seen
+typeset -g _modern_reminder_pending=""
+
+_modern_reminder_preexec() {
+  [[ -z $MODERN_REMINDER ]] && return
+  _modern_reminder_pending=""
+  # Stub: real token scan added in Task 5. For now: first-token-only.
+  local first="${${(z)1}[1]}"
+  if [[ -n "${_modern_reminder_pairs[$first]}" ]]; then
+    _modern_reminder_pending="$first"
+  fi
+}
+
+_modern_reminder_precmd() {
+  [[ -z $MODERN_REMINDER ]] && return
+  # Stub: real fire-once logic added in Task 3.
+  _modern_reminder_pending=""
+}
+
 # helper: clear state, run preexec then precmd, return captured stdout
 _run_hooks() {
   local cmdline="$1"
