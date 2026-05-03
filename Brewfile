@@ -39,3 +39,6 @@ brew "lnav"                     # TUI log file navigator
 
 # System monitoring
 brew "btop"                     # modern top replacement (themed Solarized)
+
+# Fonts
+cask "font-jetbrains-mono-nerd-font"  # Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
