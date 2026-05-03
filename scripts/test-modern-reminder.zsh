@@ -44,11 +44,16 @@ typeset -g _modern_reminder_pending=""
 _modern_reminder_preexec() {
   [[ -z ${MODERN_REMINDER:-} ]] && return
   _modern_reminder_pending=""
-  # Stub: real token scan added in Task 5. For now: first-token-only.
-  local first="${${(z)1}[1]}"
-  if [[ -n "${_modern_reminder_pairs[$first]:-}" ]]; then
-    _modern_reminder_pending="$first"
-  fi
+  local -a tokens=(${(z)1})
+  local t base
+  for t in "${tokens[@]}"; do
+    base="${t##*/}"      # strip directory prefix (/usr/bin/grep -> grep)
+    base="${base#\\}"    # strip leading backslash (\grep -> grep)
+    if [[ -n "${_modern_reminder_pairs[$base]:-}" ]]; then
+      _modern_reminder_pending="$base"
+      return
+    fi
+  done
 }
 
 _modern_reminder_precmd() {
@@ -107,6 +112,15 @@ PATH="$saved_path"
 out=$(<"$tmp"); rm -f "$tmp"
 assert_not_contains "$out" "modern alternative" \
   "Modern tool missing from \$PATH -> no reminder"
+
+# Test 4: token scan handles pipes
+export MODERN_REMINDER=1
+_modern_reminder_seen=()
+tmp=$(mktemp -t mr.XXXXXX)
+_run_hooks "echo x | grep x" >"$tmp" 2>&1
+out=$(<"$tmp"); rm -f "$tmp"
+assert_contains "$out" "rg is a modern alternative to grep" \
+  "Token scan: 'echo x | grep x' fires for grep"
 
 echo
 echo "Total: $((pass+fail))  pass: $pass  fail: $fail"
