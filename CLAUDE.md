@@ -376,9 +376,25 @@ A landing page at `docs/index.html` lists the three cheatsheets and is
 served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 (source: `main`, folder `/docs`, with a `docs/.nojekyll` marker).
 
+Each cheatsheet, the landing page, and the README also embed example
+screenshots. Sources live at `docs/images/example_<tool>.png` (3176×1920
+PNG, retina-captured by hand). Two derivative sizes — `-hero.png`
+(1600px longest side, used at the top of each cheatsheet) and
+`-thumb.png` (800px longest side, used on the landing-page cards and
+in the README grid) — are produced by `scripts/build-screenshots.sh`
+(macOS `sips`). All three sizes are committed; re-run the script after
+swapping a source PNG, and never hand-edit a `-hero` / `-thumb` file.
+The shared `.shot` / `.shot.hero` rules in `docs/style.css` style every
+embedded image; `@media print { .shot { display: none } }` keeps
+cheatsheet print output text-only. `<tool>` is one of
+`tmux | vim | terminal` — note the source filename is `example_vim.png`
+even though the cheatsheet is `nvim-cheatsheet.html` (the user's
+filename is the source of truth).
+
 ## Verify changes
 
 - Helper smoke tests: `scripts/test-helpers.sh`
+- Regenerate screenshot thumbnails: `scripts/build-screenshots.sh`
 - File-picker path-extraction tests: `scripts/test-fzf-file-extract.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
