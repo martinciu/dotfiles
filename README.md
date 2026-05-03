@@ -3,9 +3,9 @@
 Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono Nerd Font.
 
 <p align="center">
+  <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
   <a href="docs/images/example_tmux.png"><img src="docs/images/example_tmux-thumb.png" alt="tmux" width="32%" /></a>
   <a href="docs/images/example_vim.png"><img src="docs/images/example_vim-thumb.png" alt="vim" width="32%" /></a>
-  <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
 </p>
 
 ## Cheatsheets
@@ -13,9 +13,9 @@ Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono
 Solarized-themed quick references — also browseable at
 [martinciu.github.io/dotfiles](https://martinciu.github.io/dotfiles/):
 
-- [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
-- [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
 - [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, fzf, zsh plugins
+- [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
+- [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 
 ## Setup (new machine)
 
