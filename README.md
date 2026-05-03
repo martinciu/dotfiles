@@ -137,3 +137,11 @@ These drive the `claude[<name>]` window title (tmux's
   lines for paths that exist on disk (OSC 8 hyperlinks + plain `path:line`
   regex), fzf-picks one, jumps the per-session nvim. Falls back to a fresh
   nvim in a new tmux window if no live nvim socket exists for the session.
+- **Dashboard (`bin/dashboard`) is experimental.** Spawns a tiled
+  `dashboard-<derived>` session that polls `capture-pane` for every
+  matched session — useful for keeping eyes on N parallel runs at
+  once. Wired up and tested for the author's daily flow, but not
+  battle-hardened: edge cases around layout, pagination, and
+  re-discovery may misbehave. Expect the surface (flags, bindings,
+  session-name shape) to shift. Cheatsheet card:
+  [`docs/tmux-cheatsheet.html`](docs/tmux-cheatsheet.html#dashboard).
