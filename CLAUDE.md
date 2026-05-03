@@ -8,6 +8,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   any other dotfiles manager unless asked.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
+- **Global gitignore is symlinked from `.gitignore_global`** (repo root,
+  sibling of `.zshrc`). `bootstrap.sh` links it to `~/.gitignore_global`,
+  the path that `~/.gitconfig`'s `core.excludesfile` already points to —
+  so no `git config` change is needed when re-bootstrapping a machine.
+  Lists patterns that should never be committed in any repo on this
+  machine: Claude Code state (`settings.local.json`, `todos.json`,
+  `worktrees/`, `logs/`, `.credentials.json`), and working dirs for
+  planning artefacts (`tmp/`, `docs/superpowers/`, `.superpowers/`,
+  `.autonomo/`). Per-repo `.gitignore` files still own repo-specific
+  patterns; this file is for the cross-repo never-commit set only. Don't
+  add app-specific patterns here (e.g. `node_modules/`) — those belong
+  in per-language `.gitignore` templates, not the global file.
 - **tmux status bar is hand-rolled** in `.config/tmux/tmux.conf` with
   Solarized base16 colors. Don't suggest theme plugins (catppuccin,
   tmux-powerline, etc.) — we deliberately avoid them.
@@ -124,16 +136,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
-- **Worktree `tmp/` is shared with the primary worktree** via a worktrunk
-  `pre-start` hook (`share-tmp` in `.config/worktrunk/config.toml`). The
-  hook symlinks `<worktree>/tmp` → `<primary>/tmp` and appends `tmp` to
-  the worktree's `.git/info/exclude` so the symlink doesn't surface as
-  untracked. Guarded on `git check-ignore -q tmp/` so it's a no-op in
-  repos where `tmp/` is tracked source — never wipes real content.
-  Paired with `[step.copy-ignored] exclude = ["tmp/"]` so `wt step
-  copy-ignored` doesn't clobber the symlink with a real copy. Don't
-  replace the symlink with a real `tmp/` dir inside a worktree —
-  superpowers specs/plans live there and would be lost on `wt remove`.
+- **Gitignored content flows between primary and worktrees in two
+  stages.** `[post-start] copy = "wt step copy-ignored"` copies primary's
+  gitignored content into a new worktree at creation.
+  `[pre-remove] save-shared` rsyncs `.superpowers/` and `.autonomo/`
+  back to primary just before `wt remove`, using `--ignore-existing` so
+  primary is never clobbered (files that exist in both are preserved as
+  primary's version). Net: write-once artefacts (specs, plans, autonomo
+  logs) survive `wt remove`; diverged files in the worktree are dropped
+  on remove. Don't reintroduce per-path symlink hooks (the previous
+  `share-tmp` design) without explicit ask — keep this simple.
 - **Worktree status segment** uses `git rev-parse --git-dir` vs
   `--git-common-dir` for detection (works for `.claude/worktrees/*`,
   worktrunk paths, sibling worktrees alike). Don't replace with
@@ -309,8 +321,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/{tmux-project-name,tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-fzf-url-newest,tmux-open-in-nvim}`
@@ -348,6 +360,7 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Modern-reminder tests: `scripts/test-modern-reminder.zsh`
+- Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
