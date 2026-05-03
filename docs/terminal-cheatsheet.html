@@ -16,7 +16,7 @@
 <header>
   <h1>Terminal — Getting Started &amp; Cheatsheet</h1>
   <div class="sub">
-    Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+    Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
   </div>
 </header>
 
@@ -32,6 +32,7 @@
   <a href="#difftastic">difftastic</a>
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
+  <a href="#xh">xh</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
   <a href="#fzf-tab">fzf-tab</a>
@@ -58,6 +59,7 @@
       <tr><td class="key"><a href="https://github.com/bensadeh/tailspin"><code>tailspin</code></a></td><td class="desc">live-log highlighter (<code>tspin</code>); Solarized via <code>~/.config/tailspin/theme.toml</code></td></tr>
       <tr><td class="key"><a href="https://lnav.org/"><code>lnav</code></a></td><td class="desc">TUI log navigator; Solarized via built-in theme (see lnav section)</td></tr>
       <tr><td class="key"><a href="https://github.com/aristocratos/btop"><code>btop</code></a></td><td class="desc">modern <code>top</code> replacement; Solarized via <code>~/.config/btop/btop.conf</code></td></tr>
+      <tr><td class="key"><a href="https://github.com/ducaale/xh"><code>xh</code></a></td><td class="desc">modern HTTP client (HTTPie-compatible CLI); Solarized via <code>~/.config/xh/config.json</code></td></tr>
       <tr><td class="key"><a href="https://github.com/zsh-users/zsh-autosuggestions"><code>zsh-autosuggestions</code></a></td><td class="desc">ghost-text completion from history</td></tr>
       <tr><td class="key"><a href="https://github.com/zsh-users/zsh-syntax-highlighting"><code>zsh-syntax-highlighting</code></a></td><td class="desc">live command-line highlighting</td></tr>
       <tr><td class="key"><a href="https://github.com/junegunn/fzf"><code>fzf</code></a></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
@@ -437,6 +439,46 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="xh">xh <span class="tool-tag">modern HTTP</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Most-used invocations</h3>
+    <table>
+      <tr><td class="key"><code>xh GET httpbin.org/get</code></td><td class="desc">basic GET; pretty-prints JSON in Solarized colors</td></tr>
+      <tr><td class="key"><code>xh POST httpbin.org/post name=alice</code></td><td class="desc">JSON body via <code>key=value</code> shorthand (no <code>--data</code>)</td></tr>
+      <tr><td class="key"><code>xh -a user:pass api.example.com</code></td><td class="desc">basic auth (HTTPie-compatible flag)</td></tr>
+      <tr><td class="key"><code>xh --download url</code></td><td class="desc">save body to a file (filename inferred)</td></tr>
+      <tr><td class="key"><code>xhs api.github.com/zen</code></td><td class="desc">HTTPS-default companion binary (no <code>https://</code> needed)</td></tr>
+      <tr><td class="key"><code>xh --style=monokai GET …</code></td><td class="desc">override the default Solarized theme per-invocation</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Why a config file (and what's in it)</h3>
+    <p>
+      Solarized is pinned via <code>~/.config/xh/config.json</code>:
+    </p>
+    <pre>{<span class="str">"default_options"</span>: [<span class="str">"--style=solarized"</span>]}</pre>
+    <p>
+      <code>xh --style</code> accepts <code>auto</code>, <code>solarized</code>, <code>monokai</code>,
+      <code>fruity</code>. xh renders through <code>syntect</code> — the same library family as
+      <code>bat</code> — so highlighting matches the rest of the Solarized Dark setup.
+    </p>
+    <p class="note">No <code>.zshrc</code> alias here. Aliases in this repo are reserved for swapping commands; default flags belong in config files.</p>
+  </div>
+
+  <div class="card">
+    <h3>Coexistence with <code>curl</code></h3>
+    <p>
+      <code>curl</code> is unchanged. Scripts, CI, and any non-interactive use keep calling
+      <code>curl</code> verbatim. <code>xh</code>/<code>xhs</code> are the interactive surface only.
+    </p>
+    <p class="note">Don't alias <code>curl</code> to <code>xh</code>, and don't introduce an <code>http</code>/<code>https</code> alias either — the binary's own name is the only entry point.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="vivid">vivid &amp; LS_COLORS</h2>
 
 <div class="grid">
@@ -625,7 +667,7 @@
 </ol>
 
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-02.
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-03.
   Refresh after meaningful color-tooling changes.
 </footer>
 
