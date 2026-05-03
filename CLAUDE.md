@@ -165,6 +165,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `bat` (cat + `MANPAGER`), `git-delta` (git pager), `glow` (`md` markdown
   renderer), `vivid` (`LS_COLORS`), `procs` (`ps` replacement),
   `tailspin` (`tspin`, live-log highlighter),
+  `xh` (modern HTTP client; HTTPie-compatible CLI),
   `zsh-syntax-highlighting`, `zsh-autosuggestions`, `fzf-tab` (Tab completion
   picker). Palette pins:
   `vivid generate solarized-dark`, `bat --theme="Solarized (dark)"`,
@@ -270,6 +271,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   difftastic's defaults (`--background dark`, side-by-side, color auto)
   already match the Solarized Dark setup; the terminal palette supplies
   the colors.
+- **`xh` is the interactive HTTP client** (Rust, HTTPie-compatible CLI).
+  Ships as `xh` (HTTP-default) and `xhs` (HTTPS-default) — used under
+  their own names. Theme pinned via `.config/xh/config.json`:
+  `{"default_options": ["--style=solarized"]}`; xh's `--style` accepts
+  `auto`/`solarized`/`monokai`/`fruity` and is rendered through `syntect`
+  (same library family as `bat`). Per-invocation overrides
+  (`xh --style=monokai …`) still work. **Don't alias `curl` to `xh`** —
+  `curl` stays available verbatim for scripts and CI. **Don't add an
+  `http`/`https` alias** either; the rule is "no synonyms, just the
+  binary's name". No `.zshrc` change for this tool.
 
 ## Where things live
 
