@@ -235,6 +235,33 @@ build_dashboard() {
     fi
     idx=$((idx + 1))
   done < <(tmx list-panes -t "$session" -F '#{pane_id}')
+
+  # ── State + status-right ──
+  local n_total=${#all_sources[@]}
+  local cols_eff=${DASHBOARD_COLS:-0}  # 0 means "auto/tiled" — pages = 1 in auto mode
+  local visible_rows page_size pages
+
+  if [ "$cols_eff" -gt 0 ]; then
+    local term_height
+    term_height=$(tmx display-message -t "$session" -p '#{client_height}' 2>/dev/null || echo 60)
+    [ -z "$term_height" ] && term_height=60
+    visible_rows=$(( (term_height - 1) / MIN_TILE_HEIGHT ))
+    [ "$visible_rows" -lt 1 ] && visible_rows=1
+    page_size=$(( cols_eff * visible_rows ))
+    pages=$(( (n_total + page_size - 1) / page_size ))
+    [ "$pages" -lt 1 ] && pages=1
+  else
+    pages=1
+  fi
+
+  tmx set-option -t "$session" @dashboard-pattern "${DASHBOARD_PATTERN:-}"
+  tmx set-option -t "$session" @dashboard-cols "${DASHBOARD_COLS:-}"
+  tmx set-option -t "$session" @dashboard-page "${DASHBOARD_PAGE:-0}"
+  tmx set-option -t "$session" @dashboard-pages "$pages"
+
+  local cur_page="${DASHBOARD_PAGE:-0}"
+  tmx set-option -t "$session" status-right \
+    " [$((cur_page + 1))/$pages] $session "
 }
 
 # ─── Test hook: print derived name and exit ──
@@ -291,6 +318,9 @@ if [ "${#SOURCES[@]}" -eq 0 ]; then
   exit 1
 fi
 
-DASHBOARD_COLS="$COLS" build_dashboard "$SESSION" "${SOURCES[@]}"
+DASHBOARD_PATTERN="$PATTERN" \
+DASHBOARD_COLS="$COLS" \
+DASHBOARD_PAGE="${DASHBOARD_PAGE:-0}" \
+  build_dashboard "$SESSION" "${SOURCES[@]}"
 
 exit 0

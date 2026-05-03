@@ -194,6 +194,28 @@ SHIM
   assert_eq "$cols_seen" "2" "--cols 2 produces 2 distinct columns"
   assert_eq "$rows_seen" "3" "--cols 2 with 6 sources produces 3 rows"
 
+  # ── State stored on dashboard session ──
+  pat=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-grid -v @dashboard-pattern 2>/dev/null)
+  assert_eq "$pat" "*-grid-*" "@dashboard-pattern stored on dashboard session"
+
+  c=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-grid -v @dashboard-cols 2>/dev/null)
+  assert_eq "$c" "2" "@dashboard-cols stored on dashboard session"
+
+  p=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-grid -v @dashboard-page 2>/dev/null)
+  assert_eq "$p" "0" "@dashboard-page initialized to 0"
+
+  pages=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-grid -v @dashboard-pages 2>/dev/null)
+  if printf '%s' "$pages" | grep -qE '^[1-9][0-9]*$'; then
+    pass=$((pass+1)); echo "  PASS  @dashboard-pages is a positive integer ($pages)"
+  else
+    fail=$((fail+1)); fail_msgs+=("FAIL  @dashboard-pages should be positive int; got '$pages'")
+    echo "  FAIL  @dashboard-pages should be positive int; got '$pages'"
+  fi
+
+  status_r=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-grid -v status-right 2>/dev/null)
+  assert_contains "$status_r" "dashboard-grid" "status-right shows session name"
+  assert_contains "$status_r" "/" "status-right shows page indicator"
+
   teardown_test_tmux
   unset TMUX_SOCKET
 fi
