@@ -176,6 +176,24 @@ SHIM
   status=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-agent -v pane-border-status 2>/dev/null)
   assert_eq "$status" "top" "pane-border-status set to 'top' on dashboard session"
 
+  # ── --cols N: explicit grid shape ──
+  reset_test_tmux
+  for n in 1 2 3 4 5 6; do
+    tmux -L "$TMUX_SOCKET" new-session -d -s "test-grid-$n" 'sleep 999'
+  done
+
+  # --cols 1 -> all 6 in a single column (6 rows)
+  "$DASH" '*-grid-*' --cols 1 >/dev/null 2>&1
+  cols_seen=$(tmux -L "$TMUX_SOCKET" list-panes -t dashboard-grid -F '#{pane_left}' | sort -u | wc -l | tr -d ' ')
+  assert_eq "$cols_seen" "1" "--cols 1 produces a single column"
+
+  # --cols 2 -> 2 columns, 3 rows
+  "$DASH" '*-grid-*' --cols 2 >/dev/null 2>&1
+  cols_seen=$(tmux -L "$TMUX_SOCKET" list-panes -t dashboard-grid -F '#{pane_left}' | sort -u | wc -l | tr -d ' ')
+  rows_seen=$(tmux -L "$TMUX_SOCKET" list-panes -t dashboard-grid -F '#{pane_top}' | sort -u | wc -l | tr -d ' ')
+  assert_eq "$cols_seen" "2" "--cols 2 produces 2 distinct columns"
+  assert_eq "$rows_seen" "3" "--cols 2 with 6 sources produces 3 rows"
+
   teardown_test_tmux
   unset TMUX_SOCKET
 fi

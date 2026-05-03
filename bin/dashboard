@@ -83,11 +83,32 @@ if [ "${1:-}" = "--print-derived" ] && [ -n "${DASHBOARD_TEST_DERIVED:-}" ]; the
   exit 0
 fi
 
+# Hand-build an N-column grid given a flat list of pane ids in creation
+# order. Walks panes by row and resize-pane -x to enforce uniform column
+# widths. Vertical sizing falls out of the bisecting splits naturally.
+apply_grid_layout() {
+  local session="$1" cols="$2"; shift 2
+  local n=$#
+  local term_width
+  term_width=$(tmx display-message -t "$session" -p '#{client_width}' 2>/dev/null || echo 200)
+  if [ -z "$term_width" ] || [ "$term_width" -lt "$cols" ]; then
+    term_width=200
+  fi
+  local col_width=$(( term_width / cols ))
+
+  local i=0 pid
+  while IFS= read -r pid; do
+    tmx resize-pane -t "$pid" -x "$col_width" 2>/dev/null || true
+    i=$((i + 1))
+    [ "$i" -ge "$n" ] && break
+  done < <(tmx list-panes -t "$session" -F '#{pane_id}')
+}
+
 # Build (or rebuild) the dashboard session with one tile per matched source
-# session. Default layout is `tiled` (auto roughly-square); --cols handling
-# lands in a later task.
+# session. Default layout is `tiled` (auto roughly-square); --cols forces a
+# hand-built row-major grid via apply_grid_layout().
 #
-# Args: $1 = session name (e.g. dashboard:agent), $2... = source session names
+# Args: $1 = session name (e.g. dashboard-agent), $2... = source session names
 build_dashboard() {
   local session="$1"; shift
   # Bash 3.2 trips on `local sources=("$@")` under `set -u` if $# is 0,
@@ -136,15 +157,74 @@ build_dashboard() {
     set +u; sources=("${sources[@]:1}"); set -u
   fi
 
-  # One split per remaining source.
-  if [ "${#sources[@]}" -gt 0 ]; then
-    for src in "${sources[@]}"; do
-      cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
-      tmx split-window -t "$session" "$cmd"
-    done
-  fi
+  if [ -n "${DASHBOARD_COLS:-}" ]; then
+    # Build an N-col × ceil(M/N)-row grid via two-pass splits:
+    #   pass 1: vertical splits to lay down (rows-1) row separators on the seed
+    #   pass 2: for each row, horizontal splits (cols-1 times) on that row's
+    #           leftmost pane to fill it.
+    # This gives a clean uniform grid that select-layout/resize doesn't fight.
+    local total=${#all_sources[@]}
+    local rows=$(( (total + DASHBOARD_COLS - 1) / DASHBOARD_COLS ))
+    local row_seed_pid first_row_pid
+    first_row_pid=$(tmx list-panes -t "$session" -F '#{pane_id}' | head -1)
 
-  tmx select-layout -t "$session" tiled
+    # Pass 1: create row seeds. We split with a placeholder cmd so each new
+    # pane keeps a tile slot; respawn-pane below replaces it with the right
+    # source. Using `cat` keeps the pane alive without producing junk output.
+    local r=1
+    while [ "$r" -lt "$rows" ]; do
+      tmx split-window -t "$first_row_pid" -v 'cat' >/dev/null
+      r=$((r + 1))
+    done
+    # tmux splits balance evenly; re-balance vertically just to be safe.
+    tmx select-layout -t "$session" even-vertical >/dev/null
+
+    # Pass 2: for each row, create (cols-1) horizontal splits on its seed.
+    # Collect row seed pane ids in creation order (top to bottom).
+    local row_pids=()
+    while IFS= read -r pid; do
+      row_pids+=("$pid")
+    done < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_id}' | sort -n -k1,1 | awk '{print $2}')
+
+    local i row_pid c new_pid
+    for ((i = 0; i < rows; i++)); do
+      row_pid="${row_pids[$i]}"
+      c=1
+      while [ "$c" -lt "$DASHBOARD_COLS" ]; do
+        tmx split-window -t "$row_pid" -h 'cat' >/dev/null
+        c=$((c + 1))
+      done
+    done
+    # Re-balance horizontally per-row by selecting layout main-horizontal then
+    # tiled briefly resets, but easier: explicit even-horizontal per row would
+    # require windowing which we can't do per-row. Instead resize each pane's
+    # x explicitly via apply_grid_layout below.
+
+    # Now respawn each pane (in row-major order) with the correct watch cmd.
+    local all_grid_pids=()
+    while IFS= read -r pid; do
+      all_grid_pids+=("$pid")
+    done < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_left} #{pane_id}' | sort -n -k1,1 -k2,2 | awk '{print $3}')
+
+    local idx2=0
+    for src in "${all_sources[@]}"; do
+      pid="${all_grid_pids[$idx2]}"
+      cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+      tmx respawn-pane -k -t "$pid" "$cmd"
+      idx2=$((idx2 + 1))
+    done
+
+    apply_grid_layout "$session" "$DASHBOARD_COLS" "${all_sources[@]}"
+  else
+    # One split per remaining source; tmux's tiled layout reflows them.
+    if [ "${#sources[@]}" -gt 0 ]; then
+      for src in "${sources[@]}"; do
+        cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+        tmx split-window -t "$session" "$cmd"
+      done
+    fi
+    tmx select-layout -t "$session" tiled
+  fi
 
   # Per-tile title and visible pane-border bar (scoped to this session).
   tmx set-option -t "$session" pane-border-status top
@@ -211,6 +291,6 @@ if [ "${#SOURCES[@]}" -eq 0 ]; then
   exit 1
 fi
 
-build_dashboard "$SESSION" "${SOURCES[@]}"
+DASHBOARD_COLS="$COLS" build_dashboard "$SESSION" "${SOURCES[@]}"
 
 exit 0
