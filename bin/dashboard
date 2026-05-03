@@ -237,14 +237,19 @@ build_dashboard() {
   done < <(tmx list-panes -t "$session" -F '#{pane_id}')
 
   # ── State + status-right ──
-  local n_total=${#all_sources[@]}
+  # Total = unsliced source count (callers pass DASHBOARD_TOTAL when slicing
+  # for pagination; falls back to in-pane count for unpaginated builds).
+  local n_total=${DASHBOARD_TOTAL:-${#all_sources[@]}}
   local cols_eff=${DASHBOARD_COLS:-0}  # 0 means "auto/tiled" — pages = 1 in auto mode
   local visible_rows page_size pages
 
   if [ "$cols_eff" -gt 0 ]; then
-    local term_height
-    term_height=$(tmx display-message -t "$session" -p '#{client_height}' 2>/dev/null || echo 60)
+    local term_height=${DASHBOARD_TERM_HEIGHT:-}
+    if [ -z "$term_height" ]; then
+      term_height=$(tmx display-message -t "$session" -p '#{client_height}' 2>/dev/null || echo 60)
+    fi
     [ -z "$term_height" ] && term_height=60
+    [ "$term_height" -lt 60 ] && term_height=60
     visible_rows=$(( (term_height - 1) / MIN_TILE_HEIGHT ))
     [ "$visible_rows" -lt 1 ] && visible_rows=1
     page_size=$(( cols_eff * visible_rows ))
@@ -264,8 +269,72 @@ build_dashboard() {
     " [$((cur_page + 1))/$pages] $session "
 }
 
-# ─── Test hook: print derived name and exit ──
-# (test hooks are also handy below; the original --print-derived above remains)
+# Read the current tmux client's session name. Echo on stdout. Exit 1 if no
+# session is reachable (not in tmux, no socket, etc).
+current_session() {
+  tmx display-message -p '#S' 2>/dev/null
+}
+
+# Common page-jump implementation. $1 = "down" or "up".
+page_jump() {
+  local dir="$1" cur sess pattern cols pages cur_page new_page
+  cur=$(current_session) || return 0   # silent bail if not in tmux
+  case "$cur" in
+    dashboard-*) sess="$cur" ;;
+    *) return 0 ;;                     # silent bail when not in a dashboard
+  esac
+
+  pattern=$(tmx show-options -t "$sess" -v @dashboard-pattern 2>/dev/null)
+  cols=$(tmx show-options -t "$sess" -v @dashboard-cols 2>/dev/null)
+  pages=$(tmx show-options -t "$sess" -v @dashboard-pages 2>/dev/null)
+  cur_page=$(tmx show-options -t "$sess" -v @dashboard-page 2>/dev/null)
+  [ -z "$pattern" ] && return 0
+  [ -z "$pages" ] && pages=1
+  [ -z "$cur_page" ] && cur_page=0
+
+  case "$dir" in
+    down) new_page=$((cur_page + 1)) ;;
+    up)   new_page=$((cur_page - 1)) ;;
+  esac
+  [ "$new_page" -lt 0 ] && new_page=0
+  [ "$new_page" -ge "$pages" ] && new_page=$((pages - 1))
+
+  if [ "$new_page" = "$cur_page" ]; then
+    return 0  # already at clamp; nothing to rebuild
+  fi
+
+  # Re-discover and rebuild the visible slice.
+  local sources=()
+  while IFS= read -r _line; do
+    sources+=("$_line")
+  done < <(discover_sessions "$pattern")
+  if [ "${#sources[@]}" -eq 0 ]; then
+    return 0
+  fi
+
+  # Slice for the new page.
+  local term_height visible_rows page_size start slice
+  term_height=$(tmx display-message -t "$sess" -p '#{client_height}' 2>/dev/null || echo 60)
+  [ -z "$term_height" ] && term_height=60
+  visible_rows=$(( (term_height - 1) / MIN_TILE_HEIGHT ))
+  [ "$visible_rows" -lt 1 ] && visible_rows=1
+  page_size=$(( ${cols:-1} * visible_rows ))
+  [ "$page_size" -lt 1 ] && page_size=1
+  start=$(( new_page * page_size ))
+  set +u; slice=("${sources[@]:start:page_size}"); set -u
+
+  DASHBOARD_PATTERN="$pattern" \
+  DASHBOARD_COLS="$cols" \
+  DASHBOARD_PAGE="$new_page" \
+  DASHBOARD_TOTAL="${#sources[@]}" \
+    build_dashboard "$sess" "${slice[@]}"
+}
+
+# ─── Subcommand dispatch (uses functions defined above) ──
+case "${1:-}" in
+  --page-down) page_jump down; exit 0 ;;
+  --page-up)   page_jump up;   exit 0 ;;
+esac
 
 # DASHBOARD_TEST: print-discover <pattern> — list matched sessions, exit 0
 if [ "${1:-}" = "--print-discover" ] && [ -n "${2:-}" ]; then
@@ -277,9 +346,9 @@ fi
 [ $# -eq 0 ] && usage
 
 case "$1" in
-  --page-down|--page-up|--rebuild)
-    # Filled in by later tasks. For now: bail with a clear placeholder.
-    echo "dashboard: $1 not yet implemented" >&2
+  --rebuild)
+    # Implementation lands in Task 10.
+    echo "dashboard: --rebuild not yet implemented" >&2
     exit 1
     ;;
 esac
@@ -318,9 +387,31 @@ if [ "${#SOURCES[@]}" -eq 0 ]; then
   exit 1
 fi
 
+# Compute initial slice for page 0.
+# Honor $DASHBOARD_TERM_HEIGHT when set (used by tests to simulate small/large
+# terminals deterministically). Otherwise fall back to `tput lines`, with a
+# floor of 60 so non-TTY contexts (e.g. CI, or `dashboard` invoked from a
+# pipe) get a sane visible_rows count instead of clamping to 1.
+TERM_HEIGHT=${DASHBOARD_TERM_HEIGHT:-$(tput lines 2>/dev/null || echo 60)}
+[ "$TERM_HEIGHT" -lt 60 ] && TERM_HEIGHT=60
+if [ -n "$COLS" ]; then
+  VISIBLE_ROWS=$(( (TERM_HEIGHT - 1) / MIN_TILE_HEIGHT ))
+  [ "$VISIBLE_ROWS" -lt 1 ] && VISIBLE_ROWS=1
+  PAGE_SIZE=$(( COLS * VISIBLE_ROWS ))
+else
+  PAGE_SIZE=${#SOURCES[@]}  # tiled auto mode: show everything on one page
+fi
+[ "$PAGE_SIZE" -lt 1 ] && PAGE_SIZE=1
+
+set +u
+INITIAL_SLICE=("${SOURCES[@]:0:$PAGE_SIZE}")
+set -u
+
 DASHBOARD_PATTERN="$PATTERN" \
 DASHBOARD_COLS="$COLS" \
-DASHBOARD_PAGE="${DASHBOARD_PAGE:-0}" \
-  build_dashboard "$SESSION" "${SOURCES[@]}"
+DASHBOARD_PAGE=0 \
+DASHBOARD_TOTAL="${#SOURCES[@]}" \
+  build_dashboard "$SESSION" "${INITIAL_SLICE[@]}"
 
+# Attach/switch handled in Task 11.
 exit 0

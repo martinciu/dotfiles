@@ -216,6 +216,40 @@ SHIM
   assert_contains "$status_r" "dashboard-grid" "status-right shows session name"
   assert_contains "$status_r" "/" "status-right shows page indicator"
 
+  # ── Pagination ──
+  reset_test_tmux
+  for n in 1 2 3 4 5 6; do
+    tmux -L "$TMUX_SOCKET" new-session -d -s "test-pg-$n" 'sleep 999'
+  done
+  "$DASH" '*-pg-*' --cols 1 >/dev/null 2>&1
+
+  page_down_via_run_shell() {
+    tmux -L "$TMUX_SOCKET" run-shell -t "$1" "TMUX_SOCKET=$TMUX_SOCKET $DASH --page-down"
+  }
+  page_up_via_run_shell() {
+    tmux -L "$TMUX_SOCKET" run-shell -t "$1" "TMUX_SOCKET=$TMUX_SOCKET $DASH --page-up"
+  }
+
+  page_down_via_run_shell dashboard-pg
+  p=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-pg -v @dashboard-page 2>/dev/null)
+  assert_eq "$p" "1" "--page-down advances @dashboard-page from 0 to 1"
+
+  page_down_via_run_shell dashboard-pg
+  p=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-pg -v @dashboard-page 2>/dev/null)
+  assert_eq "$p" "1" "--page-down clamps at last page"
+
+  page_up_via_run_shell dashboard-pg
+  p=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-pg -v @dashboard-page 2>/dev/null)
+  assert_eq "$p" "0" "--page-up returns to first page"
+
+  page_up_via_run_shell dashboard-pg
+  p=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-pg -v @dashboard-page 2>/dev/null)
+  assert_eq "$p" "0" "--page-up clamps at 0"
+
+  # ── --page-down outside dashboard:* bails silently ──
+  out=$("$DASH" --page-down 2>&1); rc=$?
+  assert_eq "$rc" "0" "--page-down outside dashboard exits 0 (silent bail)"
+
   teardown_test_tmux
   unset TMUX_SOCKET
 fi
