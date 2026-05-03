@@ -9,7 +9,7 @@ Solarized-themed quick references — also browseable at
 
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 - [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
-- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, fzf, zsh plugins
+- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, fzf, zsh plugins
 
 ## Setup (new machine)
 
@@ -89,6 +89,7 @@ These drive the `claude[<name>]` window title (tmux's
 | [lnav](https://lnav.org/) | `.config/lnav/{configs,formats}/installed/` | `~/.config/lnav/{configs,formats}/installed` |
 | [btop](https://github.com/aristocratos/btop) | `.config/btop/` | `~/.config/btop`    |
 | [procs](https://github.com/dalance/procs) | `.config/procs/` | `~/.config/procs`   |
+| [xh](https://github.com/ducaale/xh) | `.config/xh/` | `~/.config/xh` |
 | [ccstatusline](https://github.com/sirmalloc/ccstatusline) | `.config/ccstatusline/` | `~/.config/ccstatusline` |
 | [Claude](https://claude.com/claude-code) | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
