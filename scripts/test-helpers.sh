@@ -265,6 +265,11 @@ if ! bash "$(dirname "$0")/test-s.sh"; then
   fail_msgs+=("FAIL  scripts/test-s.sh reported failures")
 fi
 
+if ! bash "$(dirname "$0")/test-dashboard.sh"; then
+  fail=$((fail+1))
+  fail_msgs+=("FAIL  scripts/test-dashboard.sh reported failures")
+fi
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
