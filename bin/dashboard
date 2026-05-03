@@ -299,6 +299,36 @@ current_session() {
   tmx display-message -p '#S' 2>/dev/null
 }
 
+# Final stage: switch-client (in tmux) or attach (out) to the dashboard session.
+# Uses `exec` so the dashboard process is replaced by the tmux client and the
+# user's caller (sesh, a key binding, etc.) sees a clean exit.
+#
+# `exec` only works on real binaries, not shell functions, so we expand `tmx`
+# inline here (`tmux` or `tmux -L $TMUX_SOCKET`).
+#
+# Integration tests set DASHBOARD_NO_FINISH=1 — `tmux attach` against an
+# unattached test server (no real client) returns non-zero and would mask
+# the build success they're actually verifying.
+finish() {
+  local session="$1"
+  if [ -n "${DASHBOARD_NO_FINISH:-}" ]; then
+    return 0
+  fi
+  if [ -n "${TMUX:-}" ]; then
+    if [ -n "${TMUX_SOCKET:-}" ]; then
+      exec tmux -L "$TMUX_SOCKET" switch-client -t "$session"
+    else
+      exec tmux switch-client -t "$session"
+    fi
+  else
+    if [ -n "${TMUX_SOCKET:-}" ]; then
+      exec tmux -L "$TMUX_SOCKET" attach -t "$session"
+    else
+      exec tmux attach -t "$session"
+    fi
+  fi
+}
+
 # Common page-jump implementation. $1 = "down" or "up".
 page_jump() {
   local dir="$1" cur sess pattern cols pages cur_page new_page
@@ -484,5 +514,4 @@ DASHBOARD_PAGE=0 \
 DASHBOARD_TOTAL="${#SOURCES[@]}" \
   build_dashboard "$SESSION" "${INITIAL_SLICE[@]}"
 
-# Attach/switch handled in Task 11.
-exit 0
+finish "$SESSION"

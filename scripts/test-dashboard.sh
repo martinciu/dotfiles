@@ -118,11 +118,89 @@ SHIM
 
   rm -rf "$shimdir"
 
+  # ── Inside tmux: switch-client is used ──
+  # Shim tmux so we can record which subcommand the script invokes at the end.
+  shimdir=$(mktemp -d)
+  cat >"$shimdir/tmux" <<'SHIM'
+#!/usr/bin/env bash
+echo "$@" >>"$(dirname "$0")/tmux.log"
+case "$*" in
+  "list-sessions -F #{session_last_attached} #{session_name}")
+    cat <<-EOF
+		2000 test-attach-1
+		1000 test-attach-2
+	EOF
+    ;;
+  "has-session -t dashboard-attach") exit 1 ;;
+  "display-message -p #S") exit 1 ;;
+  "display-message"*"client_width"*) echo 200 ;;
+  "display-message"*"client_height"*) echo 60 ;;
+  "show-options"*) echo "" ;;
+  *) ;;
+esac
+exit 0
+SHIM
+  chmod +x "$shimdir/tmux"
+  cat >"$shimdir/watch" <<'SHIM'
+#!/usr/bin/env bash
+exit 0
+SHIM
+  chmod +x "$shimdir/watch"
+
+  out=$(env TMUX=fake PATH="$shimdir:$PATH" "$DASH" '*-attach-*' 2>&1); rc=$?
+  assert_eq "$rc" "0" "in-tmux flow exits 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "switch-client -t dashboard-attach" "in-tmux uses switch-client"
+  if printf '%s' "$log" | grep -qE '^attach -t '; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  in-tmux must not use 'attach -t'"$'\n'"        log: '$log'")
+    echo "  FAIL  in-tmux must not use 'attach -t'"
+  else
+    pass=$((pass+1))
+    echo "  PASS  in-tmux does not use 'attach -t'"
+  fi
+  rm -rf "$shimdir"
+
+  # ── Outside tmux: attach is used ──
+  shimdir=$(mktemp -d)
+  cat >"$shimdir/tmux" <<'SHIM'
+#!/usr/bin/env bash
+echo "$@" >>"$(dirname "$0")/tmux.log"
+case "$*" in
+  "list-sessions -F #{session_last_attached} #{session_name}")
+    cat <<-EOF
+		2000 test-attach-1
+	EOF
+    ;;
+  "has-session -t dashboard-attach") exit 1 ;;
+  "display-message"*"client_width"*) echo 200 ;;
+  "display-message"*"client_height"*) echo 60 ;;
+  "show-options"*) echo "" ;;
+  *) ;;
+esac
+exit 0
+SHIM
+  chmod +x "$shimdir/tmux"
+  cat >"$shimdir/watch" <<'SHIM'
+#!/usr/bin/env bash
+exit 0
+SHIM
+  chmod +x "$shimdir/watch"
+
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$DASH" '*-attach-*' 2>&1); rc=$?
+  assert_eq "$rc" "0" "out-of-tmux flow exits 0"
+  log=$(cat "$shimdir/tmux.log")
+  assert_contains "$log" "attach -t dashboard-attach" "out-of-tmux uses attach"
+  rm -rf "$shimdir"
+
   # ── Integration tests against an isolated tmux server ──
   # Use TMUX_SOCKET=dash-test so the dashboard script's `tmx` helper passes
   # `-L dash-test` to every tmux invocation.
   TMUX_SOCKET=dash-test
   export TMUX_SOCKET
+  # The integration server has no real client to attach, so skip finish().
+  DASHBOARD_NO_FINISH=1
+  export DASHBOARD_NO_FINISH
 
   # Helper: ensure clean test server before each integration block.
   reset_test_tmux() {
@@ -273,6 +351,7 @@ SHIM
 
   teardown_test_tmux
   unset TMUX_SOCKET
+  unset DASHBOARD_NO_FINISH
 fi
 
 # ─── Summary ────────────────────────────────
