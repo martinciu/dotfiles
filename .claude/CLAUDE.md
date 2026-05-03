@@ -32,6 +32,32 @@ Why: worktrees are useful when you're already invested in the parallel-task
 workflow, but adding one from a clean main checkout is overhead the work
 rarely justifies. Match the existing setup instead of forcing one shape.
 
+## Worktree commands — always `wt`, never `git worktree`
+
+For any worktree operation (create, switch, remove, list) use the
+worktrunk CLI (`wt`). Never use `git worktree add`/`remove`/`move`,
+and never `rm -rf` a worktree directory by hand.
+
+- Create: `wt switch --create <branch>`
+- Remove: `wt remove [<branch>...]`
+- Switch / list: `wt switch <branch>`, `wt list`
+
+Why: worktrunk's lifecycle hooks (`pre-start`, `post-start`,
+`pre-remove`, `post-remove`, etc.) only fire through `wt`. This
+setup relies on them — `[post-start] copy = "wt step copy-ignored"`
+carries gitignored content (`.superpowers/`, `.autonomo/`,
+`.claude/settings.local.json`, etc.) into new worktrees, and
+`[pre-remove] save-shared` rsyncs `.superpowers/` and `.autonomo/`
+back to the primary worktree before deletion. Bypassing `wt`
+silently skips both, which usually means lost specs/plans/logs.
+
+How to apply: when a task says "spawn a worktree for X", "switch
+to the foo worktree", or "remove/cleanup the worktree", reach for
+`wt` first. Cleanup of multiple merged worktrees is `wt list`
+(merged ones are dimmed) followed by `wt remove a b c` — there is
+no `wt prune` / `wt cleanup`. Only fall back to raw `git worktree`
+if `wt` itself is unavailable, and call that out before doing it.
+
 ## Exploration scope — ignore other worktrees
 
 When exploring a repo (Read, Grep, Glob, or shell `find`/`rg`), never
