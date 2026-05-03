@@ -78,7 +78,7 @@ else
 case "$*" in
   "list-sessions -F #{session_last_attached} #{session_name}")
     cat <<-EOF
-		3000 dashboard:agent
+		3000 dashboard-agent
 		2500 claude-prod
 		2000 build-1
 		1500 build-2
@@ -100,15 +100,15 @@ SHIM
   expected=$'claude-prod\nclaude-staging'
   assert_eq "$out" "$expected" "'claude-*' matches claude-prod, claude-staging"
 
-  # Match '*' -> excludes dashboard:agent
+  # Match '*' -> excludes dashboard-agent
   out=$(PATH="$shimdir:$PATH" "$DASH" --print-discover '*' 2>&1)
-  if printf '%s' "$out" | grep -qx 'dashboard:agent'; then
+  if printf '%s' "$out" | grep -qx 'dashboard-agent'; then
     fail=$((fail+1))
-    fail_msgs+=("FAIL  '*' must exclude dashboard:agent"$'\n'"        got: '$out'")
-    echo "  FAIL  '*' must exclude dashboard:agent"
+    fail_msgs+=("FAIL  '*' must exclude dashboard-agent"$'\n'"        got: '$out'")
+    echo "  FAIL  '*' must exclude dashboard-agent"
   else
     pass=$((pass+1))
-    echo "  PASS  '*' excludes dashboard:agent"
+    echo "  PASS  '*' excludes dashboard-agent"
   fi
 
   # No match -> empty stdout, exit 0
@@ -117,6 +117,54 @@ SHIM
   assert_eq "$out" "" "no match -> empty stdout"
 
   rm -rf "$shimdir"
+
+  # ── Integration tests against an isolated tmux server ──
+  # Use TMUX_SOCKET=dash-test so the dashboard script's `tmx` helper passes
+  # `-L dash-test` to every tmux invocation.
+  TMUX_SOCKET=dash-test
+  export TMUX_SOCKET
+
+  # Helper: ensure clean test server before each integration block.
+  reset_test_tmux() {
+    tmux -L "$TMUX_SOCKET" kill-server 2>/dev/null || true
+    tmux -L "$TMUX_SOCKET" start-server
+  }
+
+  # Helper: count panes in a window of a session on the test server.
+  pane_count() {
+    tmux -L "$TMUX_SOCKET" list-panes -t "$1" 2>/dev/null | wc -l | tr -d ' '
+  }
+
+  # Helper: tear down the test server after assertions in a block.
+  teardown_test_tmux() {
+    tmux -L "$TMUX_SOCKET" kill-server 2>/dev/null || true
+  }
+
+  # ── build_dashboard: 2 matching sessions -> 2 tiles ──
+  # Session names end in '-agent' so the '*-agent' glob actually matches.
+  reset_test_tmux
+  tmux -L "$TMUX_SOCKET" new-session -d -s 1-agent 'sleep 999'
+  tmux -L "$TMUX_SOCKET" new-session -d -s 2-agent 'sleep 999'
+  tmux -L "$TMUX_SOCKET" new-session -d -s test-build-1 'sleep 999'
+
+  out=$("$DASH" '*-agent' 2>&1); rc=$?
+  assert_eq "$rc" "0" "dashboard '*-agent' exits 0"
+  if tmux -L "$TMUX_SOCKET" has-session -t dashboard-agent 2>/dev/null; then
+    pass=$((pass+1)); echo "  PASS  dashboard-agent session created"
+  else
+    fail=$((fail+1)); fail_msgs+=("FAIL  dashboard-agent session not created")
+    echo "  FAIL  dashboard-agent session not created"
+  fi
+  assert_eq "$(pane_count dashboard-agent)" "2" "dashboard-agent has 2 tiles for *-agent matches"
+
+  # ── Idempotent rebuild: re-run with same pattern, kill one source, expect 1 tile ──
+  tmux -L "$TMUX_SOCKET" kill-session -t 2-agent 2>/dev/null || true
+  out=$("$DASH" '*-agent' 2>&1); rc=$?
+  assert_eq "$rc" "0" "rebuild after source kill exits 0"
+  assert_eq "$(pane_count dashboard-agent)" "1" "rebuild drops vanished session's tile"
+
+  teardown_test_tmux
+  unset TMUX_SOCKET
 fi
 
 # ─── Summary ────────────────────────────────

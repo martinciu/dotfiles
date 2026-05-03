@@ -49,16 +49,24 @@ derived_name() {
 }
 
 # List source sessions matching the glob, most-recently-attached first.
-# Excludes any session whose name starts with "dashboard:" so dashboards
-# can't tile themselves. Echoes session names, one per line.
+# Excludes any session whose name starts with "dashboard-" so dashboards
+# can't tile themselves. (tmux disallows ':' in session names — silently
+# rewrites it — so the dashboard convention here is `dashboard-<derived>`.)
+# Echoes session names, one per line.
 discover_sessions() {
   local pattern="$1"
+  # Format: "<last_attached> <session_name>". Unattached sessions emit an
+  # empty timestamp (leading space), so normalize to 0 for sorting and pull
+  # the name field with a sed strip rather than awk's whitespace splitting
+  # (awk treats leading-space lines as having $1=name, dropping our zero).
   tmx list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null \
+    | sed -E 's/^ /0 /' \
     | sort -rn -k1,1 \
-    | awk '{print $2}' \
+    | sed -E 's/^[0-9]+ //' \
     | while IFS= read -r name; do
+        [ -z "$name" ] && continue
         case "$name" in
-          dashboard:*) continue ;;
+          dashboard-*) continue ;;
         esac
         # shellcheck disable=SC2254  # intentional glob expansion of $pattern
         case "$name" in
@@ -74,6 +82,72 @@ if [ "${1:-}" = "--print-derived" ] && [ -n "${DASHBOARD_TEST_DERIVED:-}" ]; the
   derived_name "$DASHBOARD_TEST_DERIVED"
   exit 0
 fi
+
+# Build (or rebuild) the dashboard session with one tile per matched source
+# session. Default layout is `tiled` (auto roughly-square); --cols handling
+# lands in a later task.
+#
+# Args: $1 = session name (e.g. dashboard:agent), $2... = source session names
+build_dashboard() {
+  local session="$1"; shift
+  # Bash 3.2 trips on `local sources=("$@")` under `set -u` if $# is 0,
+  # and on `${arr[@]:n}` slices that produce empty arrays. Use temporary
+  # `set +u` around the array ops as a portable workaround.
+  set +u
+  local sources=("$@")
+  set -u
+  local first=1
+  local src cmd first_pane
+
+  if ! tmx has-session -t "$session" 2>/dev/null; then
+    # -d: detached; -x/-y: ample initial size so splits succeed before resize.
+    # Quote the inner double-dollar so $(tput lines) runs inside the spawned
+    # shell, not at the time we hand the command to tmux.
+    tmx new-session -d -s "$session" -x 200 -y 60 \
+      -n preview "watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '${sources[0]}'"
+    first=0  # the new-session already filled the seed tile with the first source
+    set +u; sources=("${sources[@]:1}"); set -u
+  else
+    # Kill all but the first pane; we'll re-fill panes from scratch.
+    # tmux's pane-base-index varies (0 or 1 by config), so use pane ids to
+    # target the surviving pane and the doomed ones unambiguously.
+    local first_id="" pid
+    while IFS= read -r pid; do
+      if [ -z "$first_id" ]; then
+        first_id="$pid"
+      else
+        tmx kill-pane -t "$pid" 2>/dev/null || true
+      fi
+    done < <(tmx list-panes -t "$session" -F '#{pane_id}')
+    first_pane="$first_id"
+    first=1  # the surviving pane will be reassigned in the loop below
+  fi
+
+  # On rebuild path, the surviving first pane gets respawned with the new
+  # first source's watch loop. We use `respawn-pane -k` (force-kill the running
+  # command first) instead of send-keys+C-c — sending C-c to the only
+  # foreground process exits it, which closes the pane and invalidates the
+  # pane id for any follow-up commands. respawn-pane keeps the pane.
+  if [ "$first" -eq 1 ] && [ "${#sources[@]}" -gt 0 ]; then
+    src="${sources[0]}"
+    cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+    tmx respawn-pane -k -t "$first_pane" "$cmd"
+    set +u; sources=("${sources[@]:1}"); set -u
+  fi
+
+  # One split per remaining source.
+  if [ "${#sources[@]}" -gt 0 ]; then
+    for src in "${sources[@]}"; do
+      cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+      tmx split-window -t "$session" "$cmd"
+    done
+  fi
+
+  tmx select-layout -t "$session" tiled
+}
+
+# ─── Test hook: print derived name and exit ──
+# (test hooks are also handy below; the original --print-derived above remains)
 
 # DASHBOARD_TEST: print-discover <pattern> — list matched sessions, exit 0
 if [ "${1:-}" = "--print-discover" ] && [ -n "${2:-}" ]; then
@@ -112,8 +186,20 @@ while [ $# -gt 0 ]; do
 done
 
 DERIVED=$(derived_name "$PATTERN")
-SESSION="dashboard:$DERIVED"
+SESSION="dashboard-$DERIVED"
 
-# ─── Dispatch (filled in by later tasks) ──
-echo "dashboard: would build $SESSION from pattern '$PATTERN' (cols=${COLS:-tiled})" >&2
+# ─── Dispatch ───────────────────────────────
+# Bash 3.2 (macOS) lacks `mapfile`; use a read loop into a positional array.
+SOURCES=()
+while IFS= read -r _src_line; do
+  SOURCES+=("$_src_line")
+done < <(discover_sessions "$PATTERN")
+
+if [ "${#SOURCES[@]}" -eq 0 ]; then
+  echo "dashboard: no sessions match '$PATTERN'" >&2
+  exit 1
+fi
+
+build_dashboard "$SESSION" "${SOURCES[@]}"
+
 exit 0
