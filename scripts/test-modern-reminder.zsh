@@ -122,6 +122,30 @@ out=$(<"$tmp"); rm -f "$tmp"
 assert_contains "$out" "rg is a modern alternative to grep" \
   "Token scan: 'echo x | grep x' fires for grep"
 
+# Test 5: fresh subshell starts empty (validates per-process scope)
+export MODERN_REMINDER=1
+runner=$(mktemp -t mr-test.XXXXXX.zsh)
+{
+  typeset -p _modern_reminder_pairs
+  typeset -p _modern_reminder_hints
+  echo 'typeset -gA _modern_reminder_seen'
+  echo 'typeset -g _modern_reminder_pending=""'
+  typeset -f _modern_reminder_preexec
+  typeset -f _modern_reminder_precmd
+  echo 'export MODERN_REMINDER=1'
+  echo '_modern_reminder_preexec "grep TODO"'
+  echo '_modern_reminder_precmd'
+} > "$runner"
+
+out_a=$( zsh "$runner" )
+out_b=$( zsh "$runner" )
+rm -f "$runner"
+
+assert_contains "$out_a" "modern alternative to grep" \
+  "Subshell A: grep fires reminder"
+assert_contains "$out_b" "modern alternative to grep" \
+  "Subshell B (fresh process): grep fires again — no shared state"
+
 echo
 echo "Total: $((pass+fail))  pass: $pass  fail: $fail"
 if (( fail > 0 )); then
