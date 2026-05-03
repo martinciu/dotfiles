@@ -1,0 +1,11 @@
+.opencode
+.claude/settings.local.json
+.claude/todos.json
+.claude/worktrees/
+.claude/logs/
+.claude/.credentials.json
+
+# Planning artefacts and tooling state
+# (per ~/.claude/CLAUDE.md — never committed in any repo)
+.superpowers/
+.autonomo/
