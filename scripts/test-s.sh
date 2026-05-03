@@ -43,6 +43,18 @@ assert_contains() {
   fi
 }
 
+assert_not_contains() {
+  local got="$1" needle="$2" desc="$3"
+  if printf '%s' "$got" | grep -q -F -- "$needle"; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  $desc"$'\n'"        got:  '$got'"$'\n'"        unwanted: '$needle'")
+    echo "  FAIL  $desc"
+  else
+    pass=$((pass+1))
+    echo "  PASS  $desc"
+  fi
+}
+
 echo
 echo "bin/s"
 echo "─────"
@@ -247,6 +259,8 @@ SHIM
   assert_contains "$log" "attach -t dotfiles" "1-arg-out attaches (TMUX unset)"
   assert_contains "$log" "set-option -t dotfiles @session_root /tmp/fakerepo" \
     "1-arg-out stamps @session_root with project root"
+  assert_not_contains "$log" "send-keys" "1-arg-out does not bootstrap claude (project main session, no worktree)"
+  assert_not_contains "$log" "new-window" "1-arg-out does not open a second window"
   rm -rf "$shimdir"
 
   # ─── 2-arg out: session=<project>/<name>, wt creates worktree ──────
@@ -328,6 +342,8 @@ SHIM
   assert_contains "$log" "set-option -t dotfiles/feature-x @session_root /tmp/fakerepo/.claude/worktrees/feature-x" \
     "has-session=0 still stamps @session_root (handles post-restore wipe)"
   assert_contains "$log" "attach -t dotfiles/feature-x" "has-session=0 still attaches"
+  assert_not_contains "$log" "send-keys" "existing session is not re-bootstrapped (no extra send-keys)"
+  assert_not_contains "$log" "new-window" "existing session is not re-bootstrapped (no extra new-window)"
   rm -rf "$shimdir"
 
   # ─── 0-arg picker -> session=<project>, no worktree ────────────────
@@ -351,6 +367,8 @@ SHIM
     "picker creates session at picked project path"
   assert_contains "$log" "set-option -t dotfiles @session_root $fixture_real" \
     "picker stamps @session_root with picked project path"
+  assert_not_contains "$log" "send-keys" "picker does not bootstrap claude (project main session, no worktree)"
+  assert_not_contains "$log" "new-window" "picker does not open a second window"
   rm -rf "$shimdir" "$fixture"
 
   # ─── 1-arg in tmux: session=<project>/<name>, wt creates worktree ──
