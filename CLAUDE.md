@@ -15,8 +15,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Lists patterns that should never be committed in any repo on this
   machine: Claude Code state (`settings.local.json`, `todos.json`,
   `worktrees/`, `logs/`, `.credentials.json`), and working dirs for
-  planning artefacts (`tmp/`, `docs/superpowers/`, `.superpowers/`,
-  `.autonomo/`). Per-repo `.gitignore` files still own repo-specific
+  planning artefacts (`.superpowers/`, `.autonomo/`). Per-repo
+  `.gitignore` files still own repo-specific
   patterns; this file is for the cross-repo never-commit set only. Don't
   add app-specific patterns here (e.g. `node_modules/`) — those belong
   in per-language `.gitignore` templates, not the global file.
