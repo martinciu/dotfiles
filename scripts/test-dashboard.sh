@@ -385,6 +385,35 @@ SHIM
   out=$("$DASH" --rebuild 2>&1); rc=$?
   assert_eq "$rc" "0" "--rebuild outside dashboard exits 0 (silent bail)"
 
+  # ── Regression: tile renders source's VISIBLE content (not just history) ──
+  # Bug history: capture-pane -E -1 ends one line into history, skipping the
+  # visible pane entirely. With a source pane that has scrollback (anything
+  # long-running like a TUI), tiles rendered only the topmost history line
+  # (typically tmux's own status bar) instead of the live visible content.
+  # Correct flag is `-E -` ("end of visible pane"). This test fills the
+  # source's scrollback with OLD_SENTINEL, then puts NEW_SENTINEL in the
+  # visible area, and asserts the tile contains NEW_SENTINEL — which fails
+  # under the buggy flag because -E -1 returns OLD_SENTINEL from history.
+  reset_test_tmux
+  OLD_SENTINEL="DASHBOARD_OLD_$$"
+  NEW_SENTINEL="DASHBOARD_NEW_$$"
+  tmux -L "$TMUX_SOCKET" new-session -d -s 1-tile -x 80 -y 24 \
+    "for i in \$(seq 1 200); do echo '$OLD_SENTINEL'; done; printf '%s\n' '$NEW_SENTINEL'; sleep 999"
+  # Give the source's loop time to finish so NEW_SENTINEL lands in visible.
+  sleep 1
+  "$DASH" '*-tile' --cols 1 >/dev/null 2>&1
+  # Wait for watch's first poll (0.5s interval).
+  sleep 1
+  tile_content=$(tmux -L "$TMUX_SOCKET" capture-pane -t dashboard-tile -p -S - 2>/dev/null)
+  if printf '%s' "$tile_content" | grep -q -F -- "$NEW_SENTINEL"; then
+    pass=$((pass+1))
+    echo "  PASS  tile renders source pane's latest visible content"
+  else
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  tile must render source pane's latest visible content"$'\n'"        wanted: '$NEW_SENTINEL'"$'\n'"        tile (last 5 lines): '$(printf '%s' "$tile_content" | tail -n 5)'")
+    echo "  FAIL  tile must render source pane's latest visible content"
+  fi
+
   teardown_test_tmux
   unset TMUX_SOCKET
   unset DASHBOARD_NO_FINISH
