@@ -112,6 +112,18 @@ apply_grid_layout() {
 
 # Build (or rebuild) the dashboard session with one tile per matched source
 # session. Default layout is `tiled` (auto roughly-square); --cols forces a
+# Command run inside each tile pane. Captures the source pane's visible
+# content, tails to the tile's height so the most recent content lands at
+# the bottom of the tile (and `watch` doesn't truncate the wrong end).
+#
+# Quoting: the outer single-quoted string is passed verbatim through tmux's
+# shell to watch, which feeds it to its own `sh -c`. The `$(tput lines)`
+# inside the single quotes is therefore evaluated INSIDE the tile pane on
+# every poll, so the tile clipping responds to live resizes.
+tile_cmd() {
+  printf "watch -c -n 0.5 -t -- 'tmux capture-pane -ep -t %s | tail -n \$(tput lines)'" "$1"
+}
+
 # hand-built row-major grid via apply_grid_layout().
 #
 # Args: $1 = session name (e.g. dashboard-agent), $2... = source session names
@@ -132,7 +144,7 @@ build_dashboard() {
     # Quote the inner double-dollar so $(tput lines) runs inside the spawned
     # shell, not at the time we hand the command to tmux.
     tmx new-session -d -s "$session" -x 200 -y 60 \
-      -n preview "watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '${sources[0]}'"
+      -n preview "$(tile_cmd "${sources[0]}")"
     first=0  # the new-session already filled the seed tile with the first source
     set +u; sources=("${sources[@]:1}"); set -u
   else
@@ -158,7 +170,7 @@ build_dashboard() {
   # pane id for any follow-up commands. respawn-pane keeps the pane.
   if [ "$first" -eq 1 ] && [ "${#sources[@]}" -gt 0 ]; then
     src="${sources[0]}"
-    cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+    cmd=$(tile_cmd "$src")
     tmx respawn-pane -k -t "$first_pane" "$cmd"
     set +u; sources=("${sources[@]:1}"); set -u
   fi
@@ -215,7 +227,7 @@ build_dashboard() {
     local idx2=0
     for src in "${all_sources[@]}"; do
       pid="${all_grid_pids[$idx2]}"
-      cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+      cmd=$(tile_cmd "$src")
       tmx respawn-pane -k -t "$pid" "$cmd"
       idx2=$((idx2 + 1))
     done
@@ -225,7 +237,7 @@ build_dashboard() {
     # One split per remaining source; tmux's tiled layout reflows them.
     if [ "${#sources[@]}" -gt 0 ]; then
       for src in "${sources[@]}"; do
-        cmd="watch -c -n 0.5 -t -- tmux capture-pane -ep -S -\$(tput lines) -E -1 -t '$src'"
+        cmd=$(tile_cmd "$src")
         tmx split-window -t "$session" "$cmd"
       done
     fi
