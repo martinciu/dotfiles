@@ -223,11 +223,15 @@ SHIM
   done
   "$DASH" '*-pg-*' --cols 1 >/dev/null 2>&1
 
+  # tmux key bindings will pass DASHBOARD_TARGET=#{session_name} so the script
+  # knows which session triggered the call (mirrors what Task 13 wires up).
   page_down_via_run_shell() {
-    tmux -L "$TMUX_SOCKET" run-shell -t "$1" "TMUX_SOCKET=$TMUX_SOCKET $DASH --page-down"
+    tmux -L "$TMUX_SOCKET" run-shell -t "$1" \
+      "TMUX_SOCKET=$TMUX_SOCKET DASHBOARD_TARGET=$1 $DASH --page-down"
   }
   page_up_via_run_shell() {
-    tmux -L "$TMUX_SOCKET" run-shell -t "$1" "TMUX_SOCKET=$TMUX_SOCKET $DASH --page-up"
+    tmux -L "$TMUX_SOCKET" run-shell -t "$1" \
+      "TMUX_SOCKET=$TMUX_SOCKET DASHBOARD_TARGET=$1 $DASH --page-up"
   }
 
   page_down_via_run_shell dashboard-pg
@@ -249,6 +253,23 @@ SHIM
   # ── --page-down outside dashboard:* bails silently ──
   out=$("$DASH" --page-down 2>&1); rc=$?
   assert_eq "$rc" "0" "--page-down outside dashboard exits 0 (silent bail)"
+
+  # ── --rebuild reads stored pattern and refreshes ──
+  reset_test_tmux
+  tmux -L "$TMUX_SOCKET" new-session -d -s test-reb-1 'sleep 999'
+  tmux -L "$TMUX_SOCKET" new-session -d -s test-reb-2 'sleep 999'
+  "$DASH" '*-reb-*' --cols 1 >/dev/null 2>&1
+
+  # Spawn a third source after dashboard exists; --rebuild should pick it up.
+  tmux -L "$TMUX_SOCKET" new-session -d -s test-reb-3 'sleep 999'
+  tmux -L "$TMUX_SOCKET" run-shell -t dashboard-reb \
+    "TMUX_SOCKET=$TMUX_SOCKET DASHBOARD_TARGET=dashboard-reb $DASH --rebuild"
+  count=$(pane_count dashboard-reb)
+  assert_eq "$count" "3" "--rebuild adds tile for newly-spawned source"
+
+  # ── --rebuild outside dashboard bails silently ──
+  out=$("$DASH" --rebuild 2>&1); rc=$?
+  assert_eq "$rc" "0" "--rebuild outside dashboard exits 0 (silent bail)"
 
   teardown_test_tmux
   unset TMUX_SOCKET
