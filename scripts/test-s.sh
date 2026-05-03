@@ -267,6 +267,10 @@ SHIM
   assert_contains "$log" "attach -t dotfiles/feature-x" "2-arg-out attaches (TMUX unset)"
   assert_contains "$log" "set-option -t dotfiles/feature-x @session_root /tmp/fakerepo/.claude/worktrees/feature-x" \
     "2-arg-out stamps @session_root on the session"
+  assert_contains "$log" "send-keys -t dotfiles/feature-x claude Enter" \
+    "2-arg-out fresh session sends 'claude' to window 1"
+  assert_contains "$log" "new-window -d -t dotfiles/feature-x -c /tmp/fakerepo/.claude/worktrees/feature-x" \
+    "2-arg-out fresh session opens window 2 in background at worktree path"
   rm -rf "$shimdir"
 
   # ─── 2-arg in tmux: switch-client instead of attach ─────────────────
@@ -372,6 +376,10 @@ SHIM
     "1-arg in-tmux uses switch-client"
   assert_contains "$log" "set-option -t fixproject/feature-y @session_root $fixture_real/.claude/worktrees/feature-y" \
     "1-arg-in stamps @session_root with worktree path"
+  assert_contains "$log" "send-keys -t fixproject/feature-y claude Enter" \
+    "1-arg-in fresh session sends 'claude' to window 1"
+  assert_contains "$log" "new-window -d -t fixproject/feature-y -c $fixture_real/.claude/worktrees/feature-y" \
+    "1-arg-in fresh session opens window 2 in background at worktree path"
   rm -rf "$shimdir" "$fixture"
 fi
 
