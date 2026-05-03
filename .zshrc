@@ -106,6 +106,56 @@ _tmux_record_last_cmd() {
 }
 add-zsh-hook preexec _tmux_record_last_cmd
 
+# modern-reminder (keep in sync with scripts/test-modern-reminder.zsh)
+# One-line nudge after running a default tool whose modern alternative is
+# installed and intentionally unaliased. Once per zsh process, per command.
+# Disable by commenting out `export MODERN_REMINDER=1` at the bottom of this block.
+typeset -gA _modern_reminder_pairs=(
+  [tail]=tspin
+  [grep]=rg
+  [curl]=xh
+)
+typeset -gA _modern_reminder_hints=(
+  [tail]="tspin is a modern alternative to tail. Try \`tspin -f app.log\`."
+  [grep]="rg is a modern alternative to grep."
+  [curl]="xh (HTTPie-compatible) is a modern alternative to curl."
+)
+typeset -gA _modern_reminder_seen
+typeset -g _modern_reminder_pending=""
+
+_modern_reminder_preexec() {
+  [[ -z ${MODERN_REMINDER:-} ]] && return
+  _modern_reminder_pending=""
+  local -a tokens=(${(z)1})
+  local t base
+  for t in "${tokens[@]}"; do
+    base="${t##*/}"      # strip directory prefix (/usr/bin/grep -> grep)
+    base="${base#\\}"    # strip leading backslash (\grep -> grep)
+    if [[ -n "${_modern_reminder_pairs[$base]:-}" ]]; then
+      _modern_reminder_pending="$base"
+      return
+    fi
+  done
+}
+
+_modern_reminder_precmd() {
+  local cmd="$_modern_reminder_pending"
+  _modern_reminder_pending=""
+  [[ -z ${MODERN_REMINDER:-} ]] && return
+  [[ -z $cmd ]] && return
+  [[ -n "${_modern_reminder_seen[$cmd]:-}" ]] && return
+  local modern="${_modern_reminder_pairs[$cmd]:-}"
+  [[ -z $modern ]] && return
+  command -v "$modern" >/dev/null 2>&1 || return
+  print -P "%F{yellow}%f ${_modern_reminder_hints[$cmd]}"
+  _modern_reminder_seen[$cmd]=1
+}
+
+add-zsh-hook preexec _modern_reminder_preexec
+add-zsh-hook precmd  _modern_reminder_precmd
+
+export MODERN_REMINDER=1
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
