@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# dashboard — live multi-session tmux preview.
+# See .superpowers/specs/2026-05-03-tmux-dashboard.md for design rationale.
+set -euo pipefail
+
+# ─── Constants ──────────────────────────────
+MIN_TILE_HEIGHT=12  # rows; conservative floor so tiles stay legible
+
+# ─── tmux invocation (honors $TMUX_SOCKET for test isolation) ──
+# When $TMUX_SOCKET is set, every tmux call uses -L "$TMUX_SOCKET".
+# Smoke tests set it; production runs leave it unset (default socket).
+tmx() {
+  if [ -n "${TMUX_SOCKET:-}" ]; then
+    tmux -L "$TMUX_SOCKET" "$@"
+  else
+    tmux "$@"
+  fi
+}
+
+usage() {
+  cat <<'EOF' >&2
+Usage: dashboard <pattern> [--cols N]
+       dashboard --page-down
+       dashboard --page-up
+       dashboard --rebuild
+
+  <pattern>       Session-name glob (e.g. '*-agent', 'claude-*'). Quote it.
+  --cols N        Force N columns per row. Default: tmux's tiled auto-shape.
+  --page-down     Internal: rotate dashboard to next row of matched sessions.
+  --page-up       Internal: rotate dashboard to previous row.
+  --rebuild       Internal: re-discover and rebuild tiles for current dashboard.
+
+  Spawns or rebuilds a `dashboard:<derived>` session showing one polled
+  capture-pane tile per matched source session.
+EOF
+  exit 1
+}
+
+# Strip non-alphanumerics from a pattern to produce a session-name suffix.
+# Echoes the derived name on stdout. Exits 1 if result is empty.
+derived_name() {
+  local pattern="$1" derived
+  derived=$(printf '%s' "$pattern" | LC_ALL=C tr -cd 'a-zA-Z0-9')
+  if [ -z "$derived" ]; then
+    echo "dashboard: pattern '$pattern' produces empty derived name" >&2
+    exit 1
+  fi
+  printf '%s\n' "$derived"
+}
+
+# ─── Test hook: print derived name and exit ──
+# DASHBOARD_TEST_DERIVED=<pattern> dashboard --print-derived
+# Used by scripts/test-dashboard.sh for pure-logic assertions.
+if [ "${1:-}" = "--print-derived" ] && [ -n "${DASHBOARD_TEST_DERIVED:-}" ]; then
+  derived_name "$DASHBOARD_TEST_DERIVED"
+  exit 0
+fi
+
+# ─── Arg parsing ────────────────────────────
+[ $# -eq 0 ] && usage
+
+case "$1" in
+  --page-down|--page-up|--rebuild)
+    # Filled in by later tasks. For now: bail with a clear placeholder.
+    echo "dashboard: $1 not yet implemented" >&2
+    exit 1
+    ;;
+esac
+
+PATTERN="$1"; shift
+COLS=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --cols)
+      shift
+      if [ $# -eq 0 ] || ! printf '%s' "${1:-}" | grep -qE '^[0-9]+$'; then
+        echo "dashboard: --cols requires a positive integer" >&2
+        exit 1
+      fi
+      COLS="$1"; shift
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+DERIVED=$(derived_name "$PATTERN")
+SESSION="dashboard:$DERIVED"
+
+# ─── Dispatch (filled in by later tasks) ──
+echo "dashboard: would build $SESSION from pattern '$PATTERN' (cols=${COLS:-tiled})" >&2
+exit 0
