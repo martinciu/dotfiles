@@ -6,7 +6,8 @@
 <title>Solarized cheatsheets</title>
 <link rel="stylesheet" href="style.css" />
 <style>
-  .card p { color: var(--base0); margin: .35rem 0 0; }
+  .card p { color: var(--base0); margin: .35rem 0 .6rem; }
+  .card .shot { margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -18,33 +19,33 @@
 </header>
 
 <div class="grid">
-  <div class="card">
-    <a class="shot" href="images/example_vim.png">
-      <img src="images/example_vim-thumb.png"
-           alt="Neovim with LazyVim, Solarized Dark, JetBrainsMono Nerd Font"
-           width="800" height="483" loading="lazy" />
-    </a>
-    <h3><a href="nvim-cheatsheet.html">Neovim</a></h3>
-    <p>LazyVim leader map, picker, LSP, neotest, Mason/Lazy.</p>
-  </div>
-  <div class="card">
-    <a class="shot" href="images/example_tmux.png">
-      <img src="images/example_tmux-thumb.png"
-           alt="tmux session in Solarized Dark with hand-rolled status bar"
-           width="800" height="483" loading="lazy" />
-    </a>
-    <h3><a href="tmux-cheatsheet.html">tmux</a></h3>
-    <p>Prefix <code>C-a</code> map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode.</p>
-  </div>
-  <div class="card">
-    <a class="shot" href="images/example_terminal.png">
+  <a class="card" href="terminal-cheatsheet.html">
+    <h3>Terminal</h3>
+    <p>eza, bat, less wrapper, git-delta, glow, vivid, fzf, zsh plugins.</p>
+    <span class="shot">
       <img src="images/example_terminal-thumb.png"
            alt="Solarized Dark terminal showing eza, bat, git-delta, fzf"
            width="800" height="483" loading="lazy" />
-    </a>
-    <h3><a href="terminal-cheatsheet.html">Terminal</a></h3>
-    <p>eza, bat, less wrapper, git-delta, glow, vivid, fzf, zsh plugins.</p>
-  </div>
+    </span>
+  </a>
+  <a class="card" href="tmux-cheatsheet.html">
+    <h3>tmux</h3>
+    <p>Prefix <code>C-a</code> map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode.</p>
+    <span class="shot">
+      <img src="images/example_tmux-thumb.png"
+           alt="tmux session in Solarized Dark with hand-rolled status bar"
+           width="800" height="483" loading="lazy" />
+    </span>
+  </a>
+  <a class="card" href="nvim-cheatsheet.html">
+    <h3>Neovim</h3>
+    <p>LazyVim leader map, picker, LSP, neotest, Mason/Lazy.</p>
+    <span class="shot">
+      <img src="images/example_vim-thumb.png"
+           alt="Neovim with LazyVim, Solarized Dark, JetBrainsMono Nerd Font"
+           width="800" height="483" loading="lazy" />
+    </span>
+  </a>
 </div>
 
 <footer>
