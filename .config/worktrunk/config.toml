@@ -247,22 +247,19 @@ worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
 #
 # See `wt hook` (https://worktrunk.dev/hook/) for hook types, execution order, template variables, and examples. User hooks apply to all projects; project hooks (https://worktrunk.dev/config/#project-configuration) apply only to that repository.
 
-# Share `tmp/` across worktrees by symlinking to the primary worktree's tmp/.
-# Why: Superpowers writes specs/plans to tmp/ and `tmp/` is gitignored in
-# repos that follow that convention, so they would otherwise be lost when
-# the worktree is removed. Guarded on `git check-ignore -q tmp/` so this is
-# a no-op in repos where tmp/ is tracked source — never wipes real content.
-# Also adds `tmp` (without slash) to the worktree's .git/info/exclude so the
-# symlink itself doesn't show as untracked (the repo's `tmp/` rule only
-# matches directories, and a symlink isn't a directory to git).
-[pre-start]
-share-tmp = "git check-ignore -q tmp/ && { mkdir -p {{ primary_worktree_path }}/tmp && rm -rf tmp && ln -s {{ primary_worktree_path }}/tmp tmp && excl=$(git rev-parse --git-path info/exclude) && { grep -qxF tmp \"$excl\" || echo tmp >> \"$excl\"; }; } || true"
-
-# Don't let copy-ignored clobber the tmp/ symlink with a real copy.
-# In repos where tmp/ is tracked, copy-ignored ignores tracked paths
-# anyway, so this exclude is a no-op there.
-[step.copy-ignored]
-exclude = ["tmp/"]
-
+# Copy gitignored content from the primary worktree into each new
+# worktree at start. Picks up `.superpowers/`, `.autonomo/`, and any
+# other gitignored paths automatically — no per-path hooks needed.
 [post-start]
 copy = "wt step copy-ignored"
+
+# Before wt remove deletes a worktree, save any new gitignored
+# content (planning artefacts under .superpowers/, autonomo logs
+# under .autonomo/) back to the primary worktree. `rsync
+# --ignore-existing` only copies files absent from primary — never
+# clobbers. Combined with [post-start] copy above, gitignored state
+# flows: primary → worktree on create, worktree → primary on remove.
+# Existing-but-diverged files are dropped on remove (acceptable for
+# the write-once artefacts these dirs hold).
+[pre-remove]
+save-shared = "for d in .superpowers .autonomo; do [ -d \"$d\" ] || continue; rsync -a --ignore-existing \"$d/\" \"{{ primary_worktree_path }}/$d/\"; done"
