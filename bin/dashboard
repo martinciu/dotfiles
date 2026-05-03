@@ -3,6 +3,12 @@
 # See .superpowers/specs/2026-05-03-tmux-dashboard.md for design rationale.
 set -euo pipefail
 
+# ─── Preconditions ──────────────────────────
+if ! command -v watch >/dev/null 2>&1; then
+  echo "dashboard: 'watch' not on PATH (install via: brew bundle --file=\$PROJECTS_HOME/dotfiles/Brewfile)" >&2
+  exit 1
+fi
+
 # ─── Constants ──────────────────────────────
 MIN_TILE_HEIGHT=12  # rows; conservative floor so tiles stay legible
 

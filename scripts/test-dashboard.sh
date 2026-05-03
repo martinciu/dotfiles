@@ -193,6 +193,42 @@ SHIM
   assert_contains "$log" "attach -t dashboard-attach" "out-of-tmux uses attach"
   rm -rf "$shimdir"
 
+  # ── 0 matches -> exit 1 with clear message ──
+  shimdir=$(mktemp -d)
+  cat >"$shimdir/tmux" <<'SHIM'
+#!/usr/bin/env bash
+case "$*" in
+  "list-sessions -F #{session_last_attached} #{session_name}") echo "" ;;
+  *) ;;
+esac
+exit 0
+SHIM
+  chmod +x "$shimdir/tmux"
+  cat >"$shimdir/watch" <<'SHIM'
+#!/usr/bin/env bash
+exit 0
+SHIM
+  chmod +x "$shimdir/watch"
+  out=$(env -u TMUX PATH="$shimdir:$PATH" "$DASH" 'no-such-*' 2>&1); rc=$?
+  assert_eq "$rc" "1" "0 matches -> exit 1"
+  assert_contains "$out" "no sessions match" "0 matches -> error message"
+  rm -rf "$shimdir"
+
+  # ── watch missing -> exit 1 with clear message ──
+  shimdir=$(mktemp -d)
+  cat >"$shimdir/tmux" <<'SHIM'
+#!/usr/bin/env bash
+exit 0
+SHIM
+  chmod +x "$shimdir/tmux"
+  # Deliberately do NOT create $shimdir/watch. Path includes /bin:/usr/bin so
+  # the bash interpreter resolves, but `command -v watch` still fails because
+  # macOS's /usr/bin doesn't ship watch (BSD has no procps).
+  out=$(env -u TMUX PATH="$shimdir:/bin:/usr/bin" "$DASH" '*-anything-*' 2>&1); rc=$?
+  assert_eq "$rc" "1" "missing watch -> exit 1"
+  assert_contains "$out" "watch" "missing watch -> error mentions watch"
+  rm -rf "$shimdir"
+
   # ── Integration tests against an isolated tmux server ──
   # Use TMUX_SOCKET=dash-test so the dashboard script's `tmx` helper passes
   # `-L dash-test` to every tmux invocation.
