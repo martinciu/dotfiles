@@ -51,6 +51,9 @@ link ".config/btop"    "$HOME/.config/btop"
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
 
+# --- xh (modern HTTP client; Solarized via default_options)
+link ".config/xh"      "$HOME/.config/xh"
+
 # --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
 # lnav writes its built-in samples (configs/default, formats/default), crash
 # dumps, staging area, log_metadata.db, view-info-*.json, and :config-written
