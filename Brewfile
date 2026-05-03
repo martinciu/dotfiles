@@ -5,6 +5,7 @@
 brew "git"
 brew "tmux"
 brew "jq"   # JSON parsing in shell helpers
+brew "watch"  # procps watch — used by `dashboard` for live tile polling (-c ANSI passthrough)
 
 # Session switcher (sesh + fzf, sesh comes from a tap)
 brew "fzf"

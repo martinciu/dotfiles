@@ -112,6 +112,29 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Project list comes from `sesh list -c -j` (the configured-sessions
   source); no separate registry. The picker is tmux-sessionx (see
   the sessionx bullet); `s` does not invoke it.
+- **`dashboard` is the multi-session live preview command** (`bin/dashboard`,
+  symlinked to `~/.local/bin/dashboard` by `bootstrap.sh`). Surface:
+  `dashboard <pattern> [--cols N]`, plus internal subcommands
+  `--page-down`, `--page-up`, `--rebuild`. Pattern is a session-name
+  glob; spawns or rebuilds a `dashboard-<derived>` session with one
+  polled `watch + capture-pane` tile per matched session (excluding
+  `dashboard-*` themselves so dashboards never tile each other). The
+  dashboard prefix uses `-` (not `:`) because tmux silently rewrites
+  `:` in session names. `<prefix> J/K` page rows down/up — bindings
+  are no-ops outside `dashboard-*` (script bails on `#S`). Bindings
+  pass `DASHBOARD_TARGET=#{session_name}` because `display-message
+  -p '#S'` inside `run-shell` returns the global most-recent session,
+  not the run-shell target. `--cols N` forces an N-column grid via a
+  hand-built two-pass split (vertical row seeds, then horizontal
+  column splits per row); without it tmux's `tiled` layout is used.
+  Don't replace polling with `link-window` (only one window visible
+  at a time) or nested `tmux attach` (shows whole client UI). Don't
+  auto-install a `--rebuild` keybinding; the user wires `<prefix> R`
+  themselves if wanted. The script reads `$TMUX_SOCKET` (test-mode
+  socket isolation) and `$DASHBOARD_NO_FINISH` (skip the final
+  attach/switch-client — used by the integration tests because
+  there's no real client to attach against the test server).
+  Production runs leave both unset.
 - **`vim` and `vimdiff` are zsh aliases to nvim**; **`vi` is a zsh alias
   to the legacy minimal vim** (`alias vi='command vim'` — `command`
   suppresses recursive alias expansion). All three are defined in
@@ -364,6 +387,7 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
+- Dashboard smoke + integration tests: `scripts/test-dashboard.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`

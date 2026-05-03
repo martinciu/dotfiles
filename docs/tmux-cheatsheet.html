@@ -158,6 +158,29 @@
     </table>
     <p class="note">Defaults only: no <code>@resurrect-processes</code> (panes get fresh shells in <code>cwd</code>; nvim/ssh are NOT relaunched), no <code>@resurrect-capture-pane-contents</code> (scrollback is not saved). Auto-restore only fires on a brand-new server with zero sessions, so attaching to an already-running server (sesh's normal flow) is unaffected.</p>
   </div>
+
+  <div class="card">
+    <h3>Dashboard <span class="pill">live multi-session preview</span></h3>
+    <p>
+      <code>dashboard '&lt;pattern&gt;' [--cols N]</code> from the shell.
+      Spawns or rebuilds a <code>dashboard-&lt;derived&gt;</code> session
+      tiling live <code>capture-pane</code> output for every tmux session
+      whose name matches the glob. One tile per match; default layout is
+      tmux's <code>tiled</code> auto-shape. <code>--cols N</code> forces
+      an N-column grid.
+    </p>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">J</span></td><td class="desc">page rows down (no-op outside <code>dashboard-*</code>)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">K</span></td><td class="desc">page rows up</td></tr>
+      <tr><td class="key"><code>dashboard --rebuild</code></td><td class="desc">re-discover sources, refresh tiles (run inside the dashboard)</td></tr>
+    </table>
+    <p class="note">
+      Re-running <code>dashboard '&lt;pattern&gt;'</code> is idempotent —
+      kills only stale tiles and adds tiles for new matches. Outside tmux
+      the script <code>attach</code>es; inside tmux it
+      <code>switch-client</code>s to the dashboard.
+    </p>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -391,7 +414,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-02. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-03. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
