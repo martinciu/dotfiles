@@ -57,6 +57,15 @@ resolve_project_name() {
     | head -n1
 }
 
+# Lay out a brand-new worktree session: window 1 runs claude, window 2
+# is a blank shell. -d on new-window keeps the active window unchanged,
+# so the user sees no flicker when the session attaches.
+bootstrap_worktree_windows() {
+  local session="$1" target_path="$2"
+  tmux send-keys -t "$session" 'claude' Enter
+  tmux new-window -d -t "$session" -c "$target_path"
+}
+
 # Final stage: switch-client (in tmux) or attach (out) to an existing session.
 # The caller is responsible for creating the session with new-session first.
 finish() {
@@ -83,6 +92,7 @@ case $# in
     target_path=$(ensure_worktree "$project_path" "$name")
     if ! tmux has-session -t "$session" 2>/dev/null; then
       tmux new-session -d -s "$session" -c "$target_path"
+      bootstrap_worktree_windows "$session" "$target_path"
     fi
     tmux set-option -t "$session" @session_root "$target_path"
     finish "$session"
@@ -106,6 +116,7 @@ case $# in
       target_path=$(ensure_worktree "$project_path" "$name")
       if ! tmux has-session -t "$session" 2>/dev/null; then
         tmux new-session -d -s "$session" -c "$target_path"
+        bootstrap_worktree_windows "$session" "$target_path"
       fi
       tmux set-option -t "$session" @session_root "$target_path"
       finish "$session"
