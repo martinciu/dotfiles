@@ -281,6 +281,25 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `curl` stays available verbatim for scripts and CI. **Don't add an
   `http`/`https` alias** either; the rule is "no synonyms, just the
   binary's name". No `.zshrc` change for this tool.
+- **`modern-reminder` is a zsh-level discoverability nudge** for default→modern
+  tool pairs that this setup intentionally leaves *unaliased* (the "no synonyms,
+  just the binary's name" pattern shared by `tail`/`tspin`, `grep`/`rg`, and
+  `curl`/`xh`). Defined in `.zshrc` as two associative arrays
+  (`_modern_reminder_pairs`, `_modern_reminder_hints`), plus
+  `_modern_reminder_preexec` (scan-all-tokens via `${(z)…}`, strips leading
+  `\` and dirname) and `_modern_reminder_precmd` (env-var guard, once-per-shell
+  seen set, `command -v` check, `print -P "%F{yellow}%f …"`). Toggled by
+  `export MODERN_REMINDER=1`; comment that line to disable. State is
+  per-zsh-process — a fresh tmux pane resets the seen set. Tests:
+  `scripts/test-modern-reminder.zsh` (which holds a synced copy of the function
+  bodies; keep both copies in sync). **When introducing a new modern terminal
+  tool under the "no synonyms" pattern, evaluate it against the inclusion
+  criteria (default in common interactive use; modern alternative installed and
+  Solarized-themed; default deliberately unaliased) and add it to
+  `_modern_reminder_pairs` and `_modern_reminder_hints` in the same change.
+  Symmetrically, if a default tool gains an alias to its modern alternative
+  later, drop it from the catalog** — no point reminding when the alias already
+  redirects.
 
 ## Where things live
 
@@ -322,6 +341,7 @@ served at `https://martinciu.github.io/dotfiles/` via GitHub Pages
 - File-picker path-extraction tests: `scripts/test-fzf-file-extract.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
+- Modern-reminder tests: `scripts/test-modern-reminder.zsh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
