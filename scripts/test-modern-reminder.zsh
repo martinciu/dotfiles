@@ -3,6 +3,12 @@
 # Run: zsh scripts/test-modern-reminder.zsh
 set -u
 
+# Match the interactive shell's prompt-expansion semantics — p10k enables
+# PROMPT_SUBST, so `print -P` performs parameter, command, and arithmetic
+# substitution on prompt strings. Hint text must not contain anything that
+# would be substituted (backticks, $(...), $((...)), unescaped $).
+setopt PROMPT_SUBST
+
 pass=0; fail=0; fail_msgs=()
 
 assert_contains() {
@@ -34,9 +40,9 @@ typeset -gA _modern_reminder_pairs=(
   [curl]=xh
 )
 typeset -gA _modern_reminder_hints=(
-  [tail]="tspin is a modern alternative to tail. Try \`tspin -f app.log\`."
-  [grep]="rg is a modern alternative to grep."
-  [curl]="xh (HTTPie-compatible) is a modern alternative to curl."
+  [tail]="%F{yellow}\uF0EB%f tspin is a modern alternative to tail. Try 'tspin -f app.log'."
+  [grep]="%F{yellow}\uF0E7%f rg is a modern alternative to grep."
+  [curl]="%F{yellow}\uF427%f xh (HTTPie-compatible) is a modern alternative to curl."
 )
 typeset -gA _modern_reminder_seen
 typeset -g _modern_reminder_pending=""
@@ -65,7 +71,7 @@ _modern_reminder_precmd() {
   local modern="${_modern_reminder_pairs[$cmd]:-}"
   [[ -z $modern ]] && return
   command -v "$modern" >/dev/null 2>&1 || return
-  print -P "%F{yellow}%f ${_modern_reminder_hints[$cmd]}"
+  print -P "${_modern_reminder_hints[$cmd]}"
   _modern_reminder_seen[$cmd]=1
 }
 
@@ -122,7 +128,17 @@ out=$(<"$tmp"); rm -f "$tmp"
 assert_contains "$out" "rg is a modern alternative to grep" \
   "Token scan: 'echo x | grep x' fires for grep"
 
-# Test 5: fresh subshell starts empty (validates per-process scope)
+# Test 5: tail hint sample-syntax survives prompt expansion (regression: backticks
+# under PROMPT_SUBST got command-substituted, leaving "Try ." with a side-effect)
+export MODERN_REMINDER=1
+_modern_reminder_seen=()
+tmp=$(mktemp -t mr.XXXXXX)
+_run_hooks "tail /etc/hosts" >"$tmp" 2>&1
+out=$(<"$tmp"); rm -f "$tmp"
+assert_contains "$out" "Try 'tspin -f app.log'." \
+  "tail hint: literal sample syntax preserved (no command substitution)"
+
+# Test 6: fresh subshell starts empty (validates per-process scope)
 export MODERN_REMINDER=1
 runner=$(mktemp -t mr-test.XXXXXX.zsh)
 {

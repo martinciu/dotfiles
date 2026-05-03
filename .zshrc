@@ -116,9 +116,9 @@ typeset -gA _modern_reminder_pairs=(
   [curl]=xh
 )
 typeset -gA _modern_reminder_hints=(
-  [tail]="tspin is a modern alternative to tail. Try \`tspin -f app.log\`."
-  [grep]="rg is a modern alternative to grep."
-  [curl]="xh (HTTPie-compatible) is a modern alternative to curl."
+  [tail]="%F{yellow}\uF0EB%f tspin is a modern alternative to tail. Try 'tspin -f app.log'."
+  [grep]="%F{yellow}\uF0E7%f rg is a modern alternative to grep."
+  [curl]="%F{yellow}\uF427%f xh (HTTPie-compatible) is a modern alternative to curl."
 )
 typeset -gA _modern_reminder_seen
 typeset -g _modern_reminder_pending=""
@@ -147,7 +147,7 @@ _modern_reminder_precmd() {
   local modern="${_modern_reminder_pairs[$cmd]:-}"
   [[ -z $modern ]] && return
   command -v "$modern" >/dev/null 2>&1 || return
-  print -P "%F{yellow}%f ${_modern_reminder_hints[$cmd]}"
+  print -P "${_modern_reminder_hints[$cmd]}"
   _modern_reminder_seen[$cmd]=1
 }
 

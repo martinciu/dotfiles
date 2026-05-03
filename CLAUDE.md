@@ -288,8 +288,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   (`_modern_reminder_pairs`, `_modern_reminder_hints`), plus
   `_modern_reminder_preexec` (scan-all-tokens via `${(z)…}`, strips leading
   `\` and dirname) and `_modern_reminder_precmd` (env-var guard, once-per-shell
-  seen set, `command -v` check, `print -P "%F{yellow}%f …"`). Toggled by
-  `export MODERN_REMINDER=1`; comment that line to disable. State is
+  seen set, `command -v` check, `print -P "${_modern_reminder_hints[$cmd]}"`).
+  Each hint embeds its own Nerd Font glyph as a `\u…` escape and Solarized
+  yellow via `%F{yellow}%f` so `print -P` decodes both at runtime — keeps
+  source 7-bit ASCII and avoids editor/clipboard mangling of private-use
+  codepoints. Don't put backticks or `$(…)` inside hint text: under
+  `PROMPT_SUBST` (set by p10k), `print -P` performs command substitution on
+  the prompt string. Use single quotes for sample-syntax emphasis. Toggled
+  by `export MODERN_REMINDER=1`; comment that line to disable. State is
   per-zsh-process — a fresh tmux pane resets the seen set. Tests:
   `scripts/test-modern-reminder.zsh` (which holds a synced copy of the function
   bodies; keep both copies in sync). **When introducing a new modern terminal
