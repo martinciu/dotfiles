@@ -57,6 +57,9 @@ _modern_reminder_precmd() {
   [[ -z ${MODERN_REMINDER:-} ]] && return
   [[ -z $cmd ]] && return
   [[ -n "${_modern_reminder_seen[$cmd]:-}" ]] && return
+  local modern="${_modern_reminder_pairs[$cmd]:-}"
+  [[ -z $modern ]] && return
+  command -v "$modern" >/dev/null 2>&1 || return
   print -P "%F{yellow}%f ${_modern_reminder_hints[$cmd]}"
   _modern_reminder_seen[$cmd]=1
 }
@@ -92,6 +95,18 @@ assert_contains "$out1" "rg is a modern alternative to grep" \
   "First grep call -> reminder fires"
 assert_not_contains "$out2" "modern alternative" \
   "Second grep call in same shell -> silent"
+
+# Test 3: skips when modern tool missing
+export MODERN_REMINDER=1
+_modern_reminder_seen=()
+tmp=$(mktemp -t mr.XXXXXX)
+saved_path="$PATH"
+PATH="/nonexistent"
+_run_hooks "grep TODO src/" >"$tmp" 2>&1
+PATH="$saved_path"
+out=$(<"$tmp"); rm -f "$tmp"
+assert_not_contains "$out" "modern alternative" \
+  "Modern tool missing from \$PATH -> no reminder"
 
 echo
 echo "Total: $((pass+fail))  pass: $pass  fail: $fail"
