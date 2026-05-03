@@ -50,10 +50,17 @@ How to apply:
 
 ## Planning artifacts (Superpowers, Compound Engineering, etc.)
 
-- All specs, plans, and design docs go in `tmp/` (e.g. `tmp/specs/`,
-  `tmp/plans/`). `tmp/` is gitignored — these are never committed.
+- All specs, plans, and design docs go in `.superpowers/` (e.g.
+  `.superpowers/specs/`, `.superpowers/plans/`). `.superpowers/` is
+  gitignored — these are never committed.
 - Never write to `docs/superpowers/`. Superpowers skills default to that
   path, but it is wrong here.
+- `/autonomo` run logs and bail reports go in `.autonomo/` (e.g.
+  `.autonomo/<slug>-<RUN_TIMESTAMP>.log` and
+  `.autonomo/<slug>-<RUN_TIMESTAMP>.md`). `.autonomo/` is gitignored —
+  these are never committed. The skill's SKILL.md hardcodes
+  `tmp/autonomo/` in its examples; override that path to `.autonomo/`
+  when running the skill.
 - Worktree directory: `.claude/worktrees/` (project-local; gitignored).
 
 ## Superpowers in auto mode

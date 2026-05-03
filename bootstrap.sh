@@ -100,6 +100,9 @@ mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 link ".zshrc"     "$HOME/.zshrc"
 link ".p10k.zsh"  "$HOME/.p10k.zsh"
 
+# --- git (global ignore — paths excluded across every repo on this machine)
+link ".gitignore_global" "$HOME/.gitignore_global"
+
 # --- claude
 link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
