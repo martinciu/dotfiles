@@ -69,6 +69,54 @@ else
   out=$(DASHBOARD_TEST_DERIVED='***' "$DASH" --print-derived 2>&1); rc=$?
   assert_eq "$rc" "1" "all-special pattern -> exit 1"
   assert_contains "$out" "empty derived name" "all-special pattern -> error message"
+
+  # ── discover_sessions: filter + dashboard:* exclusion ──
+  shimdir=$(mktemp -d)
+  cat >"$shimdir/tmux" <<'SHIM'
+#!/usr/bin/env bash
+# Shim: tmux list-sessions -F '#{session_last_attached} #{session_name}'
+case "$*" in
+  "list-sessions -F #{session_last_attached} #{session_name}")
+    cat <<-EOF
+		3000 dashboard:agent
+		2500 claude-prod
+		2000 build-1
+		1500 build-2
+		1000 claude-staging
+	EOF
+    ;;
+  *) echo "tmux shim: unsupported: $*" >&2; exit 99 ;;
+esac
+SHIM
+  chmod +x "$shimdir/tmux"
+
+  # Match 'build-*' -> build-1, build-2 (most-recently-attached first)
+  out=$(PATH="$shimdir:$PATH" "$DASH" --print-discover 'build-*' 2>&1)
+  expected=$'build-1\nbuild-2'
+  assert_eq "$out" "$expected" "'build-*' matches build-1, build-2 (mru order)"
+
+  # Match 'claude-*' -> claude-prod, claude-staging
+  out=$(PATH="$shimdir:$PATH" "$DASH" --print-discover 'claude-*' 2>&1)
+  expected=$'claude-prod\nclaude-staging'
+  assert_eq "$out" "$expected" "'claude-*' matches claude-prod, claude-staging"
+
+  # Match '*' -> excludes dashboard:agent
+  out=$(PATH="$shimdir:$PATH" "$DASH" --print-discover '*' 2>&1)
+  if printf '%s' "$out" | grep -qx 'dashboard:agent'; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  '*' must exclude dashboard:agent"$'\n'"        got: '$out'")
+    echo "  FAIL  '*' must exclude dashboard:agent"
+  else
+    pass=$((pass+1))
+    echo "  PASS  '*' excludes dashboard:agent"
+  fi
+
+  # No match -> empty stdout, exit 0
+  out=$(PATH="$shimdir:$PATH" "$DASH" --print-discover 'no-such-*' 2>&1); rc=$?
+  assert_eq "$rc" "0" "no match -> exit 0"
+  assert_eq "$out" "" "no match -> empty stdout"
+
+  rm -rf "$shimdir"
 fi
 
 # ─── Summary ────────────────────────────────

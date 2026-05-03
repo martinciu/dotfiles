@@ -48,11 +48,36 @@ derived_name() {
   printf '%s\n' "$derived"
 }
 
+# List source sessions matching the glob, most-recently-attached first.
+# Excludes any session whose name starts with "dashboard:" so dashboards
+# can't tile themselves. Echoes session names, one per line.
+discover_sessions() {
+  local pattern="$1"
+  tmx list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null \
+    | sort -rn -k1,1 \
+    | awk '{print $2}' \
+    | while IFS= read -r name; do
+        case "$name" in
+          dashboard:*) continue ;;
+        esac
+        # shellcheck disable=SC2254  # intentional glob expansion of $pattern
+        case "$name" in
+          $pattern) printf '%s\n' "$name" ;;
+        esac
+      done
+}
+
 # ─── Test hook: print derived name and exit ──
 # DASHBOARD_TEST_DERIVED=<pattern> dashboard --print-derived
 # Used by scripts/test-dashboard.sh for pure-logic assertions.
 if [ "${1:-}" = "--print-derived" ] && [ -n "${DASHBOARD_TEST_DERIVED:-}" ]; then
   derived_name "$DASHBOARD_TEST_DERIVED"
+  exit 0
+fi
+
+# DASHBOARD_TEST: print-discover <pattern> — list matched sessions, exit 0
+if [ "${1:-}" = "--print-discover" ] && [ -n "${2:-}" ]; then
+  discover_sessions "$2"
   exit 0
 fi
 
