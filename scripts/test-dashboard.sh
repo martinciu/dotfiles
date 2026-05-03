@@ -163,6 +163,19 @@ SHIM
   assert_eq "$rc" "0" "rebuild after source kill exits 0"
   assert_eq "$(pane_count dashboard-agent)" "1" "rebuild drops vanished session's tile"
 
+  # ── Pane border titles == source session names ──
+  reset_test_tmux
+  tmux -L "$TMUX_SOCKET" new-session -d -s 1-agent 'sleep 999'
+  tmux -L "$TMUX_SOCKET" new-session -d -s 2-agent 'sleep 999'
+  "$DASH" '*-agent' >/dev/null 2>&1
+
+  titles=$(tmux -L "$TMUX_SOCKET" list-panes -t dashboard-agent -F '#{pane_title}' | sort)
+  expected=$(printf '%s\n' 1-agent 2-agent | sort)
+  assert_eq "$titles" "$expected" "pane titles match source session names"
+
+  status=$(tmux -L "$TMUX_SOCKET" show-options -t dashboard-agent -v pane-border-status 2>/dev/null)
+  assert_eq "$status" "top" "pane-border-status set to 'top' on dashboard session"
+
   teardown_test_tmux
   unset TMUX_SOCKET
 fi

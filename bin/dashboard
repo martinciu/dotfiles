@@ -94,10 +94,11 @@ build_dashboard() {
   # and on `${arr[@]:n}` slices that produce empty arrays. Use temporary
   # `set +u` around the array ops as a portable workaround.
   set +u
+  local all_sources=("$@")
   local sources=("$@")
   set -u
   local first=1
-  local src cmd first_pane
+  local src cmd first_pane idx
 
   if ! tmx has-session -t "$session" 2>/dev/null; then
     # -d: detached; -x/-y: ample initial size so splits succeed before resize.
@@ -144,6 +145,16 @@ build_dashboard() {
   fi
 
   tmx select-layout -t "$session" tiled
+
+  # Per-tile title and visible pane-border bar (scoped to this session).
+  tmx set-option -t "$session" pane-border-status top
+  idx=0
+  while IFS= read -r pid; do
+    if [ "$idx" -lt "${#all_sources[@]}" ]; then
+      tmx select-pane -t "$pid" -T "${all_sources[$idx]}"
+    fi
+    idx=$((idx + 1))
+  done < <(tmx list-panes -t "$session" -F '#{pane_id}')
 }
 
 # ─── Test hook: print derived name and exit ──
