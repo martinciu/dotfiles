@@ -129,13 +129,8 @@ tile_cmd() {
 # Args: $1 = session name (e.g. dashboard-agent), $2... = source session names
 build_dashboard() {
   local session="$1"; shift
-  # Bash 3.2 trips on `local sources=("$@")` under `set -u` if $# is 0,
-  # and on `${arr[@]:n}` slices that produce empty arrays. Use temporary
-  # `set +u` around the array ops as a portable workaround.
-  set +u
   local all_sources=("$@")
   local sources=("$@")
-  set -u
   local first=1
   local src cmd first_pane idx
 
@@ -146,7 +141,7 @@ build_dashboard() {
     tmx new-session -d -s "$session" -x 200 -y 60 \
       -n preview "$(tile_cmd "${sources[0]}")"
     first=0  # the new-session already filled the seed tile with the first source
-    set +u; sources=("${sources[@]:1}"); set -u
+    sources=("${sources[@]:1}")
   else
     # Kill all but the first pane; we'll re-fill panes from scratch.
     # tmux's pane-base-index varies (0 or 1 by config), so use pane ids to
@@ -172,7 +167,7 @@ build_dashboard() {
     src="${sources[0]}"
     cmd=$(tile_cmd "$src")
     tmx respawn-pane -k -t "$first_pane" "$cmd"
-    set +u; sources=("${sources[@]:1}"); set -u
+    sources=("${sources[@]:1}")
   fi
 
   if [ -n "${DASHBOARD_COLS:-}" ]; then
@@ -200,9 +195,7 @@ build_dashboard() {
     # Pass 2: for each row, create (cols-1) horizontal splits on its seed.
     # Collect row seed pane ids in creation order (top to bottom).
     local row_pids=()
-    while IFS= read -r pid; do
-      row_pids+=("$pid")
-    done < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_id}' | sort -n -k1,1 | awk '{print $2}')
+    mapfile -t row_pids < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_id}' | sort -n -k1,1 | awk '{print $2}')
 
     local i row_pid c new_pid
     for ((i = 0; i < rows; i++)); do
@@ -220,9 +213,7 @@ build_dashboard() {
 
     # Now respawn each pane (in row-major order) with the correct watch cmd.
     local all_grid_pids=()
-    while IFS= read -r pid; do
-      all_grid_pids+=("$pid")
-    done < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_left} #{pane_id}' | sort -n -k1,1 -k2,2 | awk '{print $3}')
+    mapfile -t all_grid_pids < <(tmx list-panes -t "$session" -F '#{pane_top} #{pane_left} #{pane_id}' | sort -n -k1,1 -k2,2 | awk '{print $3}')
 
     local idx2=0
     for src in "${all_sources[@]}"; do
@@ -377,9 +368,7 @@ page_jump() {
 
   # Re-discover and rebuild the visible slice.
   local sources=()
-  while IFS= read -r _line; do
-    sources+=("$_line")
-  done < <(discover_sessions "$pattern")
+  mapfile -t sources < <(discover_sessions "$pattern")
   if [ "${#sources[@]}" -eq 0 ]; then
     return 0
   fi
@@ -393,7 +382,7 @@ page_jump() {
   page_size=$(( ${cols:-1} * visible_rows ))
   [ "$page_size" -lt 1 ] && page_size=1
   start=$(( new_page * page_size ))
-  set +u; slice=("${sources[@]:start:page_size}"); set -u
+  slice=("${sources[@]:start:page_size}")
 
   DASHBOARD_PATTERN="$pattern" \
   DASHBOARD_COLS="$cols" \
@@ -417,9 +406,7 @@ rebuild_current() {
   [ -z "$cur_page" ] && cur_page=0
 
   local sources=()
-  while IFS= read -r _line; do
-    sources+=("$_line")
-  done < <(discover_sessions "$pattern")
+  mapfile -t sources < <(discover_sessions "$pattern")
   if [ "${#sources[@]}" -eq 0 ]; then
     return 0  # leave the existing tiles; user can dismiss the session
   fi
@@ -445,7 +432,7 @@ rebuild_current() {
   [ "$new_page" -ge "$new_pages" ] && new_page=$((new_pages - 1))
   [ "$new_page" -lt 0 ] && new_page=0
   start=$(( new_page * page_size ))
-  set +u; slice=("${sources[@]:start:page_size}"); set -u
+  slice=("${sources[@]:start:page_size}")
 
   DASHBOARD_PATTERN="$pattern" \
   DASHBOARD_COLS="$cols" \
@@ -495,11 +482,8 @@ DERIVED=$(derived_name "$PATTERN")
 SESSION="dashboard-$DERIVED"
 
 # ─── Dispatch ───────────────────────────────
-# Bash 3.2 (macOS) lacks `mapfile`; use a read loop into a positional array.
 SOURCES=()
-while IFS= read -r _src_line; do
-  SOURCES+=("$_src_line")
-done < <(discover_sessions "$PATTERN")
+mapfile -t SOURCES < <(discover_sessions "$PATTERN")
 
 if [ "${#SOURCES[@]}" -eq 0 ]; then
   echo "dashboard: no sessions match '$PATTERN'" >&2
@@ -522,9 +506,7 @@ else
 fi
 [ "$PAGE_SIZE" -lt 1 ] && PAGE_SIZE=1
 
-set +u
 INITIAL_SLICE=("${SOURCES[@]:0:$PAGE_SIZE}")
-set -u
 
 DASHBOARD_PATTERN="$PATTERN" \
 DASHBOARD_COLS="$COLS" \
