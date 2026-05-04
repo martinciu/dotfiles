@@ -46,16 +46,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   tmux-powerline, etc.) — we deliberately avoid them.
   Each status-bar **pin** uses a unique Solarized accent — never
   duplicated across pins. Currently: blue (session chip, left),
-  magenta (active window pin, center), violet (main-checkout git
+  green (active window pin, center), violet (main-checkout git
   chip, right), yellow (worktree git chip, right). Why: shared
   color visually merges two unrelated signals — the active-pin
   yellow and worktree-chip yellow collision is what drove the
-  magenta switch. How to apply: when adding a new pin/chip on the
-  status line, pick from the currently-unused accents (orange, red,
-  green, cyan); if all are taken, reconsider whether a new pin is
-  warranted before reusing one. Mode-style, message-style,
-  pane-borders, and inline text colors (e.g. ins/del markers in
-  `tmux-git-status`) are not pins and are exempt from this rule.
+  active pin off yellow. How to apply: when adding a new pin/chip
+  on the status line, pick from the currently-unused accents
+  (orange, red, magenta, cyan); if all are taken, reconsider
+  whether a new pin is warranted before reusing one. Mode-style,
+  message-style, pane-borders, and inline text colors (e.g. ins/del
+  markers in `tmux-git-status`) are not pins and are exempt from
+  this rule.
 - **SSH indicator on the session chip** is wired into `status-left` via
   `#(~/.config/tmux/bin/tmux-ssh-indicator)`. The helper walks each
   attached client's parent-process chain on macOS using
