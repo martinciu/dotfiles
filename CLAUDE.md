@@ -361,6 +361,23 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `curl` stays available verbatim for scripts and CI. **Don't add an
   `http`/`https` alias** either; the rule is "no synonyms, just the
   binary's name". No `.zshrc` change for this tool.
+- **`hyperfine` is the benchmark tool, additive to `time`** (homebrew
+  `hyperfine`; raw command, no alias, no wrapper, no shell-config). `time`
+  (zsh builtin / `/usr/bin/time`) stays the default for one-shot wall-clock
+  measurements; reach for `hyperfine` when you need warmups, multiple runs,
+  or A/B comparisons (`hyperfine 'cmd-a' 'cmd-b'` produces a relative
+  summary). Output is ANSI-colored and inherits Ghostty's Solarized
+  palette — there is no static config file format (CLI flags only), so no
+  theme pin is needed. **Deliberately NOT in the modern-reminder catalog.**
+  The catalog's inclusion criterion is "modern alternative for the same
+  use case" (`tail`/`tspin`, `grep`/`rg`, `curl`/`xh` are 1:1 same-use
+  swaps); `time foo` runs once, `hyperfine 'foo'` benchmarks N times with
+  warmups — different use cases, not the same use case. A reminder firing
+  after every `time` invocation would mis-fire on most of them. This is
+  the explicit-rejection record so the next "modern alternative" candidate
+  can re-use the same evaluation. Don't alias `time` to `hyperfine`, don't
+  ship a wrapper that pins `--warmup` defaults (warmup count is workload-
+  specific — wrong as often as right). No `.zshrc` change for this tool.
 - **`modern-reminder` is a zsh-level discoverability nudge** for default→modern
   tool pairs that this setup intentionally leaves *unaliased* (the "no synonyms,
   just the binary's name" pattern shared by `tail`/`tspin`, `grep`/`rg`, and
