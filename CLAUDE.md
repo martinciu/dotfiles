@@ -68,6 +68,33 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   detection (`$SSH_CONNECTION`) intentionally not used — it's set in
   the SSH-spawned shell's env, not the tmux server's, so `#(...)` calls
   never see it.
+- **Outbound SSH overlay on the Ghostty tab title.** Distinct from the
+  inbound `tmux-ssh-indicator` above: this surfaces *outgoing* `ssh`
+  sessions on the local client's Ghostty tab. While an `ssh` command is
+  foreground in the active pane, the tab renders ` user@host` (Nerd
+  Font globe U+F0AC + canonical destination); otherwise it renders
+  `<session>:<window>`. Wired in `tmux.conf` via `set -g set-titles on`
+  and a `set-titles-string` that branches on the per-pane
+  `@ssh_target` user variable. The pane variable is set/cleared by two
+  zsh hooks in `.zshrc`: `_tmux_record_ssh_target` (preexec) checks
+  whether the first whitespace token of the typed command equals `ssh`
+  (first-token equality, not prefix — excludes `ssh-add`/`ssh-keygen`),
+  resolves the destination via `ssh -G <args>` so `~/.ssh/config` Host
+  aliases and default Users canonicalize, and stamps
+  `@ssh_target=user@host`. `_tmux_clear_ssh_target` (precmd) unsets it
+  on the next prompt. Both hooks call `tmux refresh-client -S` so the
+  tab updates instantly rather than waiting for the 5 s
+  `status-interval` tick. The precmd hook short-circuits when
+  `@ssh_target` is already empty, so non-SSH prompts don't trigger
+  spurious refreshes. Per-pane (not server-global) — each Ghostty tab
+  shows its own SSH state. The function bodies in `.zshrc` are
+  duplicated inside `scripts/test-tmux-ssh-target.zsh` (mocked
+  `tmux`/`ssh`); keep both copies in sync. Edge cases: Ctrl-Z'd `ssh`
+  is a small known gap (overlay clears on the next prompt even though
+  ssh is technically backgrounded — acceptable); nested `ssh` is not
+  tracked (only the outer command counts). Don't replace `ssh -G` with
+  argv parsing — it would miss `~/.ssh/config` aliases and default
+  Users.
 - **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
   input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
@@ -474,6 +501,7 @@ filename is the source of truth).
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
 - tmux SSH-indicator tests: `scripts/test-tmux-ssh-indicator.sh`
+- tmux SSH-target (outbound overlay) tests: `scripts/test-tmux-ssh-target.zsh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration tests: `scripts/test-dashboard.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`

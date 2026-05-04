@@ -106,6 +106,36 @@ _tmux_record_last_cmd() {
 }
 add-zsh-hook preexec _tmux_record_last_cmd
 
+# Per-pane SSH-target recorder (Ghostty tab title overlay). preexec stamps
+# @ssh_target with the canonical user@hostname while an `ssh` command is
+# foreground; precmd clears it on the next prompt. tmux.conf's set-titles-string
+# reads @ssh_target so the Ghostty tab shows " user@host" during ssh and
+# falls back to <session>:<window> otherwise. Resolution uses `ssh -G` so
+# ~/.ssh/config Host aliases / default Users canonicalize correctly.
+# Keep in sync with scripts/test-tmux-ssh-target.zsh.
+_tmux_record_ssh_target() {
+  [[ -z ${TMUX:-} ]] && return
+  local -a tokens=(${=1})
+  [[ ${tokens[1]:-} == ssh ]] || return
+  local resolved
+  resolved=$(eval "ssh -G ${1#ssh}" 2>/dev/null) || return
+  local host user
+  host=${${(M)${(f)resolved}:#hostname *}#hostname }
+  user=${${(M)${(f)resolved}:#user *}#user }
+  [[ -n $user && -n $host ]] || return
+  tmux set -p @ssh_target "$user@$host"
+  tmux refresh-client -S
+}
+add-zsh-hook preexec _tmux_record_ssh_target
+
+_tmux_clear_ssh_target() {
+  [[ -z ${TMUX:-} ]] && return
+  [[ -z $(tmux show -p -v @ssh_target 2>/dev/null) ]] && return
+  tmux set -p -u @ssh_target
+  tmux refresh-client -S
+}
+add-zsh-hook precmd _tmux_clear_ssh_target
+
 # modern-reminder (keep in sync with scripts/test-modern-reminder.zsh)
 # One-line nudge after running a default tool whose modern alternative is
 # installed and intentionally unaliased. Once per zsh process, per command.
