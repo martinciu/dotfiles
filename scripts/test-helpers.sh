@@ -53,17 +53,10 @@ else
     git worktree add -q wt-foo -b feat/bar >/dev/null 2>&1
   )
 
-  # main checkout — chipless rendering (no cyan), branch label on bar bg
+  # main checkout — violet chip rendering, branch label on violet bg
   out=$("$GIT_STATUS" "$fixture" "#073642" "#586e75")
   assert_contains "$out" "main" "main checkout shows branch 'main'"
-  if printf '%s' "$out" | grep -q -F -- "#2aa198"; then
-    fail=$((fail+1))
-    fail_msgs+=("FAIL  main checkout should not use cyan bg (chipless)"$'\n'"        got:  '$out'")
-    echo "  FAIL  main checkout should not use cyan bg (chipless)"
-  else
-    pass=$((pass+1))
-    echo "  PASS  main checkout omits cyan bg (chipless)"
-  fi
+  assert_contains "$out" "#6c71c4" "main checkout uses violet bg"
 
   # worktree where branch == dir name → no wt: suffix, yellow chip
   out=$("$GIT_STATUS" "$fixture/same" "#073642" "#586e75")
@@ -151,7 +144,7 @@ else
   out_plain=$(printf '%s' "$out" | sed 's/#\[[^]]*\]//g')
   assert_contains "$out_plain" "2/1"   "both ins+del renders as '2/1' ratio"
   assert_contains "$out" "fg=#b8d65c"  "ratio uses lifted green for insertions"
-  assert_contains "$out" "fg=#ff7770"  "ratio uses lifted red for deletions"
+  assert_contains "$out" "fg=#ff9b96"  "ratio uses softer red for deletions on violet chip"
   ( cd "$changes_repo" && git commit -q -am "edit a" && git push -q )
 
   # Ahead by 1 → "↑1"
