@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # dashboard — live multi-session tmux preview.
 # See .superpowers/specs/2026-05-03-tmux-dashboard.md for design rationale.
 set -euo pipefail

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # tmux-open-in-nvim — open <file>[:line[:col]] in the tmux-session-scoped nvim,
 # falling back to a fresh nvim in a new tmux window if no live socket is found.
 #

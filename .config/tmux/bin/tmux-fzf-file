@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # tmux-fzf-file — fzf picker over file paths in the current pane + scrollback.
 #
 # Usage: tmux-fzf-file <pane_id> <pane_cwd>
