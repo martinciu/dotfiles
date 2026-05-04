@@ -39,8 +39,9 @@ brew "zsh-autosuggestions"      # ghost-text completion from history
 brew "fzf-tab"                  # fzf-driven Tab completion menu
 brew "lnav"                     # TUI log file navigator
 
-# System monitoring
+# System monitoring & benchmarking
 brew "btop"                     # modern top replacement (themed Solarized)
+brew "hyperfine"                # command benchmarking (warmups, multi-run stats)
 
 # Fonts
 cask "font-jetbrains-mono-nerd-font"  # Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
