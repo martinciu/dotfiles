@@ -4,6 +4,7 @@
 .claude/worktrees/
 .claude/logs/
 .claude/.credentials.json
+.claude/scheduled_tasks.lock
 
 # Planning artefacts and tooling state
 # (per ~/.claude/CLAUDE.md — never committed in any repo)
