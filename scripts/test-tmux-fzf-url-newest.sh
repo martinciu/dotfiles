@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke tests for the <prefix> u URL picker wrapper.
 #
 # Two contract checks against the wfxr/tmux-fzf-url plugin we depend on:
@@ -104,7 +104,7 @@ test_esc_exits_zero() {
   trap "rm -rf '$tmpdir'" RETURN
 
   cat > "$tmpdir/tmux" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 case "$1" in
   capture-pane) printf 'visit https://example.com today\n' ;;
   show)         printf '%s\n' '-w 70% -h 70% --multi -0 --no-preview --border --tac' ;;
@@ -115,7 +115,7 @@ EOF
   chmod +x "$tmpdir/tmux"
 
   cat > "$tmpdir/fzf-tmux" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 130
 EOF
   chmod +x "$tmpdir/fzf-tmux"
@@ -145,7 +145,7 @@ test_selection_exits_zero() {
   trap "rm -rf '$tmpdir'" RETURN
 
   cat > "$tmpdir/tmux" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 case "$1" in
   capture-pane) printf 'visit https://example.com today\n' ;;
   show)         printf '%s\n' '-w 70% -h 70% --multi -0 --no-preview --border --tac' ;;
@@ -156,13 +156,13 @@ EOF
   chmod +x "$tmpdir/tmux"
 
   cat > "$tmpdir/fzf-tmux" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 printf '  1  https://example.com\n'
 EOF
   chmod +x "$tmpdir/fzf-tmux"
 
   cat > "$tmpdir/open" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 0
 EOF
   chmod +x "$tmpdir/open"

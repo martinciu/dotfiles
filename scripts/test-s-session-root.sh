@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Tests the @session_root format string used by the <prefix> c binding in
 # .config/tmux/tmux.conf. Two arms:
 #   1. @session_root set   -> resolves to its value

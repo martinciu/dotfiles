@@ -6,6 +6,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 - **Manual symlinks via `bootstrap.sh`.** Don't introduce `stow`, `chezmoi`, or
   any other dotfiles manager unless asked.
+- **Bash scripts target bash 5** (`brew "bash"`). All in-repo bash scripts use
+  shebang `#!/opt/homebrew/bin/bash` and may use bash 4+/5 features
+  (`mapfile`, `declare -A`, `${var,,}`, `wait -n`, etc.). Mac Apple Silicon
+  only. Don't reintroduce `#!/usr/bin/env bash` or bash-3 compatibility
+  shims — `brew bundle` runs before `bootstrap.sh` in the README's "Setup
+  (new machine)" order, so brew bash is always present before a pinned-
+  shebang script runs.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
 - **Global gitignore is symlinked from `.gitignore_global`** (repo root,

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke test for the [pre-remove] save-shared hook in
 # .config/worktrunk/config.toml. Extracts the hook command from
 # config.toml, substitutes the {{ primary_worktree_path }} template,

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Regenerate -hero and -thumb derivatives for every docs/images/example_*.png source.
 # Sources: docs/images/example_<tool>.png  (3176x1920 retina captures)
 # Outputs: docs/images/example_<tool>-hero.png   (1600px longest side)

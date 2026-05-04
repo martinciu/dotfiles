@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # bootstrap.sh — idempotent dotfiles installer.
 # Re-running is safe: every step checks "already done" and skips.
 set -euo pipefail

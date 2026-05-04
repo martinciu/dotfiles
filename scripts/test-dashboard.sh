@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke + integration tests for bin/dashboard.
 # Invoked from scripts/test-helpers.sh; can also be run standalone.
 set -u
@@ -73,7 +73,7 @@ else
   # ── discover_sessions: filter + dashboard:* exclusion ──
   shimdir=$(mktemp -d)
   cat >"$shimdir/tmux" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Shim: tmux list-sessions -F '#{session_last_attached} #{session_name}'
 case "$*" in
   "list-sessions -F #{session_last_attached} #{session_name}")
@@ -122,7 +122,7 @@ SHIM
   # Shim tmux so we can record which subcommand the script invokes at the end.
   shimdir=$(mktemp -d)
   cat >"$shimdir/tmux" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "$@" >>"$(dirname "$0")/tmux.log"
 case "$*" in
   "list-sessions -F #{session_last_attached} #{session_name}")
@@ -142,7 +142,7 @@ exit 0
 SHIM
   chmod +x "$shimdir/tmux"
   cat >"$shimdir/watch" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 0
 SHIM
   chmod +x "$shimdir/watch"
@@ -164,7 +164,7 @@ SHIM
   # ── Outside tmux: attach is used ──
   shimdir=$(mktemp -d)
   cat >"$shimdir/tmux" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "$@" >>"$(dirname "$0")/tmux.log"
 case "$*" in
   "list-sessions -F #{session_last_attached} #{session_name}")
@@ -182,7 +182,7 @@ exit 0
 SHIM
   chmod +x "$shimdir/tmux"
   cat >"$shimdir/watch" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 0
 SHIM
   chmod +x "$shimdir/watch"
@@ -196,7 +196,7 @@ SHIM
   # ── 0 matches -> exit 1 with clear message ──
   shimdir=$(mktemp -d)
   cat >"$shimdir/tmux" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 case "$*" in
   "list-sessions -F #{session_last_attached} #{session_name}") echo "" ;;
   *) ;;
@@ -205,7 +205,7 @@ exit 0
 SHIM
   chmod +x "$shimdir/tmux"
   cat >"$shimdir/watch" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 0
 SHIM
   chmod +x "$shimdir/watch"
@@ -217,7 +217,7 @@ SHIM
   # ── watch missing -> exit 1 with clear message ──
   shimdir=$(mktemp -d)
   cat >"$shimdir/tmux" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 0
 SHIM
   chmod +x "$shimdir/tmux"

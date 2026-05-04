@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # tmux-fzf-url-newest — like tmux-fzf-url's <prefix> u, but for recurring
 # URLs the LATEST pane occurrence wins. xre dedups by first appearance,
 # so we reverse the captured pane content with `tail -r` (BSD; macOS

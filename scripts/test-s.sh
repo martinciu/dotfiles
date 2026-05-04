@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke tests for bin/s.
 # Invoked from scripts/test-helpers.sh; can also be run standalone.
 #
@@ -81,7 +81,7 @@ else
     # $1 = shimdir, $2 = JSON to emit for `sesh list -c -j`
     local d="$1" json="$2"
     cat >"$d/sesh" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$d/sesh.log"
 if [ "\$1" = "list" ]; then
   printf '%s\n' '$json'
@@ -95,7 +95,7 @@ SHIM
   write_tmux_shim() {
     local d="$1"
     cat >"$d/tmux" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$d/tmux.log"
 case "\$1" in
   has-session)
@@ -124,7 +124,7 @@ SHIM
   # sesh.local.toml when the real fix is to install/repair sesh.
   shimdir=$(make_shimdir)
   cat >"$shimdir/sesh" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 1
 SHIM
   chmod +x "$shimdir/sesh"
@@ -146,7 +146,7 @@ SHIM
   write_tmux_shim "$shimdir"
   # fzf shim: log stdin, emit the first line back (auto-pick).
   cat >"$shimdir/fzf" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 input=$(cat)
 echo "$input" >"$(dirname "$0")/fzf.stdin"
 printf '%s\n' "$input" | head -n1
@@ -170,7 +170,7 @@ SHIM
   shimdir=$(make_shimdir)
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp"}]'
   cat >"$shimdir/fzf" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 exit 130
 SHIM
   chmod +x "$shimdir/fzf"
@@ -191,7 +191,7 @@ SHIM
   write_sesh_shim "$shimdir" "$json"
   write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 printf '{"action":"created","branch":"feature-y","path":"$fixture_real/.claude/worktrees/feature-y"}\n'
 SHIM
@@ -227,7 +227,7 @@ SHIM
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
   write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 # Emit the same JSON shape as real wt --format=json
 printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
@@ -246,7 +246,7 @@ SHIM
   write_tmux_shim "$shimdir"
   # wt shim that fails loudly if invoked
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "wt should not be called in 1-arg-out flow" >&2; exit 99
 SHIM
   chmod +x "$shimdir/wt"
@@ -268,7 +268,7 @@ SHIM
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
   write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
 SHIM
@@ -292,7 +292,7 @@ SHIM
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
   write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 printf '{"action":"created","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
 SHIM
@@ -323,7 +323,7 @@ SHIM
   write_tmux_shim "$shimdir"
   echo 0 >"$shimdir/tmux.has_session_exit"   # session "exists"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 printf '{"action":"existing","branch":"feature-x","path":"/tmp/fakerepo/.claude/worktrees/feature-x"}\n'
 SHIM
@@ -356,7 +356,7 @@ SHIM
   write_sesh_shim "$shimdir" "$json"
   write_tmux_shim "$shimdir"
   cat >"$shimdir/fzf" <<'SHIM'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 head -n1
 SHIM
   chmod +x "$shimdir/fzf"
@@ -380,7 +380,7 @@ SHIM
   write_sesh_shim "$shimdir" "$json"
   write_tmux_shim "$shimdir"
   cat >"$shimdir/wt" <<SHIM
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 echo "\$@" >>"$shimdir/wt.log"
 printf '{"action":"created","branch":"feature-y","path":"$fixture_real/.claude/worktrees/feature-y"}\n'
 SHIM

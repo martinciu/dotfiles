@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Prints a fully-formatted tmux status segment for the current git/worktree
 # state, or an empty string if not in a git repo.
 #
