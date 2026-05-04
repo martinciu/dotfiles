@@ -102,7 +102,10 @@ _tmux_record_ssh_target() {
 }
 
 _tmux_clear_ssh_target() {
-  return  # filled in in Task 2
+  [[ -z ${TMUX:-} ]] && return
+  [[ -z $(tmux show -p -v @ssh_target 2>/dev/null) ]] && return
+  tmux set -p -u @ssh_target
+  tmux refresh-client -S
 }
 
 # ── tests: _tmux_record_ssh_target (preexec) ─────────────────────────────────
@@ -177,6 +180,41 @@ _mock_ssh_g_response=$'port 22'
 _tmux_record_ssh_target "ssh foo"
 assert_no_call _mock_tmux_calls "set -p @ssh_target" \
   "ssh -G with no user/hostname → no tmux set call"
+
+# ── tests: _tmux_clear_ssh_target (precmd) ───────────────────────────────────
+echo
+echo "_tmux_clear_ssh_target"
+echo "─────────────────────"
+
+# 10. TMUX unset → no-op
+reset_state
+unset TMUX
+_tmux_clear_ssh_target
+assert_no_call _mock_tmux_calls "set -p -u @ssh_target" \
+  "TMUX unset → no tmux unset call"
+
+export TMUX=fake
+
+# 11. @ssh_target empty → no-op (early exit, no spurious refresh)
+reset_state
+_tmux_clear_ssh_target
+assert_no_call _mock_tmux_calls "set -p -u @ssh_target" \
+  "@ssh_target empty → no tmux unset call"
+assert_no_call _mock_tmux_calls "refresh-client -S" \
+  "@ssh_target empty → no refresh-client call"
+
+# 12. @ssh_target set → unset + refresh
+reset_state
+_mock_pane_vars[@ssh_target]="martinciu@studio.local"
+_tmux_clear_ssh_target
+assert_eq "${_mock_pane_vars[@ssh_target]:-EMPTY}" "EMPTY" \
+  "@ssh_target set → unset by clear hook"
+refresh_seen=0
+for c in "${_mock_tmux_calls[@]}"; do
+  [[ "$c" == "refresh-client -S" ]] && refresh_seen=1
+done
+assert_eq "$refresh_seen" "1" \
+  "clear hook triggers refresh-client -S"
 
 # ── summary ──────────────────────────────────────────────────────────────────
 echo
