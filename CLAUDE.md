@@ -41,9 +41,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **SSH indicator on the session chip** is wired into `status-left` via
   `#(~/.config/tmux/bin/tmux-ssh-indicator)`. The helper walks each
   attached client's parent-process chain on macOS using
-  `ps -p <pid> -o ppid=,comm=` and emits a Nerd Font globe glyph (``
+  `ps -p <pid> -o ppid=,ucomm=` and emits a Nerd Font globe glyph (``
   `nf-fa-globe`, U+F0AC) plus a single space when any ancestor is `sshd`
-  or `sshd-session`. The glyph inherits the chip's `fg=#fdf6e3,bg=#268bd2`
+  or `sshd-session`. **Use `ucomm`, not `comm`.** macOS `ps -o comm=`
+  for sshd's privsep children renders the descriptive argv string
+  (e.g. `sshd-session: martinciu@ttys008`, `sshd-session: martinciu [priv]`),
+  which never basename-equals `sshd-session` and would silently never
+  match. `ucomm` is the kernel-recorded short executable name and is
+  always the clean basename. The glyph inherits the chip's `fg=#fdf6e3,bg=#268bd2`
   styling — no color flip, presence/absence is the signal. Detection is
   server-wide (any attached client is SSH → indicator on), not
   per-client: `#(...)` shells run server-global. For a single-user Mac
