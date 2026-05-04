@@ -13,6 +13,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   shims — `brew bundle` runs before `bootstrap.sh` in the README's "Setup
   (new machine)" order, so brew bash is always present before a pinned-
   shebang script runs.
+- **`.zprofile` runs `brew shellenv`** to prepend `/opt/homebrew/bin` ahead
+  of the system paths that macOS's `/etc/zprofile` (`path_helper`) installs.
+  Without it, `bash`, `make`, and other tools resolve to `/usr/bin` versions
+  even though brew ships newer ones. Don't move the line into `.zshrc` —
+  interactive subshells re-source `.zshrc`, which would re-stack
+  `/opt/homebrew/bin` in PATH (the same duplication already visible for
+  `~/.cargo/bin` exports there). `.zprofile` runs once per login session
+  and child shells inherit cleanly.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
 - **Global gitignore is symlinked from `.gitignore_global`** (repo root,
@@ -351,8 +359,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-fzf-url-newest,tmux-open-in-nvim}`
