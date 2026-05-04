@@ -205,15 +205,24 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
 - **Gitignored content flows between primary and worktrees in two
-  stages.** `[post-start] copy = "wt step copy-ignored"` copies primary's
-  gitignored content into a new worktree at creation.
-  `[pre-remove] save-shared` rsyncs `.superpowers/` and `.autonomo/`
-  back to primary just before `wt remove`, using `--ignore-existing` so
-  primary is never clobbered (files that exist in both are preserved as
-  primary's version). Net: write-once artefacts (specs, plans, autonomo
-  logs) survive `wt remove`; diverged files in the worktree are dropped
-  on remove. Don't reintroduce per-path symlink hooks (the previous
-  `share-tmp` design) without explicit ask — keep this simple.
+  stages, both using `wt step copy-ignored`.** `[post-start] copy = "wt step copy-ignored"`
+  reflinks primary's gitignored content into a new worktree at
+  creation. `[pre-remove] save-shared = "wt -C {{ main_worktree_path }} step copy-ignored --from {{ branch }}"`
+  reflinks the worktree's gitignored content back to primary just
+  before `wt remove`. Default no-`--force` semantics on both: files
+  that already exist in the destination are never overwritten —
+  primary's specs/plans/logs are safe from a worktree's diverged
+  copies, and the worktree starts cold-free with primary's exact
+  state. Auto-discovers any new gitignored top-level dir (e.g.
+  `autonomo-workspace/`) — no per-path hook edits needed when a new
+  tool drops state. Caveat: `step.copy-ignored.exclude` is shared
+  across both directions, so derived-state dirs (`node_modules/`,
+  `target/`, `.next/`, `dist/`) carried in on post-start will also
+  flow back on pre-remove if a worktree mutated them via
+  `npm install` / `cargo build` / etc. Accepted trade-off — see
+  the design doc referenced from `config.toml`. Don't reintroduce
+  per-path symlink hooks (the previous `share-tmp` design) without
+  explicit ask — keep this simple.
 - **Worktree status segment** uses `git rev-parse --git-dir` vs
   `--git-common-dir` for detection (works for `.claude/worktrees/*`,
   worktrunk paths, sibling worktrees alike). Don't replace with

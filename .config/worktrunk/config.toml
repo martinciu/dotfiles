@@ -255,11 +255,20 @@ copy = "wt step copy-ignored"
 
 # Before wt remove deletes a worktree, save any new gitignored
 # content (planning artefacts under .superpowers/, autonomo logs
-# under .autonomo/) back to the primary worktree. `rsync
-# --ignore-existing` only copies files absent from primary — never
-# clobbers. Combined with [post-start] copy above, gitignored state
-# flows: primary → worktree on create, worktree → primary on remove.
-# Existing-but-diverged files are dropped on remove (acceptable for
-# the write-once artefacts these dirs hold).
+# under .autonomo/, and any other gitignored top-level dirs the
+# worktree picked up during its lifetime) back to the primary
+# worktree. Mirrors the [post-start] hook above: same `wt step
+# copy-ignored`, same default-skip-existing semantics — files
+# present on primary are never overwritten. `-C {{ main_worktree_path }}`
+# sets wt's cwd to primary so --to defaults to primary's worktree
+# without needing primary's branch name (no {{ primary_branch }}
+# template variable exists in pre-remove).
+#
+# Caveat: the same exclude config applies to both directions, so
+# bulky derived-state dirs (node_modules/, target/, .next/, dist/)
+# carried IN on post-start will also flow OUT on pre-remove if they
+# diverged in the worktree. Accepted trade-off — package-manager
+# operations inside worktrees are rare; if it bites, revisit
+# (see .superpowers/specs/2026-05-04-wt-pre-remove-symmetric-copy-ignored-design.md).
 [pre-remove]
-save-shared = "for d in .superpowers .autonomo; do [ -d \"$d\" ] || continue; rsync -a --ignore-existing \"$d/\" \"{{ primary_worktree_path }}/$d/\"; done"
+save-shared = "wt -C {{ main_worktree_path }} step copy-ignored --from {{ branch }}"

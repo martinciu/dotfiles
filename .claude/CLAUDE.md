@@ -47,9 +47,11 @@ Why: worktrunk's lifecycle hooks (`pre-start`, `post-start`,
 setup relies on them — `[post-start] copy = "wt step copy-ignored"`
 carries gitignored content (`.superpowers/`, `.autonomo/`,
 `.claude/settings.local.json`, etc.) into new worktrees, and
-`[pre-remove] save-shared` rsyncs `.superpowers/` and `.autonomo/`
-back to the primary worktree before deletion. Bypassing `wt`
-silently skips both, which usually means lost specs/plans/logs.
+`[pre-remove] save-shared` runs `wt step copy-ignored` in reverse
+to flow gitignored content (specs, plans, autonomo logs,
+`autonomo-workspace/`, anything else gitignored) back to the
+primary worktree before deletion. Bypassing `wt` silently skips
+both, which usually means lost specs/plans/logs.
 
 How to apply: when a task says "spawn a worktree for X", "switch
 to the foo worktree", or "remove/cleanup the worktree", reach for
