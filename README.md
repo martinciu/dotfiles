@@ -42,11 +42,20 @@ cp $PROJECTS_HOME/dotfiles/.zshrc.local.template ~/.zshrc.local
 $EDITOR ~/.zshrc.local
 ```
 
-**2. `~/.config/sesh/sesh.local.toml`** — `bootstrap.sh` copies the template
+**2. `~/.zprofile.local`** — per-machine *login-shell* init (e.g. OrbStack's
+`source ~/.orbstack/shell/init.zsh`). Use this instead of `.zshrc.local`
+for tools that need PATH or `fpath+=` set up before `compinit` runs.
+
+```sh
+cp $PROJECTS_HOME/dotfiles/.zprofile.local.template ~/.zprofile.local
+$EDITOR ~/.zprofile.local
+```
+
+**3. `~/.config/sesh/sesh.local.toml`** — `bootstrap.sh` copies the template
 on first run. Edit it to add machine-local project sessions; the shared
 `sesh.toml` is the wrong place for them.
 
-**3. Wire delta into git** (one-time, global).
+**4. Wire delta into git** (one-time, global).
 
 ```sh
 git config --global core.pager delta
@@ -56,7 +65,7 @@ git config --global delta.line-numbers true
 git config --global delta.syntax-theme "Solarized (dark)"
 ```
 
-**4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
+**5. Claude Code window-title hooks.** `~/.claude/settings.json` is not
 symlinked from this repo (it accumulates machine-local permission state),
 so this is a one-time manual edit. Add (or merge into) the top-level
 `hooks` object:

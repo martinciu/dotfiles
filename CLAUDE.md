@@ -20,7 +20,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   interactive subshells re-source `.zshrc`, which would re-stack
   `/opt/homebrew/bin` in PATH (the same duplication already visible for
   `~/.cargo/bin` exports there). `.zprofile` runs once per login session
-  and child shells inherit cleanly.
+  and child shells inherit cleanly. Machine-specific login-shell init
+  (e.g. OrbStack's `source ~/.orbstack/shell/init.zsh`) goes in
+  `~/.zprofile.local` (untracked; copy from `.zprofile.local.template`),
+  mirroring the `.zshrc.local` pattern. Use `.zprofile.local` rather than
+  `.zshrc.local` whenever a tool's init does `fpath+=` or otherwise needs
+  to run before `compinit` — `.zshrc.local` is sourced after `oh-my-zsh.sh`
+  (which runs `compinit`), so late `fpath+=` silently no-ops there.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
 - **Global gitignore is symlinked from `.gitignore_global`** (repo root,
