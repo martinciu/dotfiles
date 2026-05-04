@@ -45,7 +45,7 @@ EOF
 
   cat > "$dir/ps" <<EOF
 #!/opt/homebrew/bin/bash
-# Minimal mock of \`ps -p <pid> -o ppid=,comm=\`.
+# Minimal mock of \`ps -p <pid> -o ppid=,ucomm=\`.
 target=""
 while [ \$# -gt 0 ]; do
   case "\$1" in
@@ -55,9 +55,53 @@ while [ \$# -gt 0 ]; do
   esac
 done
 [ -n "\$target" ] || exit 1
-while IFS=' ' read -r pid ppid comm; do
+while IFS=' ' read -r pid ppid ucomm; do
   if [ "\$pid" = "\$target" ]; then
-    printf '%s %s\n' "\$ppid" "\$comm"
+    printf '%s %s\n' "\$ppid" "\$ucomm"
+    exit 0
+  fi
+done < "$table"
+exit 1
+EOF
+  chmod +x "$dir/ps"
+}
+
+# Build a dual-field mock that distinguishes \`ps -o ucomm=\` (basename) from
+# \`-o comm=\` (full argv-rendered string). Used by the macOS-quirk regression
+# test below. Fixture rows are "pid ppid ucomm comm-rest..." — first three
+# tokens are pid/ppid/ucomm, rest of the line is comm.
+build_shim_dual_field() {
+  local dir="$1" clients="$2" table="$3"
+
+  cat > "$dir/tmux" <<EOF
+#!/opt/homebrew/bin/bash
+if [ "\$1" = "list-clients" ]; then
+  cat "$clients"
+fi
+EOF
+  chmod +x "$dir/tmux"
+
+  cat > "$dir/ps" <<EOF
+#!/opt/homebrew/bin/bash
+target=""
+flag=""
+while [ \$# -gt 0 ]; do
+  case "\$1" in
+    -p) target="\$2"; shift 2 ;;
+    -o) flag="\$2"; shift 2 ;;
+    *)  shift ;;
+  esac
+done
+[ -n "\$target" ] || exit 1
+while IFS= read -r line; do
+  [ -z "\$line" ] && continue
+  read -r pid ppid ucomm comm <<<"\$line"
+  if [ "\$pid" = "\$target" ]; then
+    case "\$flag" in
+      *ucomm*) printf '%s %s\n' "\$ppid" "\$ucomm" ;;
+      *comm*)  printf '%s %s\n' "\$ppid" "\$comm" ;;
+      *)       printf '%s %s\n' "\$ppid" "\$ucomm" ;;
+    esac
     exit 0
   fi
 done < "$table"
@@ -171,25 +215,31 @@ EOF
 check "mixed local + SSH clients -> glyph + space" test_mixed_clients
 
 # ---------------------------------------------------------------------------
-# Test 6: full-path comm (basename match defends against absolute paths)
+# Test 6: macOS regression — sshd-session privsep child renders its argv
+# string in `comm` (e.g. "sshd-session: martinciu@ttys008"), but `ucomm`
+# returns the clean basename "sshd-session". Script must detect the SSH
+# ancestry from `ucomm`. This case is what made the original PR ship a
+# silent no-op on real machines — the prior tests all used clean comm
+# strings the in-memory mock returned verbatim, missing the divergence.
 # ---------------------------------------------------------------------------
-test_fullpath_comm() {
+test_macos_sshd_session_argv_rendering() {
   local dir; dir=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf '$dir'" RETURN
   printf '%s\n' "5001" > "$dir/clients"
+  # Fixture columns: pid ppid ucomm comm-rest...
   cat > "$dir/table" <<'EOF'
-5001 4900 tmux
-4900 4800 zsh
-4800 4700 /usr/sbin/sshd
-4700 1 launchd
+5001 4900 tmux tmux
+4900 4800 zsh -zsh
+4800 4700 sshd-session sshd-session: martinciu@ttys008
+4700 1 sshd-session sshd-session: martinciu [priv]
 EOF
-  build_shim "$dir" "$dir/clients" "$dir/table"
+  build_shim_dual_field "$dir" "$dir/clients" "$dir/table"
   local out
   out=$(PATH="$dir:$PATH" "$SCRIPT")
   [ "$out" = "$EXPECT_SSH" ] || { echo "  expected glyph+space, got: $(printf %q "$out")"; return 1; }
 }
-check "absolute-path comm '/usr/sbin/sshd' still matches via basename" test_fullpath_comm
+check "macOS sshd-session: clean ucomm matches despite descriptive comm" test_macos_sshd_session_argv_rendering
 
 # ---------------------------------------------------------------------------
 # Test 7: ps cycle (ppid points back to seen pid) -> loop guard, empty
