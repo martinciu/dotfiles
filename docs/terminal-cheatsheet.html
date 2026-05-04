@@ -488,6 +488,46 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="hyperfine">hyperfine <span class="tool-tag">command benchmarking</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Most-used invocations</h3>
+    <table>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>hyperfine 'cmd'</code></td><td>10 runs, no warmup, summary with mean/stddev</td></tr>
+      <tr><td><code>hyperfine --warmup 3 'cmd'</code></td><td>discard 3 warmup runs first (cache, JIT)</td></tr>
+      <tr><td><code>hyperfine 'a' 'b'</code></td><td>A/B compare; prints "X is N× faster than Y"</td></tr>
+      <tr><td><code>hyperfine -N 'cmd'</code></td><td>skip shell wrapper; measure binary directly</td></tr>
+      <tr><td><code>hyperfine --export-markdown out.md 'cmd'</code></td><td>share results in markdown</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>When to reach for it vs <code>time</code></h3>
+    <p>
+      <code>time</code> (zsh builtin / <code>/usr/bin/time</code>) is the right tool for
+      one-shot wall-clock measurements — scripts, CI, "did this finish quickly?".
+      Reach for <code>hyperfine</code> when you want warmups, multiple runs, variance
+      characterization, or A/B comparison.
+    </p>
+    <p class="note">
+      Deliberately not aliased to <code>time</code> — semantics differ. See
+      CLAUDE.md for the catalog-rejection rationale.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Caveats</h3>
+    <p>
+      First run includes filesystem cold-cache effects. Use <code>--warmup N</code>
+      or <code>--prepare 'sync'</code> to control. macOS <code>purge</code> needs
+      <code>sudo</code> if you want to flush page cache between runs.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="modern-reminder">modern-reminder <span class="tool-tag">discoverability nudge</span></h2>
 
 <div class="grid">
@@ -716,7 +756,7 @@
 </ol>
 
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-03.
+  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-04.
   Refresh after meaningful color-tooling changes.
 </footer>
 
