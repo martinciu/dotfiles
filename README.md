@@ -87,7 +87,7 @@ These drive the `claude[<name>]` window title (tmux's
 | [tmux](https://github.com/tmux/tmux) | `.config/tmux/`      | `~/.config/tmux`    |
 | [nvim](https://neovim.io/) | `.config/nvim/`                | `~/.config/nvim`    |
 | [vim](https://www.vim.org/) | `.vimrc`, `.vim/colors/`      | `~/.vimrc`, `~/.vim/colors` |
-| [zsh](https://www.zsh.org/) | `.zshrc`, `.p10k.zsh`         | `~/.zshrc`, `~/.p10k.zsh` |
+| [zsh](https://www.zsh.org/) | `.zshrc`, `.zprofile`, `.p10k.zsh` | `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh` |
 | [sesh](https://github.com/joshmedeski/sesh) | `.config/sesh/sesh.toml` | `~/.config/sesh/sesh.toml` |
 | [worktrunk](https://worktrunk.dev/) | `.config/worktrunk/` | `~/.config/worktrunk` |
 | [glow](https://github.com/charmbracelet/glow) | `.config/glow/` | `~/.config/glow` |
