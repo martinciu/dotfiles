@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke tests for tmux-fzf-file's path-extraction logic.
 # Tests the script's --extract-only mode (stdin → candidate paths on stdout)
 # so we can feed fixtures without spinning up tmux.

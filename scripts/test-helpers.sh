@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke tests for the tmux helper scripts.
 # Run from the repo root or anywhere — paths are absolute.
 set -u

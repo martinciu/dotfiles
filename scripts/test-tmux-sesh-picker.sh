@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke tests for the <prefix> t sesh-picker wrapper.
 #
 # Verifies popup height math:
@@ -22,7 +22,7 @@ setup_shims() {
   local tmpdir="$1"
 
   cat > "$tmpdir/sesh" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Fake sesh: emit $FAKE_SESH_ITEMS lines, or exit non-zero if FAKE_SESH_FAIL=1.
 [[ "${FAKE_SESH_FAIL:-0}" = "1" ]] && exit 1
 n=${FAKE_SESH_ITEMS:-0}
@@ -31,7 +31,7 @@ EOF
   chmod +x "$tmpdir/sesh"
 
   cat > "$tmpdir/tmux" <<'EOF'
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Fake tmux:
 #   - display-message -p '#{client_height}'  -> echo $FAKE_CLIENT_HEIGHT
 #   - display-popup ... -h N ...             -> write N to $CAPTURE_FILE

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/bash
 # Smoke test for the nvim/LazyVim setup.
 # Asserts plugins install cleanly and lazy reports no errors.
 set -euo pipefail
