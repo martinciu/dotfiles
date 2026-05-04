@@ -311,7 +311,7 @@
     <h3>Layout</h3>
     <p>Bottom bar, <code>bg=base02</code> / <code>fg=base0</code>. Three segments:</p>
     <ul class="compact">
-      <li><strong>Left:</strong> session name on a blue chip with a powerline arrow.</li>
+      <li><strong>Left:</strong> session name on a blue chip with a powerline arrow. Gains a leading globe glyph (<code></code> <code>nf-fa-globe</code>) when any attached tmux client is SSH-rooted (drives <code>tmux-ssh-indicator</code>).</li>
       <li><strong>Center (absolute-centered on the full bar):</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>yellow</code>-on-<code>base02</code> chip.</li>
       <li><strong>Right:</strong> branch chip — violet for main checkout, yellow for worktree (drives <code>tmux-git-status</code>).</li>
     </ul>
@@ -345,6 +345,7 @@
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-file</code></td><td class="desc">scans pane + scrollback for paths, fzf picker — backs <span class="k prefix">C-a</span> <span class="k">o</span></td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-url-newest</code></td><td class="desc">wraps <code>tmux-fzf-url</code> so the newest occurrence of duplicate URLs wins — backs <span class="k prefix">C-a</span> <span class="k">u</span></td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-open-in-nvim</code></td><td class="desc">remote-sends <code>:edit</code> to the per-session nvim socket; falls back to a fresh nvim in a new window</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-ssh-indicator</code></td><td class="desc">walks each attached client's <code>ps</code> ancestry; prints <code></code> + space when any ancestor is <code>sshd</code>/<code>sshd-session</code> — prepended inside the session chip</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
     </table>
     <p class="note">Worktree detection uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code> so it works for <code>.claude/worktrees/*</code>, worktrunk paths, and sibling worktrees alike.</p>
@@ -417,6 +418,7 @@
   <tr><td class="key"><code>scripts/test-fzf-file-extract.sh</code></td><td class="desc">file-picker path-extraction tests (regex + OSC 8)</td></tr>
   <tr><td class="key"><code>scripts/test-tmux-fzf-url-newest.sh</code></td><td class="desc">URL-picker wrapper tests (newest-occurrence dedup)</td></tr>
   <tr><td class="key"><code>scripts/test-claude-tmux-window-name.zsh</code></td><td class="desc">tests for the <code>claude[&lt;name&gt;]</code> window-title helper</td></tr>
+  <tr><td class="key"><code>scripts/test-tmux-ssh-indicator.sh</code></td><td class="desc">SSH-indicator tests (mocks <code>tmux</code>+<code>ps</code> via PATH shim, asserts globe glyph emission)</td></tr>
 </table>
 
 <footer>

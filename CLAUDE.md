@@ -38,6 +38,25 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **tmux status bar is hand-rolled** in `.config/tmux/tmux.conf` with
   Solarized base16 colors. Don't suggest theme plugins (catppuccin,
   tmux-powerline, etc.) — we deliberately avoid them.
+- **SSH indicator on the session chip** is wired into `status-left` via
+  `#(~/.config/tmux/bin/tmux-ssh-indicator)`. The helper walks each
+  attached client's parent-process chain on macOS using
+  `ps -p <pid> -o ppid=,comm=` and emits a Nerd Font globe glyph (``
+  `nf-fa-globe`, U+F0AC) plus a single space when any ancestor is `sshd`
+  or `sshd-session`. The glyph inherits the chip's `fg=#fdf6e3,bg=#268bd2`
+  styling — no color flip, presence/absence is the signal. Detection is
+  server-wide (any attached client is SSH → indicator on), not
+  per-client: `#(...)` shells run server-global. For a single-user Mac
+  with one client at a time this is accurate enough; a per-client design
+  would need `client-attached` / `client-detached` hooks and more moving
+  parts than the use case warrants. Refresh piggybacks on the existing 5 s
+  `status-interval` — don't add a `client-attached` hook for sub-second
+  refresh without an explicit ask. Mosh is **not** detected (sessions
+  root in `mosh-server`, not `sshd`); add `mosh-server` to the basename
+  match set in the script if mosh becomes regular tooling. Env-var
+  detection (`$SSH_CONNECTION`) intentionally not used — it's set in
+  the SSH-spawned shell's env, not the tmux server's, so `#(...)` calls
+  never see it.
 - **tmux prefix is `C-a`** (screen-style; `C-Space` conflicts with macOS
   input-source switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
@@ -363,7 +382,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-fzf-url-newest,tmux-open-in-nvim}`
+- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-fzf-url-newest,tmux-open-in-nvim,tmux-ssh-indicator}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
@@ -417,6 +436,7 @@ filename is the source of truth).
 - Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
+- tmux SSH-indicator tests: `scripts/test-tmux-ssh-indicator.sh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration tests: `scripts/test-dashboard.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
