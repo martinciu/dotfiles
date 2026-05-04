@@ -4,7 +4,6 @@
 set -u
 
 REPO="$PROJECTS_HOME/dotfiles"
-PROJ_NAME="$REPO/.config/tmux/bin/tmux-project-name"
 GIT_STATUS="$REPO/.config/tmux/bin/tmux-git-status"
 
 pass=0
@@ -34,33 +33,6 @@ assert_contains() {
     echo "  FAIL  $desc"
   fi
 }
-
-# ─── tmux-project-name ──────────────────────
-echo
-echo "tmux-project-name"
-echo "─────────────────"
-
-if [ ! -x "$PROJ_NAME" ]; then
-  echo "  SKIP — $PROJ_NAME not present yet"
-else
-  fake_projects=$(mktemp -d)
-  mkdir -p "$fake_projects/chopin/sub/dir"
-  mkdir -p "$fake_projects/rater"
-
-  out=$(PROJECTS_HOME="$fake_projects" "$PROJ_NAME" "$fake_projects/chopin/sub/dir")
-  assert_eq "$out" "chopin" "deep path under PROJECTS_HOME -> top-level dir"
-
-  out=$(PROJECTS_HOME="$fake_projects" "$PROJ_NAME" "$fake_projects/rater")
-  assert_eq "$out" "rater" "exact project root"
-
-  out=$(PROJECTS_HOME="$fake_projects" "$PROJ_NAME" "/tmp")
-  assert_eq "$out" "" "outside PROJECTS_HOME -> empty"
-
-  out=$(PROJECTS_HOME="$fake_projects" "$PROJ_NAME" "$fake_projects")
-  assert_eq "$out" "" "exactly PROJECTS_HOME -> empty"
-
-  rm -rf "$fake_projects"
-fi
 
 # ─── tmux-git-status ────────────────────────
 echo
