@@ -207,7 +207,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Gitignored content flows between primary and worktrees in two
   stages, both using `wt step copy-ignored`.** `[post-start] copy = "wt step copy-ignored"`
   reflinks primary's gitignored content into a new worktree at
-  creation. `[pre-remove] save-shared = "wt -C {{ main_worktree_path }} step copy-ignored --from {{ branch }}"`
+  creation. `[pre-remove] save-shared = "wt -C {{ primary_worktree_path }} step copy-ignored --from {{ branch }}"`
   reflinks the worktree's gitignored content back to primary just
   before `wt remove`. Default no-`--force` semantics on both: files
   that already exist in the destination are never overwritten —
