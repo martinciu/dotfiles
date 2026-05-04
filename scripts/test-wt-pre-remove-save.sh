@@ -1,7 +1,7 @@
 #!/opt/homebrew/bin/bash
 # Smoke test for the [pre-remove] save-shared hook in
 # .config/worktrunk/config.toml. Extracts the hook command from
-# config.toml, substitutes the {{ main_worktree_path }} and
+# config.toml, substitutes the {{ primary_worktree_path }} and
 # {{ branch }} templates, and exercises it against a real worktree.
 # Asserts:
 #   - new files in worktree get copied to primary
@@ -78,11 +78,9 @@ echo "log line" > "$WORKTREE/.autonomo/run-1.log"
 mkdir -p "$WORKTREE/autonomo-workspace/iter-1"
 echo "trace" > "$WORKTREE/autonomo-workspace/iter-1/trace.json"
 
-# Substitute template variables. Cover both old and new hook variable names
-# so the test infrastructure is forward-compatible across the hook change.
+# Substitute template variables.
 substituted="$hook_cmd"
 substituted="${substituted//\{\{ primary_worktree_path \}\}/$PRIMARY}"
-substituted="${substituted//\{\{ main_worktree_path \}\}/$PRIMARY}"
 substituted="${substituted//\{\{ branch \}\}/feature}"
 
 # Run the hook from inside the worktree (matches wt's pre-remove behavior:

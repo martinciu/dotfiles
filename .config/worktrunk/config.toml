@@ -259,7 +259,7 @@ copy = "wt step copy-ignored"
 # worktree picked up during its lifetime) back to the primary
 # worktree. Mirrors the [post-start] hook above: same `wt step
 # copy-ignored`, same default-skip-existing semantics — files
-# present on primary are never overwritten. `-C {{ main_worktree_path }}`
+# present on primary are never overwritten. `-C {{ primary_worktree_path }}`
 # sets wt's cwd to primary so --to defaults to primary's worktree
 # without needing primary's branch name (no {{ primary_branch }}
 # template variable exists in pre-remove).
@@ -271,4 +271,4 @@ copy = "wt step copy-ignored"
 # operations inside worktrees are rare; if it bites, revisit
 # (see .superpowers/specs/2026-05-04-wt-pre-remove-symmetric-copy-ignored-design.md).
 [pre-remove]
-save-shared = "wt -C {{ main_worktree_path }} step copy-ignored --from {{ branch }}"
+save-shared = "wt -C {{ primary_worktree_path }} step copy-ignored --from {{ branch }}"
