@@ -136,36 +136,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Polish diacritics — never use `bind -n M-*`). Splits: `|` and `-`.
 - **TPM is the tmux plugin manager.** Loaded plugins: `tmux-sensible`,
   `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'` —
-  auto-restores the last saved env on tmux start), `tmux-fzf-url`. Don't
+  auto-restores the last saved env on tmux start), `tmux-sessionx`. Don't
   remove TPM ("we hand-roll everything") without an explicit ask — the
   status bar is hand-rolled, behavior plugins aren't.
-- **tmux URL picker is `<prefix> u` via a thin wrapper over `tmux-fzf-url`**
-  (`.config/tmux/bin/tmux-fzf-url-newest`). The plugin
-  (`wfxr/tmux-fzf-url`, loaded by TPM) supplies the `xre` regex binary,
-  pattern set, `fzf_filter`, and `open_url` helpers; the wrapper sources
-  `fzf-url.sh` with its test guard tripped (`__FZF_URL_TESTING=1`) to
-  import those, then captures the current pane's full 50000-line
-  scrollback, reverses it with `tail -r` (BSD; macOS native — no
-  coreutils dependency, so don't swap to `tac`) so `xre`'s
-  first-appearance dedup keeps the LATEST occurrence of each URL, and
-  pipes through the plugin's helpers unchanged. Popup geometry:
-  `-w 70% -h 70%`. Width (70%) matches the sessionx and file pickers —
-  the shared anchor across the three pickers. Sessionx height is also
-  fixed at 70% (its preview pane uses the vertical space). `--tac` in
-  `@fzf-url-fzf-options` is intentional so the newest URL lands at the
-  cursor — don't drop it.
-  The wrapper owns the binding (added after the TPM `run` line in
-  `tmux.conf`); don't remove the wrapper either (without it the
-  plugin's binding wins and recurring URLs sort to oldest position).
-  Don't replace the wrapper with a fully custom shell script; regex
-  extraction still goes through the plugin's `xre`.
-- **`<prefix> o` is the file-picker binding** (sibling of `<prefix> u` URL
-  picker). Implemented by `.config/tmux/bin/tmux-fzf-file` (picker) +
-  `tmux-open-in-nvim` (dispatcher). nvim auto-listens on
-  `$XDG_RUNTIME_DIR/nvim-tmux-<session>.sock` from
-  `lua/config/options.lua`. Don't replace with `<prefix> f` (used by other
-  tmux plugins as "next session") or `<prefix> p` (used for paste-buffer in
-  copy-mode).
 - **OSC 8 hyperlinks pass through tmux to Ghostty.** Two `terminal-features`
   declarations in `.config/tmux/tmux.conf` (`xterm-ghostty:hyperlinks` and
   `xterm-256color:hyperlinks`) enable hyperlink passthrough; without them
@@ -520,7 +493,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-fzf-file,tmux-fzf-url-newest,tmux-open-in-nvim,tmux-ssh-indicator}`
+- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
@@ -567,13 +540,11 @@ filename is the source of truth).
 
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshot thumbnails: `scripts/build-screenshots.sh`
-- File-picker path-extraction tests: `scripts/test-fzf-file-extract.sh`
 - Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Modern-reminder tests: `scripts/test-modern-reminder.zsh`
 - Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
-- URL-picker wrapper tests: `scripts/test-tmux-fzf-url-newest.sh`
 - tmux SSH-indicator tests: `scripts/test-tmux-ssh-indicator.sh`
 - tmux SSH-target (outbound overlay) tests: `scripts/test-tmux-ssh-target.zsh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
