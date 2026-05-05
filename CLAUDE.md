@@ -234,6 +234,29 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
   (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't
   re-add Alt bindings.
+- **LSPs are off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
+  sets `enabled = false, mason = false` on every LazyVim-core/extra
+  server entry (`lua_ls`, `jsonls`, `marksman`, `vtsls`, `ts_ls`,
+  `tailwindcss`, `yamlls`, `eslint`, `ruby_lsp`, `rubocop`). Mason
+  packages stay installed (so opt-in is instant). Per-session opt-in:
+  `:LspOn <name>` (user command in `lua/config/keymaps.lua`, thin
+  wrapper over `vim.lsp.enable`). Per-project always-on: drop a
+  `.nvim.lua` at the repo root with `vim.lsp.enable({ "vtsls", ... })`
+  — requires `vim.o.exrc = true` (not currently set; flip on if you
+  start using `.nvim.lua` regularly). Why off by default: first-attach
+  blocks the UI 3-6s+ for any LSP (jsonls on `lazy-lock.json`, ruby-lsp
+  doing bundle work, marksman scanning a markdown-heavy repo), and
+  dotfiles editing rarely needs gd/hover/rename. The
+  `VimLeavePre` autocmd in `lua/config/autocmds.lua` force-stops all
+  LSP clients on exit so libuv handles drain deterministically —
+  without it, opt-in projects leak handles on quit (visible as a
+  `uv_print_active_handles` dump in `~/.local/state/nvim/nvim.log`),
+  exit non-zero, and leave stale swap files. When LazyVim adds a new
+  default server entry, append it to the `servers` list in
+  `lsp-disable-all.lua` — one line.
+- **`lsp-lua-off.lua` was deleted** when the broader
+  `lsp-disable-all.lua` landed. Don't reintroduce per-server opt-out
+  files; add to the unified server list instead.
 - **Mason-managed LSPs are pinned** via `mason-lock.json`. The lockfile
   is committed. `:MasonLock` snapshots the current state; `:MasonLockUpdate`
   upgrades to latest then snapshots — use the latter to bump versions.
