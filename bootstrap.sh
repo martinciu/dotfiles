@@ -66,7 +66,7 @@ LNAV_REPO=".config/lnav"
 # 1. Old whole-dir symlink → tear down so we can rebuild as a real dir
 if [ -L "$LNAV_HOME" ]; then
   rm "$LNAV_HOME"
-  echo "removed: $LNAV_HOME (legacy whole-dir symlink)"
+  echo "🗑️  $LNAV_HOME (legacy whole-dir symlink)"
 fi
 # 2. Stale runtime artifacts inside the repo (from pre-migration lnav runs).
 #    Only the known set lnav itself emits — never touch installed/.
@@ -87,7 +87,7 @@ unset LNAV_HOME LNAV_REPO
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
 if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
   cp "$DOTFILES/.config/sesh/sesh.local.toml.template" "$HOME/.config/sesh/sesh.local.toml"
-  echo "created: ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
+  echo "✨  ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
 fi
 
 # --- nvim
@@ -122,12 +122,12 @@ done
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then
-  echo "cloning TPM..."
+  echo "⬇️  cloning TPM..."
   if ! git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR" 2>&1; then
-    echo "WARN:   TPM clone failed (offline?) — re-run bootstrap when online"
+    echo "⚠️  TPM clone failed (offline?) — re-run bootstrap when online"
   fi
 else
-  echo "ok:     $TPM_DIR (TPM present)"
+  echo "✅  $TPM_DIR (TPM present)"
 fi
 
 # --- brew check (don't install — just report)
