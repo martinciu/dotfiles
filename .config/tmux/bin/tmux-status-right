@@ -1,0 +1,44 @@
+#!/opt/homebrew/bin/bash
+# Renders the right-side tmux status segment.
+#
+# Usage: tmux-status-right <pwd>
+#
+# Layout:
+#   With PR  : [orange ◖][orange body: <pr-glyph> #<num>][git chip flush-right
+#              with prev_bg=orange — tmux-git-status's tri_l renders as the
+#              yellow-on-orange separator]
+#   Without PR: [git chip flush-right, prev_bg=bar-bg]
+#
+# Both branches end without a closing cap — the git chip body extends to
+# the screen edge, mirroring the session chip's flush-left anchor.
+
+set -e
+pwd_in="${1:-$PWD}"
+
+bar_bg='#073642'   # base02 — status bar background
+pr_bg='#cb4b16'    # orange — PR pin
+pr_fg='#fdf6e3'    # base3  — PR pin foreground
+helper_dir="$(dirname "${BASH_SOURCE[0]}")"
+
+# Powerline rounded left cap (U+E0B6) and nf-oct-git_pull_request (U+F407)
+# as raw UTF-8 byte sequences (avoids editor-dependent literal embedding;
+# matches the pattern in tmux-git-status).
+tri_l=$(printf '\xee\x82\xb6')
+pr_glyph=$(printf '\xef\x90\x87')
+
+pr_num=$("$helper_dir/tmux-pr-detect" "$pwd_in" 2>/dev/null || true)
+
+if [ -n "$pr_num" ]; then
+  # Orange PR chip: rounded left cap on bar bg, then bold body. No right
+  # cap — the next chip's tri_l serves as the visual transition.
+  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #%s ' \
+    "$pr_bg" "$bar_bg" "$tri_l" \
+    "$pr_fg" "$pr_bg" \
+    "$pr_glyph" "$pr_num"
+  # Git chip with prev_bg=orange (so its tri_l becomes the yellow-on-orange
+  # separator) and next_bg='' (flush-right).
+  "$helper_dir/tmux-git-status" "$pwd_in" "$pr_bg" ''
+else
+  # No PR — git chip alone, flush-right.
+  "$helper_dir/tmux-git-status" "$pwd_in" "$bar_bg" ''
+fi

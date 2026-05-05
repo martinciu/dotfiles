@@ -217,16 +217,17 @@ else
   assert_contains "$out" "#105" "with-PR path: PR number rendered"
   assert_contains "$out" $'\xef\x90\x87' "with-PR path: PR glyph U+F407 in output"
   assert_not_contains "$out" $'\xee\x82\xb4' "with-PR path: tri_r still absent (git flush-right)"
-  # Order check: orange chip body must appear before the yellow chip body.
+  # Order check: orange chip body must appear before the git chip body.
+  # The fixture is a plain main checkout, so the git chip uses violet (#6c71c4).
   orange_pos=$(printf '%s' "$out" | grep -b -o "#cb4b16" | head -1 | cut -d: -f1)
-  yellow_pos=$(printf '%s' "$out" | grep -b -o "#b58900" | head -1 | cut -d: -f1)
-  if [ -n "$orange_pos" ] && [ -n "$yellow_pos" ] && [ "$orange_pos" -lt "$yellow_pos" ]; then
+  git_pos=$(printf '%s' "$out" | grep -b -o "#6c71c4" | head -1 | cut -d: -f1)
+  if [ -n "$orange_pos" ] && [ -n "$git_pos" ] && [ "$orange_pos" -lt "$git_pos" ]; then
     pass=$((pass+1))
-    echo "  PASS  with-PR path: orange chip emitted before yellow chip"
+    echo "  PASS  with-PR path: orange chip emitted before git chip"
   else
     fail=$((fail+1))
-    fail_msgs+=("FAIL  with-PR path: orange chip should precede yellow chip"$'\n'"        orange_pos=$orange_pos yellow_pos=$yellow_pos")
-    echo "  FAIL  with-PR path: orange chip should precede yellow chip"
+    fail_msgs+=("FAIL  with-PR path: orange chip should precede git chip"$'\n'"        orange_pos=$orange_pos git_pos=$git_pos")
+    echo "  FAIL  with-PR path: orange chip should precede git chip"
   fi
   rm -rf "$fixture"
   teardown_sandbox
