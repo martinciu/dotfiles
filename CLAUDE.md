@@ -27,6 +27,29 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `.zshrc.local` whenever a tool's init does `fpath+=` or otherwise needs
   to run before `compinit` — `.zshrc.local` is sourced after `oh-my-zsh.sh`
   (which runs `compinit`), so late `fpath+=` silently no-ops there.
+- **Zsh module layout.** `.zshrc` is a thin orchestrator (~30 lines: p10k
+  instant prompt, OMZ bootstrap, `~/.zshrc.local`, `~/.secrets`, and one
+  `source` per module). Concerns live in `.config/zsh/<concern>.zsh`:
+  `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells), `colors.zsh`
+  (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `nvm.zsh`
+  (`load-nvmrc` + chpwd hook), `tmux-hooks.zsh` (window-label,
+  ssh-target, `CLAUDE_CODE_TMUX_TRUECOLOR`), `modern-reminder.zsh`
+  (default→modern tool nudge), `prompt.zsh` (p10k source +
+  `_p9k_project_context`), `aliases.zsh` (color-aware tool aliases +
+  bat-backed `less()`), `plugins.zsh` (fzf, zoxide, fzf-tab, wt init,
+  autosuggestions, syntax-highlighting — order-critical, header
+  comment in the file documents it). Module shape: definitions on
+  top, side-effects (hook registration, env exports, alias defs)
+  guarded at the bottom by `[[ -n ${ZSH_DOTFILES_TEST:-} ]] && return`.
+  Tests source the module with `ZSH_DOTFILES_TEST=1` to get the
+  function defs without firing hooks/exports. The four refactored
+  test scripts (`test-tmux-window-label.zsh`, `test-modern-reminder.zsh`,
+  `test-tmux-ssh-target.zsh`, `test-prompt-context.zsh`) source the
+  real module instead of holding inline duplicates. `~/.zshrc.local`
+  sources between `colors.zsh` and `nvm.zsh` — after PATH appends but
+  before any hook-registering module. Don't add new top-level
+  `source` calls to `.zshrc` outside the `.config/zsh/` set; new
+  concerns get their own module file.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
 - **Global gitignore is symlinked from `.gitignore_global`** (repo root,
@@ -112,7 +135,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `<session>:<window>`. Wired in `tmux.conf` via `set -g set-titles on`
   and a `set-titles-string` that branches on the per-pane
   `@ssh_target` user variable. The pane variable is set/cleared by two
-  zsh hooks in `.zshrc`: `_tmux_record_ssh_target` (preexec) checks
+  zsh hooks in `.config/zsh/tmux-hooks.zsh`: `_tmux_record_ssh_target` (preexec) checks
   whether the first whitespace token of the typed command equals `ssh`
   (first-token equality, not prefix — excludes `ssh-add`/`ssh-keygen`),
   resolves the destination via `ssh -G <args>` so `~/.ssh/config` Host
@@ -123,9 +146,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `status-interval` tick. The precmd hook short-circuits when
   `@ssh_target` is already empty, so non-SSH prompts don't trigger
   spurious refreshes. Per-pane (not server-global) — each Ghostty tab
-  shows its own SSH state. The function bodies in `.zshrc` are
-  duplicated inside `scripts/test-tmux-ssh-target.zsh` (mocked
-  `tmux`/`ssh`); keep both copies in sync. Edge cases: Ctrl-Z'd `ssh`
+  shows its own SSH state. The function bodies live in
+  `.config/zsh/tmux-hooks.zsh`; `scripts/test-tmux-ssh-target.zsh`
+  sources them under `ZSH_DOTFILES_TEST=1` (with mocked `tmux`/`ssh`),
+  so there is no duplicate copy to keep in sync. Edge cases: Ctrl-Z'd `ssh`
   is a small known gap (overlay clears on the next prompt even though
   ssh is technically backgrounded — acceptable); nested `ssh` is not
   tracked (only the outer command counts). Don't replace `ssh -G` with
@@ -302,15 +326,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   worktrunk paths, sibling worktrees alike). Don't replace with
   `git worktree list` parsing.
 - **tmux window name follows the active pane's last typed command.**
-  zsh `preexec` hook (`_tmux_record_last_cmd` in `.zshrc`) sets a per-pane
-  `@last_cmd` user variable; `tmux.conf` enables `automatic-rename` with a
-  format that reads it. Env-var assignments are stripped, then the first
-  two whitespace-separated tokens are used. `allow-rename off` stays so
-  OSC titles from apps (e.g. Claude Code) cannot override. Don't replace
-  with `automatic-rename off` or wire app-specific renames without an
-  explicit ask. The label function `_tmux_window_label` in `.zshrc` is
-  duplicated in `scripts/test-tmux-window-label.zsh` — keep both copies
-  in sync.
+  zsh `preexec` hook `_tmux_record_last_cmd` (in `.config/zsh/tmux-hooks.zsh`)
+  sets a per-pane `@last_cmd` user variable; `tmux.conf` enables
+  `automatic-rename` with a format that reads it. Env-var assignments are
+  stripped, then the first two whitespace-separated tokens are used.
+  `allow-rename off` stays so OSC titles from apps (e.g. Claude Code) cannot
+  override. Don't replace with `automatic-rename off` or wire app-specific
+  renames without an explicit ask. `scripts/test-tmux-window-label.zsh`
+  sources the same module under `ZSH_DOTFILES_TEST=1`, so the label
+  function `_tmux_window_label` has no duplicate copy.
   When a Claude Code session is active in the pane,
   `@claude_session_name` overrides `@last_cmd` and the window renders
   `claude[<name>]`. Set/cleared by `~/.config/tmux/bin/claude-tmux-window-name`
@@ -348,7 +372,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   avoids breaking `tail -n` since tspin's CLI isn't a `tail` superset).
   Don't swap themes or introduce alternatives
   (`exa`, `lsd`, `diff-so-fancy`, `mdcat`, `lnav`, etc.) without asking.
-  Plugin source order in `.zshrc` is fixed: fzf →
+  Plugin source order in `.config/zsh/plugins.zsh` is fixed: fzf →
   `bindkey -r '^[c'` (Alt-C unbind) → zoxide → fzf-tab →
   zsh-autosuggestions → zsh-syntax-highlighting (must be last).
   fzf-tab needs fzf's `^I` binding already in place and must be sourced
@@ -369,7 +393,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   no filter (Apple gates cross-user visibility behind elevated privileges);
   for "show all system daemons" use `\ps -ax`. Don't add a `psx` alias for
   the all-users view — legacy `ps` already serves it without a sudo prompt.
-- **Interactive `less` is a `bat` wrapper** (defined in `.zshrc` next to the
+- **Interactive `less` is a `bat` wrapper** (defined in `.config/zsh/aliases.zsh` next to the
   `cat` alias). Files get bat's full decoration; piped input uses `--plain` so
   `cmd | less` stays clean. `command less` reaches real `less` for `less +F`,
   `-R`, etc. Don't replace with `alias less='bat …'` — the function exists so
@@ -385,7 +409,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to `mdcat`,
   `frogmouth`, or another renderer without an explicit ask. (`mdcat` was
   considered and ruled out: archived upstream as of 2025-01-10.)
-- **`top` is a zsh alias to `btop`** (defined in `.zshrc`, guarded on
+- **`top` is a zsh alias to `btop`** (defined in `.config/zsh/aliases.zsh`, guarded on
   `command -v btop`). Theme is pinned `solarized_dark` via
   `.config/btop/btop.conf` (only `color_theme`,
   `theme_background = False`, and `vim_keys = True` are pinned —
@@ -423,7 +447,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   become tracked dotfiles), but worth knowing. Don't replace lnav
   with another log TUI without an ask; don't add a shell alias or
   wrapper.
-- **`diff` is a zsh alias to `difft`** (defined in `.zshrc`, guarded on
+- **`diff` is a zsh alias to `difft`** (defined in `.config/zsh/aliases.zsh`, guarded on
   `command -v difft`). Difftastic is a syntactic, language-aware diff for
   ad-hoc, non-git file comparisons. Git diffs are unaffected — git's pager
   is still `delta`, and that wiring is intentional. `vimdiff` is also
@@ -464,7 +488,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **`modern-reminder` is a zsh-level discoverability nudge** for default→modern
   tool pairs that this setup intentionally leaves *unaliased* (the "no synonyms,
   just the binary's name" pattern shared by `tail`/`tspin`, `grep`/`rg`, and
-  `curl`/`xh`). Defined in `.zshrc` as two associative arrays
+  `curl`/`xh`). Defined in `.config/zsh/modern-reminder.zsh` as two associative arrays
   (`_modern_reminder_pairs`, `_modern_reminder_hints`), plus
   `_modern_reminder_preexec` (scan-all-tokens via `${(z)…}`, strips leading
   `\` and dirname) and `_modern_reminder_precmd` (env-var guard, once-per-shell
@@ -477,8 +501,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   the prompt string. Use single quotes for sample-syntax emphasis. Toggled
   by `export MODERN_REMINDER=1`; comment that line to disable. State is
   per-zsh-process — a fresh tmux pane resets the seen set. Tests:
-  `scripts/test-modern-reminder.zsh` (which holds a synced copy of the function
-  bodies; keep both copies in sync). **When introducing a new modern terminal
+  `scripts/test-modern-reminder.zsh` sources the module under
+  `ZSH_DOTFILES_TEST=1`, so there is no duplicate copy of the function
+  bodies. **When introducing a new modern terminal
   tool under the "no synonyms" pattern, evaluate it against the inclusion
   criteria (default in common interactive use; modern alternative installed and
   Solarized-themed; default deliberately unaliased) and add it to
@@ -489,8 +514,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`, `zsh/`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow,zsh}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator}`
