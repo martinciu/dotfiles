@@ -5,6 +5,8 @@ set -euo pipefail
 
 DOTFILES="$PROJECTS_HOME/dotfiles"
 
+echo "🚀 dotfiles bootstrap"
+
 # link <source-relative-to-DOTFILES> <target-absolute>
 link() {
   local src="$DOTFILES/$1"
@@ -130,15 +132,17 @@ fi
 
 # --- brew check (don't install — just report)
 echo
-echo "brew bundle check:"
+echo "🍺 brew bundle check:"
 brew bundle check --file="$DOTFILES/Brewfile" --verbose || \
-  echo "-> run: brew bundle --file=$DOTFILES/Brewfile"
+  echo "→ run: brew bundle --file=$DOTFILES/Brewfile"
 
 echo
-echo "next steps:"
+echo "🎯 next steps:"
 echo "  1. start tmux:               tmux"
 echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
 echo "  3. test session picker:      <prefix> t"
 echo "  4. create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"
 echo "  5. login-shell machine cfg:  cp \$DOTFILES/.zprofile.local.template ~/.zprofile.local && \$EDITOR ~/.zprofile.local"
 echo "  6. delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
+
+echo "🎉 dotfiles linked — finish with the next steps above"
