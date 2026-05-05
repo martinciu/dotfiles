@@ -138,11 +138,11 @@ brew bundle check --file="$DOTFILES/Brewfile" --verbose || \
 
 echo
 echo "🎯 next steps:"
-echo "  1. start tmux:               tmux"
-echo "  2. install plugins:          <prefix> I  (capital I, prefix = C-a)"
-echo "  3. test session picker:      <prefix> t"
-echo "  4. create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"
-echo "  5. login-shell machine cfg:  cp \$DOTFILES/.zprofile.local.template ~/.zprofile.local && \$EDITOR ~/.zprofile.local"
-echo "  6. delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
+echo "  🪟 start tmux:               tmux"
+echo "  🧩 install plugins:          <prefix> I  (capital I, prefix = C-a)"
+echo "  🔍 test session picker:      <prefix> t"
+echo "  🏠 create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"
+echo "  🔐 login-shell machine cfg:  cp \$DOTFILES/.zprofile.local.template ~/.zprofile.local && \$EDITOR ~/.zprofile.local"
+echo "  🪝 delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
 
 echo "🎉 dotfiles linked — finish with the next steps above"
