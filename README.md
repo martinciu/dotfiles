@@ -115,8 +115,6 @@ These drive the `claude[<name>]` window title (tmux's
 - session switcher (tmux-sessionx): `<prefix> t`  (clock-mode moved to `<prefix> T`)
 - pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
-- URL picker (current pane): `<prefix> u`
-- file picker (current pane → nvim): `<prefix> o`
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)
 - worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker
@@ -133,7 +131,6 @@ These drive the `claude[<name>]` window title (tmux's
 
 - URLs in tmux panes open with **Shift+Cmd+click**, not Cmd+click.
 - Why: with `set -g mouse on`, Ghostty defers all mouse interactions (incl. URL hover/click detection) to tmux. Ghostty's default `mouse-shift-capture = false` makes Shift the bypass modifier — Shift releases the click from tmux and Cmd reaches Ghostty's URL handler.
-- Or, keyboard-only: `<prefix> u` opens an fzf picker of URLs from the current pane (visible + last 2000 lines), Enter opens in the default browser. Provided by [`wfxr/tmux-fzf-url`](https://github.com/wfxr/tmux-fzf-url).
 - File-reference links printed by Claude Code (OSC 8 hyperlinks to `file:///abs/path`) open with **Shift+Cmd+click** — same modifier as URLs. Routing to VS Code (or whichever editor) happens via the existing macOS file-type defaults (Finder → Get Info → "Open with" → "Change All"); no extra config in this repo.
 - Smoke-test that the chain works end-to-end:
 
@@ -142,10 +139,6 @@ These drive the `claude[<name>]` window title (tmux's
   ```
 
   Shift+Cmd+click the rendered "`.zshrc`" — your default `.zshrc` editor should open the file.
-- File-path picker (`<prefix> o`): scans the current pane + 2000 scrollback
-  lines for paths that exist on disk (OSC 8 hyperlinks + plain `path:line`
-  regex), fzf-picks one, jumps the per-session nvim. Falls back to a fresh
-  nvim in a new tmux window if no live nvim socket exists for the session.
 - **Dashboard (`bin/dashboard`) is experimental.** Spawns a tiled
   `dashboard-<derived>` session that polls `capture-pane` for every
   matched session — useful for keeping eyes on N parallel runs at
