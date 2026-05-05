@@ -23,7 +23,7 @@
 set -e
 pwd_in="${1:-$PWD}"
 prev_bg="${2:-#073642}"
-next_bg="${3:-#073642}"
+next_bg="${3-#073642}"
 
 # Solarized base16
 fg_text_wt="#073642"       # base02 — dark text on yellow chip
@@ -127,9 +127,20 @@ if [ "$ahead"     -gt 0 ]; then extras="$extras ${g_up}${ahead}"; fi
 if [ "$behind"    -gt 0 ]; then extras="$extras ${g_dn}${behind}"; fi
 label="$label$extras"
 
-# Both states render as a rounded chip with both caps.
-printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
-  "$bg" "$prev_bg" "$tri_l" \
-  "$branch_fg" "$bg" \
-  "$label" \
-  "$bg" "$next_bg" "$tri_r"
+# Render the chip. With a non-empty next_bg, close with the rounded right
+# cap (tri_r) drawn fg=chip-bg, bg=next_bg — the cap visually transitions
+# into whatever follows. With an empty next_bg, suppress the closing cap
+# so the chip body extends flush against whatever follows (typically the
+# screen edge, mirroring the session chip's flush-left anchor).
+if [ -z "$next_bg" ]; then
+  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s ' \
+    "$bg" "$prev_bg" "$tri_l" \
+    "$branch_fg" "$bg" \
+    "$label"
+else
+  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %s #[fg=%s,bg=%s]%s' \
+    "$bg" "$prev_bg" "$tri_l" \
+    "$branch_fg" "$bg" \
+    "$label" \
+    "$bg" "$next_bg" "$tri_r"
+fi
