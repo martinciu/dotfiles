@@ -47,13 +47,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   Each status-bar **pin** uses a unique Solarized accent — never
   duplicated across pins. Currently: blue (session chip, left),
   green (active window pin, center), violet (main-checkout git
-  chip, right), yellow (worktree git chip, right). Why: shared
-  color visually merges two unrelated signals — the active-pin
-  yellow and worktree-chip yellow collision is what drove the
-  active pin off yellow. How to apply: when adding a new pin/chip
-  on the status line, pick from the currently-unused accents
-  (orange, red, magenta, cyan); if all are taken, reconsider
-  whether a new pin is warranted before reusing one. Mode-style,
+  chip, right), yellow (worktree git chip, right), orange (PR pin,
+  right — left of git chip). Why: shared color visually merges two
+  unrelated signals — the active-pin yellow and worktree-chip
+  yellow collision is what drove the active pin off yellow. How
+  to apply: when adding a new pin/chip on the status line, pick
+  from the currently-unused accents (red, magenta, cyan); if all
+  are taken, reconsider whether a new pin is warranted before
+  reusing one. Mode-style,
   message-style, pane-borders, and inline text colors (e.g. ins/del
   markers in `tmux-git-status`) are not pins and are exempt from
   this rule.
@@ -81,6 +82,28 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   detection (`$SSH_CONNECTION`) intentionally not used — it's set in
   the SSH-spawned shell's env, not the tmux server's, so `#(...)` calls
   never see it.
+- **tmux PR pin** is wired into `status-right` via
+  `#(~/.config/tmux/bin/tmux-status-right #{pane_current_path})`. The
+  orchestrator calls `tmux-pr-detect` (a stale-while-revalidate file cache
+  around `gh pr view --json state,number --jq ...` with TTL 60s, cache at
+  `${XDG_CACHE_HOME:-$HOME/.cache}/tmux-pr-pin/<repo-hash>-<branch>`).
+  When a PR exists for the current branch (state OPEN or DRAFT — single
+  visual, no draft distinction), the orange chip (`#cb4b16`, fg `#fdf6e3`
+  bold) rendering ` #<num>` (Nerd Font U+F407 `nf-oct-git_pull_request`)
+  is emitted, then `tmux-git-status` is called with `prev_bg=#cb4b16` so
+  its existing `tri_l` (U+E0B6) becomes the yellow-on-orange rounded
+  separator — falls out of the existing helper for free. Both states
+  (with PR / without PR) call `tmux-git-status` with `next_bg=''` so the
+  git chip is flush-right (no closing cap), mirroring the session chip's
+  flush-left anchor on the opposite side. `<prefix> P` opens the current
+  branch's PR in the browser via `gh pr view --web` (silent when no PR
+  exists). Cache key uses `git-common-dir` so all worktrees of the same
+  upstream repo share entries per-branch. First call after branch switch
+  shows nothing; the next 5s status-interval tick (after the background
+  refresh completes) renders the pin — acceptable trade-off for never
+  blocking the bar on a slow `gh` call. Why orange specifically: it was
+  the first unused accent (per the "unique accent per pin" rule); after
+  this change red/magenta/cyan remain available.
 - **Outbound SSH overlay on the Ghostty tab title.** Distinct from the
   inbound `tmux-ssh-indicator` above: this surfaces *outgoing* `ssh`
   sessions on the local client's Ghostty tab. While an `ssh` command is
