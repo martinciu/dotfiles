@@ -3,7 +3,7 @@
 # Run from the repo root or anywhere — paths are absolute.
 set -u
 
-REPO="$PROJECTS_HOME/dotfiles"
+REPO="${REPO:-$PROJECTS_HOME/dotfiles}"
 GIT_STATUS="$REPO/.config/tmux/bin/tmux-git-status"
 
 pass=0
@@ -81,6 +81,21 @@ else
   not_repo=$(mktemp -d)
   out=$("$GIT_STATUS" "$not_repo" "#073642" "#586e75")
   assert_eq "$out" "" "non-git dir -> empty output"
+
+  # ─── flush-right mode (empty next-bg) ──────────
+  # tri_r is U+E0B4 (\xee\x82\xb4) — must be ABSENT when next-bg is empty.
+  # tri_l is U+E0B6 (\xee\x82\xb6) — must still be present.
+  out=$("$GIT_STATUS" "$fixture" "#073642" "")
+  if printf '%s' "$out" | grep -q -F -- $'\xee\x82\xb4'; then
+    fail=$((fail+1))
+    fail_msgs+=("FAIL  flush-right mode should not emit tri_r"$'\n'"        got:  '$out'")
+    echo "  FAIL  flush-right mode should not emit tri_r"
+  else
+    pass=$((pass+1))
+    echo "  PASS  flush-right mode omits closing tri_r (U+E0B4)"
+  fi
+  assert_contains "$out" $'\xee\x82\xb6' "flush-right mode still emits opening tri_l (U+E0B6)"
+  assert_contains "$out" "main" "flush-right mode still shows branch label"
 
   rm -rf "$fixture" "$not_repo"
 

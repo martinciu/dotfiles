@@ -1,0 +1,50 @@
+#!/opt/homebrew/bin/bash
+# Echoes the PR number for the current branch (state OPEN or DRAFT), or
+# nothing. File-backed stale-while-revalidate cache, TTL 60s, never blocks
+# tmux on a slow gh call.
+#
+# Usage: tmux-pr-detect <pwd>
+#
+# Cache layout:
+#   ${XDG_CACHE_HOME:-$HOME/.cache}/tmux-pr-pin/<repo-hash>-<branch>
+# repo-hash is shasum of git-common-dir (worktrees of the same repo share
+# entries per branch). Branch is sanitized for filesystem safety.
+
+set -e
+pwd_in="${1:-$PWD}"
+ttl=60
+
+cd "$pwd_in" 2>/dev/null || exit 0
+command -v gh >/dev/null 2>&1 || exit 0
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+common_dir=$(git rev-parse --git-common-dir 2>/dev/null) || exit 0
+common_dir_abs=$(cd "$common_dir" 2>/dev/null && pwd) || exit 0
+
+repo_hash=$(printf '%s' "$common_dir_abs" | shasum | cut -c1-12)
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-pr-pin"
+mkdir -p "$cache_dir"
+
+safe_branch="${branch//[^a-zA-Z0-9._-]/_}"
+cache_file="$cache_dir/${repo_hash}-${safe_branch}"
+
+now=$(date +%s)
+fresh=0
+if [ -f "$cache_file" ]; then
+  cat "$cache_file"
+  mtime=$(stat -f '%m' "$cache_file" 2>/dev/null || echo 0)
+  age=$((now - mtime))
+  [ "$age" -lt "$ttl" ] && fresh=1
+fi
+
+if [ "$fresh" = "0" ]; then
+  (
+    num=$(gh pr view --json state,number \
+      --jq 'select(.state == "OPEN" or .state == "DRAFT") | .number' \
+      2>/dev/null || true)
+    tmp="$cache_file.tmp.$$"
+    printf '%s' "$num" > "$tmp" && mv "$tmp" "$cache_file"
+  ) >/dev/null 2>&1 &
+fi
+
+exit 0

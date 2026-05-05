@@ -77,6 +77,7 @@
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">u</span></td><td class="desc">URL picker (fzf, current pane full 50k scrollback, latest occurrence of duplicates wins) — opens in default browser</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">o</span></td><td class="desc">file picker (fzf, current pane + 2000 lines scrollback) — opens in per-session nvim, falls back to new window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">P</span></td><td class="desc">open current branch's PR in browser via <code>gh pr view --web</code> (silent when no PR — counterpart to the orange status-bar PR pin)</td></tr>
       <tr><td class="key"><span class="k">⇧⌘ click</span></td><td class="desc">Claude Code file links → routes via macOS file-type defaults (OSC 8 passthrough enabled in <code>tmux.conf</code> via <code>terminal-features hyperlinks</code>)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">?</span></td><td class="desc">list all keybindings</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">:</span></td><td class="desc">command prompt</td></tr>
@@ -313,7 +314,7 @@
     <ul class="compact">
       <li><strong>Left:</strong> session name on a blue chip with a powerline arrow. Gains a leading globe glyph (<code></code> <code>nf-fa-globe</code>) when any attached tmux client is SSH-rooted (drives <code>tmux-ssh-indicator</code>).</li>
       <li><strong>Center (absolute-centered on the full bar):</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>green</code>-on-<code>base3</code> chip with rounded powerline caps.</li>
-      <li><strong>Right:</strong> branch chip — violet for main checkout, yellow for worktree (drives <code>tmux-git-status</code>).</li>
+      <li><strong>Right:</strong> orange PR pin (when the current branch has an open/draft PR) glued to the branch chip via a rounded yellow-on-orange separator. Branch chip is violet for main checkout, yellow for worktree, always flush-right (no closing cap — mirrors the session chip's flush-left anchor). Drives <code>tmux-status-right</code> → <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
     </ul>
   </div>
 
@@ -332,6 +333,7 @@
       <span class="swatch"><i style="background:#859900"></i> green (active win)</span>
       <span class="swatch"><i style="background:#b58900"></i> yellow (worktree branch)</span>
       <span class="swatch"><i style="background:#6c71c4"></i> violet (main branch)</span>
+      <span class="swatch"><i style="background:#cb4b16"></i> orange (PR pin)</span>
       <span class="swatch"><i style="background:#2aa198"></i> cyan (selection)</span>
       <span class="swatch"><i style="background:#dc322f"></i> red</span>
     </div>
@@ -341,6 +343,8 @@
   <div class="card">
     <h3>Status helpers</h3>
     <table>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-status-right</code></td><td class="desc">orchestrator for the right-side status segment — composes PR pin (when present) + git chip flush-right</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-pr-detect</code></td><td class="desc">stale-while-revalidate file cache around <code>gh pr view</code> (TTL 60s) — echoes PR number for current branch or empty</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-fzf-file</code></td><td class="desc">scans pane + scrollback for paths, fzf picker — backs <span class="k prefix">C-a</span> <span class="k">o</span></td></tr>
@@ -348,6 +352,7 @@
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-open-in-nvim</code></td><td class="desc">remote-sends <code>:edit</code> to the per-session nvim socket; falls back to a fresh nvim in a new window</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-ssh-indicator</code></td><td class="desc">walks each attached client's <code>ps</code> ancestry; prints <code></code> + space when any ancestor is <code>sshd</code>/<code>sshd-session</code> — prepended inside the session chip</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
+      <tr><td class="key"><code>scripts/test-tmux-pr-status.sh</code></td><td class="desc">smoke tests for <code>tmux-pr-detect</code> + <code>tmux-status-right</code> (uses a PATH-shimmed <code>gh</code>)</td></tr>
     </table>
     <p class="note">Worktree detection uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code> so it works for <code>.claude/worktrees/*</code>, worktrunk paths, and sibling worktrees alike.</p>
   </div>
@@ -423,7 +428,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-04. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-05. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>

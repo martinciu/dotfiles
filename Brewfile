@@ -5,6 +5,7 @@
 brew "git"
 brew "tmux"
 brew "jq"   # JSON parsing in shell helpers
+brew "gh"   # GitHub CLI — drives tmux-pr-detect + <prefix> P (gh pr view --web)
 brew "watch"  # procps watch — used by `dashboard` for live tile polling (-c ANSI passthrough)
 brew "bash"   # bash 5; pinned-shebang scripts target /opt/homebrew/bin/bash
 
