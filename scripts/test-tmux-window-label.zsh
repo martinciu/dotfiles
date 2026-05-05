@@ -17,21 +17,8 @@ assert_eq() {
 }
 
 # ── function under test ──────────────────────────────────────────────────────
-# Keep in sync with .zshrc
-_tmux_window_label() {
-  emulate -L zsh
-  local cmd="$1"
-  # Strip leading KEY=value tokens (each followed by whitespace, or end-of-string).
-  while [[ $cmd =~ '^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*([[:space:]]+|$)' ]]; do
-    cmd="${cmd#$MATCH}"
-  done
-  local -a words=( ${=cmd} )
-  case $#words in
-    0) _tmux_window_label_out="" ;;
-    1) _tmux_window_label_out="${words[1]}" ;;
-    *) _tmux_window_label_out="${words[1]} ${words[2]}" ;;
-  esac
-}
+REPO="${0:A:h:h}"
+ZSH_DOTFILES_TEST=1 source "$REPO/.config/zsh/tmux-hooks.zsh"
 
 # ── helper: invoke function and capture output via global ────────────────────
 _run() {
