@@ -17,25 +17,8 @@ assert_eq() {
 }
 
 # ── function under test ──────────────────────────────────────────────────────
-# Keep in sync with .zshrc
-_p9k_project_context() {
-  local projects="$PROJECTS_HOME"
-  if [[ -n $TMUX && $PWD == ${projects}/?* ]]; then
-    local rel="${PWD#${projects}/}"
-    local -a parts=("${(@s:/:)rel}")
-    local out="${parts[1]}"
-    local i
-    for (( i=2; i<${#parts[@]}; i++ )); do
-      out+="/${parts[i][1]}"
-    done
-    (( ${#parts[@]} > 1 )) && out+="/${parts[-1]}"
-    _p9k_project_path="$out"
-    typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='*'
-  else
-    unset _p9k_project_path
-    typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~'
-  fi
-}
+REPO="${0:A:h:h}"
+ZSH_DOTFILES_TEST=1 source "$REPO/.config/zsh/prompt.zsh"
 
 # ── helper: run context function with controlled env ─────────────────────────
 # Uses zsh dynamic scoping: local TMUX/PWD/PROJECTS_HOME are visible inside

@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 # Tests for _tmux_record_ssh_target and _tmux_clear_ssh_target.
-# Keep the inline function bodies in sync with .zshrc.
 # Run: zsh scripts/test-tmux-ssh-target.zsh
 set -u
 
@@ -86,27 +85,9 @@ reset_state() {
   _mock_ssh_g_exit=0
 }
 
-# ── functions under test (keep in sync with .zshrc) ──────────────────────────
-_tmux_record_ssh_target() {
-  [[ -z ${TMUX:-} ]] && return
-  local -a tokens=(${=1})
-  [[ ${tokens[1]:-} == ssh ]] || return
-  local resolved
-  resolved=$(eval "ssh -G ${1#ssh}" 2>/dev/null) || return
-  local host user
-  host=${${(M)${(f)resolved}:#hostname *}#hostname }
-  user=${${(M)${(f)resolved}:#user *}#user }
-  [[ -n $user && -n $host ]] || return
-  tmux set -p @ssh_target "$user@$host"
-  tmux refresh-client -S
-}
-
-_tmux_clear_ssh_target() {
-  [[ -z ${TMUX:-} ]] && return
-  [[ -z $(tmux show -p -v @ssh_target 2>/dev/null) ]] && return
-  tmux set -p -u @ssh_target
-  tmux refresh-client -S
-}
+# ── functions under test ─────────────────────────────────────────────────────
+REPO="${0:A:h:h}"
+ZSH_DOTFILES_TEST=1 source "$REPO/.config/zsh/tmux-hooks.zsh"
 
 # ── tests: _tmux_record_ssh_target (preexec) ─────────────────────────────────
 echo
