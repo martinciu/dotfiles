@@ -12,21 +12,21 @@ link() {
   local src="$DOTFILES/$1"
   local dst="$2"
   if [ ! -e "$src" ]; then
-    echo "missing: $src (skipping)"
+    echo "❓  $src (skipping)"
     return 0
   fi
   if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-    echo "ok:     $dst"
+    echo "✅  $dst"
     return 0
   fi
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     local backup="$dst.bak.$(date +%s)"
-    echo "BACKUP: $dst -> $backup"
+    echo "📦  $dst → $backup"
     mv "$dst" "$backup"
   fi
   mkdir -p "$(dirname "$dst")"
   ln -sfn "$src" "$dst"
-  echo "linked: $dst -> $src"
+  echo "🔗  $dst → $src"
 }
 
 # --- ghostty (already done; idempotent re-link)
