@@ -97,9 +97,10 @@ link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
 # --- zsh
-link ".zshrc"     "$HOME/.zshrc"
-link ".zprofile"  "$HOME/.zprofile"
-link ".p10k.zsh"  "$HOME/.p10k.zsh"
+link ".config/zsh" "$HOME/.config/zsh"
+link ".zshrc"      "$HOME/.zshrc"
+link ".zprofile"   "$HOME/.zprofile"
+link ".p10k.zsh"   "$HOME/.p10k.zsh"
 
 # --- git (global ignore — paths excluded across every repo on this machine)
 link ".gitignore_global" "$HOME/.gitignore_global"
