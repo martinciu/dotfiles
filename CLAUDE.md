@@ -257,6 +257,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **`lsp-lua-off.lua` was deleted** when the broader
   `lsp-disable-all.lua` landed. Don't reintroduce per-server opt-out
   files; add to the unified server list instead.
+- **No schemastore catalog injection for jsonls/yamlls.**
+  `lua/plugins/lsp-no-schema-fetch.lua` overrides LazyVim's
+  `before_init` hook (from `lang.json` and `lang.yaml` extras) with
+  a no-op so the ~700-entry schemastore.org catalog is never written
+  into `settings.{json,yaml}.schemas`. Why: each pattern match
+  triggers an HTTP fetch on first validation — fine when online and
+  fast, but a freeze risk on flaky networks and unwanted noise on
+  every `:LspOn jsonls` for ad-hoc work. Inline `$schema` URLs in
+  files still resolve normally. For projects that genuinely want
+  the full catalog, drop a `.nvim.lua` at the repo root that
+  restores LazyVim's injector — same `vim.o.exrc = true` caveat as
+  the per-project always-on path. Don't fold this into
+  `lsp-disable-all.lua`; that file's per-server `enabled/mason`
+  loop stays pure, and the schema-fetch override is conceptually
+  separate (different problem, different remediation).
 - **Mason-managed LSPs are pinned** via `mason-lock.json`. The lockfile
   is committed. `:MasonLock` snapshots the current state; `:MasonLockUpdate`
   upgrades to latest then snapshots — use the latter to bump versions.

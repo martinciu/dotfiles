@@ -320,6 +320,8 @@
 
 <p class="note">LSPs are <strong>off by default</strong>. Run <code>:LspOn &lt;name&gt;</code> once per session to enable a server (e.g. <code>:LspOn vtsls</code>); every matching buffer in that session auto-attaches from then on. Mason packages stay installed — opt-in is instant.</p>
 
+<p class="note">For <code>jsonls</code> / <code>yamlls</code>: the schemastore.org catalog injection is also <strong>off by default</strong>. Inline <code>$schema</code> URLs still resolve; the full ~700-pattern catalog stays out of <code>settings.{json,yaml}.schemas</code> so no HTTP fetches fan out on every recognized file. Restore via a per-project <code>.nvim.lua</code> when catalog validation is genuinely wanted.</p>
+
 <div class="grid">
 
   <div class="card">
