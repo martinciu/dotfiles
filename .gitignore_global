@@ -10,3 +10,6 @@
 # (per ~/.claude/CLAUDE.md — never committed in any repo)
 .superpowers/
 .autonomo/
+
+# Python
+__pycache__/
