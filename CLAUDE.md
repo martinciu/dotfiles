@@ -31,8 +31,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   instant prompt, OMZ bootstrap, `~/.zshrc.local`, `~/.secrets`, and one
   `source` per module). Concerns live in `.config/zsh/<concern>.zsh`:
   `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells), `colors.zsh`
-  (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `nvm.zsh`
-  (`load-nvmrc` + chpwd hook), `tmux-hooks.zsh` (window-label,
+  (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `mise.zsh`
+  (`mise activate zsh` registers a polyglot chpwd hook for `.nvmrc` /
+  `.tool-versions`; replaces the old `load-nvmrc` shell function. Ruby is
+  still on rbenv pending its own migration — see issue #110), `tmux-hooks.zsh` (window-label,
   ssh-target, `CLAUDE_CODE_TMUX_TRUECOLOR`), `modern-reminder.zsh`
   (default→modern tool nudge), `prompt.zsh` (p10k source +
   `_p9k_project_context`), `aliases.zsh` (color-aware tool aliases +
@@ -46,7 +48,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   test scripts (`test-tmux-window-label.zsh`, `test-modern-reminder.zsh`,
   `test-tmux-ssh-target.zsh`, `test-prompt-context.zsh`) source the
   real module instead of holding inline duplicates. `~/.zshrc.local`
-  sources between `colors.zsh` and `nvm.zsh` — after PATH appends but
+  sources between `colors.zsh` and `mise.zsh` — after PATH appends but
   before any hook-registering module. Don't add new top-level
   `source` calls to `.zshrc` outside the `.config/zsh/` set; new
   concerns get their own module file.
