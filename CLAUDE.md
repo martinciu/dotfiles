@@ -302,16 +302,18 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Solarized + JetBrainsMono Nerd Font everywhere — except the starship
   prompt.** Every other tool (tmux, btop, lnav, bat, delta, glow, eza, vivid,
   fzf, procs, tailspin, xh, syntax-highlighting plugins, …) stays Solarized
-  Dark. The starship prompt is the documented exception: it uses a pastel
-  powerline palette (`#DA627D` rose, `#FCA17D` peach, `#86BBD8` light blue)
-  named alongside the Solarized hex codes inside `[palettes.solarized_dark]`
-  in `.config/starship.toml`. Why: connected-gradient powerline chips earn
-  the palette break at the most-looked-at part of the terminal. How to
-  apply: don't extend the pastel palette to other tools without an explicit
-  ask, and don't revert the prompt to Solarized chips without an ask either
-  — see `.superpowers/specs/2026-05-06-pastel-powerline-design.md` for the
-  trade-offs (in particular the small artifact slivers that pure-α
-  continuous-flow rendering produces when conditional chips are absent).
+  Dark. The starship prompt is the documented exception: it uses a single
+  pastel rose accent (`#DA627D`) named alongside the Solarized hex codes
+  inside `[palettes.solarized_dark]` in `.config/starship.toml`. The chip
+  is flush-left (no leading cap) and ends with a U+E0B4 `` rounded right
+  cap; the prompt character drops to line 2. Why: a single-chip flush-left
+  directory + rounded-right cap reads cleanly without committing to a
+  multi-color powerline (which hits a starship parsing limitation where
+  `bg:` is silently dropped when both `fg:` and `bg:` reference custom
+  palette names in the top-level format string). How to apply: don't
+  extend the pastel palette to other tools without an explicit ask, and
+  don't add chips with `(fg:custom_a bg:custom_b)` styles in the format
+  string — they will render with `bg` missing.
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
