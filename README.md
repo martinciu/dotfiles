@@ -119,7 +119,7 @@ reverting is one `chsh` call.
 - ✅ Solarized fzf palette, LS_COLORS via vivid
 - ❌ Tmux window-name follow-last-cmd (`@last_cmd` hook is zsh-only for now)
 - ❌ Ghostty tab SSH-target overlay (`@ssh_target` hook is zsh-only for now)
-- ❌ `MODERN_REMINDER` discoverability nudge (zsh-only for now)
+- ✅ `MODERN_REMINDER` discoverability nudge (parity with zsh)
 - ❌ fzf-tab-style completion menu — fish's built-in completion pager
   replaces it; the look-and-feel differs but the UX is on par.
 
