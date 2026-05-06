@@ -58,6 +58,3 @@ style  = "cyan"
 disabled = false
 format   = "[$status]($style) "
 style    = "red"
-
-[transient_prompt]
-format = "[❯](bold green) "
