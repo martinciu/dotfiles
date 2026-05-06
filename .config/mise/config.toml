@@ -1,0 +1,11 @@
+[tools]
+node = "lts"
+ruby = "3.4.8"
+yarn = "1"
+
+[settings]
+legacy_version_file = true
+idiomatic_version_file_enable_tools = ["node", "ruby"]
+
+[settings.ruby]
+compile = false
