@@ -36,6 +36,7 @@ brew "difftastic"               # syntactic diff for ad-hoc compares (non-git)
 brew "glow"                     # render markdown to ANSI
 brew "tailspin"                 # syntax-highlighted log viewer (tspin)
 brew "vivid"                    # generates LS_COLORS palettes
+brew "powerlevel10k"            # p10k prompt theme (loaded directly, no OMZ)
 brew "procs"                    # modern ps replacement (Rust)
 brew "xh"                       # modern HTTP client (HTTPie-compatible CLI, Solarized-aware)
 brew "zsh-syntax-highlighting"  # live command-line highlighting
