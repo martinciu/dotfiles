@@ -299,8 +299,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   upgrades to latest then snapshots — use the latter to bump versions.
 - **`lazy-lock.json` and `mason-lock.json` are committed** for
   reproducibility across machines.
-- **Solarized + JetBrainsMono Nerd Font everywhere.** No alternatives without
-  asking.
+- **Solarized + JetBrainsMono Nerd Font everywhere — except the starship
+  prompt.** Every other tool (tmux, btop, lnav, bat, delta, glow, eza, vivid,
+  fzf, procs, tailspin, xh, syntax-highlighting plugins, …) stays Solarized
+  Dark. The starship prompt is the documented exception: it uses a pastel
+  powerline palette (`#DA627D` rose, `#FCA17D` peach, `#86BBD8` light blue)
+  named alongside the Solarized hex codes inside `[palettes.solarized_dark]`
+  in `.config/starship.toml`. Why: connected-gradient powerline chips earn
+  the palette break at the most-looked-at part of the terminal. How to
+  apply: don't extend the pastel palette to other tools without an explicit
+  ask, and don't revert the prompt to Solarized chips without an ask either
+  — see `.superpowers/specs/2026-05-06-pastel-powerline-design.md` for the
+  trade-offs (in particular the small artifact slivers that pure-α
+  continuous-flow rendering produces when conditional chips are absent).
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
