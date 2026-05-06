@@ -43,6 +43,7 @@ brew "zsh-syntax-highlighting"  # live command-line highlighting
 brew "zsh-autosuggestions"      # ghost-text completion from history
 brew "fzf-tab"                  # fzf-driven Tab completion menu
 brew "lnav"                     # TUI log file navigator
+brew "fish"                     # alternative interactive shell (trial)
 
 # System monitoring & benchmarking
 brew "btop"                     # modern top replacement (themed Solarized)
