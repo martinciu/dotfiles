@@ -52,6 +52,22 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   before any hook-registering module. Don't add new top-level
   `source` calls to `.zshrc` outside the `.config/zsh/` set; new
   concerns get their own module file.
+- **Fish module layout (trial shell).** Fish is a *trial*, not the daily
+  driver — zsh stays primary. Config lives under `.config/fish/`,
+  symlinked into `~/.config/fish` by `bootstrap.sh`. `config.fish` is
+  intentionally empty (`# fish loads conf.d/*.fish automatically`); all
+  concerns live in `conf.d/<NN>-<concern>.fish` with the numeric prefix
+  pinning load order: `00-env`, `10-colors`, `15-local` (per-machine,
+  untracked), `20-mise`, `25-prompt` (starship), `30-aliases`,
+  `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `99-secrets` (untracked). The two untracked files (`15-local.fish`,
+  `99-secrets.fish`) are copied from `.template` companions by
+  `bootstrap.sh` on first run. `functions/less.fish` mirrors the zsh
+  bat-backed `less` wrapper; `completions/wt.fish` adds tab-completion
+  for worktrunk subcommands/branches. Don't port interactive nudges
+  (`modern-reminder`, tmux preexec hooks) to fish without an explicit
+  ask — those are zsh-side by design while fish is on trial. Smoke
+  test: `scripts/test-fish-loads.sh`.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
 - **Global gitignore is symlinked from `.gitignore_global`** (repo root,
@@ -529,11 +545,11 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`, `zsh/`, `starship.toml`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow,zsh}`, `~/.config/sesh/sesh.toml`, `~/.config/starship.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `btop/`, `ccstatusline/`, `fish/`, `ghostty/`, `glow/`, `lnav/`, `nvim/`, `procs/`, `sesh/`, `tailspin/`, `tmux/`, `worktrunk/`, `xh/`, `zsh/`, plus `starship.toml`)
+- Targets: `~/.config/{btop,ccstatusline,fish,ghostty,glow,nvim,procs,tailspin,tmux,worktrunk,xh,zsh}` (whole-dir links), `~/.config/sesh/sesh.toml`, `~/.config/lnav/{configs,formats}/installed`, `~/.config/mise/config.toml`, `~/.config/starship.toml` (file/partial links), `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
-- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator}`
+- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`
 - Smoke tests for helpers: `scripts/test-helpers.sh`
 
 ## Cheatsheets (`docs/`)
