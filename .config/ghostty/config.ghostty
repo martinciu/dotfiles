@@ -11,7 +11,7 @@ selection-background = #93a1a1
 
 # ─── Font ─────────────────────────────────────
 font-family = JetBrainsMono Nerd Font Mono
-font-size = 16
+font-size = 14
 # Slightly bolder strokes on macOS retina.
 font-thicken = true
 
