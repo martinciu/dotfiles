@@ -43,5 +43,4 @@ if command -v bat >/dev/null 2>&1; then
 fi
 
 export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
