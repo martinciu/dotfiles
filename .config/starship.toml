@@ -31,7 +31,7 @@ frame   = "#586e75"   # base01 — matches p10k color 242 used today
 pastel_rose  = "#DA627D"
 
 [directory]
-format = "[](fg:pastel_rose)[ $path ]($style)"
+format = "[ $path ]($style)"
 style  = "fg:base3 bg:pastel_rose"
 truncation_length = 3
 truncation_symbol = "…/"
