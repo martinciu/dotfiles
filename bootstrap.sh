@@ -90,9 +90,10 @@ if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
   echo "✨  ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
 fi
 
-# --- mise (polyglot runtime version manager; only config.toml — mise writes
-# trustrc and other runtime state into the real ~/.config/mise/)
-link ".config/mise/config.toml" "$HOME/.config/mise/config.toml"
+# --- mise (polyglot runtime version manager)
+# Stored as mise.global.toml at repo root (not under .config/mise/) to avoid
+# mise auto-discovering it as a local project config when inside the dotfiles dir.
+link "mise.global.toml" "$HOME/.config/mise/config.toml"
 
 # --- nvim
 link ".config/nvim"    "$HOME/.config/nvim"
