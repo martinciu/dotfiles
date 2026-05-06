@@ -2,7 +2,7 @@
 # All side-effect (env exports). Tests don't source this file.
 
 # ─── Colors & appearance ────────────────────
-# LS_COLORS for eza (and GNU ls if present); BSD `\ls` keeps OMZ default LSCOLORS.
+# LS_COLORS for eza (and GNU ls if present).
 command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate solarized-dark)"
 
 # zsh-autosuggestions: dim ghost text, readable on Solarized Dark.

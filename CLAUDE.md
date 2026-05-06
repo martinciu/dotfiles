@@ -25,12 +25,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `~/.zprofile.local` (untracked; copy from `.zprofile.local.template`),
   mirroring the `.zshrc.local` pattern. Use `.zprofile.local` rather than
   `.zshrc.local` whenever a tool's init does `fpath+=` or otherwise needs
-  to run before `compinit` — `.zshrc.local` is sourced after `oh-my-zsh.sh`
-  (which runs `compinit`), so late `fpath+=` silently no-ops there.
+  to run before `compinit` — `.zshrc.local` is sourced after `compinit`
+  (which runs near the top of `.zshrc`), so late `fpath+=` silently
+  no-ops there.
 - **Zsh module layout.** `.zshrc` is a thin orchestrator (~30 lines: p10k
-  instant prompt, OMZ bootstrap, `~/.zshrc.local`, `~/.secrets`, and one
-  `source` per module). Concerns live in `.config/zsh/<concern>.zsh`:
-  `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells), `colors.zsh`
+  instant prompt, `compinit`, p10k theme load, `~/.zshrc.local`,
+  `~/.secrets`, and one `source` per module). Concerns live in `.config/zsh/<concern>.zsh`:
+  `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells, emacs keybindings,
+  history config, shell options), `colors.zsh`
   (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `mise.zsh`
   (`mise activate zsh` registers a polyglot chpwd hook for `.nvmrc` /
   `.ruby-version` / `.tool-versions`), `tmux-hooks.zsh` (window-label,
