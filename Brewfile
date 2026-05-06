@@ -18,7 +18,7 @@ brew "zoxide"  # frecency-ranked dir jumping; sesh picker source
 # Worktree manager
 brew "worktrunk"
 
-# Runtime version manager (Node; Ruby still on rbenv pending its own migration)
+# Runtime version manager (Node + Ruby)
 brew "mise"
 
 # Editor — neovim IDE (LazyVim)
