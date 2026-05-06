@@ -1,13 +1,4 @@
-# Powerlevel10k instant prompt — must stay near top of file. Initialization
-# code that may require console input (password prompts, [y/n] confirmations,
-# etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 autoload -Uz compinit && compinit
-
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 
 # Split modules — load order matters; see plugins.zsh header for plugin order.
 ZDOTFILES="${HOME}/.config/zsh"
