@@ -314,6 +314,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   extend the pastel palette to other tools without an explicit ask, and
   don't add chips with `(fg:custom_a bg:custom_b)` styles in the format
   string — they will render with `bg` missing.
+  Fish opts into Starship's transient prompt; zsh deliberately
+  does not. After Enter, fish replaces the active line's rose chip
+  with a bare bold rose `❯` on the frozen line — `cmd_duration` and
+  `status` on the right side stay intact (no `[transient_right_prompt]`
+  configured, so starship preserves `right_format` for free). Wired
+  by `enable_transience` (defined by `starship init fish`) called from
+  `.config/fish/conf.d/25-prompt.fish`. The `[transient_prompt]` block
+  in `.config/starship.toml` is shared across shells but inert for zsh
+  because `prompt.zsh` does not call `enable_transience` (and on the
+  installed starship version, `starship init zsh` does not even define
+  the function — so zsh literally cannot opt in by accident). Why
+  fish-only: the feature is being evaluated as part of the fish trial;
+  zsh remains the always-fancy daily driver until the trial concludes.
+  How to apply: don't add `enable_transience` to `prompt.zsh` without
+  an explicit ask — the asymmetry is deliberate.
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project hook approvals (`approvals.toml`) are machine-local and
   gitignored.
