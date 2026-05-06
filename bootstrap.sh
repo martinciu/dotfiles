@@ -109,6 +109,19 @@ link ".zshrc"      "$HOME/.zshrc"
 link ".zprofile"   "$HOME/.zprofile"
 link ".config/starship.toml" "$HOME/.config/starship.toml"
 
+# --- fish (alternative shell trial)
+link ".config/fish" "$HOME/.config/fish"
+if [ ! -f "$HOME/.config/fish/conf.d/15-local.fish" ]; then
+  cp "$DOTFILES/.config/fish/conf.d/15-local.fish.template" \
+     "$HOME/.config/fish/conf.d/15-local.fish"
+  echo "✨  ~/.config/fish/conf.d/15-local.fish (edit to set PROJECTS_HOME etc.)"
+fi
+if [ ! -f "$HOME/.config/fish/conf.d/99-secrets.fish" ]; then
+  cp "$DOTFILES/.config/fish/conf.d/99-secrets.fish.template" \
+     "$HOME/.config/fish/conf.d/99-secrets.fish"
+  echo "✨  ~/.config/fish/conf.d/99-secrets.fish (edit to add machine secrets)"
+fi
+
 # --- git (global ignore — paths excluded across every repo on this machine)
 link ".gitignore_global" "$HOME/.gitignore_global"
 
