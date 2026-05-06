@@ -376,7 +376,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `scripts/test-claude-tmux-window-name.zsh` exercises the script through a
   temp `$HOME` and a `tmux` PATH shim, so no in-place duplication of logic.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
-  `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
+  `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, fish n/a — no `BEEP`-equivalent
+  option (fish doesn't ring on completion miss / empty-line backspace);
+  any `\a` it does emit is consumed at the Ghostty/tmux layer (documented
+  inline in `.config/fish/conf.d/00-env.fish`), vim `belloff=all`, tmux
   `bell-action/visual-bell/monitor-bell off`). Don't re-enable without
   an explicit ask.
 - **Terminal tools are Solarized Dark, end-to-end.** Tools: `eza` (ls),
