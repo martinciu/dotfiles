@@ -2,11 +2,10 @@
 
 palette = "solarized_dark"
 
-format = """
-[╭─](frame)$directory$git_branch$git_status
-[╰─](frame)$character"""
+format = """$directory[](fg:pastel_peach bg:pastel_rose)$git_branch[](fg:pastel_lblue bg:pastel_peach)$git_status[](fg:pastel_lblue)
+$character"""
 
-right_format = "$cmd_duration$jobs$status"
+right_format = "$status$cmd_duration"
 
 [palettes.solarized_dark]
 # Same hex codes already pinned in tmux/btop/lnav configs.
@@ -27,34 +26,41 @@ blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
 frame   = "#586e75"   # base01 — matches p10k color 242 used today
+# Pastel powerline accents — scoped exception to "Solarized everywhere" (see CLAUDE.md).
+# Used only by the prompt; every other tool stays Solarized.
+pastel_rose  = "#DA627D"
+pastel_peach = "#FCA17D"
+pastel_lblue = "#86BBD8"
 
 [directory]
-format = "[$path]($style)[$read_only]($read_only_style) "
-style  = "blue"
+format = "[](fg:pastel_rose)[ $path ]($style)"
+style  = "fg:base3 bg:pastel_rose"
+truncation_length = 3
+truncation_symbol = "…/"
 
 [git_branch]
-format = "on [$symbol$branch]($style) "
-style  = "violet"
+format = "[ $symbol$branch ]($style)"
+style  = "fg:base3 bg:pastel_peach"
+symbol = " "
 
 [git_status]
-format = "[$all_status$ahead_behind]($style) "
-style  = "yellow"
+format = "([ $all_status$ahead_behind ]($style))"
+style  = "fg:base3 bg:pastel_lblue"
 
 [character]
-success_symbol = "[❯](green)"
-error_symbol   = "[❯](red)"
-vicmd_symbol   = "[❮](green)"
+success_symbol = "[❯](bold fg:pastel_lblue)"
+error_symbol   = "[❯](bold fg:pastel_rose)"
+vicmd_symbol   = "[❮](bold fg:pastel_lblue)"
 
 [cmd_duration]
 min_time = 2000
-format   = "took [$duration]($style) "
-style    = "yellow"
-
-[jobs]
-format = "[$symbol$number]($style) "
-style  = "cyan"
+format   = "[ $duration]($style) "
+style    = "fg:pastel_peach"
 
 [status]
 disabled = false
-format   = "[$status]($style) "
-style    = "red"
+format   = "[✘ $status]($style) "
+style    = "fg:pastel_rose"
+
+[jobs]
+disabled = true
