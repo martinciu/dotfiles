@@ -2,7 +2,7 @@
 
 palette = "solarized_dark"
 
-format = """$directory[](fg:pastel_peach bg:pastel_rose)$git_branch[](fg:pastel_lblue bg:pastel_peach)$git_status[](fg:pastel_lblue)
+format = """$directory[](fg:pastel_rose)
 $character"""
 
 right_format = "$status$cmd_duration"
@@ -29,8 +29,6 @@ frame   = "#586e75"   # base01 — matches p10k color 242 used today
 # Pastel powerline accents — scoped exception to "Solarized everywhere" (see CLAUDE.md).
 # Used only by the prompt; every other tool stays Solarized.
 pastel_rose  = "#DA627D"
-pastel_peach = "#FCA17D"
-pastel_lblue = "#86BBD8"
 
 [directory]
 format = "[](fg:pastel_rose)[ $path ]($style)"
@@ -38,24 +36,15 @@ style  = "fg:base3 bg:pastel_rose"
 truncation_length = 3
 truncation_symbol = "…/"
 
-[git_branch]
-format = "[ $symbol$branch ]($style)"
-style  = "fg:base3 bg:pastel_peach"
-symbol = " "
-
-[git_status]
-format = "([ $all_status$ahead_behind ]($style))"
-style  = "fg:base3 bg:pastel_lblue"
-
 [character]
-success_symbol = "[❯](bold fg:pastel_lblue)"
+success_symbol = "[❯](bold fg:pastel_rose)"
 error_symbol   = "[❯](bold fg:pastel_rose)"
-vicmd_symbol   = "[❮](bold fg:pastel_lblue)"
+vicmd_symbol   = "[❮](bold fg:pastel_rose)"
 
 [cmd_duration]
 min_time = 2000
 format   = "[ $duration]($style) "
-style    = "fg:pastel_peach"
+style    = "fg:pastel_rose"
 
 [status]
 disabled = false
