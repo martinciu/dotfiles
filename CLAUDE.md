@@ -500,7 +500,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   can re-use the same evaluation. Don't alias `time` to `hyperfine`, don't
   ship a wrapper that pins `--warmup` defaults (warmup count is workload-
   specific — wrong as often as right). No `.zshrc` change for this tool.
-- **`modern-reminder` is a zsh-level discoverability nudge** for default→modern
+- **`modern-reminder` is a shell-level discoverability nudge** for default→modern
   tool pairs that this setup intentionally leaves *unaliased* (the "no synonyms,
   just the binary's name" pattern shared by `tail`/`tspin`, `grep`/`rg`, and
   `curl`/`xh`). Defined in `.config/zsh/modern-reminder.zsh` as two associative arrays
@@ -508,17 +508,28 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `_modern_reminder_preexec` (scan-all-tokens via `${(z)…}`, strips leading
   `\` and dirname) and `_modern_reminder_precmd` (env-var guard, once-per-shell
   seen set, `command -v` check, `print -P "${_modern_reminder_hints[$cmd]}"`).
+  Fish equivalent at `.config/fish/conf.d/50-modern-reminder.fish` —
+  parallel-list catalog (`_modern_reminder_keys` /
+  `_modern_reminder_modern` / `_modern_reminder_glyphs` /
+  `_modern_reminder_samples`, indexed together — fish has no
+  associative arrays), `_modern_reminder_scan` invoked from a
+  `--on-event fish_preexec` handler, `set_color yellow` for the
+  Solarized highlight, glyphs decoded at runtime via `printf '%b'`
+  from `\u…` escapes (same 7-bit-ASCII-source rationale).
   Each hint embeds its own Nerd Font glyph as a `\u…` escape and Solarized
   yellow via `%F{yellow}%f` so `print -P` decodes both at runtime — keeps
   source 7-bit ASCII and avoids editor/clipboard mangling of private-use
   codepoints. Don't put backticks or `$(…)` inside hint text: under
   `PROMPT_SUBST` (set by starship init), `print -P` performs command substitution on
   the prompt string. Use single quotes for sample-syntax emphasis. Toggled
-  by `export MODERN_REMINDER=1`; comment that line to disable. State is
-  per-zsh-process — a fresh tmux pane resets the seen set. Tests:
-  `scripts/test-modern-reminder.zsh` sources the module under
-  `ZSH_DOTFILES_TEST=1`, so there is no duplicate copy of the function
-  bodies. **When introducing a new modern terminal
+  by `export MODERN_REMINDER=1`; comment that line to disable. Toggled
+  by `set -gx MODERN_REMINDER 1` in fish (parallel to zsh's
+  `export MODERN_REMINDER=1`). State is
+  per-shell-process — a fresh tmux pane resets the seen set. Tests:
+  `scripts/test-modern-reminder.zsh` (zsh) and
+  `scripts/test-modern-reminder.fish` (fish) source their respective
+  modules under `ZSH_DOTFILES_TEST=1` / `MODERN_REMINDER_TEST=1`, so
+  there is no duplicate copy of the function bodies. **When introducing a new modern terminal
   tool under the "no synonyms" pattern, evaluate it against the inclusion
   criteria (default in common interactive use; modern alternative installed and
   Solarized-themed; default deliberately unaliased) and add it to
@@ -581,7 +592,8 @@ filename is the source of truth).
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshot thumbnails: `scripts/build-screenshots.sh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
-- Modern-reminder tests: `scripts/test-modern-reminder.zsh`
+- Modern-reminder tests (zsh): `scripts/test-modern-reminder.zsh`
+- Modern-reminder tests (fish): `scripts/test-modern-reminder.fish`
 - Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`
 - tmux SSH-indicator tests: `scripts/test-tmux-ssh-indicator.sh`
