@@ -5,11 +5,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Oh-My-Zsh bootstrap — plugins=() must precede `source $ZSH/oh-my-zsh.sh`.
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=()
-source "$ZSH/oh-my-zsh.sh"
+autoload -Uz compinit && compinit
+
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 
 # Split modules — load order matters; see plugins.zsh header for plugin order.
 ZDOTFILES="${HOME}/.config/zsh"
