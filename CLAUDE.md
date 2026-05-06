@@ -60,13 +60,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   pinning load order: `00-env`, `10-colors`, `15-local` (per-machine,
   untracked), `20-mise`, `25-prompt` (starship), `30-aliases`,
   `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `50-tmux-hooks` (fish_preexec → `@last_cmd` per-pane stamp),
   `99-secrets` (untracked). The two untracked files (`15-local.fish`,
   `99-secrets.fish`) are copied from `.template` companions by
   `bootstrap.sh` on first run. `functions/less.fish` mirrors the zsh
   bat-backed `less` wrapper; `completions/wt.fish` adds tab-completion
-  for worktrunk subcommands/branches. Don't port interactive nudges
-  (`modern-reminder`, tmux preexec hooks) to fish without an explicit
-  ask — those are zsh-side by design while fish is on trial. Smoke
+  for worktrunk subcommands/branches. The fish_preexec port for the
+  tmux window-name `@last_cmd` stamp lives in
+  `conf.d/50-tmux-hooks.fish` (issue #131). Don't port the
+  `modern-reminder` interactive nudge to fish without an explicit ask —
+  that one stays zsh-side by design while fish is on trial. Smoke
   test: `scripts/test-fish-loads.sh`.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check` and
   prints what's missing — it does not install. Don't change that.
@@ -374,15 +377,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   worktrunk paths, sibling worktrees alike). Don't replace with
   `git worktree list` parsing.
 - **tmux window name follows the active pane's last typed command.**
-  zsh `preexec` hook `_tmux_record_last_cmd` (in `.config/zsh/tmux-hooks.zsh`)
-  sets a per-pane `@last_cmd` user variable; `tmux.conf` enables
-  `automatic-rename` with a format that reads it. Env-var assignments are
-  stripped, then the first two whitespace-separated tokens are used.
-  `allow-rename off` stays so OSC titles from apps (e.g. Claude Code) cannot
-  override. Don't replace with `automatic-rename off` or wire app-specific
-  renames without an explicit ask. `scripts/test-tmux-window-label.zsh`
-  sources the same module under `ZSH_DOTFILES_TEST=1`, so the label
-  function `_tmux_window_label` has no duplicate copy.
+  Both zsh and fish set a per-pane `@last_cmd` user variable from their
+  respective preexec hooks: `.config/zsh/tmux-hooks.zsh` (zsh `preexec`)
+  and `.config/fish/conf.d/50-tmux-hooks.fish` (fish `fish_preexec`
+  event). `tmux.conf` enables `automatic-rename` with a format that reads
+  it. Env-var assignments are stripped, then the first two
+  whitespace-separated tokens are used. `allow-rename off` stays so OSC
+  titles from apps (e.g. Claude Code) cannot override. Don't replace
+  with `automatic-rename off` or wire app-specific renames without an
+  explicit ask. `scripts/test-tmux-window-label.zsh` sources the zsh
+  module under `ZSH_DOTFILES_TEST=1`; `scripts/test-fish-tmux-window-label.fish`
+  sources the fish module under `FISH_DOTFILES_TEST=1`. Both run the
+  same 11-case matrix, so the label function `_tmux_window_label` has
+  no duplicate copy in either shell.
   When a Claude Code session is active in the pane,
   `@claude_session_name` overrides `@last_cmd` and the window renders
   `claude[<name>]`. Set/cleared by `~/.config/tmux/bin/claude-tmux-window-name`
@@ -617,6 +624,7 @@ filename is the source of truth).
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshot thumbnails: `scripts/build-screenshots.sh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
+- Fish tmux window-label tests: `scripts/test-fish-tmux-window-label.fish`
 - Modern-reminder tests: `scripts/test-modern-reminder.zsh`
 - Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name tests: `scripts/test-claude-tmux-window-name.zsh`

@@ -117,7 +117,7 @@ reverting is one `chsh` call.
 - ✅ Modern integrations (starship prompt, mise, zoxide, fzf bindings, wt)
 - ✅ Solarized syntax highlighting + autosuggestions (fish-native, no plugin)
 - ✅ Solarized fzf palette, LS_COLORS via vivid
-- ❌ Tmux window-name follow-last-cmd (`@last_cmd` hook is zsh-only for now)
+- ✅ Tmux window-name follow-last-cmd (`@last_cmd` stamped from `fish_preexec`)
 - ❌ Ghostty tab SSH-target overlay (`@ssh_target` hook is zsh-only for now)
 - ❌ `MODERN_REMINDER` discoverability nudge (zsh-only for now)
 - ❌ fzf-tab-style completion menu — fish's built-in completion pager
