@@ -107,7 +107,7 @@ mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 link ".config/zsh" "$HOME/.config/zsh"
 link ".zshrc"      "$HOME/.zshrc"
 link ".zprofile"   "$HOME/.zprofile"
-link ".p10k.zsh"   "$HOME/.p10k.zsh"
+link ".config/starship.toml" "$HOME/.config/starship.toml"
 
 # --- git (global ignore — paths excluded across every repo on this machine)
 link ".gitignore_global" "$HOME/.gitignore_global"
