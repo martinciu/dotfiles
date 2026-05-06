@@ -1,0 +1,7 @@
+# Per-machine fish config. Copied from .template by bootstrap.sh on first run.
+# Parallel to ~/.zshrc.local.
+
+set -gx PROJECTS_HOME $HOME/code
+
+# Add machine-local PATH entries here, e.g.:
+# fish_add_path -gP $HOME/some-tool/bin

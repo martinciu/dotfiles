@@ -588,6 +588,7 @@ filename is the source of truth).
 - tmux SSH-target (outbound overlay) tests: `scripts/test-tmux-ssh-target.zsh`
 - Session-root binding tests: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration tests: `scripts/test-dashboard.sh`
+- Fish config smoke test: `scripts/test-fish-loads.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Check brew deps without installing: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke test: `scripts/test-nvim.sh`

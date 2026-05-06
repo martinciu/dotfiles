@@ -40,3 +40,12 @@ tmp/
 # editor swap
 *.swp
 *~
+
+# fish machine-local config — copied from .template by bootstrap.sh
+.config/fish/conf.d/15-local.fish
+.config/fish/conf.d/99-secrets.fish
+
+# fish runtime state (universal vars, history, generated completions)
+.config/fish/fish_variables
+.config/fish/fish_history
+.config/fish/generated_completions/
