@@ -2,7 +2,7 @@
 
 palette = "solarized_dark"
 
-format = """$directory[](fg:pastel_peach bg:pastel_rose)$git_branch[](fg:pastel_lblue bg:pastel_peach)$git_status[](fg:pastel_lblue)
+format = """$directory[](fg:pastel_peach bg:pastel_rose)$git_branch[](fg:pastel_lblue bg:pastel_peach)$git_status[](fg:pastel_lblue)
 $character"""
 
 right_format = "$status$cmd_duration"
@@ -33,7 +33,7 @@ pastel_peach = "#FCA17D"
 pastel_lblue = "#86BBD8"
 
 [directory]
-format = "[](fg:pastel_rose)[ $path ]($style)"
+format = "[](fg:pastel_rose)[ $path ]($style)"
 style  = "fg:base3 bg:pastel_rose"
 truncation_length = 3
 truncation_symbol = "…/"
@@ -41,7 +41,7 @@ truncation_symbol = "…/"
 [git_branch]
 format = "[ $symbol$branch ]($style)"
 style  = "fg:base3 bg:pastel_peach"
-symbol = " "
+symbol = " "
 
 [git_status]
 format = "([ $all_status$ahead_behind ]($style))"
