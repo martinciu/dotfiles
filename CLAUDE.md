@@ -33,8 +33,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells), `colors.zsh`
   (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `mise.zsh`
   (`mise activate zsh` registers a polyglot chpwd hook for `.nvmrc` /
-  `.tool-versions`; replaces the old `load-nvmrc` shell function. Ruby is
-  still on rbenv pending its own migration — see issue #110), `tmux-hooks.zsh` (window-label,
+  `.ruby-version` / `.tool-versions`), `tmux-hooks.zsh` (window-label,
   ssh-target, `CLAUDE_CODE_TMUX_TRUECOLOR`), `modern-reminder.zsh`
   (default→modern tool nudge), `prompt.zsh` (p10k source +
   `_p9k_project_context`), `aliases.zsh` (color-aware tool aliases +
