@@ -33,7 +33,7 @@ fixture=$(mktemp -d)
 trap 'rm -rf "$fixture"' EXIT
 mkdir -p "$fixture/.config"
 ln -s "$FISH_DIR" "$fixture/.config/fish"
-if ! HOME="$fixture" fish -c 'type -q cat; and type -q ls; and type -q vim' \
+if ! HOME="$fixture" fish -c 'functions -q cat; and functions -q ls; and functions -q vim' \
     2>/tmp/fish-smoke-err; then
   echo "❌ fish session smoke failed:"
   cat /tmp/fish-smoke-err
