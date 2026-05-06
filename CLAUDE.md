@@ -390,13 +390,26 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   sources the fish module under `FISH_DOTFILES_TEST=1`. Both run the
   same 11-case matrix, so the label function `_tmux_window_label` has
   no duplicate copy in either shell.
-  When a Claude Code session is active in the pane,
-  `@claude_session_name` overrides `@last_cmd` and the window renders
-  `claude[<name>]`. Set/cleared by `~/.config/tmux/bin/claude-tmux-window-name`
-  via Claude Code hooks (`SessionStart`, `Stop`, `SessionEnd`) wired in
-  `~/.claude/settings.json`. The hook config is per-machine (not symlinked
-  from this repo — see [`README.md`](README.md) → "Setup (new machine)"). The script's
-  test mock and the script itself live separately —
+  When a Claude Code session is active in the pane the window renders
+  `claude[<basename(cwd)>]`. Two tiers wire this in `automatic-rename-format`,
+  in order:
+  (1) `@claude_session_name` (per-pane), set by
+  `~/.config/tmux/bin/claude-tmux-window-name` via Claude Code hooks
+  (`SessionStart`, `Stop`, `SessionEnd`) wired in `~/.claude/settings.json` —
+  currently dormant because Claude Code's `~/.claude/sessions/<pid>.json`
+  dropped the `.name` field as of ~2.1.126, so the helper's jq lookup
+  `.name // empty` always bails. Tier kept for forward-compat in case
+  upstream restores it.
+  (2) `pane_current_command` regex-matches semver
+  (`^[0-9]+\.[0-9]+\.[0-9]+$`) — Claude Code installs as
+  `~/.local/bin/claude → ~/.local/share/claude/versions/<X.Y.Z>`, so the
+  kernel-recorded `comm` for the foreground process is the version string
+  (e.g. `2.1.131`). When that matches, render `claude[#{b:pane_current_path}]`
+  (basename of the pane's cwd — gives the project/worktree). Sidesteps the
+  dead `.name` field entirely; works without any helper invocation.
+  The hook config is per-machine (not symlinked from this repo — see
+  [`README.md`](README.md) → "Setup (new machine)"). The script's test mock
+  and the script itself live separately —
   `scripts/test-claude-tmux-window-name.zsh` exercises the script through a
   temp `$HOME` and a `tmux` PATH shim, so no in-place duplication of logic.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
