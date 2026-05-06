@@ -39,7 +39,7 @@ fi
 # BEFORE zsh-autosuggestions / zsh-syntax-highlighting (both wrap widgets).
 [[ -f /opt/homebrew/opt/fzf-tab/share/fzf-tab/fzf-tab.zsh ]] && \
   source /opt/homebrew/opt/fzf-tab/share/fzf-tab/fzf-tab.zsh
-# OMZ sets `menu select`; fzf-tab needs this disabled to capture completions.
+# fzf-tab needs `menu select` disabled to capture completions.
 zstyle ':completion:*' menu no
 # Group completions by tag with a labeled header.
 zstyle ':completion:*:descriptions' format '[%d]'
