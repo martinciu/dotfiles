@@ -1,6 +1,6 @@
-# Polyglot runtime version manager (Node here; Ruby still on rbenv pending
-# its own migration). mise's `activate` registers a chpwd hook that
-# auto-switches versions per .nvmrc / .tool-versions in Rust.
+# Polyglot runtime version manager (Node + Ruby). mise's `activate`
+# registers a chpwd hook that auto-switches versions per .nvmrc /
+# .ruby-version / .tool-versions.
 
 [[ -n ${ZSH_DOTFILES_TEST:-} ]] && return
 
