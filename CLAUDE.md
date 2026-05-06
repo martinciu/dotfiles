@@ -390,28 +390,27 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   sources the fish module under `FISH_DOTFILES_TEST=1`. Both run the
   same 11-case matrix, so the label function `_tmux_window_label` has
   no duplicate copy in either shell.
-  When a Claude Code session is active in the pane the window renders
-  `claude[<basename(cwd)>]`. Two tiers wire this in `automatic-rename-format`,
-  in order:
-  (1) `@claude_session_name` (per-pane), set by
-  `~/.config/tmux/bin/claude-tmux-window-name` via Claude Code hooks
-  (`SessionStart`, `Stop`, `SessionEnd`) wired in `~/.claude/settings.json` —
-  currently dormant because Claude Code's `~/.claude/sessions/<pid>.json`
-  dropped the `.name` field as of ~2.1.126, so the helper's jq lookup
-  `.name // empty` always bails. Tier kept for forward-compat in case
-  upstream restores it.
-  (2) `pane_current_command` regex-matches semver
-  (`^[0-9]+\.[0-9]+\.[0-9]+$`) — Claude Code installs as
+  When a Claude Code session is active in the pane the window renders the
+  literal `claude`. Mechanism: tmux's `automatic-rename-format` falls back
+  to `#{pane_current_command}` when `@last_cmd` is empty, with a `s///:`
+  substitution that rewrites a semver-shaped `comm`
+  (`^[0-9]+\.[0-9]+\.[0-9]+$`) to `claude`. Claude Code installs as
   `~/.local/bin/claude → ~/.local/share/claude/versions/<X.Y.Z>`, so the
   kernel-recorded `comm` for the foreground process is the version string
-  (e.g. `2.1.131`). When that matches, render `claude[#{b:pane_current_path}]`
-  (basename of the pane's cwd — gives the project/worktree). Sidesteps the
-  dead `.name` field entirely; works without any helper invocation.
-  The hook config is per-machine (not symlinked from this repo — see
-  [`README.md`](README.md) → "Setup (new machine)"). The script's test mock
-  and the script itself live separately —
-  `scripts/test-claude-tmux-window-name.zsh` exercises the script through a
-  temp `$HOME` and a `tmux` PATH shim, so no in-place duplication of logic.
+  (e.g. `2.1.131`); the substitution catches that. Non-matching commands
+  (`fish`, `vim`, etc.) pass through unchanged. Sidesteps Claude Code's
+  dropped `.name` field in `~/.claude/sessions/<pid>.json` entirely; no
+  helper invocation needed.
+  The legacy helper at `~/.config/tmux/bin/claude-tmux-window-name` and
+  its Claude Code hooks (`SessionStart`, `Stop`, `SessionEnd`) wired in
+  `~/.claude/settings.json` are kept dormant — they wrote
+  `@claude_session_name`, which the format no longer reads. Useful only
+  if upstream ever restores the `.name` field, in which case the format
+  needs a new tier added back. The hook config is per-machine (not
+  symlinked from this repo — see [`README.md`](README.md) → "Setup
+  (new machine)"). `scripts/test-claude-tmux-window-name.zsh` still
+  exercises the helper through a temp `$HOME` and a `tmux` PATH shim
+  so the no-op contract stays verified.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
   `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, fish n/a — no `BEEP`-equivalent
   option (fish doesn't ring on completion miss / empty-line backspace);
