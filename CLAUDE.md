@@ -28,26 +28,25 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   to run before `compinit` — `.zshrc.local` is sourced after `compinit`
   (which runs near the top of `.zshrc`), so late `fpath+=` silently
   no-ops there.
-- **Zsh module layout.** `.zshrc` is a thin orchestrator (~30 lines: p10k
-  instant prompt, `compinit`, p10k theme load, `~/.zshrc.local`,
-  `~/.secrets`, and one `source` per module). Concerns live in `.config/zsh/<concern>.zsh`:
+- **Zsh module layout.** `.zshrc` is a thin orchestrator (~20 lines: `compinit`,
+  one `source` per module, `~/.zshrc.local`, `~/.secrets`). Concerns live in `.config/zsh/<concern>.zsh`:
   `env.zsh` (locale, EDITOR, PATH, MANPAGER, no-bells, emacs keybindings,
   history config, shell options), `colors.zsh`
   (vivid `LS_COLORS`, fzf palette, autosuggest highlight), `mise.zsh`
   (`mise activate zsh` registers a polyglot chpwd hook for `.nvmrc` /
   `.ruby-version` / `.tool-versions`), `tmux-hooks.zsh` (window-label,
   ssh-target, `CLAUDE_CODE_TMUX_TRUECOLOR`), `modern-reminder.zsh`
-  (default→modern tool nudge), `prompt.zsh` (p10k source +
-  `_p9k_project_context`), `aliases.zsh` (color-aware tool aliases +
+  (default→modern tool nudge), `prompt.zsh` (Starship init via
+  `eval "$(starship init zsh)"`), `aliases.zsh` (color-aware tool aliases +
   bat-backed `less()`), `plugins.zsh` (fzf, zoxide, fzf-tab, wt init,
   autosuggestions, syntax-highlighting — order-critical, header
   comment in the file documents it). Module shape: definitions on
   top, side-effects (hook registration, env exports, alias defs)
   guarded at the bottom by `[[ -n ${ZSH_DOTFILES_TEST:-} ]] && return`.
   Tests source the module with `ZSH_DOTFILES_TEST=1` to get the
-  function defs without firing hooks/exports. The four refactored
+  function defs without firing hooks/exports. The three refactored
   test scripts (`test-tmux-window-label.zsh`, `test-modern-reminder.zsh`,
-  `test-tmux-ssh-target.zsh`, `test-prompt-context.zsh`) source the
+  `test-tmux-ssh-target.zsh`) source the
   real module instead of holding inline duplicates. `~/.zshrc.local`
   sources between `colors.zsh` and `mise.zsh` — after PATH appends but
   before any hook-registering module. Don't add new top-level
@@ -500,7 +499,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   yellow via `%F{yellow}%f` so `print -P` decodes both at runtime — keeps
   source 7-bit ASCII and avoids editor/clipboard mangling of private-use
   codepoints. Don't put backticks or `$(…)` inside hint text: under
-  `PROMPT_SUBST` (set by p10k), `print -P` performs command substitution on
+  `PROMPT_SUBST` (set by starship init), `print -P` performs command substitution on
   the prompt string. Use single quotes for sample-syntax emphasis. Toggled
   by `export MODERN_REMINDER=1`; comment that line to disable. State is
   per-zsh-process — a fresh tmux pane resets the seen set. Tests:
@@ -517,8 +516,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 
 ## Where things live
 
-- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.p10k.zsh,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`, `zsh/`)
-- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow,zsh}`, `~/.config/sesh/sesh.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.p10k.zsh`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
+- Sources: `$PROJECTS_HOME/dotfiles/{.config,.vimrc,.vim/colors,.zshrc,.zprofile,.gitignore_global,.claude/CLAUDE.md}` (`.config/` includes `nvim/`, `worktrunk/`, `glow/`, `zsh/`, `starship.toml`)
+- Targets: `~/.config/{ghostty,tmux,ccstatusline,nvim,worktrunk,glow,zsh}`, `~/.config/sesh/sesh.toml`, `~/.config/starship.toml`, `~/.local/bin/<command>`, `~/.vimrc`, `~/.vim/colors`, `~/.zshrc`, `~/.zprofile`, `~/.gitignore_global`, `~/.claude/CLAUDE.md`
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to `~/.claude/CLAUDE.md`). Edits there apply to every project on this machine, not just dotfiles.
 - Machine-specific overrides: `~/.zshrc.local` (untracked; copy from `.zshrc.local.template`)
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator}`
@@ -568,7 +567,6 @@ filename is the source of truth).
 
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshot thumbnails: `scripts/build-screenshots.sh`
-- Zsh prompt-context tests: `scripts/test-prompt-context.zsh`
 - Tmux window-label tests: `scripts/test-tmux-window-label.zsh`
 - Modern-reminder tests: `scripts/test-modern-reminder.zsh`
 - Pre-remove save-shared tests: `scripts/test-wt-pre-remove-save.sh`
