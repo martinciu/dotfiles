@@ -390,27 +390,27 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   sources the fish module under `FISH_DOTFILES_TEST=1`. Both run the
   same 11-case matrix, so the label function `_tmux_window_label` has
   no duplicate copy in either shell.
-  When a Claude Code session is active in the pane the window renders the
-  literal `claude`. Mechanism: tmux's `automatic-rename-format` falls back
-  to `#{pane_current_command}` when `@last_cmd` is empty, with a `s///:`
-  substitution that rewrites a semver-shaped `comm`
-  (`^[0-9]+\.[0-9]+\.[0-9]+$`) to `claude`. Claude Code installs as
-  `~/.local/bin/claude → ~/.local/share/claude/versions/<X.Y.Z>`, so the
-  kernel-recorded `comm` for the foreground process is the version string
-  (e.g. `2.1.131`); the substitution catches that. Non-matching commands
-  (`fish`, `vim`, etc.) pass through unchanged. Sidesteps Claude Code's
-  dropped `.name` field in `~/.claude/sessions/<pid>.json` entirely; no
-  helper invocation needed.
+  Claude Code is **not** specially handled in the format — when launched
+  through an interactive shell, `@last_cmd=claude` is stamped by preexec
+  and the window renders `claude` like any other command. Caveat: panes
+  that bypass the shell (e.g. `tmux new-window 'claude'`, sesh/tmuxinator
+  templates with `command = "claude"`) have no preexec stamp, so the
+  window falls back to `#{pane_current_command}` — for Claude Code that
+  is the version string (e.g. `2.1.131`) because the binary lives at
+  `~/.local/share/claude/versions/<X.Y.Z>` and the kernel records `comm`
+  as the resolved-symlink basename. Fix that on the launch-config side
+  rather than in the tmux format.
   The legacy helper at `~/.config/tmux/bin/claude-tmux-window-name` and
   its Claude Code hooks (`SessionStart`, `Stop`, `SessionEnd`) wired in
-  `~/.claude/settings.json` are kept dormant — they wrote
-  `@claude_session_name`, which the format no longer reads. Useful only
-  if upstream ever restores the `.name` field, in which case the format
-  needs a new tier added back. The hook config is per-machine (not
-  symlinked from this repo — see [`README.md`](README.md) → "Setup
-  (new machine)"). `scripts/test-claude-tmux-window-name.zsh` still
+  `~/.claude/settings.json` survive: `set` mode is dormant (Claude Code
+  dropped the session JSON `.name` field as of ~2.1.126), but `clear`
+  mode still does useful work — unsetting `@last_cmd` on `SessionEnd`
+  so the window flips back to the shell name promptly when a Claude
+  session ends rather than holding stale `claude`. The hook config is
+  per-machine (not symlinked from this repo — see [`README.md`](README.md)
+  → "Setup (new machine)"). `scripts/test-claude-tmux-window-name.zsh`
   exercises the helper through a temp `$HOME` and a `tmux` PATH shim
-  so the no-op contract stays verified.
+  so its contract stays verified even though `set` is currently a no-op.
 - **Bells are silenced at every layer** (Ghostty `bell-features =`, zsh
   `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, fish n/a — no `BEEP`-equivalent
   option (fish doesn't ring on completion miss / empty-line backspace);
