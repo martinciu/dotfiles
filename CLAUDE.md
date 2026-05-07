@@ -34,38 +34,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `50-tmux-hooks` (fish_preexec → `@last_cmd` per-pane stamp),
   `99-secrets` (untracked). The two untracked files are copied from
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
-  mirrors the zsh bat-backed `less`; `completions/wt.fish` adds wt
-  tab-completion. Don't port `modern-reminder` to fish without an ask.
-  Smoke test: `scripts/test-fish-loads.sh`.
-- **Zsh module layout (fallback).** Fallback shell. Kept until the fish
-  transition settles; see `REMOVAL.md` for the removal procedure. Don't
-  add new functionality here — port to fish first. `.zshrc` is a thin
-  orchestrator (~20 lines: `compinit`, one `source` per module,
-  `~/.zshrc.local`, `~/.secrets`). Concerns live in
-  `.config/zsh/<concern>.zsh`:
-  - `env.zsh` — locale, EDITOR, PATH, MANPAGER, no-bells, emacs keys, history, shopts
-  - `colors.zsh` — vivid `LS_COLORS`, fzf palette, autosuggest highlight
-  - `mise.zsh` — `mise activate` chpwd hook
-  - `tmux-hooks.zsh` — window-label, ssh-target
-  - `modern-reminder.zsh` — default→modern tool nudge
-  - `prompt.zsh` — Starship init
-  - `aliases.zsh` — color-aware aliases + bat-backed `less()`
-  - `plugins.zsh` — fzf, zoxide, fzf-tab, wt, autosuggestions, syntax-highlighting (order-critical; header docs it)
-
-  Shape: defs on top, side-effects guarded by
-  `[[ -n ${ZSH_DOTFILES_TEST:-} ]] && return` so tests source modules
-  without firing hooks. `~/.zshrc.local` sources between `colors.zsh` and
-  `mise.zsh` — after PATH appends, before hook-registering modules. New
-  concerns get their own module file; don't add top-level `source` calls
-  outside the `.config/zsh/` set.
-- **`.zprofile` runs `brew shellenv`** (zsh-side login init; fish parity
-  is in `.config/fish/conf.d/00-env.fish`) so `/opt/homebrew/bin` precedes
-  the paths macOS's `/etc/zprofile` (`path_helper`) installs. Don't move
-  into `.zshrc` — interactive subshells re-source it and re-stack PATH.
-  Machine-specific login init that needs to run before `compinit` (e.g.
-  OrbStack, anything doing `fpath+=`) goes in `~/.zprofile.local`
-  (untracked; copy from template). `.zshrc.local` is sourced *after*
-  `compinit`, so late `fpath+=` silently no-ops there.
+  is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
+  tab-completion. Smoke test: `scripts/test-fish-loads.sh`.
 - **`Brewfile` is installed by bootstrap.** `bootstrap.sh` runs
   `brew bundle --file=$DOTFILES/Brewfile` unconditionally at the top,
   before any symlinks. Aborts on failure (`set -euo pipefail`).
@@ -105,17 +75,6 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `git-common-dir` so worktrees share per-branch entries. First call
   after branch switch shows nothing; next 5 s tick renders — accepted
   to never block on a slow `gh`.
-- **Outbound SSH overlay on the Ghostty tab title.** While `ssh` is
-  foreground, the tab renders ` user@host`; otherwise
-  `<session>:<window>`. Wired via `set-titles on` + a `set-titles-string`
-  branching on per-pane `@ssh_target`. `_tmux_record_ssh_target`
-  (preexec) checks first-token equality with `ssh` (excludes
-  `ssh-add`/`ssh-keygen`), resolves via `ssh -G` so `~/.ssh/config`
-  aliases canonicalize. `_tmux_clear_ssh_target` (precmd) unsets on
-  next prompt; both call `tmux refresh-client -S`. Per-pane. Bodies
-  in `.config/zsh/tmux-hooks.zsh`. Ctrl-Z'd `ssh` clears on next
-  prompt (acceptable); nested `ssh` not tracked. Don't replace
-  `ssh -G` with argv parsing.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
@@ -173,7 +132,7 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   Don't replace polling with `link-window` or nested `tmux attach`.
   Reads `$TMUX_SOCKET` (test-mode isolation) and `$DASHBOARD_NO_FINISH`
   (skip final attach — used by integration tests).
-- **`vim`/`vimdiff` are zsh aliases to nvim**; **`vi` is `command vim`**
+- **`vim`/`vimdiff` are fish aliases to nvim**; **`vi` is `command vim`**
   (legacy minimal vim). All guarded on `command -v nvim`. Minimal vim
   (`.vimrc` ~30 lines, `.vim/colors/solarized8.vim`) is reachable via
   `vi`/`command vim`/`\vim`. Don't add vim-plug or LSP to it.
@@ -216,12 +175,11 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   custom palette names in the top-level format. Don't extend pastel to
   other tools; don't add `(fg:custom_a bg:custom_b)` chips.
 
-  Fish (primary) opts into Starship's transient prompt; zsh (fallback)
-  does not — don't add it to zsh. After Enter, fish replaces the active
-  chip with a bold `❯`; `cmd_duration`/`status` stay intact. Wired via
-  `enable_transience` from `.config/fish/conf.d/25-prompt.fish`. Starship
-  1.25.x has no `[transient_prompt]` section — don't add one (silently
-  ignored, trips `[WARN]`).
+  Fish opts into Starship's transient prompt: after Enter, the active
+  chip is replaced with a bold `❯`; `cmd_duration`/`status` stay intact.
+  Wired via `enable_transience` from `.config/fish/conf.d/25-prompt.fish`.
+  Starship 1.25.x has no `[transient_prompt]` section — don't add one
+  (silently ignored, trips `[WARN]`).
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   `~/.config/worktrunk/` is a real dir (mixed-dir pattern): `config.toml`
   is the only symlink; per-project `approvals.toml` is a real file there,
@@ -240,12 +198,12 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `--git-common-dir` for detection. Don't replace with
   `git worktree list` parsing.
 - **tmux window name follows the active pane's last typed command.**
-  Both shells set per-pane `@last_cmd` from preexec hooks
-  (`.config/zsh/tmux-hooks.zsh`, `.config/fish/conf.d/50-tmux-hooks.fish`).
-  `tmux.conf` enables `automatic-rename` reading it. Env-var assignments
-  stripped; first two whitespace tokens used. `allow-rename off` stays
-  so OSC titles can't override. Tests source modules under
-  `*_DOTFILES_TEST=1` and run the same 11-case matrix.
+  Fish sets per-pane `@last_cmd` from a `fish_preexec` hook in
+  `.config/fish/conf.d/50-tmux-hooks.fish`. `tmux.conf` enables
+  `automatic-rename` reading it. Env-var assignments stripped; first
+  two whitespace tokens used. `allow-rename off` stays so OSC titles
+  can't override. Tests source the module under `*_DOTFILES_TEST=1`
+  and run an 11-case matrix.
 
   Claude Code is not specially handled — interactive-shell launches
   stamp `@last_cmd=claude`. Caveat: panes that bypass the shell
@@ -260,14 +218,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   (Claude Code dropped session JSON `.name` ~2.1.126), but `clear`
   mode unsets `@last_cmd` on `SessionEnd` so the window flips back
   promptly. Hook config is per-machine (not symlinked — see README).
-- **Bells silenced at every layer:** Ghostty `bell-features =`, zsh
-  `unsetopt BEEP/HIST_BEEP/LIST_BEEP`, vim `belloff=all`, tmux
-  `bell-action/visual-bell/monitor-bell off`. Fish has no BEEP option;
-  any `\a` is consumed at Ghostty/tmux. Don't re-enable.
+- **Bells silenced at every layer:** Ghostty `bell-features =`, vim
+  `belloff=all`, tmux `bell-action/visual-bell/monitor-bell off`. Fish
+  has no BEEP option; any `\a` is consumed at Ghostty/tmux. Don't
+  re-enable.
 - **Terminal tools are Solarized Dark, end-to-end.** `eza`, `bat`,
   `git-delta`, `glow` (`md`), `vivid` (`LS_COLORS`), `procs` (`ps`),
-  `tailspin` (`tspin`), `xh`, `zsh-syntax-highlighting`,
-  `zsh-autosuggestions`, `fzf-tab`. Pins: `vivid generate solarized-dark`,
+  `tailspin` (`tspin`), `xh`. Pins: `vivid generate solarized-dark`,
   `bat --theme="Solarized (dark)"`, `delta.syntax-theme = "Solarized (dark)"`,
   `procs` reads `.config/procs/procs.toml`, `md` passes
   `--style .config/glow/glamour.json`, `tspin` reads
@@ -276,10 +233,6 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `tspin file.log` / `cmd | tspin -p` stay explicit. Don't introduce
   alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`).
 
-  Plugin source order in `.config/zsh/plugins.zsh` is fixed: fzf →
-  `bindkey -r '^[c'` (Alt-C unbind) → zoxide → fzf-tab →
-  zsh-autosuggestions → zsh-syntax-highlighting (must be last). fzf-tab
-  needs fzf's `^I` binding and must precede widget-wrapping plugins.
   First-time `git config` for delta is in README → "Setup".
 - **`ps` aliased to `procs`.** Two configs in `.config/procs/`:
   `procs.toml` (default, PID asc) read by bare `procs`/`ps`;
@@ -290,8 +243,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `/bin/ps`. macOS shows only the current user's processes; for all,
   `\ps -ax`. No `psx` alias — legacy `ps` already serves it.
 - **Interactive `less` is a `bat` wrapper** (in
-  `.config/zsh/aliases.zsh`). Files get bat decoration; piped input
-  uses `--plain` (so stdin doesn't get bat's `STDIN` header).
+  `.config/fish/functions/less.fish`). Files get bat decoration; piped
+  input uses `--plain` (so stdin doesn't get bat's `STDIN` header).
   `command less` reaches real `less` for `+F`/`-R`/etc. Don't
   `alias less='bat …'` and don't set `$PAGER=bat` globally.
 - **`md` renders markdown via `glow`**, style at
@@ -327,56 +280,33 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `http`/`https` alias either ("no synonyms").
 - **`hyperfine` is the benchmark tool, additive to `time`** (raw, no
   alias). `time` for one-shot wall-clock; `hyperfine` for warmups,
-  multiple runs, A/B. **Deliberately NOT in modern-reminder** — not a
-  1:1 swap (different use cases). Don't alias or wrap.
+  multiple runs, A/B. Don't alias or wrap.
 - **`duf` is a modern `df` companion** (raw, no alias). Grouped output by
   device class (local/network/special/fuse), color-coded usage bars, theme-
   aware (auto-detects dark; `--theme dark` pins it). `df` stays for scripts
-  and POSIX habit; `duf` for interactive disk-free checks. **Deliberately
-  NOT added to modern-reminder** — that system is deprecated alongside zsh
-  (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
+  and POSIX habit; `duf` for interactive disk-free checks. Don't alias or
+  wrap.
 - **`dust` is a modern `du` companion** (raw, no alias). Tree-style output
   sorted largest-first, colored bar graphs per node, depth-aware (`-d N`
   to limit). Read-only inspection — fast parallel scan, zero side effects.
   `du` stays for scripts and POSIX habit; `dust` for "where did my disk
-  go?" at-a-glance. **Deliberately NOT added to modern-reminder** — that
-  system is deprecated alongside zsh (see `REMOVAL.md` §1 row 2). Don't
-  alias or wrap.
+  go?" at-a-glance. Don't alias or wrap.
 - **`dua` is a fast `du` aggregate with an interactive TUI deleter** (raw,
   no alias). Plain `dua [path]` walks the tree in parallel and prints
   aggregate sizes; `dua i [path]` opens a TUI for navigating, marking, and
   *deleting* directories. `du` stays for scripts and POSIX habit; `dua`
-  for fast aggregates and interactive disk reclaim. **Deliberately NOT
-  added to modern-reminder** — that system is deprecated alongside zsh
-  (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
-- **`modern-reminder` is a zsh discoverability nudge** for default→modern
-  pairs left unaliased ("no synonyms" pattern: `tail`/`tspin`,
-  `grep`/`rg`, `curl`/`xh`). Defined in
-  `.config/zsh/modern-reminder.zsh` as `_modern_reminder_pairs` /
-  `_modern_reminder_hints` plus a preexec (scan-all-tokens via `${(z)…}`,
-  strip `\` and dirname) and precmd (once-per-shell seen set,
-  `command -v` check, `print -P`). Hints embed Nerd Font glyphs as
-  `\u…` and color via `%F{yellow}%f` so source stays 7-bit ASCII.
-  **No backticks or `$(…)` in hints** — under `PROMPT_SUBST` (set by
-  starship), `print -P` performs command substitution; use single
-  quotes. Toggled by `export MODERN_REMINDER=1`. State is per-zsh-process.
-  **When introducing a new modern tool under the "no synonyms" pattern**,
-  evaluate against criteria (default in common interactive use; modern
-  alternative installed and Solarized-themed; deliberately unaliased)
-  and add to both arrays. Drop entries when a default gains an alias.
+  for fast aggregates and interactive disk reclaim. Don't alias or wrap.
 
 ## Where things live
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir per tool:
   `btop`, `ccstatusline`, `fish`, `ghostty`, `glow`, `nvim`, `procs`,
-  `tailspin`, `tmux`, `worktrunk`, `xh`, `zsh`; plus `starship.toml`,
+  `tailspin`, `tmux`, `worktrunk`, `xh`; plus `starship.toml`,
   partial links for `sesh/sesh.toml` and `lnav/{configs,formats}/installed`),
-  `.vimrc`, `.vim/colors`, `.zshrc`, `.zprofile`, `.gitignore_global`,
-  `.claude/CLAUDE.md`. `bin/` files symlink to `~/.local/bin/`.
+  `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
+  `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
   (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
-- Machine overrides: `~/.zshrc.local`, `~/.zprofile.local` (untracked;
-  copy from templates).
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.
 
 ## Cheatsheets (`docs/`)
@@ -403,14 +333,11 @@ is `nvim-cheatsheet.html`).
 
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshots: `scripts/build-screenshots.sh`
-- Tmux window-label (zsh): `scripts/test-tmux-window-label.zsh`
-- Tmux window-label (fish): `scripts/test-fish-tmux-window-label.fish`
-- Modern-reminder: `scripts/test-modern-reminder.zsh`
+- Tmux window-label: `scripts/test-fish-tmux-window-label.fish`
 - Pre-remove save-shared: `scripts/test-wt-pre-remove-save.sh`
-- Claude tmux window-name: `scripts/test-claude-tmux-window-name.zsh`
+- Claude tmux window-name: `scripts/test-claude-tmux-window-name.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
-- tmux SSH-target (outbound): `scripts/test-tmux-ssh-target.zsh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration: `scripts/test-dashboard.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
