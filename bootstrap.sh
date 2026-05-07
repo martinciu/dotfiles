@@ -65,7 +65,11 @@ rescue_in_repo() {
 #   Per-entry symlinks every tracked top-level entry from <source> into
 #   <target>, skipping *.template files. Tracked entries that are dirs
 #   are whole-dir-symlinked; tracked files are file-symlinked. Reuses the
-#   existing link() helper, so already-correct symlinks no-op.
+#   existing link() helper, so already-correct symlinks no-op. Entries
+#   whose destination already exists as a real (non-symlink) dir are
+#   left alone — that means the caller is handling them recursively
+#   (e.g. fish/conf.d/ inside fish/) and link() would otherwise back up
+#   the real dir and replace it with a symlink.
 link_tracked_entries() {
   local src_rel="$1"; local dst="$2"
   local src="$DOTFILES/$src_rel"
@@ -73,6 +77,9 @@ link_tracked_entries() {
     [ -e "$entry" ] || continue
     local name; name="$(basename "$entry")"
     case "$name" in *.template) continue ;; esac
+    if [ -d "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
+      continue
+    fi
     link "$src_rel/$name" "$dst/$name"
   done
 }
@@ -170,17 +177,23 @@ link ".zprofile"   "$HOME/.zprofile"
 link ".config/starship.toml" "$HOME/.config/starship.toml"
 
 # --- fish (primary)
-link ".config/fish" "$HOME/.config/fish"
-if [ ! -f "$HOME/.config/fish/conf.d/15-local.fish" ]; then
-  cp "$DOTFILES/.config/fish/conf.d/15-local.fish.template" \
-     "$HOME/.config/fish/conf.d/15-local.fish"
-  echo "✨  ~/.config/fish/conf.d/15-local.fish (edit to set PROJECTS_HOME etc.)"
-fi
-if [ ! -f "$HOME/.config/fish/conf.d/99-secrets.fish" ]; then
-  cp "$DOTFILES/.config/fish/conf.d/99-secrets.fish.template" \
-     "$HOME/.config/fish/conf.d/99-secrets.fish"
-  echo "✨  ~/.config/fish/conf.d/99-secrets.fish (edit to add machine secrets)"
-fi
+# ~/.config/fish/ is a real dir; tracked entries are individually symlinked.
+# 15-local.fish + 99-secrets.fish + fish runtime state stay outside the repo.
+prepare_real_dir "$HOME/.config/fish"
+prepare_real_dir "$HOME/.config/fish/conf.d"
+for f in 15-local.fish 99-secrets.fish; do
+  rescue_in_repo "$DOTFILES/.config/fish/conf.d/$f" \
+                 "$HOME/.config/fish/conf.d/$f"
+done
+for f in fish_variables fish_history generated_completions; do
+  rescue_in_repo "$DOTFILES/.config/fish/$f" "$HOME/.config/fish/$f"
+done
+link_tracked_entries ".config/fish"        "$HOME/.config/fish"
+link_tracked_entries ".config/fish/conf.d" "$HOME/.config/fish/conf.d"
+seed_local ".config/fish/conf.d/15-local.fish.template" \
+           "$HOME/.config/fish/conf.d/15-local.fish"
+seed_local ".config/fish/conf.d/99-secrets.fish.template" \
+           "$HOME/.config/fish/conf.d/99-secrets.fish"
 
 # --- git (global ignore — paths excluded across every repo on this machine)
 link ".gitignore_global" "$HOME/.gitignore_global"
