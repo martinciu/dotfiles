@@ -34,6 +34,61 @@ link() {
   echo "🔗  $dst → $src"
 }
 
+# prepare_real_dir <target-abs-dir>
+#   Tears down a legacy whole-dir symlink at <target> if present, then
+#   ensures <target> exists as a real directory. Idempotent.
+prepare_real_dir() {
+  local dst="$1"
+  if [ -L "$dst" ]; then
+    rm "$dst"
+    echo "🗑️  $dst (legacy whole-dir symlink)"
+  fi
+  mkdir -p "$dst"
+}
+
+# rescue_in_repo <repo-abs-path> <target-abs-path>
+#   Migration aid for machines that ran an older bootstrap where the dir
+#   was whole-dir-symlinked. If <repo-abs-path> exists as a real file or
+#   dir (not a symlink), and <target-abs-path> doesn't yet, MOVE it across.
+#   Idempotent: no-op once rescued. Must run AFTER prepare_real_dir on
+#   the parent so the destination path is no longer aliased to the repo.
+rescue_in_repo() {
+  local in_repo="$1"; local new_home="$2"
+  if [ -e "$in_repo" ] && [ ! -L "$in_repo" ] && [ ! -e "$new_home" ]; then
+    mkdir -p "$(dirname "$new_home")"
+    mv "$in_repo" "$new_home"
+    echo "🚚  $in_repo → $new_home"
+  fi
+}
+
+# link_tracked_entries <repo-rel-source-dir> <target-abs-dir>
+#   Per-entry symlinks every tracked top-level entry from <source> into
+#   <target>, skipping *.template files. Tracked entries that are dirs
+#   are whole-dir-symlinked; tracked files are file-symlinked. Reuses the
+#   existing link() helper, so already-correct symlinks no-op.
+link_tracked_entries() {
+  local src_rel="$1"; local dst="$2"
+  local src="$DOTFILES/$src_rel"
+  for entry in "$src"/*; do
+    [ -e "$entry" ] || continue
+    local name; name="$(basename "$entry")"
+    case "$name" in *.template) continue ;; esac
+    link "$src_rel/$name" "$dst/$name"
+  done
+}
+
+# seed_local <template-repo-rel> <target-abs>
+#   First-run copy of a .template into a real file on disk. Idempotent:
+#   no-op if the target already exists.
+seed_local() {
+  local tmpl="$DOTFILES/$1"; local dst="$2"
+  if [ ! -f "$dst" ]; then
+    mkdir -p "$(dirname "$dst")"
+    cp "$tmpl" "$dst"
+    echo "✨  $dst (seeded from $(basename "$tmpl"))"
+  fi
+}
+
 # --- ghostty (already done; idempotent re-link)
 link ".config/ghostty" "$HOME/.config/ghostty"
 
