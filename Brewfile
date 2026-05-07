@@ -56,6 +56,7 @@ brew "shfmt"                    # POSIX/bash/mksh formatter (`-d` for diff, `-w`
 
 # System monitoring & benchmarking
 brew "btop"                     # modern top replacement (themed Solarized)
+brew "duf"                      # modern df replacement (grouped, color-coded)
 brew "hyperfine"                # command benchmarking (warmups, multi-run stats)
 
 # Fonts

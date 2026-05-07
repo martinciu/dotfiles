@@ -309,6 +309,12 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   alias). `time` for one-shot wall-clock; `hyperfine` for warmups,
   multiple runs, A/B. **Deliberately NOT in modern-reminder** — not a
   1:1 swap (different use cases). Don't alias or wrap.
+- **`duf` is a modern `df` companion** (raw, no alias). Grouped output by
+  device class (local/network/special/fuse), color-coded usage bars, theme-
+  aware (auto-detects dark; `--theme dark` pins it). `df` stays for scripts
+  and POSIX habit; `duf` for interactive disk-free checks. **Deliberately
+  NOT added to modern-reminder** — that system is deprecated alongside zsh
+  (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
 - **`modern-reminder` is a zsh discoverability nudge** for default→modern
   pairs left unaliased ("no synonyms" pattern: `tail`/`tspin`,
   `grep`/`rg`, `curl`/`xh`). Defined in

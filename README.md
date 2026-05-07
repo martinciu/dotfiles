@@ -13,7 +13,7 @@ Personal config for Ghostty + fish + tmux + vim, all in Solarized + JetBrainsMon
 Solarized-themed quick references — also browseable at
 [martinciu.github.io/dotfiles](https://martinciu.github.io/dotfiles/):
 
-- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, fzf, zsh plugins
+- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, duf, fzf, zsh plugins
 - [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 
