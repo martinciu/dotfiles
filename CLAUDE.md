@@ -4,12 +4,27 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 
 ## Conventions — don't drift from these
 
-- **Manual symlinks via `bootstrap.sh`.** No `stow`/`chezmoi`/etc.
+- **Manual symlinks via `bootstrap.sh`.** No `stow`/`chezmoi`/etc. Tools
+  whose `~/.config/<tool>/` dir contains nothing but tracked content get
+  whole-dir symlinks (`link "<rel>" "$HOME/..."`). Tools whose dir mixes
+  tracked content with machine-local or runtime state (fish, nvim,
+  worktrunk, lnav, sesh) use the **mixed-dir pattern** instead: real
+  `~/.config/<tool>/` dir, per-file symlinks for tracked entries, real
+  files for the rest. Helpers `prepare_real_dir` + `rescue_in_repo` +
+  `link_tracked_entries` + `seed_local` implement the pattern;
+  `link_tracked_entries` skips `*.template` files. Migration from a
+  legacy whole-dir symlink is automatic on next `bootstrap.sh` run.
 - **Bash scripts target bash 5.** Shebang `#!/opt/homebrew/bin/bash`; may
   use `mapfile`, `declare -A`, `wait -n`. Apple Silicon only — `brew
   bundle` runs before `bootstrap.sh`. Don't reintroduce bash-3 shims.
 - **Fish module layout.** Fish is the primary interactive shell. Config
-  in `.config/fish/`, symlinked to `~/.config/fish`.
+  in `.config/fish/`. `~/.config/fish/` is a real dir (mixed-dir pattern):
+  `config.fish`, `completions/`, `functions/` are symlinked from the
+  repo; `conf.d/` is itself a real dir with per-file symlinks for the
+  tracked `*.fish` modules and **real files** for `15-local.fish` +
+  `99-secrets.fish` (seeded from `.template` companions on first
+  bootstrap, untouched after). `fish_variables`, `fish_history`,
+  `generated_completions/` are real and stay outside the repo.
   `config.fish` is empty; concerns in `conf.d/<NN>-<concern>.fish`,
   numeric prefix pins load order:
   `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
@@ -163,7 +178,10 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   (`.vimrc` ~30 lines, `.vim/colors/solarized8.vim`) is reachable via
   `vi`/`command vim`/`\vim`. Don't add vim-plug or LSP to it.
 - **nvim is built on LazyVim**, themed Solarized, configured at
-  `.config/nvim/`. Don't replace LazyVim.
+  `.config/nvim/`. Don't replace LazyVim. `~/.config/nvim/` is a real
+  dir (mixed-dir pattern): `init.lua`, `lazy-lock.json`,
+  `mason-lock.json`, `lua/` are symlinked from the repo; `lazy/`,
+  `mason/`, `site/`, `lazyvim.json` are real and stay outside the repo.
 - **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
   (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't re-add.
 - **LSPs off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
@@ -205,7 +223,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   1.25.x has no `[transient_prompt]` section — don't add one (silently
   ignored, trips `[WARN]`).
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
-  Per-project `approvals.toml` is machine-local and gitignored.
+  `~/.config/worktrunk/` is a real dir (mixed-dir pattern): `config.toml`
+  is the only symlink; per-project `approvals.toml` is a real file there,
+  outside the repo working tree.
 - **Gitignored content flows between primary and worktrees in two
   stages**, both using `wt step copy-ignored`. `[post-start] copy`
   reflinks primary's ignored content into a new worktree at creation;
