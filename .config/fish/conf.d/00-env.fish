@@ -24,6 +24,14 @@ if command -q bat
     set -gx MANROFFOPT -c
 end
 
+# tealdeer (tldr): on macOS its OS-convention config dir is
+# ~/Library/Application Support/tealdeer/. Redirect to our .config/-shape so
+# the symlinked .config/tealdeer/config.toml (Solarized [style] + auto_update)
+# is what tldr actually reads.
+if command -q tldr
+    set -gx TEALDEER_CONFIG_DIR $HOME/.config/tealdeer
+end
+
 fish_add_path -gP $HOME/.local/bin $HOME/.cargo/bin
 
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux

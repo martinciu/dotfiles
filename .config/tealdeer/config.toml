@@ -1,0 +1,34 @@
+# tealdeer config — https://tealdeer-rs.github.io/tealdeer/config.html
+# Solarized comes from the terminal's 16-color palette (Ghostty + tmux);
+# tealdeer 1.8.x only accepts named ANSI colors here, so we lean on the
+# palette to do the Solarized translation. Auto-update is lazy: tealdeer
+# refreshes on the next `tldr <cmd>` once the cache is older than the
+# interval below — no cron, no launchd.
+#
+# macOS note: tealdeer's default config path is
+# ~/Library/Application Support/tealdeer/. We set TEALDEER_CONFIG_DIR in
+# fish/conf.d/00-env.fish so it reads from ~/.config/tealdeer/ instead,
+# keeping the .config/<tool>/ source-of-truth shape used elsewhere.
+
+[updates]
+auto_update = true
+auto_update_interval_hours = 720   # 30 days
+
+[style.command_name]
+foreground = "blue"     # palette → Solarized blue (#268bd2)
+bold = true
+
+[style.description]
+italic = true           # default fg (base0/base1 from terminal palette)
+
+[style.example_text]
+italic = false          # default fg
+
+[style.example_code]
+foreground = "green"    # palette → Solarized green (#859900)
+bold = true
+
+[style.example_variable]
+foreground = "yellow"   # palette → Solarized yellow (#b58900); stands in
+                        # for orange, which isn't in tealdeer's named set
+italic = true

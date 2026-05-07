@@ -315,6 +315,26 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   and POSIX habit; `duf` for interactive disk-free checks. **Deliberately
   NOT added to modern-reminder** — that system is deprecated alongside zsh
   (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
+- **`tealdeer` (`tldr`) is a modern `man` supplement** (raw, no alias).
+  Community-curated example pages cached locally; `.config/tealdeer/config.toml`
+  pins `[updates] auto_update = true` with a 720h (30-day) refresh interval —
+  the first `tldr <cmd>` after the interval lazily fetches. Pairs with
+  bat-paged `man` (see `MANPAGER` in `conf.d/00-env.fish`): `man` for full
+  manuals, `tldr` for "show me the common flags". Theming uses **named ANSI
+  colors** (`"blue"`/`"green"`/`"yellow"`) in tealdeer's `[style]` block —
+  tealdeer 1.8.x doesn't accept hex; the Solarized translation comes from
+  the terminal's 16-color palette (Ghostty + tmux), so `"blue"` renders as
+  Solarized blue (#268bd2), `"green"` as Solarized green (#859900), etc.
+  `"yellow"` stands in for orange (not in the named set) for
+  `example_variable`. **macOS path quirk**: tealdeer's OS-convention config
+  dir is `~/Library/Application Support/tealdeer/`; `TEALDEER_CONFIG_DIR`
+  is set in `conf.d/00-env.fish` to redirect tealdeer to `~/.config/tealdeer/`,
+  keeping the repo's `.config/<tool>/` source-of-truth shape. fish/zsh
+  completion comes from the brew formula (`vendor_completions.d/` /
+  `site-functions/`); no per-shell completion file in this repo. Brew
+  formula doesn't ship a man page — `man tldr` will not resolve. **Deliberately
+  NOT added to modern-reminder** — deprecated alongside zsh (see `REMOVAL.md`
+  §1 row 2). Don't alias or wrap.
 - **`modern-reminder` is a zsh discoverability nudge** for default→modern
   pairs left unaliased ("no synonyms" pattern: `tail`/`tspin`,
   `grep`/`rg`, `curl`/`xh`). Defined in

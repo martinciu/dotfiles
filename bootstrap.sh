@@ -61,6 +61,9 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
+# --- tealdeer (modern man supplement; Solarized [style] + auto-update)
+link ".config/tealdeer" "$HOME/.config/tealdeer"
+
 # --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
 # lnav writes its built-in samples (configs/default, formats/default), crash
 # dumps, staging area, log_metadata.db, view-info-*.json, and :config-written

@@ -59,5 +59,8 @@ brew "btop"                     # modern top replacement (themed Solarized)
 brew "duf"                      # modern df replacement (grouped, color-coded)
 brew "hyperfine"                # command benchmarking (warmups, multi-run stats)
 
+# Documentation & help
+brew "tealdeer"                 # modern man supplement (tldr); raw, no alias
+
 # Fonts
 cask "font-jetbrains-mono-nerd-font"  # Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
