@@ -7,6 +7,11 @@ DOTFILES="$PROJECTS_HOME/dotfiles"
 
 echo "🚀 dotfiles bootstrap"
 
+# --- brew (install missing formulae; abort on failure)
+echo
+echo "🍺 brew bundle install:"
+brew bundle --file="$DOTFILES/Brewfile"
+
 # link <source-relative-to-DOTFILES> <target-absolute>
 link() {
   local src="$DOTFILES/$1"
@@ -147,12 +152,6 @@ if [ ! -d "$TPM_DIR/.git" ]; then
 else
   echo "✅  $TPM_DIR (TPM present)"
 fi
-
-# --- brew check (don't install — just report)
-echo
-echo "🍺 brew bundle check:"
-brew bundle check --file="$DOTFILES/Brewfile" --verbose || \
-  echo "→ run: brew bundle --file=$DOTFILES/Brewfile"
 
 echo
 echo "🎯 next steps:"
