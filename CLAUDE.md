@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zsh.
+Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fish.
 
 ## Conventions — don't drift from these
 
@@ -8,16 +8,26 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
 - **Bash scripts target bash 5.** Shebang `#!/opt/homebrew/bin/bash`; may
   use `mapfile`, `declare -A`, `wait -n`. Apple Silicon only — `brew
   bundle` runs before `bootstrap.sh`. Don't reintroduce bash-3 shims.
-- **`.zprofile` runs `brew shellenv`** so `/opt/homebrew/bin` precedes
-  the paths macOS's `/etc/zprofile` (`path_helper`) installs. Don't move
-  into `.zshrc` — interactive subshells re-source it and re-stack PATH.
-  Machine-specific login init that needs to run before `compinit` (e.g.
-  OrbStack, anything doing `fpath+=`) goes in `~/.zprofile.local`
-  (untracked; copy from template). `.zshrc.local` is sourced *after*
-  `compinit`, so late `fpath+=` silently no-ops there.
-- **Zsh module layout.** `.zshrc` is a thin orchestrator (~20 lines:
-  `compinit`, one `source` per module, `~/.zshrc.local`, `~/.secrets`).
-  Concerns live in `.config/zsh/<concern>.zsh`:
+- **Fish module layout.** Fish is the primary interactive shell. Config
+  in `.config/fish/`, symlinked to `~/.config/fish`.
+  `config.fish` is empty; concerns in `conf.d/<NN>-<concern>.fish`,
+  numeric prefix pins load order:
+  `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
+  `25-prompt` (starship), `30-aliases`,
+  `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
+  `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `50-tmux-hooks` (fish_preexec → `@last_cmd` per-pane stamp),
+  `99-secrets` (untracked). The two untracked files are copied from
+  `.template` companions by `bootstrap.sh`. `functions/less.fish`
+  mirrors the zsh bat-backed `less`; `completions/wt.fish` adds wt
+  tab-completion. Don't port `modern-reminder` to fish without an ask.
+  Smoke test: `scripts/test-fish-loads.sh`.
+- **Zsh module layout (fallback).** Fallback shell. Kept until the fish
+  transition settles; see `REMOVAL.md` for the removal procedure. Don't
+  add new functionality here — port to fish first. `.zshrc` is a thin
+  orchestrator (~20 lines: `compinit`, one `source` per module,
+  `~/.zshrc.local`, `~/.secrets`). Concerns live in
+  `.config/zsh/<concern>.zsh`:
   - `env.zsh` — locale, EDITOR, PATH, MANPAGER, no-bells, emacs keys, history, shopts
   - `colors.zsh` — vivid `LS_COLORS`, fzf palette, autosuggest highlight
   - `mise.zsh` — `mise activate` chpwd hook
@@ -33,20 +43,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   `mise.zsh` — after PATH appends, before hook-registering modules. New
   concerns get their own module file; don't add top-level `source` calls
   outside the `.config/zsh/` set.
-- **Fish module layout (trial shell).** Fish is a *trial* — zsh stays
-  primary. Config in `.config/fish/`, symlinked to `~/.config/fish`.
-  `config.fish` is empty; concerns in `conf.d/<NN>-<concern>.fish`,
-  numeric prefix pins load order:
-  `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
-  `25-prompt` (starship), `30-aliases`,
-  `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
-  `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
-  `50-tmux-hooks` (fish_preexec → `@last_cmd` per-pane stamp),
-  `99-secrets` (untracked). The two untracked files are copied from
-  `.template` companions by `bootstrap.sh`. `functions/less.fish`
-  mirrors the zsh bat-backed `less`; `completions/wt.fish` adds wt
-  tab-completion. Don't port `modern-reminder` to fish without an ask.
-  Smoke test: `scripts/test-fish-loads.sh`.
+- **`.zprofile` runs `brew shellenv`** (zsh-side login init; fish parity
+  is in `.config/fish/conf.d/00-env.fish`) so `/opt/homebrew/bin` precedes
+  the paths macOS's `/etc/zprofile` (`path_helper`) installs. Don't move
+  into `.zshrc` — interactive subshells re-source it and re-stack PATH.
+  Machine-specific login init that needs to run before `compinit` (e.g.
+  OrbStack, anything doing `fpath+=`) goes in `~/.zprofile.local`
+  (untracked; copy from template). `.zshrc.local` is sourced *after*
+  `compinit`, so late `fpath+=` silently no-ops there.
 - **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check`;
   it does not install.
 - **Global gitignore is symlinked from `.gitignore_global`.**
@@ -187,12 +191,12 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + zs
   custom palette names in the top-level format. Don't extend pastel to
   other tools; don't add `(fg:custom_a bg:custom_b)` chips.
 
-  Fish opts into Starship's transient prompt; zsh deliberately does not.
-  After Enter, fish replaces the active chip with a bold `❯`;
-  `cmd_duration`/`status` stay intact. Wired via `enable_transience`
-  from `.config/fish/conf.d/25-prompt.fish`. Starship 1.25.x has no
-  `[transient_prompt]` section — don't add one (silently ignored,
-  trips `[WARN]`). The asymmetry is deliberate (fish is on trial).
+  Fish (primary) opts into Starship's transient prompt; zsh (fallback)
+  does not — don't add it to zsh. After Enter, fish replaces the active
+  chip with a bold `❯`; `cmd_duration`/`status` stay intact. Wired via
+  `enable_transience` from `.config/fish/conf.d/25-prompt.fish`. Starship
+  1.25.x has no `[transient_prompt]` section — don't add one (silently
+  ignored, trips `[WARN]`).
 - **wt user config is symlinked from `.config/worktrunk/config.toml`.**
   Per-project `approvals.toml` is machine-local and gitignored.
 - **Gitignored content flows between primary and worktrees in two
