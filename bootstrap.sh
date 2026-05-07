@@ -166,7 +166,13 @@ fi
 link "mise.global.toml" "$HOME/.config/mise/config.toml"
 
 # --- nvim
-link ".config/nvim"    "$HOME/.config/nvim"
+# ~/.config/nvim/ is a real dir; tracked entries are individually symlinked.
+# LazyVim's lazy/, mason/, site/, lazyvim.json stay outside the repo.
+prepare_real_dir "$HOME/.config/nvim"
+for f in lazy mason site lazyvim.json; do
+  rescue_in_repo "$DOTFILES/.config/nvim/$f" "$HOME/.config/nvim/$f"
+done
+link_tracked_entries ".config/nvim" "$HOME/.config/nvim"
 
 # --- vim
 link ".vimrc"          "$HOME/.vimrc"
