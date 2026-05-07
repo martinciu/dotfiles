@@ -106,7 +106,12 @@ link ".config/tmux"    "$HOME/.config/tmux"
 link ".config/ccstatusline" "$HOME/.config/ccstatusline"
 
 # --- worktrunk
-link ".config/worktrunk" "$HOME/.config/worktrunk"
+# ~/.config/worktrunk/ is a real dir; tracked entries are individually symlinked.
+# Per-project approvals.toml stays outside the repo.
+prepare_real_dir "$HOME/.config/worktrunk"
+rescue_in_repo "$DOTFILES/.config/worktrunk/approvals.toml" \
+               "$HOME/.config/worktrunk/approvals.toml"
+link_tracked_entries ".config/worktrunk" "$HOME/.config/worktrunk"
 
 # --- glow
 link ".config/glow"    "$HOME/.config/glow"
