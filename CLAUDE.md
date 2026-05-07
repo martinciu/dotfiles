@@ -315,6 +315,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   and POSIX habit; `duf` for interactive disk-free checks. **Deliberately
   NOT added to modern-reminder** — that system is deprecated alongside zsh
   (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
+- **`dust` is a modern `du` companion** (raw, no alias). Tree-style output
+  sorted largest-first, colored bar graphs per node, depth-aware (`-d N`
+  to limit). Read-only inspection — fast parallel scan, zero side effects.
+  `du` stays for scripts and POSIX habit; `dust` for "where did my disk
+  go?" at-a-glance. **Deliberately NOT added to modern-reminder** — that
+  system is deprecated alongside zsh (see `REMOVAL.md` §1 row 2). Don't
+  alias or wrap.
+- **`dua` is a fast `du` aggregate with an interactive TUI deleter** (raw,
+  no alias). Plain `dua [path]` walks the tree in parallel and prints
+  aggregate sizes; `dua i [path]` opens a TUI for navigating, marking, and
+  *deleting* directories. `du` stays for scripts and POSIX habit; `dua`
+  for fast aggregates and interactive disk reclaim. **Deliberately NOT
+  added to modern-reminder** — that system is deprecated alongside zsh
+  (see `REMOVAL.md` §1 row 2). Don't alias or wrap.
 - **`modern-reminder` is a zsh discoverability nudge** for default→modern
   pairs left unaliased ("no synonyms" pattern: `tail`/`tspin`,
   `grep`/`rg`, `curl`/`xh`). Defined in
