@@ -134,5 +134,41 @@ directory discipline the controller is carrying — which is exactly the
 discipline that matters most in a worktree-heavy setup.
 
 
+## Language runtimes — preferred install methods
+
+For Python, Ruby, Rust, and Node, prefer the **specialized tool** if it
+offers something `mise` can't replicate; otherwise use `mise`.
+
+- **Rust → `rustup`**. Toolchain channels (stable/beta/nightly), components
+  (`clippy`, `rustfmt`, `rust-analyzer`), and `rust-toolchain.toml`
+  per-project pinning. `mise`'s rust plugin wraps `rustup` anyway and
+  loses the ergonomics.
+- **Python → `uv` (preferred) or `mise`**. `uv` covers the whole Python
+  lifecycle: installs interpreters, runs scripts (`uv run`), manages
+  projects, installs CLIs (`uv tool`), 10–100× faster than `pip`. Where
+  `mise` only installs interpreters, `uv` does the rest. Use `mise` only
+  if consistency with other runtimes outweighs `uv`'s lifecycle wins.
+- **Node → `mise`**. No specialized Node manager offers materially more.
+  `fnm` is faster but offers nothing else; `nvm` is shell-script-slow.
+- **Ruby → `mise`**. Same logic. `rbenv`/`chruby` are good but offer
+  nothing `mise` doesn't.
+
+### Anti-patterns — avoid
+
+- ❌ `brew install python` / `brew install python@3.x` (except as a
+  transitive dep of another formula like `platformio`).
+- ❌ `brew install rust` / installing `rustup-init` and ignoring its
+  toolchain machinery afterwards.
+- ❌ Mixing `nvm` + `mise` (PATH conflicts, double-shimming).
+- ❌ `pipx` once `uv` is available — `uv tool install` supersedes it.
+- ❌ Installing Python-based CLIs via `brew` when `uv tool install <cli>`
+  works (e.g. `httpie`, `yt-dlp`, `aws-cli`, `platformio`). Brew formulas
+  pin a specific brew Python and force a parallel Python stack.
+
+How to apply: when adding/upgrading a runtime or a Python CLI, default
+to the row above. If a brew formula hard-depends on a brew Python
+runtime, prefer reinstalling the tool via `uv tool install` and
+removing the brew formula instead of carrying both Python stacks.
+
 @~/.claude/CLAUDE.local.md
 
