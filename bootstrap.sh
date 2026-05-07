@@ -103,13 +103,13 @@ link ".vimrc"          "$HOME/.vimrc"
 link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
-# --- zsh
+# --- zsh (fallback — see REMOVAL.md)
 link ".config/zsh" "$HOME/.config/zsh"
 link ".zshrc"      "$HOME/.zshrc"
 link ".zprofile"   "$HOME/.zprofile"
 link ".config/starship.toml" "$HOME/.config/starship.toml"
 
-# --- fish (alternative shell trial)
+# --- fish (primary)
 link ".config/fish" "$HOME/.config/fish"
 if [ ! -f "$HOME/.config/fish/conf.d/15-local.fish" ]; then
   cp "$DOTFILES/.config/fish/conf.d/15-local.fish.template" \
@@ -159,8 +159,8 @@ echo "🎯 next steps:"
 echo "  🪟 start tmux:               tmux"
 echo "  🧩 install plugins:          <prefix> I  (capital I, prefix = C-a)"
 echo "  🔍 test session picker:      <prefix> t"
-echo "  🏠 create machine config:    cp \$DOTFILES/.zshrc.local.template ~/.zshrc.local && \$EDITOR ~/.zshrc.local"
-echo "  🔐 login-shell machine cfg:  cp \$DOTFILES/.zprofile.local.template ~/.zprofile.local && \$EDITOR ~/.zprofile.local"
+echo "  🐟 set fish as login shell:  see README.md → \"Manual extras\" → 1 (Login shell — fish)"
+echo "  🛟 zsh fallback machine cfg: see README.md → \"Manual extras\" → 5 (Fallback shell — zsh)"
 echo "  🪝 delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
 
 echo "🎉 dotfiles linked — finish with the next steps above"

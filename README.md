@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + zsh + tmux + vim, all in Solarized + JetBrainsMono Nerd Font.
+Personal config for Ghostty + fish + tmux + vim, all in Solarized + JetBrainsMono Nerd Font.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
@@ -34,28 +34,30 @@ operational checklist.
 
 ### Manual extras
 
-**1. `~/.zshrc.local`** — per-machine env (e.g. `PROJECTS_HOME` and any
-secrets paths).
+**1. Login shell — fish.** `bootstrap.sh` installs the fish config and copies
+`15-local.fish` / `99-secrets.fish` from templates, but it does *not* change
+your login shell. Enable manually:
 
 ```sh
-cp $PROJECTS_HOME/dotfiles/.zshrc.local.template ~/.zshrc.local
-$EDITOR ~/.zshrc.local
+# One-time: register fish as a valid login shell
+echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+
+# Edit the per-machine fish overlays:
+$EDITOR ~/.config/fish/conf.d/15-local.fish    # PROJECTS_HOME, PATH overrides
+$EDITOR ~/.config/fish/conf.d/99-secrets.fish  # API keys etc.
+
+# Switch login shell to fish
+chsh -s /opt/homebrew/bin/fish
 ```
 
-**2. `~/.zprofile.local`** — per-machine *login-shell* init (e.g. OrbStack's
-`source ~/.orbstack/shell/init.zsh`). Use this instead of `.zshrc.local`
-for tools that need PATH or `fpath+=` set up before `compinit` runs.
+After `chsh`, open a new Ghostty tab (or `exec /opt/homebrew/bin/fish` to
+hot-swap an existing pane).
 
-```sh
-cp $PROJECTS_HOME/dotfiles/.zprofile.local.template ~/.zprofile.local
-$EDITOR ~/.zprofile.local
-```
-
-**3. `~/.config/sesh/sesh.local.toml`** — `bootstrap.sh` copies the template
+**2. `~/.config/sesh/sesh.local.toml`** — `bootstrap.sh` copies the template
 on first run. Edit it to add machine-local project sessions; the shared
 `sesh.toml` is the wrong place for them.
 
-**4. Wire delta into git** (one-time, global).
+**3. Wire delta into git** (one-time, global).
 
 ```sh
 git config --global core.pager delta
@@ -65,7 +67,7 @@ git config --global delta.line-numbers true
 git config --global delta.syntax-theme "Solarized (dark)"
 ```
 
-**5. Claude Code window-title hooks.** `~/.claude/settings.json` is not
+**4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
 symlinked from this repo (it accumulates machine-local permission state),
 so this is a one-time manual edit. Add (or merge into) the top-level
 `hooks` object:
@@ -88,42 +90,24 @@ so this is a one-time manual edit. Add (or merge into) the top-level
 These drive the `claude[<name>]` window title (tmux's
 `automatic-rename-format` reads `@claude_session_name`).
 
-**6. Try fish as the login shell (optional).** `bootstrap.sh` installs the
-fish config and copies `15-local.fish` / `99-secrets.fish` from templates,
-but it does *not* change your login shell. Enable and revert manually:
+**5. Fallback shell — zsh.** zsh stays installed and configured as a
+fallback while the fish transition settles. See [`REMOVAL.md`](REMOVAL.md)
+for the procedure to drop zsh later.
 
 ```sh
-# One-time: register fish as a valid login shell
-echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+# Per-machine env (PROJECTS_HOME and any secrets paths):
+cp $PROJECTS_HOME/dotfiles/.zshrc.local.template ~/.zshrc.local
+$EDITOR ~/.zshrc.local
 
-# Edit the per-machine fish overlays (parallel to .zshrc.local + .secrets):
-$EDITOR ~/.config/fish/conf.d/15-local.fish    # PROJECTS_HOME, PATH overrides
-$EDITOR ~/.config/fish/conf.d/99-secrets.fish  # API keys etc.
+# Per-machine login-shell init (e.g. OrbStack's `source ~/.orbstack/shell/init.zsh`).
+# Use this instead of .zshrc.local for tools that need PATH or `fpath+=` set up
+# before `compinit` runs.
+cp $PROJECTS_HOME/dotfiles/.zprofile.local.template ~/.zprofile.local
+$EDITOR ~/.zprofile.local
 
-# Enable: switch login shell to fish
-chsh -s /opt/homebrew/bin/fish
-
-# Revert: switch back to zsh
+# Revert login shell to zsh:
 chsh -s /bin/zsh
 ```
-
-After `chsh`, open a new Ghostty tab (or `exec /opt/homebrew/bin/fish` to
-hot-swap an existing pane). zsh stays installed and fully configured —
-reverting is one `chsh` call.
-
-**Parity status during the trial:**
-- ✅ Aliases (cat→bat, ls→eza, vim→nvim, ps→procs, top→btop, diff→difft,
-  md/mdp→glow, less wrapper)
-- ✅ Modern integrations (starship prompt, mise, zoxide, fzf bindings, wt)
-- ✅ Solarized syntax highlighting + autosuggestions (fish-native, no plugin)
-- ✅ Solarized fzf palette, LS_COLORS via vivid
-- ✅ Tmux window-name follow-last-cmd (`@last_cmd` stamped from `fish_preexec`)
-- ❌ Ghostty tab SSH-target overlay (`@ssh_target` hook is zsh-only for now)
-- ❌ `MODERN_REMINDER` discoverability nudge (zsh-only for now)
-- ❌ fzf-tab-style completion menu — fish's built-in completion pager
-  replaces it; the look-and-feel differs but the UX is on par.
-
-If you decide to keep fish, the deferred items can be ported in a follow-up.
 
 ## What's where
 
@@ -133,8 +117,8 @@ If you decide to keep fish, the deferred items can be ported in a follow-up.
 | [tmux](https://github.com/tmux/tmux) | `.config/tmux/`      | `~/.config/tmux`    |
 | [nvim](https://neovim.io/) | `.config/nvim/`                | `~/.config/nvim`    |
 | [vim](https://www.vim.org/) | `.vimrc`, `.vim/colors/`      | `~/.vimrc`, `~/.vim/colors` |
-| [zsh](https://www.zsh.org/) | `.zshrc`, `.zprofile`, `.config/starship.toml` | `~/.zshrc`, `~/.zprofile`, `~/.config/starship.toml` |
-| [fish](https://fishshell.com/) (alt shell) | `.config/fish/`              | `~/.config/fish/`   |
+| [fish](https://fishshell.com/) | `.config/fish/`              | `~/.config/fish/`   |
+| [zsh](https://www.zsh.org/) (fallback) | `.zshrc`, `.zprofile`, `.config/starship.toml` | `~/.zshrc`, `~/.zprofile`, `~/.config/starship.toml` |
 | [sesh](https://github.com/joshmedeski/sesh) | `.config/sesh/sesh.toml` | `~/.config/sesh/sesh.toml` |
 | [worktrunk](https://worktrunk.dev/) | `.config/worktrunk/` | `~/.config/worktrunk` |
 | [glow](https://github.com/charmbracelet/glow) | `.config/glow/` | `~/.config/glow` |

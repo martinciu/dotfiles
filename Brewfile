@@ -45,7 +45,7 @@ brew "zsh-syntax-highlighting"  # live command-line highlighting
 brew "zsh-autosuggestions"      # ghost-text completion from history
 brew "fzf-tab"                  # fzf-driven Tab completion menu
 brew "lnav"                     # TUI log file navigator
-brew "fish"                     # alternative interactive shell (trial)
+brew "fish"                     # primary interactive shell
 
 # Shell script linting & formatting
 brew "shellcheck"               # zsh/bash/sh static analysis (quoting bugs, unused vars, POSIX/bashism mismatches)
