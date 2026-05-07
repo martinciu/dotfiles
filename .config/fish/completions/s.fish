@@ -29,9 +29,16 @@ function __s_project_path -a name
 end
 
 function __s_worktree_branches -a project_path
+    # Emit branch names of *secondary* worktrees only — skip the primary
+    # checkout (whose path equals project_path). `s <name>` creates/resumes
+    # secondary worktrees; the primary's branch (whatever is currently
+    # checked out at the project root) is not a valid target.
     test -n "$project_path"; or return
     git -C "$project_path" worktree list --porcelain 2>/dev/null \
-        | awk '$1=="branch" {sub("refs/heads/", "", $2); if ($2 != "main" && $2 != "master") print $2}'
+        | awk -v project="$project_path" '
+            $1=="worktree" {wt=$2}
+            $1=="branch"   {sub("refs/heads/", "", $2); if (wt != project) print $2}
+        '
 end
 
 function __s_cwd_project_path
