@@ -47,6 +47,9 @@ brew "fzf-tab"                  # fzf-driven Tab completion menu
 brew "lnav"                     # TUI log file navigator
 brew "fish"                     # alternative interactive shell (trial)
 
+# Code search & refactoring
+brew "ast-grep"                 # structural code search/rewrite (AST patterns, multi-language)
+
 # Shell script linting & formatting
 brew "shellcheck"               # zsh/bash/sh static analysis (quoting bugs, unused vars, POSIX/bashism mismatches)
 brew "shfmt"                    # POSIX/bash/mksh formatter (`-d` for diff, `-w` to write)
