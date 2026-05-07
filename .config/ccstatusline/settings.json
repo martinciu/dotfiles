@@ -13,6 +13,11 @@
         "backgroundColor": "bgBrightWhite"
       },
       {
+        "id": "babebda4-b14d-4236-97c6-332c8b244a9d",
+        "type": "context-length",
+        "backgroundColor": "bgBrightBlue"
+      },
+      {
         "id": "41900a0a-d664-4970-a166-bf3ff25c9ee2",
         "type": "session-usage",
         "backgroundColor": "bgBrightYellow",
@@ -24,6 +29,11 @@
         "id": "28da2a14-b3e3-4f1f-8c6d-8b026332be14",
         "type": "reset-timer",
         "backgroundColor": "bgCyan"
+      },
+      {
+        "id": "86948b16-e4c5-4e03-a960-1d78fcfca471",
+        "type": "tokens-total",
+        "backgroundColor": "bgRed"
       }
     ]
   ],
