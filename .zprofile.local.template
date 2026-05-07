@@ -1,6 +1,0 @@
-# Machine-specific login-shell config.
-# Copy to ~/.zprofile.local and uncomment what applies to this machine.
-# This file is NOT tracked by dotfiles — never commit ~/.zprofile.local.
-
-# OrbStack — command-line tools and zsh completions.
-# source ~/.orbstack/shell/init.zsh 2>/dev/null || :

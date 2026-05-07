@@ -1,12 +1,14 @@
-#!/usr/bin/env zsh
+#!/opt/homebrew/bin/bash
 # Unit tests for claude-tmux-window-name.
-# Run: zsh scripts/test-claude-tmux-window-name.zsh
+# Run: bash scripts/test-claude-tmux-window-name.sh
 set -u
 
 REPO="${PROJECTS_HOME:-$HOME/code}/dotfiles"
 SCRIPT="$REPO/.config/tmux/bin/claude-tmux-window-name"
 
-pass=0; fail=0; fail_msgs=()
+pass=0
+fail=0
+fail_msgs=()
 
 assert_eq() {
   local got="$1" want="$2" desc="$3"
@@ -76,7 +78,6 @@ setup_env
 TMUX_PANE="%42"; export TMUX_PANE
 run_script clear
 assert_eq "$(tmux_call_count)" "2" "clear → two tmux unset calls"
-# Verify each call passes -p -t %42 -u <var>
 calls=$(cat "$TMUX_CALLS")
 case "$calls" in
   *@claude_session_name*) name_unset=1 ;;
@@ -139,8 +140,8 @@ unset TMUX_PANE
 teardown_env
 
 # 7. set mode, ~/.claude/sessions/ empty → no tmux call AND no stderr noise.
-#    Regression test for "zsh: no matches found" leaking when the *.json glob
-#    expands to nothing. NULL_GLOB in the script suppresses it.
+#    Regression test for "shell: no matches found" leaking when the *.json
+#    glob expands to nothing. NULL_GLOB / nullglob in the script suppresses it.
 setup_env
 TMUX_PANE="%7"; export TMUX_PANE
 STDERR_LOG="$TEST_HOME/stderr.log"

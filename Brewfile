@@ -41,9 +41,6 @@ brew "vivid"                    # generates LS_COLORS palettes
 brew "starship"                 # cross-shell prompt engine (Rust); replaces powerlevel10k
 brew "procs"                    # modern ps replacement (Rust)
 brew "xh"                       # modern HTTP client (HTTPie-compatible CLI, Solarized-aware)
-brew "zsh-syntax-highlighting"  # live command-line highlighting
-brew "zsh-autosuggestions"      # ghost-text completion from history
-brew "fzf-tab"                  # fzf-driven Tab completion menu
 brew "lnav"                     # TUI log file navigator
 brew "fish"                     # primary interactive shell
 
@@ -51,7 +48,7 @@ brew "fish"                     # primary interactive shell
 brew "ast-grep"                 # structural code search/rewrite (AST patterns, multi-language)
 
 # Shell script linting & formatting
-brew "shellcheck"               # zsh/bash/sh static analysis (quoting bugs, unused vars, POSIX/bashism mismatches)
+brew "shellcheck"               # bash/sh static analysis (quoting bugs, unused vars, POSIX/bashism mismatches)
 brew "shfmt"                    # POSIX/bash/mksh formatter (`-d` for diff, `-w` to write)
 
 # System monitoring & benchmarking

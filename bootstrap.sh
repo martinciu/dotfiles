@@ -181,13 +181,10 @@ link ".vimrc"          "$HOME/.vimrc"
 link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
-# --- zsh (fallback — see REMOVAL.md)
-link ".config/zsh" "$HOME/.config/zsh"
-link ".zshrc"      "$HOME/.zshrc"
-link ".zprofile"   "$HOME/.zprofile"
+# --- starship (prompt; fish opts into transient prompt — see CLAUDE.md)
 link ".config/starship.toml" "$HOME/.config/starship.toml"
 
-# --- fish (primary)
+# --- fish (only interactive shell)
 # ~/.config/fish/ is a real dir; tracked entries are individually symlinked.
 # 15-local.fish + 99-secrets.fish + fish runtime state stay outside the repo.
 prepare_real_dir "$HOME/.config/fish"
@@ -238,7 +235,6 @@ echo "  🪟 start tmux:               tmux"
 echo "  🧩 install plugins:          <prefix> I  (capital I, prefix = C-a)"
 echo "  🔍 test session picker:      <prefix> t"
 echo "  🐟 set fish as login shell:  see README.md → \"Manual extras\" → 1 (Login shell — fish)"
-echo "  🛟 zsh fallback machine cfg: see README.md → \"Manual extras\" → 5 (Fallback shell — zsh)"
 echo "  🪝 delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
 
 echo "🎉 dotfiles linked — finish with the next steps above"

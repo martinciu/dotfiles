@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf · fzf-tab · zsh-autosuggestions · zsh-syntax-highlighting
+      Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -41,12 +41,8 @@
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
   <a href="#xh">xh</a>
-  <a href="#modern-reminder">modern-reminder</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
-  <a href="#fzf-tab">fzf-tab</a>
-  <a href="#autosuggestions">autosuggestions</a>
-  <a href="#syntax">syntax-highlighting</a>
   <a href="#bootstrap">Bootstrap a new machine</a>
 </nav>
 
@@ -72,10 +68,7 @@
       <tr><td class="key"><a href="https://github.com/muesli/duf"><code>duf</code></a></td><td class="desc">modern <code>df</code> replacement (grouped, color-coded; raw, no alias)</td></tr>
       <tr><td class="key"><a href="https://github.com/bootandy/dust"><code>dust</code></a></td><td class="desc">tree-style <code>du</code> replacement (largest-first, bar graphs; raw, no alias)</td></tr>
       <tr><td class="key"><a href="https://github.com/ducaale/xh"><code>xh</code></a></td><td class="desc">modern HTTP client (HTTPie-compatible CLI); Solarized via <code>~/.config/xh/config.json</code></td></tr>
-      <tr><td class="key"><a href="https://github.com/zsh-users/zsh-autosuggestions"><code>zsh-autosuggestions</code></a></td><td class="desc">ghost-text completion from history</td></tr>
-      <tr><td class="key"><a href="https://github.com/zsh-users/zsh-syntax-highlighting"><code>zsh-syntax-highlighting</code></a></td><td class="desc">live command-line highlighting</td></tr>
       <tr><td class="key"><a href="https://github.com/junegunn/fzf"><code>fzf</code></a></td><td class="desc">fuzzy finder + Ctrl-R / Ctrl-T bindings</td></tr>
-      <tr><td class="key"><a href="https://github.com/Aloxaf/fzf-tab"><code>fzf-tab</code></a></td><td class="desc">replaces zsh's Tab menu with an fzf picker</td></tr>
     </table>
   </div>
 
@@ -83,7 +76,6 @@
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
       <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
-      <li><strong>Plugin source order in <code>.zshrc</code> is fixed:</strong> fzf → <code>bindkey -r '^[c'</code> (Alt-C unbind) → zoxide → fzf-tab → zsh-autosuggestions → zsh-syntax-highlighting (must be last).</li>
       <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
       <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
     </ul>
@@ -149,7 +141,7 @@
     <h3>Most-used flags</h3>
     <table>
       <tr><td class="key"><code>procs</code></td><td class="desc">all your processes, Solarized columns, sort by PID</td></tr>
-      <tr><td class="key"><code>procs zsh</code></td><td class="desc">regex search across PID/User/Command (replaces <code>ps | grep</code>)</td></tr>
+      <tr><td class="key"><code>procs fish</code></td><td class="desc">regex search across PID/User/Command (replaces <code>ps | grep</code>)</td></tr>
       <tr><td class="key"><code>procs --tree</code></td><td class="desc">parent/child tree view</td></tr>
       <tr><td class="key"><code>procs --watch</code></td><td class="desc">refresh every 1s; <code>--watch-interval N</code> for custom</td></tr>
       <tr><td class="key"><code>procs --sortd UsageCpu</code></td><td class="desc">sort by CPU descending (asc = <code>--sorta</code>)</td></tr>
@@ -268,8 +260,8 @@
   <div class="card">
     <h3>Why a function, not an alias</h3>
     <p>
-      <code>less</code> is a zsh function (defined next to the <code>cat</code> alias in
-      <code>.zshrc</code>) that delegates to <code>bat</code>. File arguments get bat's full
+      <code>less</code> is a fish function (in <code>.config/fish/functions/less.fish</code>)
+      that delegates to <code>bat</code>. File arguments get bat's full
       decoration (line numbers, git gutter); piped input falls back to <code>bat --plain</code>
       so <code>cmd | less</code> doesn't get bat's <code>STDIN</code> header and stays clean.
     </p>
@@ -347,11 +339,11 @@
   <div class="card">
     <h3>Bypass to legacy <code>diff</code></h3>
     <table>
-      <tr><td class="key"><code>command diff a b</code></td><td class="desc">skip the alias (zsh built-in)</td></tr>
+      <tr><td class="key"><code>command diff a b</code></td><td class="desc">skip the alias (<code>/usr/bin/diff</code>)</td></tr>
       <tr><td class="key"><code>\diff a b</code></td><td class="desc">same; backslash quotes the alias name</td></tr>
       <tr><td class="key"><code>/usr/bin/diff a b</code></td><td class="desc">absolute path bypasses <code>$PATH</code></td></tr>
     </table>
-    <p class="note">Non-interactive shells (scripts, Make, CI) never see the alias — zsh aliases don't propagate without <code>-i</code>.</p>
+    <p class="note">Non-interactive shells (scripts, Make, CI) never see the alias — fish aliases don't propagate to non-interactive shells.</p>
   </div>
 
   <div class="card">
@@ -477,7 +469,7 @@
       <code>fruity</code>. xh renders through <code>syntect</code> — the same library family as
       <code>bat</code> — so highlighting matches the rest of the Solarized Dark setup.
     </p>
-    <p class="note">No <code>.zshrc</code> alias here. Aliases in this repo are reserved for swapping commands; default flags belong in config files.</p>
+    <p class="note">No alias here. Aliases in this repo are reserved for swapping commands; default flags belong in config files.</p>
   </div>
 
   <div class="card">
@@ -509,7 +501,7 @@
   <div class="card">
     <h3>When to reach for it vs <code>time</code></h3>
     <p>
-      <code>time</code> (zsh builtin / <code>/usr/bin/time</code>) is the right tool for
+      <code>time</code> (<code>/usr/bin/time</code>) is the right tool for
       one-shot wall-clock measurements — scripts, CI, "did this finish quickly?".
       Reach for <code>hyperfine</code> when you want warmups, multiple runs, variance
       characterization, or A/B comparison.
@@ -531,52 +523,12 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
-<h2 id="modern-reminder">modern-reminder <span class="tool-tag">discoverability nudge</span></h2>
-
-<div class="grid">
-  <div class="card">
-    <h3>What it does</h3>
-    <p>
-      One-line nudge after running a default tool whose modern alternative is
-      installed and deliberately left unaliased. Fires at most once per zsh
-      process, per command name. A fresh tmux pane resets the seen set.
-    </p>
-    <table>
-      <tr><th>Default</th><th>Modern</th></tr>
-      <tr><td><code>tail</code></td><td><code>tspin</code></td></tr>
-      <tr><td><code>grep</code></td><td><code>rg</code> (ripgrep)</td></tr>
-      <tr><td><code>curl</code></td><td><code>xh</code> (HTTPie-compatible)</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Toggle</h3>
-    <p>
-      <code>export MODERN_REMINDER=1</code> in <code>~/.zshrc</code> turns it on
-      (set there by default). Comment that line — or <code>unset MODERN_REMINDER</code>
-      in a single shell — to silence.
-    </p>
-    <p class="note">Hooks register only in interactive shells, so scripts and CI never see them.</p>
-  </div>
-
-  <div class="card">
-    <h3>Where it lives</h3>
-    <p>
-      Implementation: <code>_modern_reminder_preexec</code> +
-      <code>_modern_reminder_precmd</code> in <code>~/.zshrc</code>; tests in
-      <code>scripts/test-modern-reminder.zsh</code> (which holds a synced copy
-      of the function bodies — keep both in sync).
-    </p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="vivid">vivid &amp; LS_COLORS</h2>
 
 <div class="grid">
   <div class="card">
     <h3>What &amp; how</h3>
-    <p><code>vivid</code> generates a <code>LS_COLORS</code> string from a named palette. <code>.zshrc</code> exports it on startup:</p>
+    <p><code>vivid</code> generates a <code>LS_COLORS</code> string from a named palette. <code>.config/fish/conf.d/10-colors.fish</code> exports it on startup:</p>
     <pre><span class="cmd">command -v vivid</span> &gt;/dev/null 2&gt;&amp;1 &amp;&amp; \
   <span class="kw">export</span> LS_COLORS=<span class="str">"$(vivid generate solarized-dark)"</span></pre>
     <p>Both <code>eza</code> and GNU <code>ls</code> read <code>$LS_COLORS</code>. BSD <code>ls</code> uses <code>$LSCOLORS</code> (different format) — left at OMZ default.</p>
@@ -630,98 +582,7 @@
       <tr><td class="key"><code>fd | fzf --preview 'bat --color=always {}'</code></td><td class="desc">live preview</td></tr>
       <tr><td class="key"><code>history | fzf</code></td><td class="desc">manual history search</td></tr>
     </table>
-    <p class="note">FZF colors are pinned to Solarized via <code>$FZF_DEFAULT_OPTS</code> in <code>.zshrc</code>.</p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<h2 id="fzf-tab">fzf-tab <span class="tool-tag">Tab completion picker</span></h2>
-
-<div class="grid">
-  <div class="card">
-    <h3>What it does</h3>
-    <p>Replaces zsh's default <kbd>Tab</kbd> completion menu with an fzf picker — fuzzy filter as you type, arrow-key navigation, and per-command previews. Works for <strong>every</strong> command (cd, git, kill, ssh, brew, &hellip;).</p>
-    <p class="note">For <code>z</code> with zoxide-ranked results, use <code>zi &lt;query&gt;</code> — fzf-tab won't show zoxide entries because <code>zoxide init zsh</code> doesn't register a <code>_z</code> completion function.</p>
-  </div>
-
-  <div class="card">
-    <h3>Key bindings (inside the picker)</h3>
-    <table>
-      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">accept selected completion</td></tr>
-      <tr><td class="key"><span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">switch between completion groups (e.g. <code>[heads]</code> ↔ <code>[tags]</code> for git checkout)</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-Space</span></td><td class="desc">multi-select</td></tr>
-      <tr><td class="key"><span class="k">/</span></td><td class="desc">continuous completion (useful for deep paths)</td></tr>
-      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">cancel</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Examples</h3>
-    <table>
-      <tr><td class="key"><code>cd &lt;Tab&gt;</code></td><td class="desc">directory picker with eza preview pane</td></tr>
-      <tr><td class="key"><code>git checkout &lt;Tab&gt;</code></td><td class="desc">branches + tags grouped with headers</td></tr>
-      <tr><td class="key"><code>kill &lt;Tab&gt;</code></td><td class="desc">process picker</td></tr>
-      <tr><td class="key"><code>brew install &lt;Tab&gt;</code></td><td class="desc">formula picker</td></tr>
-    </table>
-    <p class="note">Picker colors inherit <code>$FZF_DEFAULT_OPTS</code> via <code>use-fzf-default-opts yes</code>.</p>
-  </div>
-
-  <div class="card">
-    <h3>Commands</h3>
-    <table>
-      <tr><td class="key"><code>disable-fzf-tab</code></td><td class="desc">fall back to compsys for this shell</td></tr>
-      <tr><td class="key"><code>enable-fzf-tab</code></td><td class="desc">re-enable</td></tr>
-      <tr><td class="key"><code>toggle-fzf-tab</code></td><td class="desc">flip between the two</td></tr>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<h2 id="autosuggestions">zsh-autosuggestions <span class="tool-tag">ghost text from history</span></h2>
-
-<div class="grid">
-  <div class="card">
-    <h3>Accept the suggestion</h3>
-    <table>
-      <tr><td class="key"><span class="k">→</span> <span class="muted">(right arrow)</span></td><td class="desc">accept entire suggestion (end-of-line)</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-E</span></td><td class="desc">same — move to end of line (accepts)</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-F</span> / <span class="k">M-f</span></td><td class="desc warn">forward by char/word — Alt is unbound here</td></tr>
-      <tr><td class="key"><span class="k">Esc</span> <span class="muted">then</span> <span class="k">Enter</span></td><td class="desc">discard suggestion, run only what you typed</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Notes</h3>
-    <ul class="compact">
-      <li>Ghost text is rendered with <code>fg=8</code> (bright black) — readable on Solarized Dark.</li>
-      <li>Strategy is whatever ships by default: history-based.</li>
-      <li>The plugin is sourced <strong>before</strong> fzf and <strong>before</strong> syntax-highlighting on purpose; reordering breaks both.</li>
-    </ul>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<h2 id="syntax">zsh-syntax-highlighting <span class="tool-tag">live command line</span></h2>
-
-<div class="grid">
-  <div class="card">
-    <h3>What you'll see</h3>
-    <ul class="compact">
-      <li><strong>Green</strong> command name: it's an executable / alias / builtin / function.</li>
-      <li><strong>Red</strong> command name: not found on your <code>$PATH</code>.</li>
-      <li>Colored quotes / strings / globbing for visual sanity.</li>
-      <li>Mismatched quotes / brackets glow red while you type.</li>
-    </ul>
-    <p class="note">It's the <em>last</em> sourced plugin — that's a hard requirement of the project, not a style choice. Sourcing it earlier breaks coloring of subsequent plugins' bindings.</p>
-  </div>
-
-  <div class="card">
-    <h3>Tweak (rarely needed)</h3>
-    <pre><span class="c"># In ~/.zshrc.local (machine-local, untracked)</span>
-<span class="kw">typeset</span> -A ZSH_HIGHLIGHT_STYLES
-<span class="cmd">ZSH_HIGHLIGHT_STYLES[command]</span>=<span class="str">'fg=#859900,bold'</span>  <span class="c"># green</span>
-<span class="cmd">ZSH_HIGHLIGHT_STYLES[unknown-token]</span>=<span class="str">'fg=#dc322f'</span>     <span class="c"># red</span></pre>
-    <p class="note">Don't change the global Solarized palette — palette pins are intentional.</p>
+    <p class="note">FZF colors are pinned to Solarized via <code>set -gx FZF_DEFAULT_OPTS</code> in <code>.config/fish/conf.d/40-plugins.fish</code>.</p>
   </div>
 </div>
 
@@ -748,18 +609,8 @@
 <span class="cmd">echo</span> $LS_COLORS | <span class="cmd">head -c 80</span>      <span class="c"># should not be empty</span>
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
-<h3>Plugin source order in <code>.zshrc</code> (do not reorder)</h3>
-<ol class="compact">
-  <li>fzf <code>completion.zsh</code> + <code>key-bindings.zsh</code> &mdash; binds <code>^I</code></li>
-  <li><code>bindkey -r '^[c'</code> &mdash; remove fzf's Alt-C binding (Polish diacritics)</li>
-  <li><code>zoxide init zsh</code></li>
-  <li><code>fzf-tab.zsh</code> &mdash; needs fzf's <code>^I</code> already bound; must be before any plugin that wraps widgets</li>
-  <li><code>zsh-autosuggestions.zsh</code></li>
-  <li><code>zsh-syntax-highlighting.zsh</code> &mdash; <strong>must be last</strong></li>
-</ol>
-
 <footer>
-  Built from <code>~/.zshrc</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-07.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-07.
   Refresh after meaningful color-tooling changes.
 </footer>
 

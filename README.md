@@ -13,7 +13,7 @@ Personal config for Ghostty + fish + tmux + vim, all in Solarized + JetBrainsMon
 Solarized-themed quick references — also browseable at
 [martinciu.github.io/dotfiles](https://martinciu.github.io/dotfiles/):
 
-- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, duf, dust, dua, fzf, zsh plugins
+- [Terminal](https://martinciu.github.io/dotfiles/terminal-cheatsheet.html) — eza, bat, less wrapper, git-delta, difftastic, glow, vivid, xh, duf, dust, dua, fzf
 - [tmux](https://martinciu.github.io/dotfiles/tmux-cheatsheet.html) — prefix `C-a` map, sessions/windows/panes, tmux-sessionx picker, status bar, copy mode
 - [Neovim](https://martinciu.github.io/dotfiles/nvim-cheatsheet.html) — LazyVim leader map, picker, LSP, neotest, Mason/Lazy
 
@@ -90,25 +90,6 @@ so this is a one-time manual edit. Add (or merge into) the top-level
 These drive the `claude[<name>]` window title (tmux's
 `automatic-rename-format` reads `@claude_session_name`).
 
-**5. Fallback shell — zsh.** zsh stays installed and configured as a
-fallback while the fish transition settles. See [`REMOVAL.md`](REMOVAL.md)
-for the procedure to drop zsh later.
-
-```sh
-# Per-machine env (PROJECTS_HOME and any secrets paths):
-cp $PROJECTS_HOME/dotfiles/.zshrc.local.template ~/.zshrc.local
-$EDITOR ~/.zshrc.local
-
-# Per-machine login-shell init (e.g. OrbStack's `source ~/.orbstack/shell/init.zsh`).
-# Use this instead of .zshrc.local for tools that need PATH or `fpath+=` set up
-# before `compinit` runs.
-cp $PROJECTS_HOME/dotfiles/.zprofile.local.template ~/.zprofile.local
-$EDITOR ~/.zprofile.local
-
-# Revert login shell to zsh:
-chsh -s /bin/zsh
-```
-
 ## What's where
 
 | Tool         | Source path                          | Target              |
@@ -118,7 +99,6 @@ chsh -s /bin/zsh
 | [nvim](https://neovim.io/) | `.config/nvim/`                | `~/.config/nvim`    |
 | [vim](https://www.vim.org/) | `.vimrc`, `.vim/colors/`      | `~/.vimrc`, `~/.vim/colors` |
 | [fish](https://fishshell.com/) | `.config/fish/`              | `~/.config/fish/`   |
-| [zsh](https://www.zsh.org/) (fallback) | `.zshrc`, `.zprofile`, `.config/starship.toml` | `~/.zshrc`, `~/.zprofile`, `~/.config/starship.toml` |
 | [sesh](https://github.com/joshmedeski/sesh) | `.config/sesh/sesh.toml` | `~/.config/sesh/sesh.toml` |
 | [worktrunk](https://worktrunk.dev/) | `.config/worktrunk/` | `~/.config/worktrunk` |
 | [glow](https://github.com/charmbracelet/glow) | `.config/glow/` | `~/.config/glow` |
@@ -157,10 +137,10 @@ chsh -s /bin/zsh
 - Smoke-test that the chain works end-to-end:
 
   ```sh
-  printf '\e]8;;file://%s/.zshrc\e\\.zshrc\e]8;;\e\\\n' "$HOME"
+  printf '\e]8;;file://%s/.config/fish/config.fish\e\\config.fish\e]8;;\e\\\n' "$HOME"
   ```
 
-  Shift+Cmd+click the rendered "`.zshrc`" — your default `.zshrc` editor should open the file.
+  Shift+Cmd+click the rendered "`config.fish`" — your default editor for that file type should open it.
 - **Dashboard (`bin/dashboard`) is experimental.** Spawns a tiled
   `dashboard-<derived>` session that polls `capture-pane` for every
   matched session — useful for keeping eyes on N parallel runs at
