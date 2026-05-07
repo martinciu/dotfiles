@@ -51,8 +51,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   OrbStack, anything doing `fpath+=`) goes in `~/.zprofile.local`
   (untracked; copy from template). `.zshrc.local` is sourced *after*
   `compinit`, so late `fpath+=` silently no-ops there.
-- **`Brewfile` is report-only.** `bootstrap.sh` runs `brew bundle check`;
-  it does not install.
+- **`Brewfile` is installed by bootstrap.** `bootstrap.sh` runs
+  `brew bundle --file=$DOTFILES/Brewfile` unconditionally at the top,
+  before any symlinks. Aborts on failure (`set -euo pipefail`).
 - **Global gitignore is symlinked from `.gitignore_global`.**
   `bootstrap.sh` links it to `~/.gitignore_global` (the path
   `core.excludesfile` already points to). Lists the cross-repo
@@ -374,7 +375,7 @@ is `nvim-cheatsheet.html`).
 - Dashboard smoke + integration: `scripts/test-dashboard.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
-- Brew dep check: `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
+- Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
 
 ## First-time setup on a new machine
