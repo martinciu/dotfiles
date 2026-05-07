@@ -20,11 +20,18 @@ EOF
 }
 
 # Create or find a worktree for <name> in <project_path>. Echoes the
-# worktree path on stdout. wt is itself idempotent: if branch+worktree
-# already exist, it reports their location instead of erroring.
+# worktree path on stdout. `wt switch --create` errors when the branch
+# already exists, so pre-flight via `git show-ref` and dispatch to the
+# right form. Both forms emit `{"action":..., "path":...}` JSON.
+# Resume-existing matters because the fish completer suggests existing
+# secondary-worktree branches as completions for `s`.
 ensure_worktree() {
   local project_path="$1" name="$2" json
-  json=$(wt -C "$project_path" switch --create --no-cd --format=json "$name") || return $?
+  if git -C "$project_path" show-ref --verify --quiet "refs/heads/$name"; then
+    json=$(wt -C "$project_path" switch --no-cd --format=json "$name") || return $?
+  else
+    json=$(wt -C "$project_path" switch --create --no-cd --format=json "$name") || return $?
+  fi
   printf '%s\n' "$json" | jq -r '.path'
 }
 

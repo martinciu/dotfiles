@@ -170,5 +170,18 @@ to the row above. If a brew formula hard-depends on a brew Python
 runtime, prefer reinstalling the tool via `uv tool install` and
 removing the brew formula instead of carrying both Python stacks.
 
+## Shell preferences
+
+Fish is the only shell I want to maintain config for. When a task involves
+adding or modifying shell config (completions, aliases, functions, prompt
+glue, hooks), do it in fish only — do not write a parallel zsh version,
+do not "port to zsh later", do not suggest it. Existing zsh config stays
+working but is in maintenance mode; don't extend it.
+
+How to apply: when asked to add a shell-level feature, write the fish
+version and stop. If a project-level CLAUDE.md still references zsh
+parity (e.g. dotfiles/CLAUDE.md), follow the user's per-project guidance
+but default to fish-only when the project rule is silent.
+
 @~/.claude/CLAUDE.local.md
 

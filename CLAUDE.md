@@ -136,7 +136,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   single arg = project name. Two args = `<project> <name>`. Session
   naming uses `/` (tmux disallows `:`/`.`). Branch name is verbatim —
   `s` does **not** apply `worktree-`; that's reserved for `EnterWorktree`.
-  Project list from `sesh list -c -j`.
+  Project list from `sesh list -c -j`. Fish completions live in
+  `.config/fish/completions/s.fish`: pos 1 (outside tmux) suggests
+  sesh project names, pos 1 (inside tmux) and pos 2 suggest existing
+  *secondary* worktree branches via `git worktree list --porcelain`
+  (the primary checkout's branch is filtered out by path comparison).
+  Completions are non-exclusive — typing a fresh name still creates
+  a new worktree.
 - **`dashboard` is the multi-session live preview command**
   (`bin/dashboard`, symlinked to `~/.local/bin/dashboard`). Surface:
   `dashboard <pattern> [--cols N]`, plus internal
