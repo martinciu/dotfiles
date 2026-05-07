@@ -1,7 +1,16 @@
 # Per-machine fish config. Copied from .template by bootstrap.sh on first run.
-# Parallel to ~/.zshrc.local.
+# This file is NOT tracked by dotfiles — never commit ~/.config/fish/conf.d/15-local.fish.
 
 set -gx PROJECTS_HOME $HOME/code
 
 # Add machine-local PATH entries here, e.g.:
 # fish_add_path -gP $HOME/some-tool/bin
+
+# OrbStack — command-line tools and integration
+# test -f ~/.orbstack/shell/init2.fish; and source ~/.orbstack/shell/init2.fish
+
+# Claude Code — disable 1M context window
+# set -gx CLAUDE_CODE_DISABLE_1M_CONTEXT 1
+
+# opencode
+# fish_add_path -gP $HOME/.opencode/bin
