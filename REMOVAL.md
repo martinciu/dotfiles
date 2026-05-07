@@ -55,4 +55,11 @@ removal is unblocked.
 9. **`README.md`** — drop the "Fallback shell — zsh" subsection from
    "Manual extras"; drop the `~/.zshrc.local` line if still cited; drop
    the zsh row from the "What's where" table.
-10. **Delete this file** — `rm REMOVAL.md` is the last commit.
+10. **Cheatsheets** — `docs/terminal-cheatsheet.html` and
+    `docs/tmux-cheatsheet.html` carry zsh-specific references (plugin
+    source order in `.zshrc`, `MODERN_REMINDER` toggle, `_tmux_window_label`
+    location, plugin rows for `zsh-autosuggestions` /
+    `zsh-syntax-highlighting` / `fzf-tab`, references to the zsh-only test
+    scripts deleted in step 2). Audit both files and drop zsh-only content;
+    refresh footer dates.
+11. **Delete this file** — `rm REMOVAL.md` is the last commit.
