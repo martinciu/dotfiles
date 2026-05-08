@@ -296,6 +296,13 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   aggregate sizes; `dua i [path]` opens a TUI for navigating, marking, and
   *deleting* directories. `du` stays for scripts and POSIX habit; `dua`
   for fast aggregates and interactive disk reclaim. Don't alias or wrap.
+- **`mmdc` renders Mermaid diagrams** (`@mermaid-js/mermaid-cli`), installed
+  via mise as a global npm tool (`mise.global.toml`). `.mmd` source files
+  live co-located with the docs that reference them; rendered `.svg` files
+  sit alongside (same directory, same basename). Both are committed.
+  Build all: `scripts/build-diagrams.sh`. Single file:
+  `mmdc -i file.mmd -o file.svg`. Don't install via brew (parallel node
+  stack) or `npm install -g` (not declarative, lost on node upgrade).
 
 ## Where things live
 
@@ -333,6 +340,7 @@ is `nvim-cheatsheet.html`).
 
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshots: `scripts/build-screenshots.sh`
+- Render diagrams: `scripts/build-diagrams.sh`
 - Tmux window-label: `scripts/test-fish-tmux-window-label.fish`
 - Pre-remove save-shared: `scripts/test-wt-pre-remove-save.sh`
 - Claude tmux window-name: `scripts/test-claude-tmux-window-name.sh`

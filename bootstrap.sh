@@ -166,6 +166,7 @@ fi
 # Stored as mise.global.toml at repo root (not under .config/mise/) to avoid
 # mise auto-discovering it as a local project config when inside the dotfiles dir.
 link "mise.global.toml" "$HOME/.config/mise/config.toml"
+mise install
 
 # --- nvim
 # ~/.config/nvim/ is a real dir; tracked entries are individually symlinked.
