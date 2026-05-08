@@ -11,7 +11,7 @@ set -gx FZF_DEFAULT_OPTS '
 # Ghost-text autosuggestions — dim, readable on Solarized Dark.
 set -g fish_color_autosuggestion brblack
 
-# Solarized syntax-highlighting palette (replaces zsh-syntax-highlighting).
+# Solarized syntax-highlighting palette.
 set -g fish_color_command       blue
 set -g fish_color_param         normal
 set -g fish_color_quote         cyan

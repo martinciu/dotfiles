@@ -6,7 +6,7 @@ end
 # Alt-C is reserved for Polish diacritics; remove fzf's cd-widget binding.
 bind -e \ec 2>/dev/null
 
-# zoxide — frecency-ranked cd. Same exclusions as the zsh side.
+# zoxide — frecency-ranked cd.
 if command -q zoxide
     set -gx _ZO_EXCLUDE_DIRS "$HOME:$HOME/Downloads/*:$HOME/.config/*:$HOME/Library/*"
     zoxide init fish | source
