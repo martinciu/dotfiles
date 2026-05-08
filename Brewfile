@@ -21,7 +21,7 @@ brew "worktrunk"
 
 # Runtime version manager (Node + Ruby) + Python package runner
 brew "mise"
-brew "uv"  # fast Python package manager + ephemeral-venv runner; "uv run --with pyyaml script.py" without polluting global Python
+brew "uv"  # owns the Python lifecycle: interpreters (`uv python install --default`), projects (`uv add`/`run`/`sync`), CLIs (`uv tool`), pip-shim (`uv pip`)
 
 # Editor — neovim IDE (LazyVim)
 brew "neovim"
