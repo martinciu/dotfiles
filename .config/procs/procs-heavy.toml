@@ -1,5 +1,6 @@
 # .config/procs/procs-heavy.toml — "what's hot right now" view.
-# Loaded by `psh` (alias in .zshrc) via `--load-config`. Trimmed column set
+# Loaded by `psh` (alias in `.config/fish/conf.d/30-aliases.fish`) via
+# `--load-config`. Trimmed column set
 # (Pid, User, UsageCpu, UsageMem, VmRss, Command) and default sort by
 # UsageCpu descending so heavy processes float to the top.
 #
