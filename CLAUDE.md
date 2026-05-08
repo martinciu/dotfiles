@@ -19,12 +19,16 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   bundle` runs before `bootstrap.sh`. Don't reintroduce bash-3 shims.
 - **Fish module layout.** Fish is the primary interactive shell. Config
   in `.config/fish/`. `~/.config/fish/` is a real dir (mixed-dir pattern):
-  `config.fish`, `completions/`, `functions/` are symlinked from the
-  repo; `conf.d/` is itself a real dir with per-file symlinks for the
-  tracked `*.fish` modules and **real files** for `15-local.fish` +
-  `99-secrets.fish` (seeded from `.template` companions on first
-  bootstrap, untouched after). `fish_variables`, `fish_history`,
-  `generated_completions/` are real and stay outside the repo.
+  `config.fish` and `functions/` are symlinked from the repo. `conf.d/`
+  is itself a real dir with per-file symlinks for the tracked `*.fish`
+  modules and **real files** for `15-local.fish` + `99-secrets.fish`
+  (seeded from `.template` companions on first bootstrap, untouched
+  after). `completions/` is also a real dir: tracked `s.fish` and
+  `wt.fish` are symlinked from the repo, and machine-specific
+  completions (fish's man-page auto-generation, OrbStack's `kubectl`/
+  `orbctl`, etc.) live as real files alongside, never entering the
+  repo. `fish_variables`, `fish_history`, `generated_completions/` are
+  real and stay outside the repo.
   `config.fish` is empty; concerns in `conf.d/<NN>-<concern>.fish`,
   numeric prefix pins load order:
   `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,

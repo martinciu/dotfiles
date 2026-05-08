@@ -197,8 +197,44 @@ link ".config/starship.toml" "$HOME/.config/starship.toml"
 # --- fish (only interactive shell)
 # ~/.config/fish/ is a real dir; tracked entries are individually symlinked.
 # 15-local.fish + 99-secrets.fish + fish runtime state stay outside the repo.
+# completions/ is also a real dir — installers (e.g. OrbStack) and fish's
+# own man-page auto-generation drop machine-specific completions there;
+# only the tracked entries (s.fish, wt.fish) come from the repo.
+
+# Migration: while ~/.config/fish/completions is still the legacy whole-dir
+# symlink into the repo, untracked completions live physically in the repo
+# working tree. Stash them to a temp dir, flip the symlink to a real dir,
+# move them back. Drops *.barnybug-backup-* (OrbStack installer cruft).
+COMPLETIONS_HOME="$HOME/.config/fish/completions"
+if [ -L "$COMPLETIONS_HOME" ]; then
+  STASH=$(mktemp -d)
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    name="$(basename "$rel")"
+    case "$name" in
+      *.barnybug-backup-*)
+        rm -f "$DOTFILES/$rel"
+        echo "🗑️  $rel (installer backup)"
+        continue
+        ;;
+    esac
+    mv "$DOTFILES/$rel" "$STASH/$name"
+  done < <(git -C "$DOTFILES" ls-files --others --exclude-standard \
+                 ".config/fish/completions/")
+  rm "$COMPLETIONS_HOME"
+  mkdir -p "$COMPLETIONS_HOME"
+  for f in "$STASH"/*; do
+    [ -e "$f" ] || continue
+    mv "$f" "$COMPLETIONS_HOME/$(basename "$f")"
+    echo "🚚  $(basename "$f") → $COMPLETIONS_HOME/"
+  done
+  rmdir "$STASH" 2>/dev/null || true
+fi
+unset COMPLETIONS_HOME
+
 prepare_real_dir "$HOME/.config/fish"
 prepare_real_dir "$HOME/.config/fish/conf.d"
+prepare_real_dir "$HOME/.config/fish/completions"
 for f in 15-local.fish 99-secrets.fish; do
   rescue_in_repo "$DOTFILES/.config/fish/conf.d/$f" \
                  "$HOME/.config/fish/conf.d/$f"
@@ -206,8 +242,9 @@ done
 for f in fish_variables fish_history generated_completions; do
   rescue_in_repo "$DOTFILES/.config/fish/$f" "$HOME/.config/fish/$f"
 done
-link_tracked_entries ".config/fish"        "$HOME/.config/fish"
-link_tracked_entries ".config/fish/conf.d" "$HOME/.config/fish/conf.d"
+link_tracked_entries ".config/fish"             "$HOME/.config/fish"
+link_tracked_entries ".config/fish/conf.d"      "$HOME/.config/fish/conf.d"
+link_tracked_entries ".config/fish/completions" "$HOME/.config/fish/completions"
 seed_local ".config/fish/conf.d/15-local.fish.template" \
            "$HOME/.config/fish/conf.d/15-local.fish"
 seed_local ".config/fish/conf.d/99-secrets.fish.template" \
