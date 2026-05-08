@@ -43,6 +43,7 @@ brew "procs"                    # modern ps replacement (Rust)
 brew "xh"                       # modern HTTP client (HTTPie-compatible CLI, Solarized-aware)
 brew "lnav"                     # TUI log file navigator
 brew "fish"                     # primary interactive shell
+brew "tealdeer"                 # `tldr` — community-driven command examples (Rust, fast)
 
 # Code search & refactoring
 brew "ast-grep"                 # structural code search/rewrite (AST patterns, multi-language)
