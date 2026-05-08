@@ -1,4 +1,4 @@
-# bat-backed less wrapper. Direct port of the zsh function in aliases.zsh.
+# bat-backed less wrapper.
 function less
     if isatty stdin
         command bat --paging=always $argv
