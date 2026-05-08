@@ -23,7 +23,7 @@ if command -q bat
     set -gx MANROFFOPT -c
 end
 
-fish_add_path -gP $HOME/.local/bin $HOME/.cargo/bin
+fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux
 # integration that survives B-scope.

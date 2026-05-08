@@ -145,9 +145,23 @@ offers something `mise` can't replicate; otherwise use `mise`.
   loses the ergonomics.
 - **Python → `uv` (preferred) or `mise`**. `uv` covers the whole Python
   lifecycle: installs interpreters, runs scripts (`uv run`), manages
-  projects, installs CLIs (`uv tool`), 10–100× faster than `pip`. Where
-  `mise` only installs interpreters, `uv` does the rest. Use `mise` only
-  if consistency with other runtimes outweighs `uv`'s lifecycle wins.
+  projects (`uv init` / `add` / `sync`), installs CLIs (`uv tool`),
+  provides a pip-compatible surface (`uv pip`). 10–100× faster than
+  `pip`. Use `mise` only if consistency with other runtimes outweighs
+  `uv`'s lifecycle wins.
+  - **Global `python3` on PATH:** `uv python install <ver> --default`
+    drops `python` / `python3` / `python3.<minor>` symlinks into
+    `~/.local/bin`. Without `--default`, uv interpreters are reachable
+    only through `uv run` / `uv tool`, and bare `python3` falls through
+    to Apple's 3.9.6 (EOL Oct 2025).
+  - **Apple's `/usr/bin/python3`** is system-only — used by macOS
+    internal scripts (Xcode, launchd, App Bundles). Leave it physically
+    untouched. After `--default` it stops being the PATH default;
+    reach it by full path if a system tool needs it.
+  - **No system `pip`.** Inside a project: `uv add` (modifies
+    `pyproject.toml`) or `uv pip install` (pip-syntax shim). One-off
+    script: `uv run --with <pkg> script.py`. One-off CLI: `uvx <cli>`.
+    Never need `pip3` on PATH.
 - **Node → `mise`**. No specialized Node manager offers materially more.
   `fnm` is faster but offers nothing else; `nvm` is shell-script-slow.
 - **Ruby → `mise`**. Same logic. `rbenv`/`chruby` are good but offer
@@ -164,6 +178,10 @@ offers something `mise` can't replicate; otherwise use `mise`.
 - ❌ Installing Python-based CLIs via `brew` when `uv tool install <cli>`
   works (e.g. `httpie`, `yt-dlp`, `aws-cli`, `platformio`). Brew formulas
   pin a specific brew Python and force a parallel Python stack.
+- ❌ Apple's `/usr/bin/python3` for development — frozen at 3.9.6,
+  EOL Oct 2025, PEP 668 lockdown blocks system-wide `pip`.
+- ❌ System `pip` / `pip3` on PATH — superseded by `uv add` and
+  `uv pip` inside venvs.
 
 How to apply: when adding/upgrading a runtime or a Python CLI, default
 to the row above. If a brew formula hard-depends on a brew Python
