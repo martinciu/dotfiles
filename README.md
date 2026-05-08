@@ -27,7 +27,9 @@ operational checklist.
    clone this repo to `$PROJECTS_HOME/dotfiles`.
 3. Install brew packages: `brew bundle --file=$PROJECTS_HOME/dotfiles/Brewfile`.
 4. Run the symlinker: `$PROJECTS_HOME/dotfiles/bootstrap.sh` (idempotent;
-   safe to re-run).
+   safe to re-run). Also installs uv-managed CPython 3.13 as the global
+   `python3` (`~/.local/bin/python3`); Apple's stays at `/usr/bin/python3`
+   for system use.
 5. Apply the **manual extras** below — `bootstrap.sh` cannot automate these.
 6. Open tmux and press `<prefix> I` (capital I, prefix = `C-a`) to install
    TPM plugins.
