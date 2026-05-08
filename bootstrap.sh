@@ -168,6 +168,15 @@ fi
 link "mise.global.toml" "$HOME/.config/mise/config.toml"
 mise install
 
+# --- uv-managed Python (global default)
+# `--default` drops python/python3/python3.13 symlinks into ~/.local/bin
+# so bare `python3` resolves to a current interpreter (Apple's 3.9.6 is
+# EOL Oct 2025). Idempotent: re-running is a no-op once installed.
+# `--preview-features python-install-default` silences uv's "experimental"
+# warning on the --default flag (uv 0.11.x). Drop the flag once Astral
+# graduates --default out of preview.
+uv python install 3.13 --default --preview-features python-install-default
+
 # --- nvim
 # ~/.config/nvim/ is a real dir; tracked entries are individually symlinked.
 # LazyVim's lazy/, mason/, site/, lazyvim.json stay outside the repo.
