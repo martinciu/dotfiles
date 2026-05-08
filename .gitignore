@@ -12,6 +12,9 @@
 # worktrunk runtime state — per-project hook approvals are machine-local
 .config/worktrunk/approvals.toml
 
+# ruby-lsp runtime state (auto-generated when ruby-lsp picks up the repo)
+.ruby-lsp/
+
 # sesh — shared config tracked; machine-local sessions in ~/.config/sesh/sesh.local.toml (outside repo)
 
 # vim runtime files (real dirs in $HOME, not symlinks; never tracked)
