@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/opt/homebrew/bin/bash
 # s — one-command worktree + tmux session.
 # See tmp/specs/2026-04-30-s-worktree-session-design.md for design rationale.
 set -euo pipefail
