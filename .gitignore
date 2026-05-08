@@ -22,16 +22,13 @@
 !.vim/backup/.gitkeep
 !.vim/swap/.gitkeep
 
-# superpowers plans/specs (per ~/.claude/CLAUDE.md, never committed)
-tmp/
-
 # git worktrees (project-local, per CLAUDE.md)
 .claude/worktrees/
 
 # macOS
 .DS_Store
 
-# brainstorming visual companion session files
+# superpowers planning artefacts (specs, plans, brainstorm sessions, postmortems) — per ~/.claude/CLAUDE.md, never committed
 .superpowers/
 
 # editor swap
