@@ -119,7 +119,7 @@ These drive the `claude[<name>]` window title (tmux's
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)
-- worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker
+- worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker. Branch name verbatim — the `worktree-` prefix is reserved for the `EnterWorktree` workflow.
 
 ## Status bar (right side)
 
