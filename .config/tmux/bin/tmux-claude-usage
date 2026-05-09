@@ -9,6 +9,34 @@
 # Called from tmux.conf via #(...) on the 5s status-interval. Bench:
 # ccpulse json round-trip is ~33ms; no bash-level cache needed.
 
+# Function definitions live above the runtime block so the test suite
+# can `source` this script and call format_reset directly without
+# triggering the full ccpulse pipeline.
+format_reset() {
+  local m=$1
+  if [ "$m" -eq 0 ]; then
+    printf 'now'
+  elif [ "$m" -lt 60 ]; then
+    printf '%dm' "$m"
+  elif [ "$m" -lt 1440 ]; then
+    local h=$((m / 60))
+    local mm=$((m % 60))
+    if [ "$mm" -eq 0 ]; then
+      printf '%dh' "$h"
+    else
+      printf '%dh%dm' "$h" "$mm"
+    fi
+  else
+    local d=$((m / 1440))
+    local h=$(( (m % 1440) / 60 ))
+    printf '%dd %dh' "$d" "$h"
+  fi
+}
+
+# When sourced for testing, return early without running the chip
+# pipeline.
+[ "${TMUX_CLAUDE_USAGE_NO_RUN:-}" = "1" ] && return 0 2>/dev/null
+
 set -e
 
 # Hide if ccpulse is not on PATH.

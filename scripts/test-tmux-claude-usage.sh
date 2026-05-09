@@ -122,6 +122,24 @@ got=$(run_helper)
 assert_eq "$got" "" "hides when top-level percent is missing"
 teardown_sandbox
 
+# Source the helper for direct function testing. The script normally
+# reaches `exit 0` immediately when ccpulse is missing — we set a guard
+# env var so the script defines functions and returns without rendering.
+TMUX_CLAUDE_USAGE_NO_RUN=1 source "$HELPER"
+
+assert_eq "$(format_reset 0)"     "now"     "format_reset(0)"
+assert_eq "$(format_reset 1)"     "1m"      "format_reset(1)"
+assert_eq "$(format_reset 37)"    "37m"     "format_reset(37)"
+assert_eq "$(format_reset 59)"    "59m"     "format_reset(59)"
+assert_eq "$(format_reset 60)"    "1h"      "format_reset(60) — minutes==0 case"
+assert_eq "$(format_reset 65)"    "1h5m"    "format_reset(65)"
+assert_eq "$(format_reset 217)"   "3h37m"   "format_reset(217)"
+assert_eq "$(format_reset 1439)"  "23h59m"  "format_reset(1439) — last sub-day value"
+assert_eq "$(format_reset 1440)"  "1d 0h"   "format_reset(1440) — exactly 24h"
+assert_eq "$(format_reset 5000)"  "3d 11h"  "format_reset(5000)"
+unset -f format_reset
+unset TMUX_CLAUDE_USAGE_NO_RUN
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
