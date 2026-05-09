@@ -54,11 +54,17 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   Solarized base16. No theme plugins (catppuccin, tmux-powerline, etc.).
   Each status-bar **pin** uses a unique Solarized accent. Currently:
   blue (session chip, left), green (active window pin, center), violet
-  (main-checkout git chip), yellow (worktree git chip), orange (PR pin,
-  left of git chip). When adding a pin, pick from unused accents (red,
-  magenta, cyan); reconsider if all are taken. Mode-style, message-style,
-  pane-borders, and inline text colors (e.g. ins/del markers in
-  `tmux-git-status`) are not pins.
+  (main-checkout git chip + 5h Claude-usage chip — paired by intent),
+  yellow (worktree git chip + 7d Claude-usage chip — paired by intent),
+  orange (PR pin, left of git chip). When adding a pin, pick from
+  unused accents (red, magenta, cyan); reconsider if all are taken.
+  **Paired left/right reuse is permitted when the pairing is
+  intentional and semantic** — violet on the 5h-usage chip rhymes with
+  violet on the main-checkout git chip; yellow on the 7d-usage chip
+  rhymes with yellow on the worktree git chip. Two violets or two
+  yellows visible simultaneously is the by-design behavior, not a
+  clash. Mode-style, message-style, pane-borders, and inline text
+  colors (e.g. ins/del markers in `tmux-git-status`) are not pins.
 - **SSH indicator on the session chip** via
   `#(~/.config/tmux/bin/tmux-ssh-indicator)`. Walks each attached
   client's parent-process chain via `ps -p <pid> -o ppid=,ucomm=`,
@@ -79,6 +85,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `git-common-dir` so worktrees share per-branch entries. First call
   after branch switch shows nothing; next 5 s tick renders — accepted
   to never block on a slow `gh`.
+- **tmux Claude usage cluster** wired into `status-left` via
+  `#(~/.config/tmux/bin/tmux-claude-usage)`. Parses
+  `ccpulse status --json` on each 5 s tick (~33 ms; no bash-level
+  cache) and emits two fused chips: violet 5h block (`<hourglass>
+  <pct>% • <reset>`, always full) + yellow 7d weekly (`<calendar>
+  <pct>%`, auto-expands to `<calendar> <pct>% • <reset>` when
+  `pct >= 80`). Glyphs `nf-fa-hourglass-half` (U+F252) and
+  `nf-oct-calendar` (U+F455). Atomic: when `ccpulse` is missing on
+  PATH, exits non-zero, or any required JSON field is null, the whole
+  pair hides — no half-rendered chip. `status-left-length` bumped
+  80 → 120 to fit. Visual identity is intentionally paired with the
+  right-side git chips (violet ↔ main checkout, yellow ↔ worktree) —
+  see the carve-out in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
@@ -350,6 +369,7 @@ is `nvim-cheatsheet.html`).
 - Claude tmux window-name: `scripts/test-claude-tmux-window-name.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
+- tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration: `scripts/test-dashboard.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`

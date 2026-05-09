@@ -1,0 +1,123 @@
+#!/opt/homebrew/bin/bash
+# Renders two left-cluster tmux chips for Claude Code usage:
+#   - 5h block chip  (violet, always full body)
+#   - 7d weekly chip (yellow, compact body, auto-expands when pct >= 80)
+# Source: `ccpulse status --json`. Helper hides (empty output, exit 0)
+# whenever any required field is missing or ccpulse is unreachable —
+# both chips appear or neither.
+#
+# Called from tmux.conf via #(...) on the 5s status-interval. Bench:
+# ccpulse json round-trip is ~33ms; no bash-level cache needed.
+
+# Function definitions live above the runtime block so the test suite
+# can `source` this script and call format_reset directly without
+# triggering the full ccpulse pipeline.
+format_reset() {
+  local m=$1
+  if [ "$m" -eq 0 ]; then
+    printf 'now'
+  elif [ "$m" -lt 60 ]; then
+    printf '%dm' "$m"
+  elif [ "$m" -lt 1440 ]; then
+    local h=$((m / 60))
+    local mm=$((m % 60))
+    if [ "$mm" -eq 0 ]; then
+      printf '%dh' "$h"
+    else
+      printf '%dh%dm' "$h" "$mm"
+    fi
+  else
+    local d=$((m / 1440))
+    local h=$(( (m % 1440) / 60 ))
+    printf '%dd %dh' "$d" "$h"
+  fi
+}
+
+# When sourced for testing, return early without running the chip
+# pipeline.
+[ "${TMUX_CLAUDE_USAGE_NO_RUN:-}" = "1" ] && return 0 2>/dev/null
+
+set -e
+
+# Hide if ccpulse is not on PATH.
+command -v ccpulse >/dev/null 2>&1 || exit 0
+
+# Capture ccpulse output. Non-zero exit -> hide.
+json=$(ccpulse status --json 2>/dev/null) || exit 0
+[ -z "$json" ] && exit 0
+
+# Parse the four required fields with jq. Any null/missing field -> empty
+# string here, then we abort. Atomic: both chips render or neither.
+read -r pct_5h mins_5h pct_7d resets_7d < <(printf '%s' "$json" | jq -r '
+  [
+    (.percent                       // empty),
+    (.minutes_to_reset              // empty),
+    (.quota.seven_day.utilization   // empty),
+    (.quota.seven_day.resets_at     // empty)
+  ] | @tsv
+') || exit 0
+
+[ -z "${pct_5h:-}" ]    && exit 0
+[ -z "${mins_5h:-}" ]   && exit 0
+[ -z "${pct_7d:-}" ]    && exit 0
+[ -z "${resets_7d:-}" ] && exit 0
+
+# Compute minutes-until-reset for the 7d window from the ISO timestamp.
+# resets_at is RFC3339 with fractional seconds (e.g. "...032404Z");
+# strip from the first '.' because BSD `date -j` does not understand
+# %N. UTC wall clock is used regardless of $TZ.
+resets_short="${resets_7d%.*}"
+# Drop the trailing 'Z' if present (the format string below covers
+# the literal time-portion only).
+resets_short="${resets_short%Z}"
+
+resets_epoch=$(TZ=UTC date -j -f '%Y-%m-%dT%H:%M:%S' \
+                  "$resets_short" '+%s' 2>/dev/null) || exit 0
+now_epoch=$(date '+%s')
+mins_7d=$(( (resets_epoch - now_epoch) / 60 ))
+[ "$mins_7d" -lt 0 ] && mins_7d=0
+
+# Format both reset strings via the formatter from Task 4.
+reset_5h=$(format_reset "$mins_5h")
+reset_7d=$(format_reset "$mins_7d")
+
+# ── Chip rendering ──────────────────────────
+# Solarized base16 hexes, kept inline here (matches existing helpers'
+# style — no shared color file).
+bar_bg='#073642'
+violet='#6c71c4'   # 5h chip bg (matches main-checkout git chip)
+yellow='#b58900'   # 7d chip bg (matches worktree git chip)
+fg_violet='#fdf6e3'
+fg_yellow='#073642'
+
+# Glyphs as raw UTF-8 byte sequences (editor-independent literal).
+tri_l=$(printf '\xee\x82\xb6')      # U+E0B6 left rounded cap (filled)
+tri_r=$(printf '\xee\x82\xb4')      # U+E0B4 right rounded cap (filled)
+hourglass=$(printf '\xef\x89\x92')  # U+F252 nf-fa-hourglass-half
+calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
+
+# 7d auto-expand threshold (inclusive — pct == 80 expands).
+threshold=80
+
+# 5h chip body: always full.
+body_5h=$(printf '%s %d%% • %s' "$hourglass" "$pct_5h" "$reset_5h")
+
+# 7d chip body: compact by default; expanded with reset when pct >= threshold.
+if [ "$pct_7d" -ge "$threshold" ]; then
+  body_7d=$(printf '%s %d%% • %s' "$calendar" "$pct_7d" "$reset_7d")
+else
+  body_7d=$(printf '%s %d%%' "$calendar" "$pct_7d")
+fi
+
+# Render: 5h chip (left cap on bar bg, body, no right cap — fuses into 7d).
+printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
+  "$violet" "$bar_bg" "$tri_l" \
+  "$fg_violet" "$violet" \
+  "$body_5h"
+
+# 7d chip (left cap fuses on violet, body, right cap on bar bg closes the cluster).
+printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
+  "$yellow" "$violet" "$tri_l" \
+  "$fg_yellow" "$yellow" \
+  "$body_7d" \
+  "$yellow" "$bar_bg" "$tri_r"
