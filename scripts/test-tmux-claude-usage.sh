@@ -197,6 +197,60 @@ got=$(run_helper)
 assert_contains "$got" "21%" "past resets_at: helper renders normally (compact)"
 teardown_sandbox
 
+# Case: 7d high (94%) -> expanded body with • <reset>.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":94,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "94%"        "7d high: pct visible"
+assert_contains "$got" "94% • "     "7d high: auto-expanded with • separator"
+teardown_sandbox
+
+# Case: 7d at exactly threshold (80) -> expanded (>= is the rule).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":80,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "80% • " "7d at boundary 80: auto-expanded (>= rule)"
+teardown_sandbox
+
+# Case: 7d just below threshold (79) -> compact (no • separator after pct).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":79,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains      "$got" "79%"      "7d below boundary 79: pct visible"
+assert_not_contains  "$got" "79% • "   "7d below boundary 79: compact (no • separator)"
+teardown_sandbox
+
+# Case: resets_at in past + 7d high pct -> mins_7d=0 -> "now" in expanded body.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":95,"resets_at":"2020-01-01T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "95% • now" "past resets_at + high pct: clamps to 'now'"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
