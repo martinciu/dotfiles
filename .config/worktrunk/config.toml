@@ -252,6 +252,7 @@ worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
 # other gitignored paths automatically — no per-path hooks needed.
 [post-start]
 copy = "wt step copy-ignored"
+trust-mise = "mise trust --yes 2>/dev/null || true"
 
 # Before wt remove deletes a worktree, save any new gitignored
 # content (planning artefacts under .superpowers/, autonomo logs
