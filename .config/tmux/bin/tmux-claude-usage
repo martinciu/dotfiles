@@ -1,0 +1,21 @@
+#!/opt/homebrew/bin/bash
+# Renders two left-cluster tmux chips for Claude Code usage:
+#   - 5h block chip  (violet, always full body)
+#   - 7d weekly chip (yellow, compact body, auto-expands when pct >= 80)
+# Source: `ccpulse status --json`. Helper hides (empty output, exit 0)
+# whenever any required field is missing or ccpulse is unreachable —
+# both chips appear or neither.
+#
+# Called from tmux.conf via #(...) on the 5s status-interval. Bench:
+# ccpulse json round-trip is ~33ms; no bash-level cache needed.
+
+set -e
+
+# Hide if ccpulse is not on PATH.
+command -v ccpulse >/dev/null 2>&1 || exit 0
+
+# Capture ccpulse output. Non-zero exit -> hide.
+json=$(ccpulse status --json 2>/dev/null) || exit 0
+[ -z "$json" ] && exit 0
+
+# (Parsing & rendering added in subsequent tasks.)

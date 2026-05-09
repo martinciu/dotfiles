@@ -78,6 +78,24 @@ else
   echo "  FAIL  helper missing at $HELPER"
 fi
 
+# Case: ccpulse missing on PATH (TEST_BIN intentionally has nothing in it,
+# and PATH contains only TEST_BIN — so command -v ccpulse fails).
+setup_sandbox
+got=$(PATH="$TEST_BIN" bash "$HELPER" 2>/dev/null)
+assert_eq "$got" "" "hides when ccpulse is missing on PATH"
+teardown_sandbox
+
+# Case: ccpulse on PATH but exits non-zero
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+exit 1
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_eq "$got" "" "hides when ccpulse exits non-zero"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
