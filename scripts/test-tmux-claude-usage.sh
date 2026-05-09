@@ -154,6 +154,49 @@ got=$(run_helper)
 assert_eq "$?" "0" "resets_at in past does not abort the helper"
 teardown_sandbox
 
+# Case: happy path, both pcts low. 5h shows pct + reset; 7d shows
+# pct only (compact). Verify each visible substring.
+setup_sandbox
+# Use a future-far seven_day reset (large minutes_until value) so that
+# format_reset returns a multi-day string we can spot-check.
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+
+assert_contains "$got" "#[fg=#6c71c4,bg=#073642]" "5h chip uses violet on bar bg"
+assert_contains "$got" "#[fg=#fdf6e3,bg=#6c71c4,bold]" "5h chip body uses base3-on-violet bold"
+assert_contains "$got" "8%"                            "5h pct visible"
+assert_contains "$got" "3h37m"                         "5h reset visible"
+assert_contains "$got" "#[fg=#b58900,bg=#6c71c4]"      "7d chip cap fuses yellow on violet"
+assert_contains "$got" "#[fg=#073642,bg=#b58900,bold]" "7d chip body uses base02-on-yellow bold"
+assert_contains "$got" "21%"                            "7d pct visible"
+assert_not_contains "$got" "21% • "                     "7d compact: no • reset suffix when low"
+# Bolt for 5h, calendar (oct) for 7d — UTF-8 byte sequences as in helper.
+assert_contains "$got" $'\xef\x89\x92'                  "5h hourglass glyph (U+F252)"
+assert_contains "$got" $'\xef\x91\x95'                  "7d calendar glyph (U+F455)"
+# Powerline rounded caps: left U+E0B6, right U+E0B4.
+assert_contains "$got" $'\xee\x82\xb6'                  "left rounded cap"
+assert_contains "$got" $'\xee\x82\xb4'                  "right rounded cap (closes 7d)"
+teardown_sandbox
+
+# Carryover: past resets_at + low 7d pct -> compact body still renders pct.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":6,"minutes_to_reset":237,"quota":{"five_hour":{"utilization":6,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2020-01-01T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "21%" "past resets_at: helper renders normally (compact)"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
