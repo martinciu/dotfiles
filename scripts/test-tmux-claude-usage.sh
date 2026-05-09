@@ -140,6 +140,20 @@ assert_eq "$(format_reset 5000)"  "3d 11h"  "format_reset(5000)"
 unset -f format_reset
 unset TMUX_CLAUDE_USAGE_NO_RUN
 
+# Case: resets_at already past -> mins_7d clamps to 0; helper still runs
+# (positive output asserted in Task 6's "now" rendering test).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":6,"minutes_to_reset":237,"quota":{"five_hour":{"utilization":6,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2020-01-01T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_eq "$?" "0" "resets_at in past does not abort the helper"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"

@@ -61,3 +61,22 @@ read -r pct_5h mins_5h pct_7d resets_7d < <(printf '%s' "$json" | jq -r '
 [ -z "${mins_5h:-}" ]   && exit 0
 [ -z "${pct_7d:-}" ]    && exit 0
 [ -z "${resets_7d:-}" ] && exit 0
+
+# Compute minutes-until-reset for the 7d window from the ISO timestamp.
+# resets_at is RFC3339 with fractional seconds (e.g. "...032404Z");
+# strip from the first '.' because BSD `date -j` does not understand
+# %N. UTC wall clock is used regardless of $TZ.
+resets_short="${resets_7d%.*}"
+# Drop the trailing 'Z' if present (the format string below covers
+# the literal time-portion only).
+resets_short="${resets_short%Z}"
+
+resets_epoch=$(TZ=UTC date -j -f '%Y-%m-%dT%H:%M:%S' \
+                  "$resets_short" '+%s' 2>/dev/null) || exit 0
+now_epoch=$(date '+%s')
+mins_7d=$(( (resets_epoch - now_epoch) / 60 ))
+[ "$mins_7d" -lt 0 ] && mins_7d=0
+
+# Format both reset strings via the formatter from Task 4.
+reset_5h=$(format_reset "$mins_5h")
+reset_7d=$(format_reset "$mins_7d")
