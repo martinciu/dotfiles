@@ -96,6 +96,32 @@ got=$(run_helper)
 assert_eq "$got" "" "hides when ccpulse exits non-zero"
 teardown_sandbox
 
+# Case: ccpulse JSON missing seven_day quota -> hide both chips
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":6,"minutes_to_reset":237,"quota":{"five_hour":{"utilization":6,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":null}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_eq "$got" "" "hides when seven_day quota is null"
+teardown_sandbox
+
+# Case: ccpulse JSON missing top-level percent -> hide
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"minutes_to_reset":237,"quota":{"seven_day":{"utilization":21,"resets_at":"2026-05-10T09:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_eq "$got" "" "hides when top-level percent is missing"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
