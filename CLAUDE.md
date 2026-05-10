@@ -92,12 +92,25 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `<robot> <calendar> <pct>% • <reset>` when `pct >= 80`) and yellow
   5h block (`<hourglass> <pct>% • <reset>`, always full). Glyphs:
   `<robot>` is U+1F916 emoji (chosen over the Nerd Font `nf-fa-robot`
-  U+F544 for portability), `nf-fa-hourglass-half` (U+F252), and
-  `nf-oct-calendar` (U+F455). Arrow caps: left-rounded on the violet
-  chip's left edge against `bar_bg`, all others forward-facing.
-  Atomic: when `ccpulse` is missing on PATH, exits non-zero, or any
-  required JSON field is null, the whole cluster hides — no
-  half-rendered chip. `status-left-length` bumped 80 → 120 to fit.
+  U+F544 for portability), `nf-fa-hourglass-half` (U+F252),
+  `nf-oct-calendar` (U+F455), and `nf-fa-fire` (U+F06D — overreach
+  decoration). Arrow caps: left-rounded on the violet chip's left
+  edge against `bar_bg`, all others forward-facing. **Overreach
+  decoration:** when `projection.<window>.will_overreach == true`,
+  the affected chip inserts ` <fire> → <projected_pct>%` after its
+  `<pct>%`, before any bullet+reset suffix. The 7d chip auto-expands
+  on overreach even when `pct < 80` (showing `<pct>% <fire> →
+  <projected>%` with no reset). Each chip evaluates its window
+  independently; one can warn while the other stays normal. No
+  confidence gating — `will_overreach` is trusted directly.
+  Graceful degradation: missing `projection` field (older ccpulse) or
+  null `projected_pct_at_reset` does not hide the cluster — the chip
+  renders without the decoration (or with the fire glyph alone, when
+  `will_overreach=true` but `projected_pct_at_reset=null`). Atomic
+  hide still applies to the four core fields (`percent`,
+  `minutes_to_reset`, `quota.seven_day.utilization`,
+  `quota.seven_day.resets_at`) — when any of those is missing, the
+  whole cluster hides. `status-left-length` bumped 80 → 120 to fit.
   The cluster's violet/yellow palette is positional and independent
   of the right-side git chips' palette — see the palette-reuse note
   in the unique-accent rule.

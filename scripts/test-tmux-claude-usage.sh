@@ -138,6 +138,25 @@ assert_eq "$(format_reset 1439)"  "23h59m"  "format_reset(1439) — last sub-day
 assert_eq "$(format_reset 1440)"  "1d 0h"   "format_reset(1440) — exactly 24h"
 assert_eq "$(format_reset 5000)"  "3d 11h"  "format_reset(5000)"
 unset -f format_reset
+
+# format_overreach_suffix — direct unit tests.
+# The helper returns:
+#   - empty string when will is anything but "true"
+#   - " <fire> → N%"  when will=="true" and pct is non-empty
+#   - " <fire>"        when will=="true" and pct is empty (graceful degrade
+#                       on null projected_pct_at_reset).
+fire_glyph=$'\xef\x81\xad'
+arrow_glyph=$'\xe2\x86\x92'
+
+assert_eq "$(format_overreach_suffix true 120)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120)"
+assert_eq "$(format_overreach_suffix true 252)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252)"
+assert_eq "$(format_overreach_suffix true '')"   " ${fire_glyph}"                     "format_overreach_suffix(true, '') — null projected_pct"
+assert_eq "$(format_overreach_suffix false 120)" ""                                    "format_overreach_suffix(false, 120)"
+assert_eq "$(format_overreach_suffix '' 120)"    ""                                    "format_overreach_suffix('', 120)"
+assert_eq "$(format_overreach_suffix false '')"  ""                                    "format_overreach_suffix(false, '')"
+unset -f format_overreach_suffix
+unset fire_glyph arrow_glyph
+
 unset TMUX_CLAUDE_USAGE_NO_RUN
 
 # Case: resets_at already past -> mins_7d clamps to 0; helper still runs
@@ -256,6 +275,147 @@ STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
 assert_contains "$got" "95% • now" "past resets_at + high pct: clamps to 'now'"
+teardown_sandbox
+
+# ─── Overreach prediction: 5h chip ───────────
+# Case: 5h will_overreach=true with projected_pct_at_reset=120.
+# Expect body to contain the overreach decoration before the bullet+reset:
+#   ⏳ 8% 🔥 → 120% • 3h37m
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120},"seven_day":{"will_overreach":false,"projected_pct_at_reset":34}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" $'\xef\x81\xad'              "5h overreach: fire glyph (U+F06D) present"
+assert_contains "$got" "8% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 120% • " "5h overreach: '8% 🔥 → 120% • ' substring"
+teardown_sandbox
+
+# Case: 5h will_overreach=false — no fire glyph anywhere in 5h body.
+# (We can't easily isolate "5h body" from output, so we assert no fire
+# glyph at all, given 7d is also false.)
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":false,"projected_pct_at_reset":34}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_not_contains "$got" $'\xef\x81\xad' "5h not overreaching, 7d not overreaching: no fire glyph anywhere"
+teardown_sandbox
+
+# ─── Overreach prediction: 7d chip ───────────
+# Case: 7d compact (pct=21 < 80) AND will_overreach=true.
+# Expect: chip expands to "🤖 📅 21% 🔥 → 252%" with NO • <reset> suffix
+# (per spec §1: at pct<80 the 7d window's reset is days away and not
+# rendered; the overreach decoration is the entire expansion).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":252}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "21% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 252%" "7d compact + overreach: '21% 🔥 → 252%'"
+assert_not_contains "$got" "252% • "                                       "7d compact + overreach: no • reset suffix"
+teardown_sandbox
+
+# Case: 7d expanded (pct=80) AND will_overreach=true. Expect both the
+# overreach decoration AND the • <reset> suffix.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":80,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":120}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "80% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 120% • " "7d expanded + overreach: '80% 🔥 → 120% • '"
+teardown_sandbox
+
+# Case: 7d compact (pct=11 < 80), will_overreach=false. Expect compact
+# body unchanged (no fire glyph, no • reset suffix).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":11,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":false,"projected_pct_at_reset":15}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "11%"                "7d compact, no overreach: pct visible"
+assert_not_contains "$got" $'\xef\x81\xad'      "7d compact, no overreach: no fire glyph"
+assert_not_contains "$got" "11% • "             "7d compact, no overreach: no • reset suffix"
+teardown_sandbox
+
+# ─── Graceful degradation: missing/partial projection field ──
+# Case: ccpulse JSON has all four core fields but no `projection` key
+# at all (older ccpulse). Expect both chips render exactly as today,
+# no fire glyph anywhere, both chips visible.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "8%"            "missing projection: 5h pct visible (chip not hidden)"
+assert_contains     "$got" "21%"           "missing projection: 7d pct visible (chip not hidden)"
+assert_contains     "$got" "3h37m"         "missing projection: 5h reset visible (chip body intact)"
+assert_not_contains "$got" $'\xef\x81\xad' "missing projection: no fire glyph emitted"
+teardown_sandbox
+
+# Case: will_overreach=true but projected_pct_at_reset=null on 7d. Expect
+# the fire glyph alone (no '→ N%' suffix), still on the 7d chip.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":null}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "21% "$'\xef\x81\xad' "null projected_pct + overreach: '21% 🔥' present"
+assert_not_contains "$got" $'\xe2\x86\x92'        "null projected_pct + overreach: no arrow glyph"
+teardown_sandbox
+
+# Case: both chips overreach simultaneously. Assert two distinct
+# fire-glyph occurrences and that the body bodies fit (rough printable-
+# length check, stripping tmux #[...] segments).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":80,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120},"seven_day":{"will_overreach":true,"projected_pct_at_reset":120}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+# Two distinct occurrences of the fire byte sequence (one per chip).
+fire_count=$(printf '%s' "$got" | grep -o $'\xef\x81\xad' | wc -l | tr -d ' ')
+assert_eq "$fire_count" "2" "both chips overreach: fire glyph appears twice"
+# Printable length (strip tmux #[...] format segments) under
+# status-left-length budget (120). Sanity check, not a tight bound.
+stripped=$(printf '%s' "$got" | sed -E 's/#\[[^]]*\]//g')
+printable_len=${#stripped}
+if [ "$printable_len" -lt 120 ]; then
+  pass=$((pass+1)); echo "  PASS  both chips overreach: printable length $printable_len < 120"
+else
+  fail=$((fail+1)); fail_msgs+=("FAIL  both chips overreach: printable length $printable_len >= 120 (status-left-length budget)")
+  echo "  FAIL  both chips overreach: printable length $printable_len >= 120"
+fi
 teardown_sandbox
 
 # ─── Summary ────────────────────────────────

@@ -33,6 +33,32 @@ format_reset() {
   fi
 }
 
+# Fire glyph used by format_overreach_suffix. Defined above the source
+# guard so the helper is fully usable when the script is sourced for
+# testing (TMUX_CLAUDE_USAGE_NO_RUN=1). Other glyphs (robot, hourglass,
+# calendar, tri_l, tri_r) live in the runtime block — they are only
+# needed by the chip-rendering printfs.
+fire=$(printf '\xef\x81\xad')      # U+F06D nf-fa-fire
+
+# Returns the overreach decoration to insert after a chip's percentage.
+# Output is meant to be appended directly to a chip body (leading space
+# included). Returns empty string when the chip is not overreaching.
+#
+#   args: $1 = will_overreach ("true" | "false" | "")
+#         $2 = projected_pct_at_reset (integer string, or "")
+#   stdout: " <fire> → N%"  when $1 == "true" and $2 non-empty
+#           " <fire>"        when $1 == "true" and $2 empty
+#           ""                otherwise
+format_overreach_suffix() {
+  local will=$1 pct=$2
+  [ "$will" = "true" ] || { printf ''; return 0; }
+  if [ -n "$pct" ]; then
+    printf ' %s \xe2\x86\x92 %s%%' "$fire" "$pct"
+  else
+    printf ' %s' "$fire"
+  fi
+}
+
 # When sourced for testing, return early without running the chip
 # pipeline.
 [ "${TMUX_CLAUDE_USAGE_NO_RUN:-}" = "1" ] && return 0 2>/dev/null
@@ -48,14 +74,34 @@ json=$(ccpulse status --json 2>/dev/null) || exit 0
 
 # Parse the four required fields with jq. Any null/missing field -> empty
 # string here, then we abort. Atomic: both chips render or neither.
-read -r pct_5h mins_5h pct_7d resets_7d < <(printf '%s' "$json" | jq -r '
+# Read the eight ccpulse fields via mapfile + line-per-value jq output.
+# `read -r ... <<< @tsv` does NOT preserve empty fields between two tabs:
+# bash collapses adjacent IFS-whitespace separators (POSIX rule) — and
+# tab is IFS-whitespace, so even `IFS=$'\t'` does not help. Boolean
+# projection fields are commonly the empty string (when will_overreach
+# is false or the projection key is absent under graceful degradation),
+# so the empty slots must reach bash intact. mapfile reads one value
+# per line and assigns by index, sidestepping the IFS issue entirely.
+mapfile -t _fields < <(printf '%s' "$json" | jq -r '
   [
-    (.percent                       // empty),
-    (.minutes_to_reset              // empty),
-    (.quota.seven_day.utilization   // empty),
-    (.quota.seven_day.resets_at     // empty)
-  ] | @tsv
+    (.percent                                        // ""),
+    (.minutes_to_reset                               // ""),
+    (.quota.seven_day.utilization                    // ""),
+    (.quota.seven_day.resets_at                      // ""),
+    (.projection.five_hour.will_overreach            // ""),
+    (.projection.five_hour.projected_pct_at_reset    // ""),
+    (.projection.seven_day.will_overreach            // ""),
+    (.projection.seven_day.projected_pct_at_reset    // "")
+  ] | .[]
 ') || exit 0
+pct_5h=${_fields[0]}
+mins_5h=${_fields[1]}
+pct_7d=${_fields[2]}
+resets_7d=${_fields[3]}
+over_5h=${_fields[4]}
+proj_5h=${_fields[5]}
+over_7d=${_fields[6]}
+proj_7d=${_fields[7]}
 
 [ -z "${pct_5h:-}" ]    && exit 0
 [ -z "${mins_5h:-}" ]   && exit 0
@@ -101,14 +147,25 @@ calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 threshold=80
 
 # 5h body: always full (rendered in the yellow chip).
-body_5h=$(printf '%s %d%% • %s' "$hourglass" "$pct_5h" "$reset_5h")
+body_5h=$(printf '%s %d%%%s • %s' \
+  "$hourglass" "$pct_5h" \
+  "$(format_overreach_suffix "$over_5h" "$proj_5h")" \
+  "$reset_5h")
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
 # pre-merge); calendar remains the 7d-window anchor.
+over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d")
 if [ "$pct_7d" -ge "$threshold" ]; then
-  body_7d=$(printf '%s %s %d%% • %s' "$robot" "$calendar" "$pct_7d" "$reset_7d")
+  # Expanded body: pct + (optional overreach decoration) + • <reset>.
+  body_7d=$(printf '%s %s %d%%%s • %s' \
+    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix" "$reset_7d")
+elif [ -n "$over_7d_suffix" ]; then
+  # Compact-with-overreach: pct + overreach decoration, no reset.
+  body_7d=$(printf '%s %s %d%%%s' \
+    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix")
 else
+  # Compact: pct only.
   body_7d=$(printf '%s %s %d%%' "$robot" "$calendar" "$pct_7d")
 fi
 
