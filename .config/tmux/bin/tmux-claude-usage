@@ -95,7 +95,7 @@ fg_yellow='#073642'
 # Glyphs as raw UTF-8 byte sequences (editor-independent literal).
 tri_l=$(printf '\xee\x82\xb6')      # U+E0B6 left rounded cap (filled)
 tri_r=$(printf '\xee\x82\xb4')      # U+E0B4 right rounded cap (filled)
-robot=$(printf '\xef\x95\x84')     # U+F544 nf-fa-robot
+robot=$(printf '\xf0\x9f\xa4\x96')  # U+F1F96 robot emoji 🤖
 hourglass=$(printf '\xef\x89\x92')  # U+F252 nf-fa-hourglass-half
 calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 
@@ -112,19 +112,20 @@ else
   body_7d=$(printf '%s %d%%' "$calendar" "$pct_7d")
 fi
 
-# Render: robot chip (left cap points to bar_bg, body, right cap points to 5h).
-printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
+# Render: robot chip (left cap points left to bar_bg, body, right cap points right to 5h).
+printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
   "$cyan" "$bar_bg" "$tri_l" \
   "$fg_cyan" "$cyan" \
-  "$robot"
+  "$robot" \
+  "$cyan" "$violet" "$tri_r"
 
-# 5h chip (left cap points to robot, body, right cap points to 7d).
+# 5h chip (left cap points right to robot, body, right cap points right to 7d).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$violet" "$cyan" "$tri_r" \
   "$fg_violet" "$violet" \
   "$body_5h"
 
-# 7d chip (left cap points to 5h, body, right cap points to bar_bg).
+# 7d chip (left cap points right to 5h, body, right cap points right to bar_bg).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
   "$yellow" "$violet" "$tri_r" \
   "$fg_yellow" "$yellow" \

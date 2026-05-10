@@ -172,8 +172,8 @@ got=$(run_helper)
 assert_contains "$got" "#[fg=#2aa198,bg=#073642]" "robot chip uses cyan on bar bg"
 # Robot body: base3-on-cyan
 assert_contains "$got" "#[fg=#fdf6e3,bg=#2aa198,bold]" "robot chip body uses base3-on-cyan bold"
-# Robot has robot glyph (U+F544)
-assert_contains "$got" $'\xef\x95\x84'                  "robot glyph (U+F544)"
+# Robot has robot emoji (U+F1F96)
+assert_contains "$got" $'\xf0\x9f\xa4\x96'             "robot emoji (U+F1F96)"
 # 5h chip: violet on cyan (robot bg), not bar bg
 assert_contains "$got" "#[fg=#6c71c4,bg=#2aa198]" "5h chip uses violet on cyan"
 assert_contains "$got" "#[fg=#fdf6e3,bg=#6c71c4,bold]" "5h chip body uses base3-on-violet bold"
