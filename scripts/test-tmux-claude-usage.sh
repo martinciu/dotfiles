@@ -309,6 +309,54 @@ got=$(run_helper)
 assert_not_contains "$got" $'\xef\x81\xad' "5h not overreaching, 7d not overreaching: no fire glyph anywhere"
 teardown_sandbox
 
+# ─── Overreach prediction: 7d chip ───────────
+# Case: 7d compact (pct=21 < 80) AND will_overreach=true.
+# Expect: chip expands to "🤖 📅 21% 🔥 → 252%" with NO • <reset> suffix
+# (per spec §1: at pct<80 the 7d window's reset is days away and not
+# rendered; the overreach decoration is the entire expansion).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":252}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "21% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 252%" "7d compact + overreach: '21% 🔥 → 252%'"
+assert_not_contains "$got" "252% • "                                       "7d compact + overreach: no • reset suffix"
+teardown_sandbox
+
+# Case: 7d expanded (pct=80) AND will_overreach=true. Expect both the
+# overreach decoration AND the • <reset> suffix.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":80,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":120}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "80% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 120% • " "7d expanded + overreach: '80% 🔥 → 120% • '"
+teardown_sandbox
+
+# Case: 7d compact (pct=11 < 80), will_overreach=false. Expect compact
+# body unchanged (no fire glyph, no • reset suffix).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":11,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":false,"projected_pct_at_reset":15}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "11%"                "7d compact, no overreach: pct visible"
+assert_not_contains "$got" $'\xef\x81\xad'      "7d compact, no overreach: no fire glyph"
+assert_not_contains "$got" "11% • "             "7d compact, no overreach: no • reset suffix"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
