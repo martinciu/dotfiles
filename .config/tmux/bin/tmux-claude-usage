@@ -112,19 +112,19 @@ else
   body_7d=$(printf '%s %d%%' "$calendar" "$pct_7d")
 fi
 
-# Render: robot chip (left cap points to bar_bg, body, right cap points to 5h).
+# Render: robot chip (left cap points left to bar_bg, body, right cap points right to 5h).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$cyan" "$bar_bg" "$tri_l" \
   "$fg_cyan" "$cyan" \
   "$robot"
 
-# 5h chip (left cap points to robot, body, right cap points to 7d).
+# 5h chip (left cap points right to robot, body, right cap points right to 7d).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$violet" "$cyan" "$tri_r" \
   "$fg_violet" "$violet" \
   "$body_5h"
 
-# 7d chip (left cap points to 5h, body, right cap points to bar_bg).
+# 7d chip (left cap points right to 5h, body, right cap points right to bar_bg).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
   "$yellow" "$violet" "$tri_r" \
   "$fg_yellow" "$yellow" \
