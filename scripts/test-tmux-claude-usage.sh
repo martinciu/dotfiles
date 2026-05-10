@@ -138,6 +138,25 @@ assert_eq "$(format_reset 1439)"  "23h59m"  "format_reset(1439) — last sub-day
 assert_eq "$(format_reset 1440)"  "1d 0h"   "format_reset(1440) — exactly 24h"
 assert_eq "$(format_reset 5000)"  "3d 11h"  "format_reset(5000)"
 unset -f format_reset
+
+# format_overreach_suffix — direct unit tests.
+# The helper returns:
+#   - empty string when will is anything but "true"
+#   - " <fire> → N%"  when will=="true" and pct is non-empty
+#   - " <fire>"        when will=="true" and pct is empty (graceful degrade
+#                       on null projected_pct_at_reset).
+fire_glyph=$'\xef\x81\xad'
+arrow_glyph=$'\xe2\x86\x92'
+
+assert_eq "$(format_overreach_suffix true 120)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120)"
+assert_eq "$(format_overreach_suffix true 252)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252)"
+assert_eq "$(format_overreach_suffix true '')"   " ${fire_glyph}"                     "format_overreach_suffix(true, '') — null projected_pct"
+assert_eq "$(format_overreach_suffix false 120)" ""                                    "format_overreach_suffix(false, 120)"
+assert_eq "$(format_overreach_suffix '' 120)"    ""                                    "format_overreach_suffix('', 120)"
+assert_eq "$(format_overreach_suffix false '')"  ""                                    "format_overreach_suffix(false, '')"
+unset -f format_overreach_suffix
+unset fire_glyph arrow_glyph
+
 unset TMUX_CLAUDE_USAGE_NO_RUN
 
 # Case: resets_at already past -> mins_7d clamps to 0; helper still runs
