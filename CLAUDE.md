@@ -54,15 +54,14 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   Solarized base16. No theme plugins (catppuccin, tmux-powerline, etc.).
   Each status-bar **pin** uses a unique Solarized accent. Currently:
   blue (session chip, left), green (active window pin, center), violet
-  (main-checkout git chip + 5h Claude-usage chip — paired by intent),
-  yellow (worktree git chip + 7d Claude-usage chip — paired by intent),
-  orange (PR pin, left of git chip). When adding a pin, pick from
-  unused accents (red, magenta, cyan); reconsider if all are taken.
-  **Paired left/right reuse is permitted when the pairing is
-  intentional and semantic** — violet on the 5h-usage chip rhymes with
-  violet on the main-checkout git chip; yellow on the 7d-usage chip
-  rhymes with yellow on the worktree git chip. Two violets or two
-  yellows visible simultaneously is the by-design behavior, not a
+  (main-checkout git chip on the right + 7d Claude-usage chip on the
+  left), yellow (worktree git chip on the right + 5h Claude-usage chip
+  on the left), orange (PR pin, left of git chip). When adding a pin,
+  pick from unused accents (red, magenta, cyan); reconsider if all are
+  taken. **Palette reuse across the left and right clusters is
+  permitted** — the usage cluster's violet and yellow slots are
+  positional, not paired with anything on the right. Two violets or
+  two yellows visible simultaneously is the by-design behavior, not a
   clash. Mode-style, message-style, pane-borders, and inline text
   colors (e.g. ins/del markers in `tmux-git-status`) are not pins.
 - **SSH indicator on the session chip** via
@@ -86,20 +85,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   after branch switch shows nothing; next 5 s tick renders — accepted
   to never block on a slow `gh`.
 - **tmux Claude usage cluster** wired into `status-left` via
-  `#(~~/.config/tmux/bin/tmux-claude-usage)`. Parses
+  `#(~/.config/tmux/bin/tmux-claude-usage)`. Parses
   `ccpulse status --json` on each 5 s tick (~33 ms; no bash-level
   cache) and emits three fused chips: cyan robot chip (`<robot>`),
-  violet 5h block (`<hourglass> <pct>% • <reset>`, always full), and
-  yellow 7d weekly (`<calendar> <pct>%`, auto-expands to `<calendar>
-  <pct>% • <reset>` when `pct >= 80`). Glyphs `nf-fa-robot` (U+F544),
-  `nf-fa-hourglass-half` (U+F252), and `nf-oct-calendar` (U+F455).
-  Arrow caps: left-facing on robot's left edge, all others forward-facing.
-  Atomic: when `ccpulse` is missing on PATH, exits non-zero, or any
-  required JSON field is null, the whole cluster hides — no half-rendered
-  chip. `status-left-length` bumped 80 → 120 to fit. Visual identity is
-  intentionally paired with the right-side git chips (cyan ↔ robot, violet
-  ↔ main checkout, yellow ↔ worktree) —
-  see the carve-out in the unique-accent rule.
+  violet 7d weekly (`<calendar> <pct>%`, auto-expands to `<calendar>
+  <pct>% • <reset>` when `pct >= 80`), and yellow 5h block
+  (`<hourglass> <pct>% • <reset>`, always full). Glyphs `nf-fa-robot`
+  (U+F544), `nf-fa-hourglass-half` (U+F252), and `nf-oct-calendar`
+  (U+F455). Arrow caps: left-facing on robot's left edge, all others
+  forward-facing. Atomic: when `ccpulse` is missing on PATH, exits
+  non-zero, or any required JSON field is null, the whole cluster
+  hides — no half-rendered chip. `status-left-length` bumped 80 → 120
+  to fit. The cluster's cyan/violet/yellow palette is positional and
+  independent of the right-side git chips' palette — see the
+  palette-reuse note in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.

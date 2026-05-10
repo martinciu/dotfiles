@@ -1,7 +1,7 @@
 #!/opt/homebrew/bin/bash
 # Renders two left-cluster tmux chips for Claude Code usage:
-#   - 5h block chip  (violet, always full body)
-#   - 7d weekly chip (yellow, compact body, auto-expands when pct >= 80)
+#   - 7d weekly chip (violet, compact body, auto-expands when pct >= 80)
+#   - 5h block chip  (yellow, always full body)
 # Source: `ccpulse status --json`. Helper hides (empty output, exit 0)
 # whenever any required field is missing or ccpulse is unreachable —
 # both chips appear or neither.
@@ -86,8 +86,8 @@ reset_7d=$(format_reset "$mins_7d")
 # style — no shared color file).
 bar_bg='#073642'
 cyan='#2aa198'     # robot chip bg (new)
-violet='#6c71c4'   # 5h chip bg (matches main-checkout git chip)
-yellow='#b58900'   # 7d chip bg (matches worktree git chip)
+violet='#6c71c4'   # 7d chip bg
+yellow='#b58900'   # 5h chip bg
 fg_cyan='#fdf6e3'
 fg_violet='#fdf6e3'
 fg_yellow='#073642'
@@ -102,31 +102,32 @@ calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 # 7d auto-expand threshold (inclusive — pct == 80 expands).
 threshold=80
 
-# 5h chip body: always full.
+# 5h body: always full (rendered in the yellow chip).
 body_5h=$(printf '%s %d%% • %s' "$hourglass" "$pct_5h" "$reset_5h")
 
-# 7d chip body: compact by default; expanded with reset when pct >= threshold.
+# 7d body: compact by default; expanded with reset when pct >= threshold
+# (rendered in the violet chip).
 if [ "$pct_7d" -ge "$threshold" ]; then
   body_7d=$(printf '%s %d%% • %s' "$calendar" "$pct_7d" "$reset_7d")
 else
   body_7d=$(printf '%s %d%%' "$calendar" "$pct_7d")
 fi
 
-# Render: robot chip (left cap points to bar_bg, body, right cap points to 5h).
+# Render: robot chip (cyan, left cap closes bar_bg, right cap forwards into violet).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$cyan" "$bar_bg" "$tri_l" \
   "$fg_cyan" "$cyan" \
   "$robot"
 
-# 5h chip (left cap points to robot, body, right cap points to 7d).
+# Violet chip — 7d body (left cap forwards from cyan, right cap forwards into yellow).
 printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$violet" "$cyan" "$tri_r" \
   "$fg_violet" "$violet" \
-  "$body_5h"
+  "$body_7d"
 
-# 7d chip (left cap points to 5h, body, right cap points to bar_bg).
+# Yellow chip — 5h body (left cap forwards from violet, right cap closes into bar_bg).
 printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
   "$yellow" "$violet" "$tri_r" \
   "$fg_yellow" "$yellow" \
-  "$body_7d" \
+  "$body_5h" \
   "$yellow" "$bar_bg" "$tri_r"
