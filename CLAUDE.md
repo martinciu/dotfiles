@@ -86,17 +86,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   after branch switch shows nothing; next 5 s tick renders — accepted
   to never block on a slow `gh`.
 - **tmux Claude usage cluster** wired into `status-left` via
-  `#(~/.config/tmux/bin/tmux-claude-usage)`. Parses
+  `#(~~/.config/tmux/bin/tmux-claude-usage)`. Parses
   `ccpulse status --json` on each 5 s tick (~33 ms; no bash-level
-  cache) and emits two fused chips: violet 5h block (`<hourglass>
-  <pct>% • <reset>`, always full) + yellow 7d weekly (`<calendar>
-  <pct>%`, auto-expands to `<calendar> <pct>% • <reset>` when
-  `pct >= 80`). Glyphs `nf-fa-hourglass-half` (U+F252) and
-  `nf-oct-calendar` (U+F455). Atomic: when `ccpulse` is missing on
-  PATH, exits non-zero, or any required JSON field is null, the whole
-  pair hides — no half-rendered chip. `status-left-length` bumped
-  80 → 120 to fit. Visual identity is intentionally paired with the
-  right-side git chips (violet ↔ main checkout, yellow ↔ worktree) —
+  cache) and emits three fused chips: cyan robot chip (`<robot>`),
+  violet 5h block (`<hourglass> <pct>% • <reset>`, always full), and
+  yellow 7d weekly (`<calendar> <pct>%`, auto-expands to `<calendar>
+  <pct>% • <reset>` when `pct >= 80`). Glyphs `nf-fa-robot` (U+F544),
+  `nf-fa-hourglass-half` (U+F252), and `nf-oct-calendar` (U+F455).
+  Arrow caps: left-facing on robot's left edge, all others forward-facing.
+  Atomic: when `ccpulse` is missing on PATH, exits non-zero, or any
+  required JSON field is null, the whole cluster hides — no half-rendered
+  chip. `status-left-length` bumped 80 → 120 to fit. Visual identity is
+  intentionally paired with the right-side git chips (cyan ↔ robot, violet
+  ↔ main checkout, yellow ↔ worktree) —
   see the carve-out in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
