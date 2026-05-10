@@ -87,18 +87,20 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 - **tmux Claude usage cluster** wired into `status-left` via
   `#(~/.config/tmux/bin/tmux-claude-usage)`. Parses
   `ccpulse status --json` on each 5 s tick (~33 ms; no bash-level
-  cache) and emits three fused chips: cyan robot chip (`<robot>`),
-  violet 7d weekly (`<calendar> <pct>%`, auto-expands to `<calendar>
-  <pct>% • <reset>` when `pct >= 80`), and yellow 5h block
-  (`<hourglass> <pct>% • <reset>`, always full). Glyphs `nf-fa-robot`
-  (U+F544), `nf-fa-hourglass-half` (U+F252), and `nf-oct-calendar`
-  (U+F455). Arrow caps: left-facing on robot's left edge, all others
-  forward-facing. Atomic: when `ccpulse` is missing on PATH, exits
-  non-zero, or any required JSON field is null, the whole cluster
-  hides — no half-rendered chip. `status-left-length` bumped 80 → 120
-  to fit. The cluster's cyan/violet/yellow palette is positional and
-  independent of the right-side git chips' palette — see the
-  palette-reuse note in the unique-accent rule.
+  cache) and emits two fused chips: violet 7d weekly
+  (`<robot> <calendar> <pct>%`, auto-expands to
+  `<robot> <calendar> <pct>% • <reset>` when `pct >= 80`) and yellow
+  5h block (`<hourglass> <pct>% • <reset>`, always full). Glyphs:
+  `<robot>` is U+1F916 emoji (chosen over the Nerd Font `nf-fa-robot`
+  U+F544 for portability), `nf-fa-hourglass-half` (U+F252), and
+  `nf-oct-calendar` (U+F455). Arrow caps: left-rounded on the violet
+  chip's left edge against `bar_bg`, all others forward-facing.
+  Atomic: when `ccpulse` is missing on PATH, exits non-zero, or any
+  required JSON field is null, the whole cluster hides — no
+  half-rendered chip. `status-left-length` bumped 80 → 120 to fit.
+  The cluster's violet/yellow palette is positional and independent
+  of the right-side git chips' palette — see the palette-reuse note
+  in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
