@@ -85,17 +85,15 @@ reset_7d=$(format_reset "$mins_7d")
 # Solarized base16 hexes, kept inline here (matches existing helpers'
 # style — no shared color file).
 bar_bg='#073642'
-cyan='#2aa198'     # robot chip bg (new)
 violet='#6c71c4'   # 7d chip bg
 yellow='#b58900'   # 5h chip bg
-fg_cyan='#fdf6e3'
 fg_violet='#fdf6e3'
 fg_yellow='#073642'
 
 # Glyphs as raw UTF-8 byte sequences (editor-independent literal).
 tri_l=$(printf '\xee\x82\xb6')      # U+E0B6 left rounded cap (filled)
 tri_r=$(printf '\xee\x82\xb4')      # U+E0B4 right rounded cap (filled)
-robot=$(printf '\xf0\x9f\xa4\x96') # U+F544 nf-fa-robot
+robot=$(printf '\xf0\x9f\xa4\x96') # U+1F916 robot emoji
 hourglass=$(printf '\xef\x89\x92')  # U+F252 nf-fa-hourglass-half
 calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 
@@ -105,23 +103,18 @@ threshold=80
 # 5h body: always full (rendered in the yellow chip).
 body_5h=$(printf '%s %d%% • %s' "$hourglass" "$pct_5h" "$reset_5h")
 
-# 7d body: compact by default; expanded with reset when pct >= threshold
-# (rendered in the violet chip).
+# 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
+# Robot glyph is the cluster's "this is Claude" anchor (was its own chip
+# pre-merge); calendar remains the 7d-window anchor.
 if [ "$pct_7d" -ge "$threshold" ]; then
-  body_7d=$(printf '%s %d%% • %s' "$calendar" "$pct_7d" "$reset_7d")
+  body_7d=$(printf '%s %s %d%% • %s' "$robot" "$calendar" "$pct_7d" "$reset_7d")
 else
-  body_7d=$(printf '%s %d%%' "$calendar" "$pct_7d")
+  body_7d=$(printf '%s %s %d%%' "$robot" "$calendar" "$pct_7d")
 fi
 
-# Render: robot chip (cyan, left cap closes bar_bg, right cap forwards into violet).
+# Render: violet chip — 7d body (left cap closes bar_bg, right cap forwards into yellow).
 printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
-  "$cyan" "$bar_bg" "$tri_l" \
-  "$fg_cyan" "$cyan" \
-  "$robot"
-
-# Violet chip — 7d body (left cap forwards from cyan, right cap forwards into yellow).
-printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
-  "$violet" "$cyan" "$tri_r" \
+  "$violet" "$bar_bg" "$tri_l" \
   "$fg_violet" "$violet" \
   "$body_7d"
 

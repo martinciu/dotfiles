@@ -168,16 +168,14 @@ STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
 
-# Robot chip: cyan on bar_bg
-assert_contains "$got" "#[fg=#2aa198,bg=#073642]" "robot chip uses cyan on bar bg"
-# Robot body: base3-on-cyan
-assert_contains "$got" "#[fg=#fdf6e3,bg=#2aa198,bold]" "robot chip body uses base3-on-cyan bold"
-# Robot has robot glyph (U+1F916, the standard 🤖 emoji — chosen over the
-# Nerd Font U+F544 in commit 254840b for portability).
-assert_contains "$got" $'\xf0\x9f\xa4\x96'              "robot glyph (U+1F916)"
-# Violet chip cap: violet on cyan (robot bg), not bar bg. The helper emits
-# attribute pairs in bg,fg order — match the actual byte sequence.
-assert_contains "$got" "#[bg=#6c71c4,fg=#2aa198]" "7d chip uses violet on cyan"
+# Violet chip now opens directly against bar_bg with a left rounded cap.
+assert_contains "$got" "#[fg=#6c71c4,bg=#073642]"     "violet chip cap is violet on bar bg"
+# Robot still rendered, now inside the violet body alongside the calendar
+# (U+1F916 emoji, chosen over Nerd Font U+F544 in commit 254840b for portability).
+assert_contains "$got" $'\xf0\x9f\xa4\x96'            "robot glyph (U+1F916) present"
+# Cyan chip should no longer appear anywhere in the output.
+assert_not_contains "$got" "bg=#2aa198"               "no standalone cyan chip emitted"
+assert_not_contains "$got" "fg=#2aa198"               "no cyan foreground anywhere"
 assert_contains "$got" "#[fg=#fdf6e3,bg=#6c71c4,bold]" "7d chip body uses base3-on-violet bold"
 assert_contains "$got" "8%"                            "5h pct visible"
 assert_contains "$got" "3h37m"                         "5h reset visible"
