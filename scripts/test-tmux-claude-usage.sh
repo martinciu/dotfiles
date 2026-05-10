@@ -277,6 +277,38 @@ got=$(run_helper)
 assert_contains "$got" "95% • now" "past resets_at + high pct: clamps to 'now'"
 teardown_sandbox
 
+# ─── Overreach prediction: 5h chip ───────────
+# Case: 5h will_overreach=true with projected_pct_at_reset=120.
+# Expect body to contain the overreach decoration before the bullet+reset:
+#   ⏳ 8% 🔥 → 120% • 3h37m
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120},"seven_day":{"will_overreach":false,"projected_pct_at_reset":34}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" $'\xef\x81\xad'              "5h overreach: fire glyph (U+F06D) present"
+assert_contains "$got" "8% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 120% • " "5h overreach: '8% 🔥 → 120% • ' substring"
+teardown_sandbox
+
+# Case: 5h will_overreach=false — no fire glyph anywhere in 5h body.
+# (We can't easily isolate "5h body" from output, so we assert no fire
+# glyph at all, given 7d is also false.)
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":false,"projected_pct_at_reset":34}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_not_contains "$got" $'\xef\x81\xad' "5h not overreaching, 7d not overreaching: no fire glyph anywhere"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"

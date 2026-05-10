@@ -74,12 +74,16 @@ json=$(ccpulse status --json 2>/dev/null) || exit 0
 
 # Parse the four required fields with jq. Any null/missing field -> empty
 # string here, then we abort. Atomic: both chips render or neither.
-read -r pct_5h mins_5h pct_7d resets_7d < <(printf '%s' "$json" | jq -r '
+read -r pct_5h mins_5h pct_7d resets_7d over_5h proj_5h over_7d proj_7d < <(printf '%s' "$json" | jq -r '
   [
-    (.percent                       // empty),
-    (.minutes_to_reset              // empty),
-    (.quota.seven_day.utilization   // empty),
-    (.quota.seven_day.resets_at     // empty)
+    (.percent                                        // empty),
+    (.minutes_to_reset                               // empty),
+    (.quota.seven_day.utilization                    // empty),
+    (.quota.seven_day.resets_at                      // empty),
+    (.projection.five_hour.will_overreach            // empty),
+    (.projection.five_hour.projected_pct_at_reset    // empty),
+    (.projection.seven_day.will_overreach            // empty),
+    (.projection.seven_day.projected_pct_at_reset    // empty)
   ] | @tsv
 ') || exit 0
 
@@ -127,7 +131,10 @@ calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 threshold=80
 
 # 5h body: always full (rendered in the yellow chip).
-body_5h=$(printf '%s %d%% • %s' "$hourglass" "$pct_5h" "$reset_5h")
+body_5h=$(printf '%s %d%%%s • %s' \
+  "$hourglass" "$pct_5h" \
+  "$(format_overreach_suffix "$over_5h" "$proj_5h")" \
+  "$reset_5h")
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
