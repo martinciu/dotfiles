@@ -172,15 +172,17 @@ got=$(run_helper)
 assert_contains "$got" "#[fg=#2aa198,bg=#073642]" "robot chip uses cyan on bar bg"
 # Robot body: base3-on-cyan
 assert_contains "$got" "#[fg=#fdf6e3,bg=#2aa198,bold]" "robot chip body uses base3-on-cyan bold"
-# Robot has robot glyph (U+F544)
-assert_contains "$got" $'\xef\x95\x84'                  "robot glyph (U+F544)"
-# 5h chip: violet on cyan (robot bg), not bar bg
-assert_contains "$got" "#[fg=#6c71c4,bg=#2aa198]" "5h chip uses violet on cyan"
-assert_contains "$got" "#[fg=#fdf6e3,bg=#6c71c4,bold]" "5h chip body uses base3-on-violet bold"
+# Robot has robot glyph (U+1F916, the standard 🤖 emoji — chosen over the
+# Nerd Font U+F544 in commit 254840b for portability).
+assert_contains "$got" $'\xf0\x9f\xa4\x96'              "robot glyph (U+1F916)"
+# Violet chip cap: violet on cyan (robot bg), not bar bg. The helper emits
+# attribute pairs in bg,fg order — match the actual byte sequence.
+assert_contains "$got" "#[bg=#6c71c4,fg=#2aa198]" "7d chip uses violet on cyan"
+assert_contains "$got" "#[fg=#fdf6e3,bg=#6c71c4,bold]" "7d chip body uses base3-on-violet bold"
 assert_contains "$got" "8%"                            "5h pct visible"
 assert_contains "$got" "3h37m"                         "5h reset visible"
-assert_contains "$got" "#[fg=#b58900,bg=#6c71c4]"      "7d chip cap fuses yellow on violet"
-assert_contains "$got" "#[fg=#073642,bg=#b58900,bold]" "7d chip body uses base02-on-yellow bold"
+assert_contains "$got" "#[bg=#b58900,fg=#6c71c4]"      "5h chip cap fuses yellow on violet"
+assert_contains "$got" "#[fg=#073642,bg=#b58900,bold]" "5h chip body uses base02-on-yellow bold"
 assert_contains "$got" "21%"                            "7d pct visible"
 assert_not_contains "$got" "21% • "                     "7d compact: no • reset suffix when low"
 # Bolt for 5h, calendar (oct) for 7d — UTF-8 byte sequences as in helper.
@@ -188,7 +190,7 @@ assert_contains "$got" $'\xef\x89\x92'                  "5h hourglass glyph (U+F
 assert_contains "$got" $'\xef\x91\x95'                  "7d calendar glyph (U+F455)"
 # Powerline rounded caps: left U+E0B6, right U+E0B4.
 assert_contains "$got" $'\xee\x82\xb6'                  "left rounded cap"
-assert_contains "$got" $'\xee\x82\xb4'                  "right rounded cap (closes 7d)"
+assert_contains "$got" $'\xee\x82\xb4'                  "right rounded cap (closes 5h)"
 teardown_sandbox
 
 # Carryover: past resets_at + low 7d pct -> compact body still renders pct.
