@@ -310,7 +310,7 @@
     <h3>Layout</h3>
     <p>Bottom bar, <code>bg=base02</code> / <code>fg=base0</code>. Three segments:</p>
     <ul class="compact">
-      <li><strong>Left:</strong> session name on a blue chip with a powerline arrow (gains a leading globe glyph <code></code> <code>nf-fa-globe</code> when any attached tmux client is SSH-rooted — drives <code>tmux-ssh-indicator</code>), followed by the Claude-usage cluster: cyan robot chip (<code></code> <code>nf-fa-robot</code>) fused with violet 5h chip (<code></code> <code>nf-fa-hourglass-half</code>, always shows <code>&lt;pct&gt;% • &lt;reset&gt;</code>) fused with the yellow 7d chip (<code></code> <code>nf-oct-calendar</code>, compact <code>&lt;pct&gt;%</code> that auto-expands to add <code>• &lt;reset&gt;</code> at <code>pct ≥ 80</code>). Whole cluster hides cleanly when <code>ccpulse</code> is missing. Drives <code>tmux-claude-usage</code>.</li>
+      <li><strong>Left:</strong> session name on a blue chip with a powerline arrow (gains a leading globe glyph <code></code> <code>nf-fa-globe</code> when any attached tmux client is SSH-rooted — drives <code>tmux-ssh-indicator</code>), followed by the Claude-usage cluster: cyan robot chip (<code></code> <code>nf-fa-robot</code>) fused with violet 7d chip (<code></code> <code>nf-oct-calendar</code>, compact <code>&lt;pct&gt;%</code> that auto-expands to add <code>• &lt;reset&gt;</code> at <code>pct ≥ 80</code>) fused with the yellow 5h chip (<code></code> <code>nf-fa-hourglass-half</code>, always shows <code>&lt;pct&gt;% • &lt;reset&gt;</code>). Whole cluster hides cleanly when <code>ccpulse</code> is missing. Drives <code>tmux-claude-usage</code>.</li>
       <li><strong>Center (absolute-centered on the full bar):</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>green</code>-on-<code>base3</code> chip with rounded powerline caps.</li>
       <li><strong>Right:</strong> orange PR pin (when the current branch has an open/draft PR) glued to the branch chip via a rounded yellow-on-orange separator. Branch chip is violet for main checkout, yellow for worktree, always flush-right (no closing cap — mirrors the session chip's flush-left anchor). Drives <code>tmux-status-right</code> → <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
     </ul>
@@ -346,7 +346,7 @@
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-ssh-indicator</code></td><td class="desc">walks each attached client's <code>ps</code> ancestry; prints <code></code> + space when any ancestor is <code>sshd</code>/<code>sshd-session</code> — prepended inside the session chip</td></tr>
-      <tr><td class="key"><code>~/.config/tmux/bin/tmux-claude-usage</code></td><td class="desc">parses <code>ccpulse status --json</code> and emits the violet 5h + yellow 7d fused chip pair on the left of the status bar; atomic hide when <code>ccpulse</code> is missing or fields are null</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-claude-usage</code></td><td class="desc">parses <code>ccpulse status --json</code> and emits the violet 7d + yellow 5h fused chip pair on the left of the status bar; atomic hide when <code>ccpulse</code> is missing or fields are null</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
       <tr><td class="key"><code>scripts/test-tmux-pr-status.sh</code></td><td class="desc">smoke tests for <code>tmux-pr-detect</code> + <code>tmux-status-right</code> (uses a PATH-shimmed <code>gh</code>)</td></tr>
       <tr><td class="key"><code>scripts/test-tmux-claude-usage.sh</code></td><td class="desc">smoke tests for <code>tmux-claude-usage</code> (PATH-shimmed <code>ccpulse</code> stub; covers hide cases, formatter, threshold boundaries)</td></tr>
@@ -423,7 +423,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-09. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-10. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
