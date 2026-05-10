@@ -357,6 +357,67 @@ assert_not_contains "$got" $'\xef\x81\xad'      "7d compact, no overreach: no fi
 assert_not_contains "$got" "11% • "             "7d compact, no overreach: no • reset suffix"
 teardown_sandbox
 
+# ─── Graceful degradation: missing/partial projection field ──
+# Case: ccpulse JSON has all four core fields but no `projection` key
+# at all (older ccpulse). Expect both chips render exactly as today,
+# no fire glyph anywhere, both chips visible.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "8%"            "missing projection: 5h pct visible (chip not hidden)"
+assert_contains     "$got" "21%"           "missing projection: 7d pct visible (chip not hidden)"
+assert_contains     "$got" "3h37m"         "missing projection: 5h reset visible (chip body intact)"
+assert_not_contains "$got" $'\xef\x81\xad' "missing projection: no fire glyph emitted"
+teardown_sandbox
+
+# Case: will_overreach=true but projected_pct_at_reset=null on 7d. Expect
+# the fire glyph alone (no '→ N%' suffix), still on the 7d chip.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":null}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "21% "$'\xef\x81\xad' "null projected_pct + overreach: '21% 🔥' present"
+assert_not_contains "$got" $'\xe2\x86\x92'        "null projected_pct + overreach: no arrow glyph"
+teardown_sandbox
+
+# Case: both chips overreach simultaneously. Assert two distinct
+# fire-glyph occurrences and that the body bodies fit (rough printable-
+# length check, stripping tmux #[...] segments).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":80,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120},"seven_day":{"will_overreach":true,"projected_pct_at_reset":120}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+# Two distinct occurrences of the fire byte sequence (one per chip).
+fire_count=$(printf '%s' "$got" | grep -o $'\xef\x81\xad' | wc -l | tr -d ' ')
+assert_eq "$fire_count" "2" "both chips overreach: fire glyph appears twice"
+# Printable length (strip tmux #[...] format segments) under
+# status-left-length budget (120). Sanity check, not a tight bound.
+stripped=$(printf '%s' "$got" | sed -E 's/#\[[^]]*\]//g')
+printable_len=${#stripped}
+if [ "$printable_len" -lt 120 ]; then
+  pass=$((pass+1)); echo "  PASS  both chips overreach: printable length $printable_len < 120"
+else
+  fail=$((fail+1)); fail_msgs+=("FAIL  both chips overreach: printable length $printable_len >= 120 (status-left-length budget)")
+  echo "  FAIL  both chips overreach: printable length $printable_len >= 120"
+fi
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
