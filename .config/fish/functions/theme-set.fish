@@ -1,18 +1,21 @@
-function theme-set --description 'Switch colour scheme between solarized and mocha'
+function theme-set --description 'Switch colour scheme between solarized, mocha, and dracula'
     set -l name $argv[1]
     switch $name
-        case solarized mocha
+        case solarized mocha dracula
             # OK
         case '*'
-            echo "Usage: theme-set <solarized|mocha>" >&2
+            echo "Usage: theme-set <solarized|mocha|dracula>" >&2
             return 1
     end
 
     set -l bat_theme
-    if test $name = mocha
-        set bat_theme "Catppuccin Mocha"
-    else
-        set bat_theme "Solarized (dark)"
+    switch $name
+        case mocha
+            set bat_theme "Catppuccin Mocha"
+        case dracula
+            set bat_theme "Dracula"
+        case '*'
+            set bat_theme "Solarized (dark)"
     end
 
     # Flip symlinks. -sfn replaces the link atomically.

@@ -49,7 +49,17 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-mocha.jso
 assert_link "$HOME/.config/gh-dash/config.yml"                "config-mocha.yml"         "gh-dash config.yml → config-mocha.yml"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-mocha.json"         "lnav theme.json → theme-mocha.json"
 
-# Reverse: mocha → solarized
+# Forward: mocha → dracula
+run_theme_set dracula
+assert_link "$HOME/.config/themes/current.tmux"               "dracula.tmux"               "current.tmux → dracula.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-dracula.gitconfig"    "delta-current.gitconfig → delta-dracula.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-dracula.ghostty"      "ghostty theme.ghostty → theme-dracula.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-dracula.toml"      "starship.toml → starship-dracula.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-dracula.json"       "glow glamour.json → glamour-dracula.json"
+assert_link "$HOME/.config/gh-dash/config.yml"                "config-dracula.yml"         "gh-dash config.yml → config-dracula.yml"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-dracula.json"         "lnav theme.json → theme-dracula.json"
+
+# Reverse: dracula → solarized
 run_theme_set solarized
 assert_link "$HOME/.config/themes/current.tmux"               "solarized.tmux"             "current.tmux → solarized.tmux (reverse)"
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-solarized.ghostty"    "ghostty theme.ghostty → theme-solarized.ghostty (reverse)"

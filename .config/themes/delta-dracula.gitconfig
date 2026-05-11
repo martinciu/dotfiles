@@ -1,0 +1,9 @@
+# Dracula delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. plus/minus emph hex are hand-derived from Dracula's
+# green (#50fa7b) and red (#ff5555).
+[delta]
+    syntax-theme = Dracula
+    plus-style = "syntax #1e3a14"
+    minus-style = "syntax #3a1414"
+    plus-emph-style = "syntax #2d5a1e"
+    minus-emph-style = "syntax #5a2024"
