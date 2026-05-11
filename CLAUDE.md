@@ -242,19 +242,23 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `theme-set dracula` pick across re-runs. Out of v1:
   `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
-- **Switchable Ghostty fonts — 10 Nerd Fonts.** JetBrains Mono is the
-  default. Five with ligatures: `jetbrains`, `fira`, `cascadia` (ships as
-  `CaskaydiaCove`), `monaspace` (Neon variant, ships as `Monaspice`),
-  `iosevka`. Five classics, no ligatures: `hack`, `meslo` (MesloLGS,
-  Powerlevel10k's default), `sauce` (Source Code Pro, ships as
-  `SauceCodePro`), `ubuntu` (UbuntuMono), `inconsolata`. `font-set
-  <name>` (fish function) flips a machine-local symlink
-  `~/.config/ghostty/font.ghostty` → one of the per-font include files
-  (each is a one-liner `font-family = ...`). `config.ghostty` pulls
-  the active family via `config-file = font.ghostty`; `font-size` and
-  `font-thicken` stay there (shared across fonts). `ghostty +reload`
-  fires live. All ten casks are pinned in the `Brewfile`. Bootstrap's
-  "don't clobber" guard preserves any prior `font-set` pick across
+- **Switchable Ghostty fonts — 10 Nerd Fonts, optional size.** JetBrains
+  Mono is the default. Five with ligatures: `jetbrains`, `fira`,
+  `cascadia` (ships as `CaskaydiaCove`), `monaspace` (Neon variant,
+  ships as `Monaspice`), `iosevka`. Five classics, no ligatures:
+  `hack`, `meslo` (MesloLGS, Powerlevel10k's default), `sauce` (Source
+  Code Pro, ships as `SauceCodePro`), `ubuntu` (UbuntuMono),
+  `inconsolata`. `font-set <name> [<size>]` (fish function) flips a
+  machine-local symlink `~/.config/ghostty/font.ghostty` → one of the
+  per-font include files (each a one-liner `font-family = ...`); when
+  `<size>` is given (positive int or decimal, e.g. `14`, `13.5`), it
+  rewrites the machine-local real file `~/.config/ghostty/font-size.ghostty`
+  with `font-size = <size>`. Omit `<size>` to keep the current size.
+  `config.ghostty` pulls family + size via two `config-file = ...`
+  directives; `font-thicken` stays there (shared across fonts).
+  `ghostty +reload` fires live. All ten casks are pinned in `Brewfile`.
+  Bootstrap seeds `font-size.ghostty` at `font-size = 14` on first
+  run; "don't clobber" guards preserve any prior `font-set` pick across
   re-runs. Add a new font: drop a new `font-<short>.ghostty` next to
   the others, append the cask to `Brewfile`, extend the `switch` in
   `font-set.fish` + its completion. No nvim/tmux/bat coupling — font

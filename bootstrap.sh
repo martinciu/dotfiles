@@ -107,6 +107,8 @@ link_tracked_entries ".config/ghostty" "$HOME/.config/ghostty"
     || ln -sfn theme-solarized.ghostty "$HOME/.config/ghostty/theme.ghostty"
 [ -L "$HOME/.config/ghostty/font.ghostty" ] \
     || ln -sfn font-jetbrains.ghostty "$HOME/.config/ghostty/font.ghostty"
+[ -f "$HOME/.config/ghostty/font-size.ghostty" ] \
+    || echo 'font-size = 14' > "$HOME/.config/ghostty/font-size.ghostty"
 
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"

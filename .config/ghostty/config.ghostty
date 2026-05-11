@@ -9,10 +9,12 @@ config-file = theme.ghostty
 
 # ─── Font ─────────────────────────────────────
 # Font family lives in font.ghostty (machine-local symlink →
-# font-{jetbrains,fira,cascadia,monaspace,iosevka}.ghostty). Swap via
-# `font-set <name>`; reload via cmd+ctrl+shift+r or `ghostty +reload`.
+# font-{jetbrains,fira,cascadia,monaspace,iosevka,…}.ghostty).
+# Size lives in font-size.ghostty (machine-local real file, seeded by
+# bootstrap at 14). Both swap via `font-set <name> [<size>]`;
+# reload via cmd+ctrl+shift+r or `ghostty +reload`.
 config-file = font.ghostty
-font-size = 14
+config-file = font-size.ghostty
 # Slightly bolder strokes on macOS retina.
 font-thicken = true
 
