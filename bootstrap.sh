@@ -165,11 +165,13 @@ if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
     echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
 fi
 
-# --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
-# lnav writes its built-in samples (configs/default, formats/default), crash
-# dumps, staging area, log_metadata.db, view-info-*.json, and :config-written
-# config.json into the real ~/.config/lnav/ — outside the repo. We only own
-# the two installed/ subdirs.
+# --- lnav (TUI log navigator)
+# ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
+# the repo. configs/installed/ is mixed-dir: tracked theme variants
+# (catppuccin theme-defs + theme-{solarized,mocha}.json selectors) are
+# per-file symlinks; the active theme.json is a machine-local symlink. lnav
+# writes its built-in samples (configs/default, formats/default), crash
+# dumps, staging area, log_metadata.db, view-info-*.json into the real dir.
 LNAV_HOME="$HOME/.config/lnav"
 LNAV_REPO=".config/lnav"
 # 1. Old whole-dir symlink → tear down so we can rebuild as a real dir
@@ -186,9 +188,15 @@ rm -rf  "$DOTFILES/$LNAV_REPO/configs/default" \
 rm -f   "$DOTFILES/$LNAV_REPO/log_metadata.db" \
         "$DOTFILES/$LNAV_REPO/config.json"
 rm -f   "$DOTFILES/$LNAV_REPO"/view-info-*.json
-# 3. New shape: real parent dirs + dir-level symlinks for installed/
-mkdir -p "$LNAV_HOME/configs" "$LNAV_HOME/formats"
-link "$LNAV_REPO/configs/installed" "$LNAV_HOME/configs/installed"
+# 3. New shape: real parent dirs; configs/installed is itself a real
+#    mixed-dir (per-file symlinks for tracked entries) so a machine-local
+#    theme.json symlink can live alongside the tracked theme variants.
+#    formats/installed stays whole-dir-symlinked (no machine-local entries).
+mkdir -p "$LNAV_HOME/configs"
+prepare_real_dir "$LNAV_HOME/configs/installed"
+link_tracked_entries "$LNAV_REPO/configs/installed" "$LNAV_HOME/configs/installed"
+[ -L "$LNAV_HOME/configs/installed/theme.json" ] \
+    || ln -sfn theme-solarized.json "$LNAV_HOME/configs/installed/theme.json"
 link "$LNAV_REPO/formats/installed" "$LNAV_HOME/formats/installed"
 unset LNAV_HOME LNAV_REPO
 

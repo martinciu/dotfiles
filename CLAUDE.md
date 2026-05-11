@@ -297,17 +297,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `.config/btop/btop.conf` (only `color_theme`, `theme_background = False`,
   `vim_keys = True` pinned). macOS `top` reachable via `command top`.
   `solarized_dark` is built-in; don't vendor a custom theme.
-- **`lnav` is the TUI log navigator** (raw command, no alias). Only
-  `installed/` subdirs are symlinked — `bootstrap.sh` creates
-  `~/.config/lnav/` as a real dir, then links
-  `~/.config/lnav/{configs,formats}/installed` into the repo. lnav owns
-  the rest (samples, `crash/`, `staging/`, `log_metadata.db`,
+- **`lnav` is the TUI log navigator** (raw command, no alias).
+  `~/.config/lnav/` is a real dir. `formats/installed/` stays
+  whole-dir-symlinked to the repo (no machine-local entries needed
+  there — `inngest.json` is the one tracked format, for `inngest-cli
+  dev` JSON-per-line stdout). `configs/installed/` is **mixed-dir**:
+  tracked theme machinery (`catppuccin.json` — vendored Catppuccin
+  theme-defs from `ninetailedtori/catppuccin-lnav`, MIT — plus
+  `theme-{solarized,mocha}.json` selectors that set `ui.theme`) is
+  per-file symlinked; the active `theme.json` is a machine-local
+  symlink swapped by `theme-set`. Side effect: `lnav -i` writes into
+  the real machine-local `configs/installed/` dir, not the repo — `cp`
+  new tracked entries into the repo explicitly. lnav owns the rest of
+  `~/.config/lnav/` (samples, `crash/`, `staging/`, `log_metadata.db`,
   `view-info-*.json`, `config.json`). Don't re-introduce a whole-dir
-  symlink (issue #64). Theme is built-in `solarized-dark`, activated by
-  `solarized-dark.json` (sets `ui.theme`). Custom formats in
-  `.config/lnav/formats/installed/<name>.json`; one tracked:
-  `inngest.json` for `inngest-cli dev` JSON-per-line stdout. `lnav -i`
-  writes into `installed/` and therefore the repo (intended).
+  symlink on the top-level dir (issue #64).
 - **`gh dash` is the GitHub TUI** (raw command; `ghd` abbr in
   `35-abbreviations.fish`). Solarized Dark via `theme.colors` in
   `.config/gh-dash/config.yml`, standard base16 semantic mapping
