@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fish. Catppuccin Mocha is wired as a switchable alternative — see "Switchable themes" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 4 themes (Solarized Dark / Mocha / Dracula / Gruvbox) and `font-set` between 10 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
