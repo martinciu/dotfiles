@@ -3,6 +3,7 @@
 --   "solarized"        (default, when symlink missing or unreadable)
 --   "catppuccin-mocha"
 --   "dracula"
+--   "gruvbox"
 local M = {}
 
 function M.current()
@@ -12,6 +13,8 @@ function M.current()
       return "catppuccin-mocha"
     elseif link:match("dracula") then
       return "dracula"
+    elseif link:match("gruvbox") then
+      return "gruvbox"
     end
   end
   return "solarized"

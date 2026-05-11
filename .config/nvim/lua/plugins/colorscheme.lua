@@ -59,6 +59,28 @@ return {
       end
     end,
   },
+  -- Gruvbox (new — loaded when theme.lua resolves to gruvbox).
+  {
+    "ellisonleao/gruvbox.nvim",
+    name = "gruvbox",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      contrast = "", -- "", "hard", "soft" — empty = medium (matches the rest of our stack)
+      italic = {
+        strings = false,
+        comments = true,
+        operators = false,
+        folds = true,
+      },
+    },
+    config = function(_, opts)
+      require("gruvbox").setup(opts)
+      if current == "gruvbox" then
+        vim.cmd.colorscheme("gruvbox")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",

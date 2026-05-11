@@ -59,7 +59,17 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-dracula.j
 assert_link "$HOME/.config/gh-dash/config.yml"                "config-dracula.yml"         "gh-dash config.yml → config-dracula.yml"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-dracula.json"         "lnav theme.json → theme-dracula.json"
 
-# Reverse: dracula → solarized
+# Forward: dracula → gruvbox
+run_theme_set gruvbox
+assert_link "$HOME/.config/themes/current.tmux"               "gruvbox.tmux"               "current.tmux → gruvbox.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-gruvbox.gitconfig"    "delta-current.gitconfig → delta-gruvbox.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-gruvbox.ghostty"      "ghostty theme.ghostty → theme-gruvbox.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-gruvbox.toml"      "starship.toml → starship-gruvbox.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-gruvbox.json"       "glow glamour.json → glamour-gruvbox.json"
+assert_link "$HOME/.config/gh-dash/config.yml"                "config-gruvbox.yml"         "gh-dash config.yml → config-gruvbox.yml"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-gruvbox.json"         "lnav theme.json → theme-gruvbox.json"
+
+# Reverse: gruvbox → solarized
 run_theme_set solarized
 assert_link "$HOME/.config/themes/current.tmux"               "solarized.tmux"             "current.tmux → solarized.tmux (reverse)"
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-solarized.ghostty"    "ghostty theme.ghostty → theme-solarized.ghostty (reverse)"

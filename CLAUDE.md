@@ -205,42 +205,61 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 - **Mason-managed LSPs are pinned** via `mason-lock.json` (committed).
   `:MasonLock` snapshots; `:MasonLockUpdate` upgrades then snapshots.
   `lazy-lock.json` and `mason-lock.json` both committed.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula.**
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox.**
   Solarized Dark is the canonical default. `theme-set <name>` (fish function in
   `.config/fish/functions/`) flips active-theme symlinks across the
   hot-path + file-viewer tools. Palette files live in `.config/themes/`
   (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
   machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
   Per-tool variant files use the naming convention `*-solarized.<ext>`
-  / `*-mocha.<ext>` / `*-dracula.<ext>` and live alongside their tool's
-  config —
-  `.config/ghostty/theme-{solarized,mocha,dracula}.ghostty`,
-  `.config/glow/glamour-{solarized,mocha,dracula}.json`,
-  `.config/gh-dash/config-{solarized,mocha,dracula}.yml`,
-  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula}.json`,
-  `.config/starship-{solarized,mocha,dracula}.toml`. The active variant is
-  picked via a machine-local symlink at the tool's normal config path.
-  tmux uses `@color_*` user options (set in the palette file, sourced
-  by `tmux.conf` via `source-file -F '#{HOME}/.config/themes/current.tmux'`)
-  read by both `tmux.conf` (`#{@color_*}` interpolation) and helper
-  scripts (`tmux show-option -gv`, with Solarized hex fallback for the
-  test harness path). Bat uses `$BAT_THEME` set as a fish universal
-  var; bat 0.26+ ships Catppuccin Mocha and Dracula built-in (no
-  vendoring). Dracula uses dark-on-pastel chip text too
+  / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` and live
+  alongside their tool's config —
+  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox}.ghostty`,
+  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox}.json`,
+  `.config/gh-dash/config-{solarized,mocha,dracula,gruvbox}.yml`,
+  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox}.json`,
+  `.config/starship-{solarized,mocha,dracula,gruvbox}.toml`. The active
+  variant is picked via a machine-local symlink at the tool's normal
+  config path. tmux uses `@color_*` user options (set in the palette
+  file, sourced by `tmux.conf` via
+  `source-file -F '#{HOME}/.config/themes/current.tmux'`) read by both
+  `tmux.conf` (`#{@color_*}` interpolation) and helper scripts
+  (`tmux show-option -gv`, with Solarized hex fallback for the test
+  harness path). Bat uses `$BAT_THEME` and vivid (`LS_COLORS` for
+  `ls`/`eza` file-type colors) uses `$VIVID_THEME`, both set as fish
+  universal vars by `theme-set`. bat 0.26+ ships Catppuccin Mocha,
+  Dracula, and `gruvbox-dark` built-in (no vendoring); vivid 0.11+
+  ships all four (`solarized-dark`, `catppuccin-mocha`, `dracula`,
+  `gruvbox-dark`). `.config/fish/conf.d/10-colors.fish` reads
+  `$VIVID_THEME` at fish startup to regenerate LS_COLORS. fzf colors
+  (Ctrl-R history, Ctrl-T file picker) use ANSI palette refs (0–15,
+  `-1` = terminal default) in `FZF_DEFAULT_OPTS` — auto-adapt to
+  whatever Ghostty's 16-color palette is, no per-theme switch
+  needed. Dracula uses dark-on-pastel chip text too
   (`@color_light_fg = "#282a36"`), matching Mocha's inversion rather
   than Solarized's light-on-saturated. Dracula has no pure blue
   accent: `@color_accent_blue` reuses the comment hex `#6272a4`,
   intentionally colliding with `@color_muted_fg` — Dracula-faithful,
-  and no current tmux pin uses `accent_blue`.
+  and no current tmux pin uses `accent_blue`. Gruvbox Dark Medium
+  uses dark-on-accent chip text too (`@color_light_fg = "#282828"` =
+  Gruvbox bg0). Gruvbox has one canonical purple, so
+  `@color_accent_magenta` and `@color_accent_violet` resolve to the
+  same hex (`#b16286`) — faithful to the palette; no current tmux
+  pin distinguishes the two roles. **lnav 0.14 does not ship
+  gruvbox**, so `.config/lnav/configs/installed/gruvbox.json` is a
+  vendored theme-defs (modelled on the Catppuccin vendor, hex codes
+  from `morhetz/gruvbox` MIT). Hard / Soft contrast and Light
+  variants are out of v1.
   Delta is included from `~/.gitconfig` via
   `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
   setup, see README). nvim picks its colorscheme at startup via the
   resolver in `lua/config/theme.lua` (reads `readlink` of
-  `current.tmux`); the `catppuccin/nvim` and `Mofiqul/dracula.nvim`
-  plugins are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
-  "don't clobber" guards preserve any prior `theme-set mocha` or
-  `theme-set dracula` pick across re-runs. Out of v1:
-  `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
+  `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`, and
+  `ellisonleao/gruvbox.nvim` plugins are installed alongside
+  `maxmx03/solarized.nvim`. Bootstrap's "don't clobber" guards
+  preserve any prior `theme-set mocha`, `theme-set dracula`, or
+  `theme-set gruvbox` pick across re-runs. Out of v1:
+  `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
 - **Switchable Ghostty fonts — 10 Nerd Fonts, optional weight + size.**
   JetBrains Mono is the default. Five with ligatures: `jetbrains`,
@@ -332,11 +351,15 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `belloff=all`, tmux `bell-action/visual-bell/monitor-bell off`. Fish
   has no BEEP option; any `\a` is consumed at Ghostty/tmux. Don't
   re-enable.
-- **Terminal tools are Solarized Dark, end-to-end.** `eza`, `bat`,
-  `git-delta`, `glow` (`md`), `vivid` (`LS_COLORS`), `procs` (`ps`),
-  `tailspin` (`tspin`), `xh`. Pins: `vivid generate solarized-dark`,
-  `bat --theme="Solarized (dark)"`, `delta.syntax-theme = "Solarized (dark)"`,
-  `procs` reads `.config/procs/procs.toml`, `md` passes
+- **Terminal tools default to Solarized Dark; some follow `theme-set`.**
+  Follow `theme-set`: `bat` (via `$BAT_THEME`), `git-delta` (via
+  `delta-current.gitconfig` include), `glow` / `md` (via `glamour.json`
+  symlink), `vivid` / `LS_COLORS` (via `$VIVID_THEME`, read by
+  `.config/fish/conf.d/10-colors.fish`), fzf (palette-symbolic refs in
+  `FZF_DEFAULT_OPTS`, auto-adapts via Ghostty's 16-color palette).
+  Stay Solarized-only: `procs` (`ps`), `tailspin` (`tspin`), `xh`. Pins:
+  `bat --theme="Solarized (dark)"` is the fallback when `$BAT_THEME` is
+  unset; `procs` reads `.config/procs/procs.toml`, `md` passes
   `--style .config/glow/glamour.json`, `tspin` reads
   `.config/tailspin/theme.toml` (ANSI names; severity keywords
   `error`/`warn`/`info`/`debug` as `[[keywords]]`). No `tail` alias —
