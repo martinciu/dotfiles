@@ -109,6 +109,9 @@ link_tracked_entries ".config/ghostty" "$HOME/.config/ghostty"
     || ln -sfn font-jetbrains.ghostty "$HOME/.config/ghostty/font.ghostty"
 [ -f "$HOME/.config/ghostty/font-size.ghostty" ] \
     || echo 'font-size = 14' > "$HOME/.config/ghostty/font-size.ghostty"
+[ -f "$HOME/.config/ghostty/font-weight.ghostty" ] \
+    || echo '# Weight (font-style) written by `font-set <name> _ <weight>`' \
+       > "$HOME/.config/ghostty/font-weight.ghostty"
 
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"
