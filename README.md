@@ -117,11 +117,12 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## Switching themes
 
-Two themes are wired: **Solarized Dark** (default) and **Catppuccin Mocha**.
+Three themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, and **Dracula**.
 Swap via the fish function `theme-set`:
 
 ```fish
 theme-set mocha       # switch to Catppuccin Mocha
+theme-set dracula     # switch to Dracula
 theme-set solarized   # switch back
 ```
 

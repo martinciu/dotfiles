@@ -43,6 +43,22 @@ return {
       end
     end,
   },
+  -- Dracula (new — loaded when theme.lua resolves to dracula).
+  {
+    "Mofiqul/dracula.nvim",
+    name = "dracula",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      italic_comment = true,
+    },
+    config = function(_, opts)
+      require("dracula").setup(opts)
+      if current == "dracula" then
+        vim.cmd.colorscheme("dracula")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",

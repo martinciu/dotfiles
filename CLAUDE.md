@@ -205,38 +205,47 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 - **Mason-managed LSPs are pinned** via `mason-lock.json` (committed).
   `:MasonLock` snapshots; `:MasonLockUpdate` upgrades then snapshots.
   `lazy-lock.json` and `mason-lock.json` both committed.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha.** Solarized
-  Dark is the canonical default. `theme-set <name>` (fish function in
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula.**
+  Solarized Dark is the canonical default. `theme-set <name>` (fish function in
   `.config/fish/functions/`) flips active-theme symlinks across the
   hot-path + file-viewer tools. Palette files live in `.config/themes/`
   (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
   machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
   Per-tool variant files use the naming convention `*-solarized.<ext>`
-  / `*-mocha.<ext>` and live alongside their tool's config —
-  `.config/ghostty/theme-{solarized,mocha}.ghostty`,
-  `.config/glow/glamour-{solarized,mocha}.json`,
-  `.config/gh-dash/config-{solarized,mocha}.yml`,
-  `.config/lnav/configs/installed/theme-{solarized,mocha}.json`,
-  `.config/starship-{solarized,mocha}.toml`. The active variant is
+  / `*-mocha.<ext>` / `*-dracula.<ext>` and live alongside their tool's
+  config —
+  `.config/ghostty/theme-{solarized,mocha,dracula}.ghostty`,
+  `.config/glow/glamour-{solarized,mocha,dracula}.json`,
+  `.config/gh-dash/config-{solarized,mocha,dracula}.yml`,
+  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula}.json`,
+  `.config/starship-{solarized,mocha,dracula}.toml`. The active variant is
   picked via a machine-local symlink at the tool's normal config path.
   tmux uses `@color_*` user options (set in the palette file, sourced
   by `tmux.conf` via `source-file -F '#{HOME}/.config/themes/current.tmux'`)
   read by both `tmux.conf` (`#{@color_*}` interpolation) and helper
   scripts (`tmux show-option -gv`, with Solarized hex fallback for the
   test harness path). Bat uses `$BAT_THEME` set as a fish universal
-  var; bat 0.26+ ships Catppuccin Mocha built-in (no vendoring).
+  var; bat 0.26+ ships Catppuccin Mocha and Dracula built-in (no
+  vendoring). Dracula uses dark-on-pastel chip text too
+  (`@color_light_fg = "#282a36"`), matching Mocha's inversion rather
+  than Solarized's light-on-saturated. Dracula has no pure blue
+  accent: `@color_accent_blue` reuses the comment hex `#6272a4`,
+  intentionally colliding with `@color_muted_fg` — Dracula-faithful,
+  and no current tmux pin uses `accent_blue`.
   Delta is included from `~/.gitconfig` via
   `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
   setup, see README). nvim picks its colorscheme at startup via the
   resolver in `lua/config/theme.lua` (reads `readlink` of
-  `current.tmux`); the `catppuccin/nvim` plugin is installed alongside
-  `maxmx03/solarized.nvim`. Bootstrap's "don't clobber" guards preserve
-  any prior `theme-set mocha` pick across re-runs. Out of v1:
+  `current.tmux`); the `catppuccin/nvim` and `Mofiqul/dracula.nvim`
+  plugins are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
+  "don't clobber" guards preserve any prior `theme-set mocha` or
+  `theme-set dracula` pick across re-runs. Out of v1:
   `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
 - **Starship pastel accent — per theme.** Solarized keeps the
   `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
-  "personal" accent). Defined in each starship config's
+  "personal" accent); Dracula uses `#ff79c6` (Dracula pink). Defined
+  in each starship config's
   `[palettes.<name>]` block as `pastel_rose`. Chip is flush-left, ends
   with U+E0B4 rounded right cap; prompt char drops to line 2. Single
   chip because starship silently drops `bg:` when both `fg:` and `bg:`
