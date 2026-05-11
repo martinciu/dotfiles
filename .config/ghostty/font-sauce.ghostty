@@ -1,0 +1,4 @@
+# Source Code Pro (Nerd Fonts ships it as "SauceCodePro" due to license).
+# Adobe classic; no ligatures.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set sauce).
+font-family = SauceCodePro Nerd Font Mono

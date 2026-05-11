@@ -1,10 +1,11 @@
 function font-set --description 'Switch Ghostty font between installed Nerd Fonts'
     set -l name $argv[1]
     switch $name
-        case jetbrains fira cascadia monaspace iosevka
+        case jetbrains fira cascadia monaspace iosevka \
+             hack meslo sauce ubuntu inconsolata
             # OK
         case '*'
-            echo "Usage: font-set <jetbrains|fira|cascadia|monaspace|iosevka>" >&2
+            echo "Usage: font-set <jetbrains|fira|cascadia|monaspace|iosevka|hack|meslo|sauce|ubuntu|inconsolata>" >&2
             return 1
     end
 

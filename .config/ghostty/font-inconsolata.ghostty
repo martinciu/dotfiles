@@ -1,0 +1,3 @@
+# Inconsolata — Raph Levien's humanist monospace; no ligatures.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set inconsolata).
+font-family = Inconsolata Nerd Font Mono
