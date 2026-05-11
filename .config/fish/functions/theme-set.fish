@@ -1,10 +1,10 @@
-function theme-set --description 'Switch colour scheme between solarized, mocha, and dracula'
+function theme-set --description 'Switch colour scheme between solarized, mocha, dracula, and gruvbox'
     set -l name $argv[1]
     switch $name
-        case solarized mocha dracula
+        case solarized mocha dracula gruvbox
             # OK
         case '*'
-            echo "Usage: theme-set <solarized|mocha|dracula>" >&2
+            echo "Usage: theme-set <solarized|mocha|dracula|gruvbox>" >&2
             return 1
     end
 
@@ -14,6 +14,8 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
             set bat_theme "Catppuccin Mocha"
         case dracula
             set bat_theme "Dracula"
+        case gruvbox
+            set bat_theme "gruvbox-dark"
         case '*'
             set bat_theme "Solarized (dark)"
     end
