@@ -59,14 +59,16 @@ hot-swap an existing pane).
 on first run. Edit it to add machine-local project sessions; the shared
 `sesh.toml` is the wrong place for them.
 
-**3. Wire delta into git** (one-time, global).
+**3. Wire delta into git** (one-time, global). The include line picks up
+delta's theme + chip tweaks from the active theme (see "Switching themes"
+below — `theme-set` flips the included file).
 
 ```sh
 git config --global core.pager delta
 git config --global interactive.diffFilter "delta --color-only"
 git config --global delta.navigate true
 git config --global delta.line-numbers true
-git config --global delta.syntax-theme "Solarized (dark)"
+git config --global include.path "~/.config/themes/delta-current.gitconfig"
 ```
 
 **4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
