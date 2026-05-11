@@ -65,9 +65,9 @@ defaults:
             updatedAt:
                 width: 5
             createdAt:
-                width: 5
-            repo:
-                width: 15
+                hidden: true
+            reactions:
+                hidden: true
             creator:
                 width: 10
             creatorIcon:
@@ -98,7 +98,7 @@ theme:
         sectionsShowCount: true
         table:
             showSeparator: true
-            compact: false
+            compact: true
 pager:
     diff: ""
 confirmQuit: false
