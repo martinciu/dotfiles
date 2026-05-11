@@ -177,9 +177,9 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `vi`/`command vim`/`\vim`. Don't add vim-plug or LSP to it.
 - **nvim is built on LazyVim**, themed Solarized, configured at
   `.config/nvim/`. Don't replace LazyVim. `~/.config/nvim/` is a real
-  dir (mixed-dir pattern): `init.lua`, `lazy-lock.json`,
-  `mason-lock.json`, `lua/` are symlinked from the repo; `lazy/`,
-  `mason/`, `site/`, `lazyvim.json` are real and stay outside the repo.
+  dir (mixed-dir pattern): `init.lua`, `mason-lock.json`, `lua/` are
+  symlinked from the repo; `lazy/`, `mason/`, `site/`, `lazyvim.json`,
+  `lazy-lock.json` are real and stay outside the repo.
 - **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
   (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't re-add.
 - **LSPs off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
@@ -204,7 +204,11 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   concern).
 - **Mason-managed LSPs are pinned** via `mason-lock.json` (committed).
   `:MasonLock` snapshots; `:MasonLockUpdate` upgrades then snapshots.
-  `lazy-lock.json` and `mason-lock.json` both committed.
+  Only `mason-lock.json` is tracked; `lazy-lock.json` is gitignored
+  — Lazy auto-updates churn it on every plugin update and the diffs
+  were noise, not signal. Run `:Lazy restore` against the working
+  tree's own lockfile when you need reproducibility on a single
+  machine.
 - **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox.**
   Solarized Dark is the canonical default. `theme-set <name>` (fish function in
   `.config/fish/functions/`) flips active-theme symlinks across the
