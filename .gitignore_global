@@ -10,6 +10,15 @@
 # (per ~/.claude/CLAUDE.md — never committed in any repo)
 .superpowers/
 .autonomo/
+.scratch
+.secrets
+
+# CI/code-quality tooling state
+.codacy
+.github/instructions/codacy.instructions.md
+bin/complexity_changes.sh
+bin/reek_changes.sh
+reports/
 
 # Python
 __pycache__/
