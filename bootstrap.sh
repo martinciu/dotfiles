@@ -237,7 +237,11 @@ link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
 # --- starship (prompt; fish opts into transient prompt — see CLAUDE.md)
-link ".config/starship.toml" "$HOME/.config/starship.toml"
+# Two variant configs tracked; active one symlinked machine-locally.
+link ".config/starship-solarized.toml" "$HOME/.config/starship-solarized.toml"
+link ".config/starship-mocha.toml"     "$HOME/.config/starship-mocha.toml"
+[ -L "$HOME/.config/starship.toml" ] \
+    || ln -sfn starship-solarized.toml "$HOME/.config/starship.toml"
 
 # --- fish (only interactive shell)
 # ~/.config/fish/ is a real dir; tracked entries are individually symlinked.
