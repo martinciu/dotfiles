@@ -131,7 +131,12 @@ rescue_in_repo "$DOTFILES/.config/worktrunk/approvals.toml" \
 link_tracked_entries ".config/worktrunk" "$HOME/.config/worktrunk"
 
 # --- glow
-link ".config/glow"    "$HOME/.config/glow"
+# ~/.config/glow/ is a real dir; tracked entries (glamour-{solarized,mocha}.json)
+# are individually symlinked. Active glamour.json is a machine-local symlink.
+prepare_real_dir "$HOME/.config/glow"
+link_tracked_entries ".config/glow" "$HOME/.config/glow"
+[ -L "$HOME/.config/glow/glamour.json" ] \
+    || ln -sfn glamour-solarized.json "$HOME/.config/glow/glamour.json"
 
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
