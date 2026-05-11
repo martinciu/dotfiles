@@ -1,0 +1,9 @@
+# Solarized Dark delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. Included from ~/.gitconfig via [include] path = ...
+# (See README → "Setup" for the one-time gitconfig include line.)
+[delta]
+    syntax-theme = Solarized (dark)
+    plus-style = "syntax #003800"
+    minus-style = "syntax #3f0001"
+    plus-emph-style = "syntax #006a00"
+    minus-emph-style = "syntax #780000"

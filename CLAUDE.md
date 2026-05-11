@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fish.
+Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fish. Catppuccin Mocha is wired as a switchable alternative — see "Switchable themes" below.
 
 ## Conventions — don't drift from these
 
@@ -205,14 +205,43 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 - **Mason-managed LSPs are pinned** via `mason-lock.json` (committed).
   `:MasonLock` snapshots; `:MasonLockUpdate` upgrades then snapshots.
   `lazy-lock.json` and `mason-lock.json` both committed.
-- **Solarized + JetBrainsMono Nerd Font everywhere — except the starship
-  prompt.** Every other tool stays Solarized Dark. Starship uses a
-  single pastel rose accent (`#DA627D`) in `[palettes.solarized_dark]`
-  of `.config/starship.toml`. Chip is flush-left, ends with U+E0B4
-  rounded right cap; prompt char drops to line 2. Single chip because
-  starship silently drops `bg:` when both `fg:` and `bg:` reference
-  custom palette names in the top-level format. Don't extend pastel to
-  other tools; don't add `(fg:custom_a bg:custom_b)` chips.
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha.** Solarized
+  Dark is the canonical default. `theme-set <name>` (fish function in
+  `.config/fish/functions/`) flips active-theme symlinks across the
+  hot-path + file-viewer tools. Palette files live in `.config/themes/`
+  (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
+  machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
+  Per-tool variant files use the naming convention `*-solarized.<ext>`
+  / `*-mocha.<ext>` and live alongside their tool's config —
+  `.config/ghostty/theme-{solarized,mocha}.ghostty`,
+  `.config/glow/glamour-{solarized,mocha}.json`,
+  `.config/gh-dash/config-{solarized,mocha}.yml`,
+  `.config/lnav/configs/installed/theme-{solarized,mocha}.json`,
+  `.config/starship-{solarized,mocha}.toml`. The active variant is
+  picked via a machine-local symlink at the tool's normal config path.
+  tmux uses `@color_*` user options (set in the palette file, sourced
+  by `tmux.conf` via `source-file -F '#{HOME}/.config/themes/current.tmux'`)
+  read by both `tmux.conf` (`#{@color_*}` interpolation) and helper
+  scripts (`tmux show-option -gv`, with Solarized hex fallback for the
+  test harness path). Bat uses `$BAT_THEME` set as a fish universal
+  var; bat 0.26+ ships Catppuccin Mocha built-in (no vendoring).
+  Delta is included from `~/.gitconfig` via
+  `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
+  setup, see README). nvim picks its colorscheme at startup via the
+  resolver in `lua/config/theme.lua` (reads `readlink` of
+  `current.tmux`); the `catppuccin/nvim` plugin is installed alongside
+  `maxmx03/solarized.nvim`. Bootstrap's "don't clobber" guards preserve
+  any prior `theme-set mocha` pick across re-runs. Out of v1:
+  `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
+  HTML toggle, screenshot regeneration, live nvim retheme.
+- **Starship pastel accent — per theme.** Solarized keeps the
+  `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
+  "personal" accent). Defined in each starship config's
+  `[palettes.<name>]` block as `pastel_rose`. Chip is flush-left, ends
+  with U+E0B4 rounded right cap; prompt char drops to line 2. Single
+  chip because starship silently drops `bg:` when both `fg:` and `bg:`
+  reference custom palette names in the top-level format. Don't extend
+  pastel to other tools; don't add `(fg:custom_a bg:custom_b)` chips.
 
   Fish opts into Starship's transient prompt: after Enter, the active
   chip is replaced with a bold `❯`; `cmd_duration`/`status` stay intact.
@@ -297,17 +326,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `.config/btop/btop.conf` (only `color_theme`, `theme_background = False`,
   `vim_keys = True` pinned). macOS `top` reachable via `command top`.
   `solarized_dark` is built-in; don't vendor a custom theme.
-- **`lnav` is the TUI log navigator** (raw command, no alias). Only
-  `installed/` subdirs are symlinked — `bootstrap.sh` creates
-  `~/.config/lnav/` as a real dir, then links
-  `~/.config/lnav/{configs,formats}/installed` into the repo. lnav owns
-  the rest (samples, `crash/`, `staging/`, `log_metadata.db`,
+- **`lnav` is the TUI log navigator** (raw command, no alias).
+  `~/.config/lnav/` is a real dir. `formats/installed/` stays
+  whole-dir-symlinked to the repo (no machine-local entries needed
+  there — `inngest.json` is the one tracked format, for `inngest-cli
+  dev` JSON-per-line stdout). `configs/installed/` is **mixed-dir**:
+  tracked theme machinery (`catppuccin.json` — vendored Catppuccin
+  theme-defs from `ninetailedtori/catppuccin-lnav`, MIT — plus
+  `theme-{solarized,mocha}.json` selectors that set `ui.theme`) is
+  per-file symlinked; the active `theme.json` is a machine-local
+  symlink swapped by `theme-set`. Side effect: `lnav -i` writes into
+  the real machine-local `configs/installed/` dir, not the repo — `cp`
+  new tracked entries into the repo explicitly. lnav owns the rest of
+  `~/.config/lnav/` (samples, `crash/`, `staging/`, `log_metadata.db`,
   `view-info-*.json`, `config.json`). Don't re-introduce a whole-dir
-  symlink (issue #64). Theme is built-in `solarized-dark`, activated by
-  `solarized-dark.json` (sets `ui.theme`). Custom formats in
-  `.config/lnav/formats/installed/<name>.json`; one tracked:
-  `inngest.json` for `inngest-cli dev` JSON-per-line stdout. `lnav -i`
-  writes into `installed/` and therefore the repo (intended).
+  symlink on the top-level dir (issue #64).
 - **`gh dash` is the GitHub TUI** (raw command; `ghd` abbr in
   `35-abbreviations.fish`). Solarized Dark via `theme.colors` in
   `.config/gh-dash/config.yml`, standard base16 semantic mapping
@@ -359,9 +392,12 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 ## Where things live
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir per tool:
-  `btop`, `ccstatusline`, `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`,
-  `procs`, `tailspin`, `tmux`, `worktrunk`, `xh`; plus `starship.toml`,
-  partial links for `sesh/sesh.toml` and `lnav/{configs,formats}/installed`),
+  `btop`, `ccstatusline`, `procs`, `tailspin`, `tmux`, `xh`; mixed-dir
+  per tool: `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`, `worktrunk`;
+  themes dir: `themes/` (palette files + delta snippets); plus
+  `starship-{solarized,mocha}.toml`, partial links for `sesh/sesh.toml`
+  and `lnav/configs/installed` (mixed-dir) +
+  `lnav/formats/installed` (whole-dir)),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
   `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
@@ -405,6 +441,7 @@ is `nvim-cheatsheet.html`).
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
+- Theme switch smoke: `scripts/test-theme-switch.sh`
 
 ## First-time setup on a new machine
 

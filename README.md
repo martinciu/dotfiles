@@ -59,14 +59,16 @@ hot-swap an existing pane).
 on first run. Edit it to add machine-local project sessions; the shared
 `sesh.toml` is the wrong place for them.
 
-**3. Wire delta into git** (one-time, global).
+**3. Wire delta into git** (one-time, global). The include line picks up
+delta's theme + chip tweaks from the active theme (see "Switching themes"
+below — `theme-set` flips the included file).
 
 ```sh
 git config --global core.pager delta
 git config --global interactive.diffFilter "delta --color-only"
 git config --global delta.navigate true
 git config --global delta.line-numbers true
-git config --global delta.syntax-theme "Solarized (dark)"
+git config --global include.path "~/.config/themes/delta-current.gitconfig"
 ```
 
 **4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
@@ -112,6 +114,37 @@ These drive the `claude[<name>]` window title (tmux's
 | [ccstatusline](https://github.com/sirmalloc/ccstatusline) | `.config/ccstatusline/` | `~/.config/ccstatusline` |
 | [Claude](https://claude.com/claude-code) | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
+
+## Switching themes
+
+Two themes are wired: **Solarized Dark** (default) and **Catppuccin Mocha**.
+Swap via the fish function `theme-set`:
+
+```fish
+theme-set mocha       # switch to Catppuccin Mocha
+theme-set solarized   # switch back
+```
+
+The function flips per-tool symlinks under `~/.config/themes/`,
+`~/.config/ghostty/theme.ghostty`, `~/.config/starship.toml`,
+`~/.config/glow/glamour.json`, `~/.config/gh-dash/config.yml`,
+`~/.config/lnav/configs/installed/theme.json`, plus a
+`delta-current.gitconfig` snippet included via the gitconfig
+`include.path` directive set up during `Setup` above. It also sets
+`$BAT_THEME` as a fish universal variable.
+
+**Reloads live:** tmux (status bar + helpers, instant), ghostty,
+starship (next prompt render), glow, delta (next `git diff`).
+
+**Needs restart:** open shells (`$BAT_THEME` is read at process start),
+nvim, gh-dash, lnav.
+
+**Add a third theme:** drop a new `.config/themes/<name>.tmux` palette
+file (mirror the role keys from the existing palettes) plus per-tool
+`*-<name>.<ext>` variant configs, then extend the `switch` statement
+in `.config/fish/functions/theme-set.fish`.
+
+Smoke test: `scripts/test-theme-switch.sh`.
 
 ## Keymaps quick-ref
 

@@ -1,14 +1,14 @@
+local theme = require("config.theme")
+local current = theme.current()
+
 return {
-  -- Solarized theme (Solarized everywhere — dotfiles convention).
+  -- Solarized (default, fallback). Existing plugin — unchanged spec.
   {
     "maxmx03/solarized.nvim",
     lazy = false,
     priority = 1000,
     opts = {
-      -- maxmx03/solarized.nvim's API takes a table here, not a bool.
-      transparent = {
-        enabled = false,
-      },
+      transparent = { enabled = false },
       styles = {
         comments = { italic = true },
         functions = {},
@@ -18,12 +18,34 @@ return {
     },
     config = function(_, opts)
       require("solarized").setup(opts)
-      vim.cmd.colorscheme("solarized")
+      if current == "solarized" then
+        vim.cmd.colorscheme("solarized")
+      end
     end,
   },
-  -- Tell LazyVim to default to solarized instead of tokyonight.
+  -- Catppuccin (new — loaded when theme.lua resolves to catppuccin-mocha).
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      flavour = "mocha",
+      styles = {
+        comments = { "italic" },
+        keywords = { "italic" },
+      },
+    },
+    config = function(_, opts)
+      require("catppuccin").setup(opts)
+      if current == "catppuccin-mocha" then
+        vim.cmd.colorscheme("catppuccin-mocha")
+      end
+    end,
+  },
+  -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "solarized" },
+    opts = { colorscheme = current },
   },
 }

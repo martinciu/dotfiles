@@ -25,19 +25,20 @@ pwd_in="${1:-$PWD}"
 prev_bg="${2:-#073642}"
 next_bg="${3-#073642}"
 
-# Solarized base16
-fg_text_wt="#073642"       # base02 — dark text on yellow chip
-fg_text_main="#fdf6e3"     # base3 — light text on violet chip
-bg_wt="#b58900"            # yellow — worktree chip
-bg_main="#6c71c4"          # violet — main-checkout chip
+# Colours read from tmux @color_* options. Solarized hex retained as
+# fallback for invocation outside a tmux server (test harness path).
+fg_text_wt="$(tmux       show-option -gv @color_bar_bg               2>/dev/null)"; : "${fg_text_wt:=#073642}"
+fg_text_main="$(tmux     show-option -gv @color_light_fg             2>/dev/null)"; : "${fg_text_main:=#fdf6e3}"
+bg_wt="$(tmux            show-option -gv @color_accent_yellow        2>/dev/null)"; : "${bg_wt:=#b58900}"
+bg_main="$(tmux          show-option -gv @color_accent_violet        2>/dev/null)"; : "${bg_main:=#6c71c4}"
 
 # Inline change-marker palette, two pairs tuned per chip background.
-fg_ins_main="#b8d65c"      # lifted green for violet chip
-fg_del_main="#ff9b96"      # softer red   for violet chip
-fg_neutral_main="#eee8d5"  # base2 — slash on violet
-fg_ins_wt="#3a5400"        # deepened green for yellow chip
-fg_del_wt="#7a1116"        # deepened red   for yellow chip
-fg_neutral_wt="#073642"    # base02 — same as branch text on yellow
+fg_ins_main="$(tmux      show-option -gv @color_chip_main_ins_fg     2>/dev/null)"; : "${fg_ins_main:=#b8d65c}"
+fg_del_main="$(tmux      show-option -gv @color_chip_main_del_fg     2>/dev/null)"; : "${fg_del_main:=#ff9b96}"
+fg_neutral_main="$(tmux  show-option -gv @color_chip_main_neutral_fg 2>/dev/null)"; : "${fg_neutral_main:=#eee8d5}"
+fg_ins_wt="$(tmux        show-option -gv @color_chip_wt_ins_fg       2>/dev/null)"; : "${fg_ins_wt:=#3a5400}"
+fg_del_wt="$(tmux        show-option -gv @color_chip_wt_del_fg       2>/dev/null)"; : "${fg_del_wt:=#7a1116}"
+fg_neutral_wt="$(tmux    show-option -gv @color_bar_bg               2>/dev/null)"; : "${fg_neutral_wt:=#073642}"
 
 # Nerd Font / unicode glyphs as UTF-8 byte sequences (avoids editor-dependent literal embedding)
 icon=$(printf '\xef\x84\xa6')      # U+F126 nf-fa-code_branch

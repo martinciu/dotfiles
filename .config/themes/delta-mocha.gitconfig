@@ -1,0 +1,9 @@
+# Catppuccin Mocha delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. The plus/minus emph hex are hand-derived to match
+# Mocha's pastel palette (no canonical "diff green/red" exists in Catppuccin).
+[delta]
+    syntax-theme = Catppuccin Mocha
+    plus-style = "syntax #1e3a1e"
+    minus-style = "syntax #3a1e22"
+    plus-emph-style = "syntax #2d5a2d"
+    minus-emph-style = "syntax #5a2d32"

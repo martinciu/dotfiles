@@ -128,13 +128,13 @@ reset_5h=$(format_reset "$mins_5h")
 reset_7d=$(format_reset "$mins_7d")
 
 # ── Chip rendering ──────────────────────────
-# Solarized base16 hexes, kept inline here (matches existing helpers'
-# style — no shared color file).
-bar_bg='#073642'
-violet='#6c71c4'   # 7d chip bg
-yellow='#b58900'   # 5h chip bg
-fg_violet='#fdf6e3'
-fg_yellow='#073642'
+# Colours read from tmux @color_* options. Solarized hex retained as
+# fallback for invocation outside a tmux server.
+bar_bg="$(tmux    show-option -gv @color_bar_bg        2>/dev/null)"; : "${bar_bg:=#073642}"
+violet="$(tmux    show-option -gv @color_accent_violet 2>/dev/null)"; : "${violet:=#6c71c4}"
+yellow="$(tmux    show-option -gv @color_accent_yellow 2>/dev/null)"; : "${yellow:=#b58900}"
+fg_violet="$(tmux show-option -gv @color_light_fg      2>/dev/null)"; : "${fg_violet:=#fdf6e3}"
+fg_yellow="$(tmux show-option -gv @color_bar_bg        2>/dev/null)"; : "${fg_yellow:=#073642}"
 
 # Glyphs as raw UTF-8 byte sequences (editor-independent literal).
 tri_l=$(printf '\xee\x82\xb6')      # U+E0B6 left rounded cap (filled)

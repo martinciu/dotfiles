@@ -96,11 +96,28 @@ seed_local() {
   fi
 }
 
-# --- ghostty (already done; idempotent re-link)
-link ".config/ghostty" "$HOME/.config/ghostty"
+# --- ghostty
+# ~/.config/ghostty/ is a real dir; tracked entries are individually
+# symlinked. Active-theme symlink theme.ghostty is machine-local.
+prepare_real_dir "$HOME/.config/ghostty"
+link_tracked_entries ".config/ghostty" "$HOME/.config/ghostty"
+[ -L "$HOME/.config/ghostty/theme.ghostty" ] \
+    || ln -sfn theme-solarized.ghostty "$HOME/.config/ghostty/theme.ghostty"
 
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"
+
+# --- themes (Solarized Dark + Catppuccin Mocha; switchable via theme-set)
+# ~/.config/themes/ is a real dir; tracked palette files individually
+# symlinked. Active-theme symlinks (current.tmux, delta-current.gitconfig)
+# are machine-local — created only if missing so a prior `theme-set` pick
+# survives re-running bootstrap.
+prepare_real_dir "$HOME/.config/themes"
+link_tracked_entries ".config/themes" "$HOME/.config/themes"
+[ -L "$HOME/.config/themes/current.tmux" ] \
+    || ln -sfn solarized.tmux "$HOME/.config/themes/current.tmux"
+[ -L "$HOME/.config/themes/delta-current.gitconfig" ] \
+    || ln -sfn delta-solarized.gitconfig "$HOME/.config/themes/delta-current.gitconfig"
 
 # --- ccstatusline
 link ".config/ccstatusline" "$HOME/.config/ccstatusline"
@@ -114,7 +131,12 @@ rescue_in_repo "$DOTFILES/.config/worktrunk/approvals.toml" \
 link_tracked_entries ".config/worktrunk" "$HOME/.config/worktrunk"
 
 # --- glow
-link ".config/glow"    "$HOME/.config/glow"
+# ~/.config/glow/ is a real dir; tracked entries (glamour-{solarized,mocha}.json)
+# are individually symlinked. Active glamour.json is a machine-local symlink.
+prepare_real_dir "$HOME/.config/glow"
+link_tracked_entries ".config/glow" "$HOME/.config/glow"
+[ -L "$HOME/.config/glow/glamour.json" ] \
+    || ln -sfn glamour-solarized.json "$HOME/.config/glow/glamour.json"
 
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
@@ -128,8 +150,13 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
-# --- gh-dash (TUI for PRs/issues/notifications; Solarized theme)
-link ".config/gh-dash" "$HOME/.config/gh-dash"
+# --- gh-dash (TUI for PRs/issues/notifications; switchable theme)
+# ~/.config/gh-dash/ is a real dir; tracked entries (config-{solarized,mocha}.yml)
+# are individually symlinked. Active config.yml is a machine-local symlink.
+prepare_real_dir "$HOME/.config/gh-dash"
+link_tracked_entries ".config/gh-dash" "$HOME/.config/gh-dash"
+[ -L "$HOME/.config/gh-dash/config.yml" ] \
+    || ln -sfn config-solarized.yml "$HOME/.config/gh-dash/config.yml"
 
 # --- gh extensions (idempotent; needs `gh` from brew, no `gh auth` required)
 if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
@@ -138,11 +165,13 @@ if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
     echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
 fi
 
-# --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
-# lnav writes its built-in samples (configs/default, formats/default), crash
-# dumps, staging area, log_metadata.db, view-info-*.json, and :config-written
-# config.json into the real ~/.config/lnav/ — outside the repo. We only own
-# the two installed/ subdirs.
+# --- lnav (TUI log navigator)
+# ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
+# the repo. configs/installed/ is mixed-dir: tracked theme variants
+# (catppuccin theme-defs + theme-{solarized,mocha}.json selectors) are
+# per-file symlinks; the active theme.json is a machine-local symlink. lnav
+# writes its built-in samples (configs/default, formats/default), crash
+# dumps, staging area, log_metadata.db, view-info-*.json into the real dir.
 LNAV_HOME="$HOME/.config/lnav"
 LNAV_REPO=".config/lnav"
 # 1. Old whole-dir symlink → tear down so we can rebuild as a real dir
@@ -159,9 +188,15 @@ rm -rf  "$DOTFILES/$LNAV_REPO/configs/default" \
 rm -f   "$DOTFILES/$LNAV_REPO/log_metadata.db" \
         "$DOTFILES/$LNAV_REPO/config.json"
 rm -f   "$DOTFILES/$LNAV_REPO"/view-info-*.json
-# 3. New shape: real parent dirs + dir-level symlinks for installed/
-mkdir -p "$LNAV_HOME/configs" "$LNAV_HOME/formats"
-link "$LNAV_REPO/configs/installed" "$LNAV_HOME/configs/installed"
+# 3. New shape: real parent dirs; configs/installed is itself a real
+#    mixed-dir (per-file symlinks for tracked entries) so a machine-local
+#    theme.json symlink can live alongside the tracked theme variants.
+#    formats/installed stays whole-dir-symlinked (no machine-local entries).
+mkdir -p "$LNAV_HOME/configs"
+prepare_real_dir "$LNAV_HOME/configs/installed"
+link_tracked_entries "$LNAV_REPO/configs/installed" "$LNAV_HOME/configs/installed"
+[ -L "$LNAV_HOME/configs/installed/theme.json" ] \
+    || ln -sfn theme-solarized.json "$LNAV_HOME/configs/installed/theme.json"
 link "$LNAV_REPO/formats/installed" "$LNAV_HOME/formats/installed"
 unset LNAV_HOME LNAV_REPO
 
@@ -202,7 +237,11 @@ link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
 # --- starship (prompt; fish opts into transient prompt — see CLAUDE.md)
-link ".config/starship.toml" "$HOME/.config/starship.toml"
+# Two variant configs tracked; active one symlinked machine-locally.
+link ".config/starship-solarized.toml" "$HOME/.config/starship-solarized.toml"
+link ".config/starship-mocha.toml"     "$HOME/.config/starship-mocha.toml"
+[ -L "$HOME/.config/starship.toml" ] \
+    || ln -sfn starship-solarized.toml "$HOME/.config/starship.toml"
 
 # --- fish (only interactive shell)
 # ~/.config/fish/ is a real dir; tracked entries are individually symlinked.
