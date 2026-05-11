@@ -242,21 +242,39 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `theme-set dracula` pick across re-runs. Out of v1:
   `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
-- **Switchable Ghostty fonts — Nerd Fonts with ligatures.** JetBrains
-  Mono is the default; Fira Code, Cascadia Code (ships as
-  `CaskaydiaCove` from Nerd Fonts), GitHub Monaspace (Neon variant),
-  and Iosevka are installed alongside. `font-set <name>` (fish function)
-  flips a machine-local symlink `~/.config/ghostty/font.ghostty` →
-  one of `font-{jetbrains,fira,cascadia,monaspace,iosevka}.ghostty`
-  (each is a one-liner `font-family = ...`). `config.ghostty` pulls
-  the active family via `config-file = font.ghostty`; `font-size` and
-  `font-thicken` stay there (shared across fonts). `ghostty +reload`
-  fires live. All five casks are pinned in the `Brewfile`. Bootstrap's
-  "don't clobber" guard preserves any prior `font-set` pick across
-  re-runs. Add a new font: drop a new `font-<short>.ghostty` next to
-  the others, append the cask to `Brewfile`, extend the `switch` in
-  `font-set.fish` + its completion. No nvim/tmux/bat coupling — font
-  is a Ghostty-only concern.
+- **Switchable Ghostty fonts — 10 Nerd Fonts, optional weight + size.**
+  JetBrains Mono is the default. Five with ligatures: `jetbrains`,
+  `fira`, `cascadia` (ships as `CaskaydiaCove`), `monaspace` (Neon
+  variant, ships as `Monaspice`), `iosevka`. Five classics, no
+  ligatures: `hack`, `meslo` (MesloLGS, Powerlevel10k's default),
+  `sauce` (Source Code Pro, ships as `SauceCodePro`), `ubuntu`
+  (UbuntuMono), `inconsolata`. `font-set <name> [<weight>] [<size>]`
+  (fish function) flips a machine-local symlink
+  `~/.config/ghostty/font.ghostty` → one of the per-font include files
+  (each a one-liner `font-family = ...`). When `<weight>` is given
+  (must match a style the font actually advertises — see
+  `__font_set_weights_for` for the per-font list), it rewrites
+  `~/.config/ghostty/font-weight.ghostty` with `font-style = <weight>`.
+  When `<size>` is given (positive int or decimal, e.g. `14`, `13.5`),
+  it rewrites the machine-local real file
+  `~/.config/ghostty/font-size.ghostty` with `font-size = <size>`.
+  Omit either to keep the current value. Weight comes before size
+  because it changes more often than size in practice.
+  `config.ghostty` pulls family + size + weight via three `config-file
+  = ...` directives; `font-thicken` stays there (shared across fonts).
+  `ghostty +reload` fires live. All ten casks are pinned in `Brewfile`.
+  Bootstrap seeds `font-size.ghostty` at `font-size = 14` and
+  `font-weight.ghostty` as a comment-only file (so Ghostty falls back
+  to each font's own Regular) on first run; "don't clobber" guards
+  preserve any prior `font-set` pick across re-runs. Per-font weight
+  lists live in the fish helper `__font_set_weights_for.fish` (sourced
+  by both validation and 3rd-arg completion), populated from
+  `ghostty +list-fonts` — FiraCode is the odd one out, advertising
+  abbreviated style names (`Reg`, `Med`, `SemBd`, `Ret`). Add a new
+  font: drop a new `font-<short>.ghostty` next to the others, append
+  the cask to `Brewfile`, extend the `switch` in `font-set.fish` + its
+  1st-arg completion + `__font_set_weights_for`. No nvim/tmux/bat
+  coupling — font is a Ghostty-only concern.
 - **Starship pastel accent — per theme.** Solarized keeps the
   `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
   "personal" accent); Dracula uses `#ff79c6` (Dracula pink). Defined

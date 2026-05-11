@@ -1,0 +1,3 @@
+# Hack Nerd Font — popular open-source classic; no ligatures.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set hack).
+font-family = Hack Nerd Font Mono

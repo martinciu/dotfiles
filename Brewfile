@@ -65,3 +65,8 @@ cask "font-fira-code-nerd-font"       # popular ligature font; widest ligature s
 cask "font-caskaydia-cove-nerd-font"  # Cascadia Code (Nerd Fonts rename); Windows Terminal default
 cask "font-monaspice-nerd-font"       # GitHub Monaspace (Nerd Fonts ships it as "Monaspice"); texture healing, multi-style superfamily
 cask "font-iosevka-nerd-font"         # narrow, sharp on Retina; more columns per window
+cask "font-hack-nerd-font"            # popular open-source classic; no ligatures
+cask "font-meslo-lg-nerd-font"        # Powerlevel10k's recommended default
+cask "font-sauce-code-pro-nerd-font"  # Adobe Source Code Pro (Nerd Fonts rename: SauceCodePro)
+cask "font-ubuntu-mono-nerd-font"     # Canonical's monospace; distinctive curves
+cask "font-inconsolata-nerd-font"     # Raph Levien's humanist classic
