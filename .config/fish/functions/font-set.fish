@@ -37,11 +37,9 @@ function font-set --description 'Switch Ghostty font (and optionally weight, siz
     # Flip family symlink. -sfn replaces the link atomically.
     ln -sfn font-$name.ghostty ~/.config/ghostty/font.ghostty
 
-    # Live reload. Swallowed silently because ghostty may not be running.
-    ghostty +reload 2>/dev/null
-
     set -l msg "font → $name"
     set -q argv[2]; and test -n "$weight"; and set msg "$msg (weight $weight)"
     set -q argv[3]; and test -n "$size";   and set msg "$msg (size $size)"
     echo $msg
+    echo "  ghostty: "(__ghostty_reload)
 end
