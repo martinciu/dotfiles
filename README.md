@@ -133,13 +133,17 @@ The function flips per-tool symlinks under `~/.config/themes/`,
 `~/.config/lnav/configs/installed/theme.json`, plus a
 `delta-current.gitconfig` snippet included via the gitconfig
 `include.path` directive set up during `Setup` above. It also sets
-`$BAT_THEME` as a fish universal variable.
+`$BAT_THEME` and `$VIVID_THEME` as fish universal variables (read by
+bat and `vivid generate` at shell start, respectively). fzf colors are
+palette-symbolic in `FZF_DEFAULT_OPTS` and auto-adapt via Ghostty's
+16-color palette — no env var needed.
 
 **Reloads live:** tmux (status bar + helpers, instant), ghostty,
 starship (next prompt render), glow, delta (next `git diff`).
 
-**Needs restart:** open shells (`$BAT_THEME` is read at process start),
-nvim, gh-dash, lnav.
+**Needs restart:** open shells (`$BAT_THEME` and `$VIVID_THEME` are
+read at fish startup; affects bat + ls/eza file colors), nvim,
+gh-dash, lnav.
 
 **Add another theme:** drop a new `.config/themes/<name>.tmux` palette
 file (mirror the role keys from the existing palettes) plus per-tool
