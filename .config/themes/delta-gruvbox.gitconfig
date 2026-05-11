@@ -1,0 +1,10 @@
+# Gruvbox Dark Medium delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. plus/minus emph hex are hand-derived from Gruvbox's
+# green (#98971a) and red (#cc241d). bat 0.26+ ships `gruvbox-dark` built-in
+# (lowercase, hyphen — verified case-sensitive).
+[delta]
+    syntax-theme = gruvbox-dark
+    plus-style = "syntax #2b3a1a"
+    minus-style = "syntax #4d1414"
+    plus-emph-style = "syntax #3a5400"
+    minus-emph-style = "syntax #7a1116"
