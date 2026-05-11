@@ -15,9 +15,12 @@
 set -e
 pwd_in="${1:-$PWD}"
 
-bar_bg='#073642'   # base02 — status bar background
-pr_bg='#cb4b16'    # orange — PR pin
-pr_fg='#fdf6e3'    # base3  — PR pin foreground
+# Colours read from tmux @color_* options (see ~/.config/themes/*.tmux).
+# Solarized hex retained as fallback so the helper still works when invoked
+# outside a tmux server (e.g. from scripts/test-helpers.sh).
+bar_bg="$(tmux show-option -gv @color_bar_bg          2>/dev/null)"; : "${bar_bg:=#073642}"
+pr_bg="$(tmux show-option  -gv @color_accent_orange   2>/dev/null)"; : "${pr_bg:=#cb4b16}"
+pr_fg="$(tmux show-option  -gv @color_light_fg        2>/dev/null)"; : "${pr_fg:=#fdf6e3}"
 helper_dir="$(dirname "${BASH_SOURCE[0]}")"
 
 # Powerline rounded left cap (U+E0B6) and nf-oct-git_pull_request (U+F407)
