@@ -234,6 +234,21 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   any prior `theme-set mocha` pick across re-runs. Out of v1:
   `btop`/`procs`/`vivid`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
+- **Switchable Ghostty fonts — Nerd Fonts with ligatures.** JetBrains
+  Mono is the default; Fira Code, Cascadia Code (ships as
+  `CaskaydiaCove` from Nerd Fonts), GitHub Monaspace (Neon variant),
+  and Iosevka are installed alongside. `font-set <name>` (fish function)
+  flips a machine-local symlink `~/.config/ghostty/font.ghostty` →
+  one of `font-{jetbrains,fira,cascadia,monaspace,iosevka}.ghostty`
+  (each is a one-liner `font-family = ...`). `config.ghostty` pulls
+  the active family via `config-file = font.ghostty`; `font-size` and
+  `font-thicken` stay there (shared across fonts). `ghostty +reload`
+  fires live. All five casks are pinned in the `Brewfile`. Bootstrap's
+  "don't clobber" guard preserves any prior `font-set` pick across
+  re-runs. Add a new font: drop a new `font-<short>.ghostty` next to
+  the others, append the cask to `Brewfile`, extend the `switch` in
+  `font-set.fish` + its completion. No nvim/tmux/bat coupling — font
+  is a Ghostty-only concern.
 - **Starship pastel accent — per theme.** Solarized keeps the
   `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
   "personal" accent). Defined in each starship config's
