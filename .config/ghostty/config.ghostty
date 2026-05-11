@@ -2,12 +2,10 @@
 # (boolean parsing is strict); comments must live on their own lines.
 
 # ─── Theme ────────────────────────────────────
-theme = Solarized Dark Patched
-
-# Solarized's default selection colors are hard to read against the
-# background; force a more legible pairing.
-selection-foreground = #002b36
-selection-background = #93a1a1
+# Theme + theme-specific overrides live in theme.ghostty (machine-local
+# symlink → theme-solarized.ghostty | theme-mocha.ghostty). Swap via
+# `theme-set <name>`; reload via cmd+ctrl+shift+r or `ghostty +reload`.
+config-file = theme.ghostty
 
 # ─── Font ─────────────────────────────────────
 font-family = JetBrainsMono Nerd Font Mono

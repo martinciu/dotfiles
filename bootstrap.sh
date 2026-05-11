@@ -96,8 +96,13 @@ seed_local() {
   fi
 }
 
-# --- ghostty (already done; idempotent re-link)
-link ".config/ghostty" "$HOME/.config/ghostty"
+# --- ghostty
+# ~/.config/ghostty/ is a real dir; tracked entries are individually
+# symlinked. Active-theme symlink theme.ghostty is machine-local.
+prepare_real_dir "$HOME/.config/ghostty"
+link_tracked_entries ".config/ghostty" "$HOME/.config/ghostty"
+[ -L "$HOME/.config/ghostty/theme.ghostty" ] \
+    || ln -sfn theme-solarized.ghostty "$HOME/.config/ghostty/theme.ghostty"
 
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"

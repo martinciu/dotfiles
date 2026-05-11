@@ -1,0 +1,8 @@
+# Solarized Dark theme + Solarized-tuned selection colours.
+# Active when ~/.config/ghostty/theme.ghostty → this file (theme-set solarized).
+theme = Solarized Dark Patched
+
+# Solarized's default selection colors are hard to read against the
+# background; force a more legible pairing.
+selection-foreground = #002b36
+selection-background = #93a1a1
