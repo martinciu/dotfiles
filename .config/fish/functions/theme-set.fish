@@ -1,0 +1,40 @@
+function theme-set --description 'Switch colour scheme between solarized and mocha'
+    set -l name $argv[1]
+    switch $name
+        case solarized mocha
+            # OK
+        case '*'
+            echo "Usage: theme-set <solarized|mocha>" >&2
+            return 1
+    end
+
+    set -l bat_theme
+    if test $name = mocha
+        set bat_theme "Catppuccin Mocha"
+    else
+        set bat_theme "Solarized (dark)"
+    end
+
+    # Flip symlinks. -sfn replaces the link atomically.
+    ln -sfn $name.tmux              ~/.config/themes/current.tmux
+    ln -sfn delta-$name.gitconfig   ~/.config/themes/delta-current.gitconfig
+    ln -sfn theme-$name.ghostty     ~/.config/ghostty/theme.ghostty
+    ln -sfn starship-$name.toml     ~/.config/starship.toml
+    ln -sfn glamour-$name.json      ~/.config/glow/glamour.json
+    ln -sfn config-$name.yml        ~/.config/gh-dash/config.yml
+    ln -sfn theme-$name.json        ~/.config/lnav/configs/installed/theme.json
+
+    # Persisted env var; survives shell restarts. Open shells need new
+    # session to pick up the value.
+    set -Ux BAT_THEME $bat_theme
+
+    # Live reloads. All swallowed silently because the tool may not be
+    # running (e.g. ghostty in a different session, no tmux server yet).
+    tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null
+    tmux refresh-client -S                    2>/dev/null
+    ghostty +reload                           2>/dev/null
+
+    echo "theme → $name"
+    echo "  live:    tmux + helpers, ghostty, starship (next prompt), glow, delta"
+    echo "  restart: bat (new shells for \$BAT_THEME), nvim, gh-dash, lnav"
+end
