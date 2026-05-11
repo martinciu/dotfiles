@@ -98,11 +98,15 @@ seed_local() {
 
 # --- ghostty
 # ~/.config/ghostty/ is a real dir; tracked entries are individually
-# symlinked. Active-theme symlink theme.ghostty is machine-local.
+# symlinked. Active-theme and active-font symlinks (theme.ghostty,
+# font.ghostty) are machine-local — created only if missing so prior
+# `theme-set` / `font-set` picks survive re-running bootstrap.
 prepare_real_dir "$HOME/.config/ghostty"
 link_tracked_entries ".config/ghostty" "$HOME/.config/ghostty"
 [ -L "$HOME/.config/ghostty/theme.ghostty" ] \
     || ln -sfn theme-solarized.ghostty "$HOME/.config/ghostty/theme.ghostty"
+[ -L "$HOME/.config/ghostty/font.ghostty" ] \
+    || ln -sfn font-jetbrains.ghostty "$HOME/.config/ghostty/font.ghostty"
 
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"

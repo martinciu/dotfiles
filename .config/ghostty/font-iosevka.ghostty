@@ -1,0 +1,3 @@
+# Iosevka Nerd Font — narrow, ligatures by default.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set iosevka).
+font-family = Iosevka Nerd Font Mono

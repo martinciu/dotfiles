@@ -1,0 +1,5 @@
+complete -c font-set -f -n '__fish_is_first_token' -a jetbrains -d 'JetBrains Mono Nerd Font (default)'
+complete -c font-set -f -n '__fish_is_first_token' -a fira      -d 'FiraCode Nerd Font'
+complete -c font-set -f -n '__fish_is_first_token' -a cascadia  -d 'Cascadia Code (CaskaydiaCove Nerd Font)'
+complete -c font-set -f -n '__fish_is_first_token' -a monaspace -d 'GitHub Monaspace (Neon variant)'
+complete -c font-set -f -n '__fish_is_first_token' -a iosevka   -d 'Iosevka Nerd Font'

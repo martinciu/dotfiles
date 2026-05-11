@@ -8,7 +8,10 @@
 config-file = theme.ghostty
 
 # ─── Font ─────────────────────────────────────
-font-family = JetBrainsMono Nerd Font Mono
+# Font family lives in font.ghostty (machine-local symlink →
+# font-{jetbrains,fira,cascadia,monaspace,iosevka}.ghostty). Swap via
+# `font-set <name>`; reload via cmd+ctrl+shift+r or `ghostty +reload`.
+config-file = font.ghostty
 font-size = 14
 # Slightly bolder strokes on macOS retina.
 font-thicken = true

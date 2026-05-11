@@ -59,5 +59,9 @@ brew "duf"                      # modern df replacement (grouped, color-coded)
 brew "dust"                     # tree-style du replacement (largest-first, bar graphs)
 brew "hyperfine"                # command benchmarking (warmups, multi-run stats)
 
-# Fonts
-cask "font-jetbrains-mono-nerd-font"  # Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
+# Fonts — JetBrains Mono is the default; others are switchable via `font-set`
+cask "font-jetbrains-mono-nerd-font"  # default; Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
+cask "font-fira-code-nerd-font"       # popular ligature font; widest ligature set
+cask "font-caskaydia-cove-nerd-font"  # Cascadia Code (Nerd Fonts rename); Windows Terminal default
+cask "font-monaspice-nerd-font"       # GitHub Monaspace (Nerd Fonts ships it as "Monaspice"); texture healing, multi-style superfamily
+cask "font-iosevka-nerd-font"         # narrow, sharp on Retina; more columns per window
