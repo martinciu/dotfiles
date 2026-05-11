@@ -115,6 +115,37 @@ These drive the `claude[<name>]` window title (tmux's
 | [Claude](https://claude.com/claude-code) | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
 
+## Switching themes
+
+Two themes are wired: **Solarized Dark** (default) and **Catppuccin Mocha**.
+Swap via the fish function `theme-set`:
+
+```fish
+theme-set mocha       # switch to Catppuccin Mocha
+theme-set solarized   # switch back
+```
+
+The function flips per-tool symlinks under `~/.config/themes/`,
+`~/.config/ghostty/theme.ghostty`, `~/.config/starship.toml`,
+`~/.config/glow/glamour.json`, `~/.config/gh-dash/config.yml`,
+`~/.config/lnav/configs/installed/theme.json`, plus a
+`delta-current.gitconfig` snippet included via the gitconfig
+`include.path` directive set up during `Setup` above. It also sets
+`$BAT_THEME` as a fish universal variable.
+
+**Reloads live:** tmux (status bar + helpers, instant), ghostty,
+starship (next prompt render), glow, delta (next `git diff`).
+
+**Needs restart:** open shells (`$BAT_THEME` is read at process start),
+nvim, gh-dash, lnav.
+
+**Add a third theme:** drop a new `.config/themes/<name>.tmux` palette
+file (mirror the role keys from the existing palettes) plus per-tool
+`*-<name>.<ext>` variant configs, then extend the `switch` statement
+in `.config/fish/functions/theme-set.fish`.
+
+Smoke test: `scripts/test-theme-switch.sh`.
+
 ## Keymaps quick-ref
 
 - tmux prefix: `C-a`
