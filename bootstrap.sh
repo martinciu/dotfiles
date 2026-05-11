@@ -128,6 +128,16 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
+# --- gh-dash (TUI for PRs/issues/notifications; Solarized theme)
+link ".config/gh-dash" "$HOME/.config/gh-dash"
+
+# --- gh extensions (idempotent; needs `gh` from brew, no `gh auth` required)
+if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
+  echo "🧩 installing gh dash..."
+  gh extension install dlvhdr/gh-dash || \
+    echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
+fi
+
 # --- lnav (TUI log navigator; only installed/ subdirs are symlinked from repo)
 # lnav writes its built-in samples (configs/default, formats/default), crash
 # dumps, staging area, log_metadata.db, view-info-*.json, and :config-written

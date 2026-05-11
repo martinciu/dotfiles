@@ -308,6 +308,19 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
   `.config/lnav/formats/installed/<name>.json`; one tracked:
   `inngest.json` for `inngest-cli dev` JSON-per-line stdout. `lnav -i`
   writes into `installed/` and therefore the repo (intended).
+- **`gh dash` is the GitHub TUI** (raw command; `ghd` abbr in
+  `35-abbreviations.fish`). Solarized Dark via `theme.colors` in
+  `.config/gh-dash/config.yml`, standard base16 semantic mapping
+  (`text.primary` = base0, `background.selected` = base02, etc.).
+  Whole-dir symlink (matches btop/glow/xh shape). Bootstrap auto-installs
+  the extension idempotently (`gh extension list | grep -q '^gh dash'`
+  guard); install failure prints a warning, doesn't abort. No `gh auth`
+  required — `gh extension install` clones a public repo. Sections
+  (PRs / issues / notifications), layout, refetch intervals adopted
+  verbatim from the prior machine-local config — don't bikeshed them
+  here. If gh-dash ever starts writing cache/state inside
+  `~/.config/gh-dash/`, switch to the mixed-dir pattern (cf.
+  fish/nvim/worktrunk).
 - **`diff` aliased to `difft`** (guarded). For ad-hoc, non-git
   comparisons. Git diffs unaffected (still `delta`); `vimdiff`
   unaffected (separate alias). Escape: `command diff`, `\diff`,
@@ -346,8 +359,8 @@ Personal Solarized + JetBrainsMono Nerd Font setup for Ghostty + tmux + vim + fi
 ## Where things live
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir per tool:
-  `btop`, `ccstatusline`, `fish`, `ghostty`, `glow`, `nvim`, `procs`,
-  `tailspin`, `tmux`, `worktrunk`, `xh`; plus `starship.toml`,
+  `btop`, `ccstatusline`, `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`,
+  `procs`, `tailspin`, `tmux`, `worktrunk`, `xh`; plus `starship.toml`,
   partial links for `sesh/sesh.toml` and `lnav/{configs,formats}/installed`),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
   `bin/` files symlink to `~/.local/bin/`.

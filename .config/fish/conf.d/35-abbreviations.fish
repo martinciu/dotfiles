@@ -30,3 +30,6 @@ abbr -a gl    git log
 abbr -a glo   git log --oneline
 abbr -a gss   git stash
 abbr -a grb   git rebase
+
+# GitHub TUI dashboard (gh extension; installed by bootstrap.sh)
+abbr -a ghd   gh dash
