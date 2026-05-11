@@ -150,8 +150,13 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
-# --- gh-dash (TUI for PRs/issues/notifications; Solarized theme)
-link ".config/gh-dash" "$HOME/.config/gh-dash"
+# --- gh-dash (TUI for PRs/issues/notifications; switchable theme)
+# ~/.config/gh-dash/ is a real dir; tracked entries (config-{solarized,mocha}.yml)
+# are individually symlinked. Active config.yml is a machine-local symlink.
+prepare_real_dir "$HOME/.config/gh-dash"
+link_tracked_entries ".config/gh-dash" "$HOME/.config/gh-dash"
+[ -L "$HOME/.config/gh-dash/config.yml" ] \
+    || ln -sfn config-solarized.yml "$HOME/.config/gh-dash/config.yml"
 
 # --- gh extensions (idempotent; needs `gh` from brew, no `gh auth` required)
 if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
