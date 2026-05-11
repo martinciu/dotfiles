@@ -1,0 +1,4 @@
+# Gruvbox Dark Medium — Ghostty 1.0+ built-in. Theme name is
+# case-sensitive and uses a space (not a hyphen).
+# Active when ~/.config/ghostty/theme.ghostty → this file (theme-set gruvbox).
+theme = Gruvbox Dark
