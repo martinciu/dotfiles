@@ -2,7 +2,7 @@
 
 palette = "catppuccin_mocha"
 
-format = """$directory[](fg:pastel_rose)
+format = """$directory[](fg:pastel_rose)
 $character"""
 
 right_format = "$status$cmd_duration"
@@ -41,7 +41,10 @@ frame    = "#6c7086"   # overlay0 — muted frame
 # Catppuccin canonical "personal" accent is pink.
 pastel_rose = "#f5c2e7"
 # Alias so the prompt format below stays portable across themes.
-base3       = "#cdd6f4"
+# base3 here is dark (#11111b crust) — chip-text inversion for
+# pastel chip bgs (pastel_rose). Solarized uses light text on its saturated
+# rose; Mocha needs dark text on its pastel rose.
+base3       = "#11111b"
 
 [directory]
 format = "[ $path ]($style)"
