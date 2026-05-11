@@ -43,14 +43,12 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     set -Ux BAT_THEME $bat_theme
     set -Ux VIVID_THEME $vivid_theme
 
-    # Live reloads. All swallowed silently because the tool may not be
-    # running (e.g. ghostty in a different session, no tmux server yet).
+    # tmux: re-source config + force status redraw (silent if no server).
     tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null
     tmux refresh-client -S                    2>/dev/null
-    ghostty +reload                           2>/dev/null
 
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
-    echo "  ghostty: cmd+ctrl+shift+r in Ghostty (ghostty +reload was already attempted)"
+    echo "  ghostty: "(__ghostty_reload)
     echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
 end
