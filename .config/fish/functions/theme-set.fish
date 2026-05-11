@@ -38,6 +38,7 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     ghostty +reload                           2>/dev/null
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, ghostty, starship (next prompt), glow, delta"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
+    echo "  ghostty: cmd+ctrl+shift+r in Ghostty (ghostty +reload was already attempted)"
     echo "  restart: bat (new shells for \$BAT_THEME), nvim, gh-dash, lnav"
 end
