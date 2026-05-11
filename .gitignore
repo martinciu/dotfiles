@@ -9,6 +9,9 @@
 # LazyVim per-machine state (tracks read news + extras opt-ins)
 .config/nvim/lazyvim.json
 
+# Lazy.nvim plugin lockfile — auto-updated on every :Lazy update; diffs are noise, not signal
+.config/nvim/lazy-lock.json
+
 # worktrunk runtime state — per-project hook approvals are machine-local
 .config/worktrunk/approvals.toml
 
