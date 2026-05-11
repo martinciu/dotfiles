@@ -6,7 +6,10 @@ set -g @color_bar_bg          "#1e1e2e"
 set -g @color_deep_bg         "#11111b"
 set -g @color_default_fg      "#cdd6f4"
 set -g @color_muted_fg        "#6c7086"
-set -g @color_light_fg        "#cdd6f4"
+# light_fg here is dark (#11111b crust) — Mocha's chip-text inversion: pastel
+# chip bgs (mauve/peach/blue/green/yellow) read better with dark text than
+# light. The role name is shared with Solarized, but the value is theme-tuned.
+set -g @color_light_fg        "#11111b"
 
 # Accents
 set -g @color_accent_yellow   "#f9e2af"
