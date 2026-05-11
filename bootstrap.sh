@@ -102,6 +102,18 @@ link ".config/ghostty" "$HOME/.config/ghostty"
 # --- tmux
 link ".config/tmux"    "$HOME/.config/tmux"
 
+# --- themes (Solarized Dark + Catppuccin Mocha; switchable via theme-set)
+# ~/.config/themes/ is a real dir; tracked palette files individually
+# symlinked. Active-theme symlinks (current.tmux, delta-current.gitconfig)
+# are machine-local — created only if missing so a prior `theme-set` pick
+# survives re-running bootstrap.
+prepare_real_dir "$HOME/.config/themes"
+link_tracked_entries ".config/themes" "$HOME/.config/themes"
+[ -L "$HOME/.config/themes/current.tmux" ] \
+    || ln -sfn solarized.tmux "$HOME/.config/themes/current.tmux"
+[ -L "$HOME/.config/themes/delta-current.gitconfig" ] \
+    || ln -sfn delta-solarized.gitconfig "$HOME/.config/themes/delta-current.gitconfig"
+
 # --- ccstatusline
 link ".config/ccstatusline" "$HOME/.config/ccstatusline"
 
