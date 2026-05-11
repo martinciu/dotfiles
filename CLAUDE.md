@@ -409,6 +409,7 @@ is `nvim-cheatsheet.html`).
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
+- Theme switch smoke: `scripts/test-theme-switch.sh`
 
 ## First-time setup on a new machine
 
