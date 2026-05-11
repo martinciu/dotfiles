@@ -117,12 +117,13 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## Switching themes
 
-Three themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, and **Dracula**.
+Four themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, and **Gruvbox Dark Medium**.
 Swap via the fish function `theme-set`:
 
 ```fish
 theme-set mocha       # switch to Catppuccin Mocha
 theme-set dracula     # switch to Dracula
+theme-set gruvbox     # switch to Gruvbox Dark Medium
 theme-set solarized   # switch back
 ```
 
@@ -140,7 +141,7 @@ starship (next prompt render), glow, delta (next `git diff`).
 **Needs restart:** open shells (`$BAT_THEME` is read at process start),
 nvim, gh-dash, lnav.
 
-**Add a third theme:** drop a new `.config/themes/<name>.tmux` palette
+**Add another theme:** drop a new `.config/themes/<name>.tmux` palette
 file (mirror the role keys from the existing palettes) plus per-tool
 `*-<name>.<ext>` variant configs, then extend the `switch` statement
 in `.config/fish/functions/theme-set.fish`.
