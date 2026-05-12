@@ -41,5 +41,9 @@ function font-set --description 'Switch Ghostty font (and optionally weight, siz
     set -q argv[2]; and test -n "$weight"; and set msg "$msg (weight $weight)"
     set -q argv[3]; and test -n "$size";   and set msg "$msg (size $size)"
     echo $msg
-    echo "  ghostty: "(__ghostty_reload)
+
+    # Fire the ghostty config reload (cmd+ctrl+shift+r via System Events when
+    # Ghostty is frontmost). Discard the helper's info line — the reload still
+    # happens as a side effect; the printed "how to" was just noise.
+    __ghostty_reload >/dev/null
 end
