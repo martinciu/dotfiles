@@ -81,6 +81,27 @@ return {
       end
     end,
   },
+  -- Tokyo Night (new — loaded when theme.lua resolves to tokyonight-storm).
+  {
+    "folke/tokyonight.nvim",
+    name = "tokyonight",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      style = "storm",
+      transparent = false,
+      styles = {
+        comments = { italic = true },
+        keywords = { italic = true },
+      },
+    },
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
+      if current == "tokyonight-storm" then
+        vim.cmd.colorscheme("tokyonight-storm")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",

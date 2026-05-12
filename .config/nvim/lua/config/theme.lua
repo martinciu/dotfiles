@@ -4,6 +4,7 @@
 --   "catppuccin-mocha"
 --   "dracula"
 --   "gruvbox"
+--   "tokyonight-storm"
 local M = {}
 
 function M.current()
@@ -15,6 +16,8 @@ function M.current()
       return "dracula"
     elseif link:match("gruvbox") then
       return "gruvbox"
+    elseif link:match("tokyo%-night") then
+      return "tokyonight-storm"
     end
   end
   return "solarized"
