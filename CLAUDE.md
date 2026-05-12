@@ -220,11 +220,15 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `*-tokyo-night.<ext>` and live alongside their tool's config —
   `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.ghostty`,
   `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
-  `.config/gh-dash/config-{solarized,mocha,dracula,gruvbox,tokyo-night}.yml`,
+  `.config/gh-dash/theme-colors-{solarized,mocha,dracula,gruvbox,tokyo-night}.yml`
+  (alongside the shared `.config/gh-dash/config-base.yml`),
   `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
   `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night}.toml`. The active
   variant is picked via a machine-local symlink at the tool's normal
-  config path. tmux uses `@color_*` user options (set in the palette
+  config path. gh-dash is the one exception: its live `config.yml` is a
+  generated real file (`cat config-base.yml theme-colors-<name>.yml > config.yml`)
+  because gh-dash doesn't support YAML includes or anchor-merging — see
+  the dedicated `gh dash` bullet below. tmux uses `@color_*` user options (set in the palette
   file, sourced by `tmux.conf` via
   `source-file -F '#{HOME}/.config/themes/current.tmux'`) read by both
   `tmux.conf` (`#{@color_*}` interpolation) and helper scripts
@@ -426,18 +430,33 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `view-info-*.json`, `config.json`). Don't re-introduce a whole-dir
   symlink on the top-level dir (issue #64).
 - **`gh dash` is the GitHub TUI** (raw command; `ghd` abbr in
-  `35-abbreviations.fish`). Solarized Dark via `theme.colors` in
-  `.config/gh-dash/config.yml`, standard base16 semantic mapping
+  `35-abbreviations.fish`). Mixed-dir layout under `.config/gh-dash/`:
+  `config-base.yml` holds the shared schema (sections, defaults, layout,
+  pager, etc., **no `theme:` key**), and `theme-colors-{solarized,mocha,
+  dracula,gruvbox,tokyo-night}.yml` each hold *only* the top-level `theme:`
+  block (both `colors` and the small `ui` block — `ui` duplicates 5× and
+  that's accepted, since YAML can't merge two `theme:` keys after
+  concatenation). PR section is a single `Open` view (`is:open`); issues
+  has `Open` (`is:open`) + `v0.1.0` (`is:open milestone:"v0.1.0"`); don't
+  re-fragment by author/reviewer/assignee. The active
+  `~/.config/gh-dash/config.yml` is a **generated real file**, not a
+  symlink — `theme-set <name>` writes it via
+  `cat config-base.yml theme-colors-<name>.yml > config.yml`. Plain
+  `cat` works because the base has no `theme:` key; **don't add `yq` or
+  a merge engine**. Don't introduce a top-level `theme:` into
+  `config-base.yml`; the smoke test (`scripts/test-theme-switch.sh`)
+  catches that by asserting exactly one `^theme:` line in the generated
+  file. `bootstrap.sh` seeds the live `config.yml` on first run only
+  (Solarized default; subsequent runs preserve a prior `theme-set`
+  pick) and removes legacy `config-<name>.yml` symlinks from the
+  pre-dedup shape. Bootstrap auto-installs the extension idempotently
+  (`gh extension list | grep -q '^gh dash'` guard); install failure
+  prints a warning, doesn't abort. No `gh auth` required — `gh extension
+  install` clones a public repo. Color mapping stays standard base16
   (`text.primary` = base0, `background.selected` = base02, etc.).
-  Whole-dir symlink (matches btop/glow/xh shape). Bootstrap auto-installs
-  the extension idempotently (`gh extension list | grep -q '^gh dash'`
-  guard); install failure prints a warning, doesn't abort. No `gh auth`
-  required — `gh extension install` clones a public repo. Sections
-  (PRs / issues / notifications), layout, refetch intervals adopted
-  verbatim from the prior machine-local config — don't bikeshed them
-  here. If gh-dash ever starts writing cache/state inside
-  `~/.config/gh-dash/`, switch to the mixed-dir pattern (cf.
-  fish/nvim/worktrunk).
+  If gh-dash ever starts writing cache/state inside
+  `~/.config/gh-dash/`, the mixed-dir pattern already accommodates it
+  (`link_tracked_entries` only touches tracked files).
 - **`diff` aliased to `difft`** (guarded). For ad-hoc, non-git
   comparisons. Git diffs unaffected (still `delta`); `vimdiff`
   unaffected (separate alias). Escape: `command diff`, `\diff`,

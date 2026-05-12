@@ -36,8 +36,15 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     ln -sfn theme-$name.ghostty     ~/.config/ghostty/theme.ghostty
     ln -sfn starship-$name.toml     ~/.config/starship.toml
     ln -sfn glamour-$name.json      ~/.config/glow/glamour.json
-    ln -sfn config-$name.yml        ~/.config/gh-dash/config.yml
     ln -sfn theme-$name.json        ~/.config/lnav/configs/installed/theme.json
+
+    # gh-dash live config is a generated real file, not a symlink.
+    # base.yml has no `theme:` key; theme-colors-$name.yml has only `theme:` —
+    # plain concatenation produces valid YAML, no merge engine needed.
+    cat \
+        ~/.config/gh-dash/config-base.yml \
+        ~/.config/gh-dash/theme-colors-$name.yml \
+        > ~/.config/gh-dash/config.yml
 
     # Persisted env vars; survive shell restarts. Open shells need new
     # session to pick up the values. BAT_THEME is read by bat at startup;
