@@ -246,11 +246,12 @@ link ".vim/colors"     "$HOME/.vim/colors"
 mkdir -p "$HOME/.vim/undo" "$HOME/.vim/backup" "$HOME/.vim/swap"
 
 # --- starship (prompt; fish opts into transient prompt — see CLAUDE.md)
-# Four variant configs tracked; active one symlinked machine-locally.
-link ".config/starship-solarized.toml" "$HOME/.config/starship-solarized.toml"
-link ".config/starship-mocha.toml"     "$HOME/.config/starship-mocha.toml"
-link ".config/starship-dracula.toml"   "$HOME/.config/starship-dracula.toml"
-link ".config/starship-gruvbox.toml"   "$HOME/.config/starship-gruvbox.toml"
+# Five variant configs tracked; active one symlinked machine-locally.
+link ".config/starship-solarized.toml"   "$HOME/.config/starship-solarized.toml"
+link ".config/starship-mocha.toml"       "$HOME/.config/starship-mocha.toml"
+link ".config/starship-dracula.toml"     "$HOME/.config/starship-dracula.toml"
+link ".config/starship-gruvbox.toml"     "$HOME/.config/starship-gruvbox.toml"
+link ".config/starship-tokyo-night.toml" "$HOME/.config/starship-tokyo-night.toml"
 [ -L "$HOME/.config/starship.toml" ] \
     || ln -sfn starship-solarized.toml "$HOME/.config/starship.toml"
 
