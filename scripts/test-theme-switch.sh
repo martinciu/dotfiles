@@ -61,6 +61,11 @@ assert_gh_dash_config() {
 REPO="${REPO:-$PROJECTS_HOME/dotfiles}"
 THEME_SET_FN="$REPO/.config/fish/functions/theme-set.fish"
 
+# Suppress the live Ghostty reload (`__ghostty_reload`) — the test runs from
+# a Ghostty window, so without this every theme-set call fires
+# cmd+ctrl+shift+r at the user's real session.
+export FISH_DOTFILES_TEST=1
+
 run_theme_set() {
     # Source the function from the repo so the test works regardless of
     # whether ~/.config/fish/functions/theme-set.fish has been wired yet
