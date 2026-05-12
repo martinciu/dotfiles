@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox via `theme-set`) and multi-font (10 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
+Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm via `theme-set`) and multi-font (10 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
@@ -117,14 +117,15 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## Switching themes
 
-Four themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, and **Gruvbox Dark Medium**.
+Five themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, **Gruvbox Dark Medium**, and **Tokyo Night Storm**.
 Swap via the fish function `theme-set`:
 
 ```fish
-theme-set mocha       # switch to Catppuccin Mocha
-theme-set dracula     # switch to Dracula
-theme-set gruvbox     # switch to Gruvbox Dark Medium
-theme-set solarized   # switch back
+theme-set mocha        # switch to Catppuccin Mocha
+theme-set dracula      # switch to Dracula
+theme-set gruvbox      # switch to Gruvbox Dark Medium
+theme-set tokyo-night  # switch to Tokyo Night Storm
+theme-set solarized    # switch back
 ```
 
 The function flips per-tool symlinks under `~/.config/themes/`,
