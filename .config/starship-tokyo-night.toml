@@ -1,0 +1,60 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+palette = "tokyo-night"
+
+format = """$directory[](fg:pastel_rose)
+$character"""
+
+right_format = "$status$cmd_duration"
+
+[palettes.tokyo-night]
+# Tokyo Night Storm palette — see ../themes/tokyo-night.tmux for the same
+# semantic roles expressed as tmux user options. Names mirror folke's
+# canonical role-color vocabulary.
+bg           = "#24283b"
+bg_darker    = "#1a1b26"
+bg_lighter   = "#414868"
+selection    = "#364a82"
+fg           = "#c0caf5"
+comment      = "#565f89"
+red          = "#f7768e"
+orange       = "#ff9e64"
+yellow       = "#e0af68"
+green        = "#9ece6a"
+cyan         = "#7dcfff"
+purple       = "#bb9af7"
+pink         = "#f7768e"   # no distinct pink in the palette; reuse red
+frame        = "#565f89"   # comment — muted frame
+# Personal accent — per-theme equivalent of Solarized's #DA627D pastel
+# rose and Dracula's pink. Tokyo Night canonical analogue is its red,
+# which reads as coral/pink.
+pastel_rose = "#f7768e"
+# Alias so the prompt format below stays portable across themes.
+# base3 here is dark (#24283b = Storm bg) — chip-text inversion for
+# Tokyo Night's pastel-ish accents. Matches Mocha/Dracula/Gruvbox;
+# diverges from Solarized's light-on-saturated.
+base3       = "#24283b"
+
+[directory]
+format = "[ $path ]($style)"
+style  = "fg:base3 bg:pastel_rose"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[character]
+success_symbol = "[❯](bold fg:pastel_rose)"
+error_symbol   = "[❯](bold fg:pastel_rose)"
+vicmd_symbol   = "[❮](bold fg:pastel_rose)"
+
+[cmd_duration]
+min_time = 2000
+format   = "[ $duration]($style) "
+style    = "fg:pastel_rose"
+
+[status]
+disabled = false
+format   = "[✘ $status]($style) "
+style    = "fg:pastel_rose"
+
+[jobs]
+disabled = true

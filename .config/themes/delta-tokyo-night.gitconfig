@@ -1,0 +1,12 @@
+# Tokyo Night Storm delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. plus/minus emph hex hand-derived from Tokyo Night's
+# green (#9ece6a) and red (#f7768e). bat 0.26.1 does not ship a `tokyonight*`
+# syntax theme, so we fall back to Catppuccin Mocha — the closest pastel-on-dark
+# palette in bat's built-in catalogue. The "No bootstrap changes" spec constraint
+# rules out vendoring a `.tmTheme` (which would need `bat cache --build`).
+[delta]
+    syntax-theme = Catppuccin Mocha
+    plus-style = "syntax #1b2e1a"
+    minus-style = "syntax #3e1a1f"
+    plus-emph-style = "syntax #2a4a1a"
+    minus-emph-style = "syntax #6a1f25"

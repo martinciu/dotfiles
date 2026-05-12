@@ -1,0 +1,5 @@
+# Tokyo Night Storm — Ghostty built-in (resources catalogue). Theme name
+# is case-sensitive and uses "TokyoNight" with no space between the words
+# (matches Ghostty's iTerm2-derived naming).
+# Active when ~/.config/ghostty/theme.ghostty → this file (theme-set tokyo-night).
+theme = TokyoNight Storm

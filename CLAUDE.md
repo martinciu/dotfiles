@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 4 themes (Solarized Dark / Mocha / Dracula / Gruvbox) and `font-set` between 10 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 5 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm) and `font-set` between 10 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -209,20 +209,20 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   were noise, not signal. Run `:Lazy restore` against the working
   tree's own lockfile when you need reproducibility on a single
   machine.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox.**
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm.**
   Solarized Dark is the canonical default. `theme-set <name>` (fish function in
   `.config/fish/functions/`) flips active-theme symlinks across the
   hot-path + file-viewer tools. Palette files live in `.config/themes/`
   (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
   machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
   Per-tool variant files use the naming convention `*-solarized.<ext>`
-  / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` and live
-  alongside their tool's config —
-  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox}.ghostty`,
-  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox}.json`,
-  `.config/gh-dash/config-{solarized,mocha,dracula,gruvbox}.yml`,
-  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox}.json`,
-  `.config/starship-{solarized,mocha,dracula,gruvbox}.toml`. The active
+  / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` /
+  `*-tokyo-night.<ext>` and live alongside their tool's config —
+  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.ghostty`,
+  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
+  `.config/gh-dash/config-{solarized,mocha,dracula,gruvbox,tokyo-night}.yml`,
+  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
+  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night}.toml`. The active
   variant is picked via a machine-local symlink at the tool's normal
   config path. tmux uses `@color_*` user options (set in the palette
   file, sourced by `tmux.conf` via
@@ -232,9 +232,13 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   harness path). Bat uses `$BAT_THEME` and vivid (`LS_COLORS` for
   `ls`/`eza` file-type colors) uses `$VIVID_THEME`, both set as fish
   universal vars by `theme-set`. bat 0.26+ ships Catppuccin Mocha,
-  Dracula, and `gruvbox-dark` built-in (no vendoring); vivid 0.11+
-  ships all four (`solarized-dark`, `catppuccin-mocha`, `dracula`,
-  `gruvbox-dark`). `.config/fish/conf.d/10-colors.fish` reads
+  Dracula, and `gruvbox-dark` built-in (no vendoring) — but does
+  NOT ship a Tokyo Night syntax theme, so `theme-set tokyo-night`
+  falls back to `Catppuccin Mocha` for `$BAT_THEME` (closest
+  pastel-on-dark in bat's catalogue; no `bat cache --build`
+  bootstrap step needed). vivid 0.11+ ships all five
+  (`solarized-dark`, `catppuccin-mocha`, `dracula`, `gruvbox-dark`,
+  `tokyonight-storm`). `.config/fish/conf.d/10-colors.fish` reads
   `$VIVID_THEME` at fish startup to regenerate LS_COLORS. fzf colors
   (Ctrl-R history, Ctrl-T file picker) use ANSI palette refs (0–15,
   `-1` = terminal default) in `FZF_DEFAULT_OPTS` — auto-adapt to
@@ -249,20 +253,31 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Gruvbox bg0). Gruvbox has one canonical purple, so
   `@color_accent_magenta` and `@color_accent_violet` resolve to the
   same hex (`#b16286`) — faithful to the palette; no current tmux
-  pin distinguishes the two roles. **lnav 0.14 does not ship
+  pin distinguishes the two roles. Tokyo Night Storm uses
+  dark-on-accent chip text too (`@color_light_fg = "#24283b"` =
+  Storm bg), matching the Gruvbox/Mocha/Dracula inversion. Tokyo
+  Night has one canonical purple, so `@color_accent_magenta` and
+  `@color_accent_violet` resolve to the same hex (`#bb9af7`) —
+  palette-faithful; no current tmux pin distinguishes the two
+  roles. **lnav 0.14 does not ship
   gruvbox**, so `.config/lnav/configs/installed/gruvbox.json` is a
   vendored theme-defs (modelled on the Catppuccin vendor, hex codes
   from `morhetz/gruvbox` MIT). Hard / Soft contrast and Light
-  variants are out of v1.
+  variants are out of v1. **lnav 0.14 also does not ship Tokyo
+  Night**, so `.config/lnav/configs/installed/tokyo-night.json` is a
+  second vendored theme-defs (same shape as `gruvbox.json`, hex from
+  `folke/tokyonight.nvim` MIT). Night / Moon / Day variants of Tokyo
+  Night are out of v1.
   Delta is included from `~/.gitconfig` via
   `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
   setup, see README). nvim picks its colorscheme at startup via the
   resolver in `lua/config/theme.lua` (reads `readlink` of
-  `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`, and
-  `ellisonleao/gruvbox.nvim` plugins are installed alongside
-  `maxmx03/solarized.nvim`. Bootstrap's "don't clobber" guards
-  preserve any prior `theme-set mocha`, `theme-set dracula`, or
-  `theme-set gruvbox` pick across re-runs. Out of v1:
+  `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`,
+  `ellisonleao/gruvbox.nvim`, and `folke/tokyonight.nvim` plugins
+  are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
+  "don't clobber" guards preserve any prior `theme-set mocha`,
+  `theme-set dracula`, `theme-set gruvbox`, or `theme-set
+  tokyo-night` pick across re-runs. Out of v1:
   `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
 - **Switchable Ghostty fonts — 10 Nerd Fonts, optional weight + size.**
@@ -464,7 +479,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `btop`, `ccstatusline`, `procs`, `tailspin`, `tmux`, `xh`; mixed-dir
   per tool: `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`, `worktrunk`;
   themes dir: `themes/` (palette files + delta snippets); plus
-  `starship-{solarized,mocha}.toml`, partial links for `sesh/sesh.toml`
+  `starship-{solarized,mocha,dracula,gruvbox,tokyo-night}.toml`, partial links for `sesh/sesh.toml`
   and `lnav/configs/installed` (mixed-dir) +
   `lnav/formats/installed` (whole-dir)),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
