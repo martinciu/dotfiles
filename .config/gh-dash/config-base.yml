@@ -1,17 +1,11 @@
 prSections:
-    - title: My Pull Requests
-      filters: is:open author:@me
-    - title: Needs My Review
-      filters: is:open review-requested:@me
-    - title: Involved
-      filters: is:open involves:@me -author:@me
+    - title: Open
+      filters: is:open
 issuesSections:
-    - title: My Issues
-      filters: is:open author:@me
-    - title: Assigned
-      filters: is:open assignee:@me
-    - title: Involved
-      filters: is:open involves:@me -author:@me
+    - title: Open
+      filters: is:open
+    - title: v0.1.0
+      filters: 'is:open milestone:"v0.1.0"'
 notificationsSections:
     - title: All
       filters: ""
@@ -78,27 +72,6 @@ defaults:
     refetchIntervalMinutes: 30
 keybindings: {}
 repoPaths: {}
-theme:
-    colors:
-        text:
-            primary: "#839496"
-            secondary: "#93a1a1"
-            inverted: "#fdf6e3"
-            faint: "#586e75"
-            warning: "#b58900"
-            success: "#859900"
-            error: "#dc322f"
-        background:
-            selected: "#073642"
-        border:
-            primary: "#586e75"
-            secondary: "#073642"
-            faint: "#073642"
-    ui:
-        sectionsShowCount: true
-        table:
-            showSeparator: true
-            compact: true
 pager:
     diff: delta
 confirmQuit: false
