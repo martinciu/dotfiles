@@ -6,6 +6,10 @@ function __ghostty_reload \
     # frontmost app. Skip when Ghostty isn't frontmost so we don't
     # inject the keystroke into a different app. First call may prompt
     # for Accessibility permission on the terminal hosting fish.
+    if set -q FISH_DOTFILES_TEST
+        echo "skipped (FISH_DOTFILES_TEST set)"
+        return
+    end
     set -l frontmost (osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null)
     if test (string lower -- $frontmost) = ghostty
         osascript -e 'tell application "System Events" to keystroke "r" using {command down, control down, shift down}' 2>/dev/null
