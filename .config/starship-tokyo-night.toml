@@ -2,7 +2,7 @@
 
 palette = "tokyo-night"
 
-format = """$directory[](fg:pastel_rose)
+format = """$directory[](fg:pastel_rose)
 $character"""
 
 right_format = "$status$cmd_duration"
