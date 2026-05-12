@@ -18,5 +18,12 @@ function __font_set_weights_for --argument-names name \
             printf '%s\n' ExtraLight Light Regular Medium SemiBold Bold Black
         case hack meslo ubuntu inconsolata
             printf '%s\n' Regular Bold
+        case hurmit
+            printf '%s\n' Light Regular Bold
+        case 0xproto monofur
+            printf '%s\n' Regular Bold
+        case departure bigblue 3270 dyslexic
+            # Nerd Fonts ships only Regular for these — no weight choices.
+            printf '%s\n' Regular
     end
 end

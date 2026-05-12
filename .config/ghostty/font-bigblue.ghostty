@@ -1,0 +1,5 @@
+# BigBlueTermPlus Nerd Font — IBM PC OEM CP437 pixel bitmap (Plus variant
+# has broader Unicode coverage than the 437 variant; both ship in the
+# same cask). Classic DOS/BIOS look.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set bigblue).
+font-family = BigBlueTermPlus Nerd Font Mono
