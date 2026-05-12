@@ -69,7 +69,17 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-gruvbox.j
 assert_link "$HOME/.config/gh-dash/config.yml"                "config-gruvbox.yml"         "gh-dash config.yml → config-gruvbox.yml"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-gruvbox.json"         "lnav theme.json → theme-gruvbox.json"
 
-# Reverse: gruvbox → solarized
+# Forward: gruvbox → tokyo-night
+run_theme_set tokyo-night
+assert_link "$HOME/.config/themes/current.tmux"               "tokyo-night.tmux"               "current.tmux → tokyo-night.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-tokyo-night.gitconfig"    "delta-current.gitconfig → delta-tokyo-night.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-tokyo-night.ghostty"      "ghostty theme.ghostty → theme-tokyo-night.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-tokyo-night.toml"      "starship.toml → starship-tokyo-night.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-night.json"       "glow glamour.json → glamour-tokyo-night.json"
+assert_link "$HOME/.config/gh-dash/config.yml"                "config-tokyo-night.yml"         "gh-dash config.yml → config-tokyo-night.yml"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
+
+# Reverse: tokyo-night → solarized
 run_theme_set solarized
 assert_link "$HOME/.config/themes/current.tmux"               "solarized.tmux"             "current.tmux → solarized.tmux (reverse)"
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-solarized.ghostty"    "ghostty theme.ghostty → theme-solarized.ghostty (reverse)"
