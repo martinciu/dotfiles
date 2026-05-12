@@ -4,11 +4,13 @@ function font-set --description 'Switch Ghostty font (and optionally weight, siz
     set -l size $argv[3]
     switch $name
         case jetbrains fira cascadia monaspace iosevka \
-             hack meslo sauce ubuntu inconsolata
+             hack meslo sauce ubuntu inconsolata \
+             departure bigblue 0xproto 3270 hurmit monofur dyslexic
             # OK
         case '*'
             echo "Usage: font-set <name> [<weight>] [<size>]" >&2
             echo "  name:   jetbrains|fira|cascadia|monaspace|iosevka|hack|meslo|sauce|ubuntu|inconsolata" >&2
+            echo "          departure|bigblue|0xproto|3270|hurmit|monofur|dyslexic" >&2
             echo "  weight: per-font style name (Tab to discover); omit to keep current weight" >&2
             echo "  size:   positive number; omit to keep current size" >&2
             return 1

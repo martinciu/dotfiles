@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm via `theme-set`) and multi-font (10 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
+Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>

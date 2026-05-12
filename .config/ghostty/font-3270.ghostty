@@ -1,0 +1,5 @@
+# 3270 Nerd Font — IBM 3270 mainframe terminal font; tall, narrow.
+# Cond / SemCond width variants ship as separate families and are not
+# wired up here — flip to them by hand if needed.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set 3270).
+font-family = 3270 Nerd Font Mono

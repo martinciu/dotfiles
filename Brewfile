@@ -70,3 +70,10 @@ cask "font-meslo-lg-nerd-font"        # Powerlevel10k's recommended default
 cask "font-sauce-code-pro-nerd-font"  # Adobe Source Code Pro (Nerd Fonts rename: SauceCodePro)
 cask "font-ubuntu-mono-nerd-font"     # Canonical's monospace; distinctive curves
 cask "font-inconsolata-nerd-font"     # Raph Levien's humanist classic
+cask "font-departure-mono-nerd-font"  # Helena Zhang's pixel display monospace (2024); retro CRT vibe
+cask "font-bigblue-terminal-nerd-font" # IBM PC OEM CP437 pixel bitmap; classic DOS/BIOS look
+cask "font-0xproto-nerd-font"         # 0xType's "0xProto" — designed for programming, with ligatures
+cask "font-3270-nerd-font"            # IBM 3270 mainframe terminal font; tall, narrow, archival
+cask "font-hurmit-nerd-font"          # Hermit (Nerd Fonts ships as "Hurmit"); minimalist humanist
+cask "font-monofur-nerd-font"         # Monofur — quirky, hand-drawn curves, no ligatures
+cask "font-opendyslexic-nerd-font"    # OpenDyslexic — weighted bottoms; aids dyslexic readers

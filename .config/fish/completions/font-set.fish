@@ -9,6 +9,13 @@ complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a meslo     
 complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a sauce       -d 'SauceCodePro / Source Code Pro (no ligatures)'
 complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a ubuntu      -d 'UbuntuMono (no ligatures)'
 complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a inconsolata -d 'Inconsolata (no ligatures)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a departure   -d 'DepartureMono (pixel display; no ligatures)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a bigblue     -d 'BigBlueTermPlus (IBM CP437 pixel bitmap)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a 0xproto     -d '0xProto (ligatures)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a 3270        -d '3270 (IBM mainframe terminal; tall, narrow)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a hurmit      -d 'Hurmit / Hermit (minimalist humanist; no ligatures)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a monofur     -d 'Monofur (hand-drawn curves; no ligatures)'
+complete -c font-set -f -n 'test (count (commandline -opc)) -eq 1' -a dyslexic    -d 'OpenDyslexicM (weighted bottoms; dyslexia-aware)'
 
 # 2nd positional: weight — depends on font picked in arg 1.
 complete -c font-set -f -n 'test (count (commandline -opc)) -eq 2' \
