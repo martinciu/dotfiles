@@ -1,0 +1,5 @@
+# OpenDyslexic Nerd Font — Mono variant (the cask also ships "Alt" with
+# more weights, but the Mono family is what's needed for a terminal grid).
+# Weighted-bottom glyphs are designed to aid dyslexic readers.
+# Active when ~/.config/ghostty/font.ghostty → this file (font-set dyslexic).
+font-family = OpenDyslexicM Nerd Font Mono

@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 5 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm) and `font-set` between 10 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 5 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -284,13 +284,21 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   tokyo-night` pick across re-runs. Out of v1:
   `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
-- **Switchable Ghostty fonts — 10 Nerd Fonts, optional weight + size.**
-  JetBrains Mono is the default. Five with ligatures: `jetbrains`,
+- **Switchable Ghostty fonts — 17 Nerd Fonts, optional weight + size.**
+  JetBrains Mono is the default. Six with ligatures: `jetbrains`,
   `fira`, `cascadia` (ships as `CaskaydiaCove`), `monaspace` (Neon
-  variant, ships as `Monaspice`), `iosevka`. Five classics, no
-  ligatures: `hack`, `meslo` (MesloLGS, Powerlevel10k's default),
-  `sauce` (Source Code Pro, ships as `SauceCodePro`), `ubuntu`
-  (UbuntuMono), `inconsolata`. `font-set <name> [<weight>] [<size>]`
+  variant, ships as `Monaspice`), `iosevka`, `0xproto`. Five
+  classics, no ligatures: `hack`, `meslo` (MesloLGS, Powerlevel10k's
+  default), `sauce` (Source Code Pro, ships as `SauceCodePro`),
+  `ubuntu` (UbuntuMono), `inconsolata`. Six retro / specialty, no
+  ligatures: `departure` (DepartureMono, 2024 pixel display),
+  `bigblue` (BigBlueTermPlus, IBM CP437 pixel bitmap), `3270` (IBM
+  3270 mainframe terminal; Cond/SemCond width variants ship but
+  aren't wired up — flip by hand if needed), `hurmit` (Hermit,
+  Nerd Fonts rename), `monofur` (hand-drawn curves), `dyslexic`
+  (OpenDyslexicM — weighted-bottom glyphs for dyslexic readers; the
+  cask also ships an "Alt" family with more weights, only Mono is
+  wired up). `font-set <name> [<weight>] [<size>]`
   (fish function) flips a machine-local symlink
   `~/.config/ghostty/font.ghostty` → one of the per-font include files
   (each a one-liner `font-family = ...`). When `<weight>` is given
@@ -304,7 +312,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   because it changes more often than size in practice.
   `config.ghostty` pulls family + size + weight via three `config-file
   = ...` directives; `font-thicken` stays there (shared across fonts).
-  `ghostty +reload` fires live. All ten casks are pinned in `Brewfile`.
+  `ghostty +reload` fires live. All seventeen casks are pinned in `Brewfile`.
   Bootstrap seeds `font-size.ghostty` at `font-size = 14` and
   `font-weight.ghostty` as a comment-only file (so Ghostty falls back
   to each font's own Regular) on first run; "don't clobber" guards
@@ -312,11 +320,13 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   lists live in the fish helper `__font_set_weights_for.fish` (sourced
   by both validation and 3rd-arg completion), populated from
   `ghostty +list-fonts` — FiraCode is the odd one out, advertising
-  abbreviated style names (`Reg`, `Med`, `SemBd`, `Ret`). Add a new
-  font: drop a new `font-<short>.ghostty` next to the others, append
-  the cask to `Brewfile`, extend the `switch` in `font-set.fish` + its
-  1st-arg completion + `__font_set_weights_for`. No nvim/tmux/bat
-  coupling — font is a Ghostty-only concern.
+  abbreviated style names (`Reg`, `Med`, `SemBd`, `Ret`); the four
+  single-weight fonts (`departure`, `bigblue`, `3270`, `dyslexic`)
+  advertise `Regular` only, so the weight arg is effectively cosmetic
+  for them. Add a new font: drop a new `font-<short>.ghostty` next to
+  the others, append the cask to `Brewfile`, extend the `switch` in
+  `font-set.fish` + its 1st-arg completion + `__font_set_weights_for`.
+  No nvim/tmux/bat coupling — font is a Ghostty-only concern.
 - **Starship pastel accent — per theme.** Solarized keeps the
   `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
   "personal" accent); Dracula uses `#ff79c6` (Dracula pink). Defined
