@@ -197,17 +197,18 @@
     <h3>Manage</h3>
     <table>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">c</span></td><td class="desc">create window — opens at session root (<code>@session_root</code>, set by <code>s</code>) when present, else inherits pane cwd</td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">,</span></td><td class="desc">rename window</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&amp;</span></td><td class="desc">kill window (confirm)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">w</span></td><td class="desc">window picker (tree)</td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">.</span></td><td class="desc">move window (renumber)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">swap window left / right <span class="muted">(repeatable; follows the window)</span></td></tr>
+      <tr><td class="key"><code>:rename-window &lt;name&gt;</code></td><td class="desc">force a name <span class="muted">(no keybind — <code>automatic-rename</code> would clobber it anyway)</span></td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Switch</h3>
     <table>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">n</span> / <span class="k">p</span></td><td class="desc">next / prev window</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">.</span> / <span class="k">,</span></td><td class="desc">next / prev window <span class="muted">(repeatable)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">n</span> / <span class="k">p</span></td><td class="desc">next / prev window <span class="muted">(tmux default; same as <code>.</code>/<code>,</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">1</span>…<span class="k">9</span></td><td class="desc">window 1–9 by number</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">l</span></td><td class="desc">last window <span class="muted">(but <code>l</code> is also pane-right here — see "Quirks")</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">f</span></td><td class="desc">find by name (search)</td></tr>
@@ -423,7 +424,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-10. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-13. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
