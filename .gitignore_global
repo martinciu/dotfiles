@@ -2,6 +2,7 @@
 .claude/settings.local.json
 .claude/todos.json
 .claude/worktrees/
+.claude/commands/
 .claude/logs/
 .claude/.credentials.json
 .claude/scheduled_tasks.lock
