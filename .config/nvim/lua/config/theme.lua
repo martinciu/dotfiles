@@ -2,6 +2,7 @@
 -- decide which colorscheme nvim should load at startup. Returns one of:
 --   "solarized"        (default, when symlink missing or unreadable)
 --   "catppuccin-mocha"
+--   "catppuccin-frappe"
 --   "dracula"
 --   "gruvbox"
 --   "tokyonight-storm"
@@ -12,6 +13,8 @@ function M.current()
   if link then
     if link:match("mocha") then
       return "catppuccin-mocha"
+    elseif link:match("frappe") then
+      return "catppuccin-frappe"
     elseif link:match("dracula") then
       return "dracula"
     elseif link:match("gruvbox") then

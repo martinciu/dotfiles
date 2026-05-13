@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 6 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 7 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -209,7 +209,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   were noise, not signal. Run `:Lazy restore` against the working
   tree's own lockfile when you need reproducibility on a single
   machine.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Catppuccin Latte.**
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Catppuccin Frappé ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Catppuccin Latte.**
   Solarized Dark is the canonical default. Catppuccin Latte is the **first
   and only light theme** and ships with **partial tier-1 coverage**: only
   Ghostty, tmux, and starship have Latte variants — delta, glow, gh-dash,
@@ -256,7 +256,18 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (Ctrl-R history, Ctrl-T file picker) use ANSI palette refs (0–15,
   `-1` = terminal default) in `FZF_DEFAULT_OPTS` — auto-adapt to
   whatever Ghostty's 16-color palette is, no per-theme switch
-  needed. Dracula uses dark-on-pastel chip text too
+  needed. Frappé sits between Mocha and Latte on the Catppuccin spectrum (base
+  `#303446`, lifted vs Mocha's `#1e1e2e`). Uses dark-on-pastel chip text
+  like Mocha (`@color_light_fg = "#232634"` = Frappé crust). Starship
+  `pastel_rose` is **mauve `#ca9ee6`** (deliberate divergence from Mocha's
+  pink — Catppuccin's headline accent gives Frappé its own visual
+  identity). bat 0.26+ ships `Catppuccin Frappé` built-in; vivid 0.11+
+  ships `catppuccin-frappe`; Ghostty 1.0+ ships the preset; the vendored
+  `lnav/configs/installed/catppuccin.json` already defines
+  `catppuccin-frappe` (no extra vendoring). The `catppuccin/nvim` plugin
+  (already installed for Mocha) provides the `catppuccin-frappe`
+  colorscheme.
+  Dracula uses dark-on-pastel chip text too
   (`@color_light_fg = "#282a36"`), matching Mocha's inversion rather
   than Solarized's light-on-saturated. Dracula has no pure blue
   accent: `@color_accent_blue` reuses the comment hex `#6272a4`,

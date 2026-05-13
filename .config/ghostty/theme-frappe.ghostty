@@ -1,0 +1,5 @@
+# Catppuccin Frappé theme. Selection colours intentionally omitted —
+# Frappé's defaults are well-tuned. Revisit if selections read poorly in
+# practice. Active when ~/.config/ghostty/theme.ghostty → this file
+# (theme-set frappe).
+theme = Catppuccin Frappe

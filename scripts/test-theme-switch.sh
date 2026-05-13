@@ -90,7 +90,17 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-mocha.jso
 assert_gh_dash_config "#cdd6f4" "gh-dash config.yml ← base + theme-colors-mocha"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-mocha.json"         "lnav theme.json → theme-mocha.json"
 
-# Forward: mocha → dracula
+# Forward: mocha → frappe
+run_theme_set frappe
+assert_link "$HOME/.config/themes/current.tmux"               "frappe.tmux"                "current.tmux → frappe.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-frappe.gitconfig"     "delta-current.gitconfig → delta-frappe.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-frappe.ghostty"       "ghostty theme.ghostty → theme-frappe.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-frappe.toml"       "starship.toml → starship-frappe.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-frappe.json"        "glow glamour.json → glamour-frappe.json"
+assert_gh_dash_config "#c6d0f5" "gh-dash config.yml ← base + theme-colors-frappe"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-frappe.json"          "lnav theme.json → theme-frappe.json"
+
+# Forward: frappe → dracula
 run_theme_set dracula
 assert_link "$HOME/.config/themes/current.tmux"               "dracula.tmux"               "current.tmux → dracula.tmux"
 assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-dracula.gitconfig"    "delta-current.gitconfig → delta-dracula.gitconfig"
