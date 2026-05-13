@@ -33,3 +33,6 @@ abbr -a grb   git rebase
 
 # GitHub TUI dashboard (gh extension; installed by bootstrap.sh)
 abbr -a ghd   gh dash
+
+# Git worktrees (companion to the `wt` CLI)
+abbr -a wtp   wt-primary
