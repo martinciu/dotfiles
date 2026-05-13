@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
+Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
@@ -117,11 +117,12 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## Switching themes
 
-Six themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, and **Catppuccin Latte** (the first and only light theme).
+Seven themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Catppuccin Frappé**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, and **Catppuccin Latte** (the first and only light theme).
 Swap via the fish function `theme-set`:
 
 ```fish
 theme-set mocha        # switch to Catppuccin Mocha
+theme-set frappe       # switch to Catppuccin Frappé (lifted bg, mauve accent)
 theme-set dracula      # switch to Dracula
 theme-set gruvbox      # switch to Gruvbox Dark Medium
 theme-set tokyo-night  # switch to Tokyo Night Storm
