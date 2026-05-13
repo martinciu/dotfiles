@@ -46,6 +46,10 @@ opt.undofile = true
 opt.termguicolors = true
 opt.background = "dark"
 
+-- Trust per-project .nvim.lua files (`:h exrc`)
+vim.o.exrc = true
+vim.o.secure = false
+
 -- Never descend into worktree directories from built-in completion (`:e <Tab>`,
 -- `:find`, netrw, wildmenu). Snacks pickers are handled separately in
 -- lua/plugins/snacks.lua.

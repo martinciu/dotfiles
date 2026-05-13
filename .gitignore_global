@@ -20,5 +20,11 @@ bin/complexity_changes.sh
 bin/reek_changes.sh
 reports/
 
+# Neovim per-project config
+.nvim.lua
+
+# Ruby LSP cache
+.ruby-lsp/
+
 # Python
 __pycache__/
