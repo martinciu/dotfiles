@@ -1,0 +1,9 @@
+# Catppuccin Frappé delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. The plus/minus emph hex are carried from Mocha — they
+# read fine against Frappé's lifted base; tune visually if they don't pop.
+[delta]
+    syntax-theme = Catppuccin Frappé
+    plus-style = "syntax #1e3a1e"
+    minus-style = "syntax #3a1e22"
+    plus-emph-style = "syntax #2d5a2d"
+    minus-emph-style = "syntax #5a2d32"
