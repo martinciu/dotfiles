@@ -2,6 +2,7 @@
 node = "lts"
 ruby = "3.4.8"
 "npm:@mermaid-js/mermaid-cli" = "latest"
+"npm:ccstatusline" = "latest"
 
 [settings]
 legacy_version_file = true
