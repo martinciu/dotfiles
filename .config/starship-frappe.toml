@@ -1,0 +1,71 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+palette = "catppuccin_frappe"
+
+format = """$directory[](fg:pastel_rose)
+$character"""
+
+right_format = "$status$cmd_duration"
+
+[palettes.catppuccin_frappe]
+# Catppuccin Frappé palette — see ../themes/frappe.tmux for the same
+# semantic roles as tmux options. Names mirror Catppuccin's spec.
+crust    = "#232634"
+mantle   = "#292c3c"
+base     = "#303446"
+surface0 = "#414559"
+surface1 = "#51576d"
+surface2 = "#626880"
+overlay0 = "#737994"
+overlay1 = "#838ba7"
+overlay2 = "#949cbb"
+subtext0 = "#a5adce"
+subtext1 = "#b5bfe2"
+text     = "#c6d0f5"
+yellow   = "#e5c890"
+peach    = "#ef9f76"
+red      = "#e78284"
+maroon   = "#ea999c"
+pink     = "#f4b8e4"
+mauve    = "#ca9ee6"
+lavender = "#babbf1"
+blue     = "#8caaee"
+sapphire = "#85c1dc"
+sky      = "#99d1db"
+teal     = "#81c8be"
+green    = "#a6d189"
+flamingo = "#eebebe"
+rosewater = "#f2d5cf"
+frame    = "#737994"   # overlay0 — muted frame
+# Personal accent — per-theme equivalent of Solarized's #DA627D pastel rose.
+# Frappé picks mauve over pink for visual identity vs Mocha.
+pastel_rose = "#ca9ee6"
+# Alias so the prompt format below stays portable across themes.
+# base3 here is dark (#232634 crust) — chip-text inversion for
+# pastel chip bgs (pastel_rose). Solarized uses light text on its saturated
+# rose; Frappé (like Mocha) needs dark text on its pastel mauve.
+base3       = "#232634"
+
+[directory]
+format = "[ $path ]($style)"
+style  = "fg:base3 bg:pastel_rose"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[character]
+success_symbol = "[❯](bold fg:pastel_rose)"
+error_symbol   = "[❯](bold fg:pastel_rose)"
+vicmd_symbol   = "[❮](bold fg:pastel_rose)"
+
+[cmd_duration]
+min_time = 2000
+format   = "[ $duration]($style) "
+style    = "fg:pastel_rose"
+
+[status]
+disabled = false
+format   = "[✘ $status]($style) "
+style    = "fg:pastel_rose"
+
+[jobs]
+disabled = true
