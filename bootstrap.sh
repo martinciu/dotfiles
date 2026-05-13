@@ -277,6 +277,7 @@ link ".config/starship-mocha.toml"       "$HOME/.config/starship-mocha.toml"
 link ".config/starship-dracula.toml"     "$HOME/.config/starship-dracula.toml"
 link ".config/starship-gruvbox.toml"     "$HOME/.config/starship-gruvbox.toml"
 link ".config/starship-tokyo-night.toml" "$HOME/.config/starship-tokyo-night.toml"
+link ".config/starship-latte.toml"       "$HOME/.config/starship-latte.toml"
 [ -L "$HOME/.config/starship.toml" ] \
     || ln -sfn starship-solarized.toml "$HOME/.config/starship.toml"
 

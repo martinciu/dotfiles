@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 5 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 6 themes (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -209,21 +209,30 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   were noise, not signal. Run `:Lazy restore` against the working
   tree's own lockfile when you need reproducibility on a single
   machine.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm.**
-  Solarized Dark is the canonical default. `theme-set <name>` (fish function in
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Catppuccin Latte.**
+  Solarized Dark is the canonical default. Catppuccin Latte is the **first
+  and only light theme** and ships with **partial tier-1 coverage**: only
+  Ghostty, tmux, and starship have Latte variants — delta, glow, gh-dash,
+  lnav, and nvim keep their previous (dark) theme during a Latte session
+  by design. This is enforced by existence-guarded `test -f` checks inside
+  `theme-set.fish` rather than a bespoke `case latte` branch — future
+  tier-1 extensions are purely additive (drop a variant file in, the guard
+  auto-engages, no `theme-set` changes). Issue #215 tracks the
+  full-coverage follow-up. `theme-set <name>` (fish function in
   `.config/fish/functions/`) flips active-theme symlinks across the
   hot-path + file-viewer tools. Palette files live in `.config/themes/`
   (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
   machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
   Per-tool variant files use the naming convention `*-solarized.<ext>`
   / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` /
-  `*-tokyo-night.<ext>` and live alongside their tool's config —
-  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.ghostty`,
+  `*-tokyo-night.<ext>` / `*-latte.<ext>` (where present — Latte is
+  partial-coverage, see above) and live alongside their tool's config —
+  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,latte}.ghostty`,
   `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
   `.config/gh-dash/theme-colors-{solarized,mocha,dracula,gruvbox,tokyo-night}.yml`
   (alongside the shared `.config/gh-dash/config-base.yml`),
   `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
-  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night}.toml`. The active
+  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night,latte}.toml`. The active
   variant is picked via a machine-local symlink at the tool's normal
   config path. gh-dash is the one exception: its live `config.yml` is a
   generated real file (`cat config-base.yml theme-colors-<name>.yml > config.yml`)
@@ -271,7 +280,17 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Night**, so `.config/lnav/configs/installed/tokyo-night.json` is a
   second vendored theme-defs (same shape as `gruvbox.json`, hex from
   `folke/tokyonight.nvim` MIT). Night / Moon / Day variants of Tokyo
-  Night are out of v1.
+  Night are out of v1. **Catppuccin Latte is the first light theme**
+  and inverts a few assumptions baked into the dark-only collection:
+  bar bg is mantle `#e6e9ef` (not a dark surface), and tmux chips
+  use **light-on-saturated** chip text (`@color_light_fg = "#eff1f5"`)
+  while starship uses **dark-on-pastel**
+  (`base3 = "#4c4f69"`) — different chip-bg palettes drive different
+  inversion choices. Latte ships only ghostty/tmux/starship + bat/vivid
+  env vars; delta/glow/gh-dash/lnav/nvim stay on the previous
+  (dark) theme during a Latte session. bat 0.26+ ships
+  `Catppuccin Latte` built-in; vivid 0.11+ ships
+  `catppuccin-latte`; Ghostty 1.0+ ships the preset.
   Delta is included from `~/.gitconfig` via
   `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
   setup, see README). nvim picks its colorscheme at startup via the

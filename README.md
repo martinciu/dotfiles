@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
+Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
@@ -117,7 +117,7 @@ These drive the `claude[<name>]` window title (tmux's
 
 ## Switching themes
 
-Five themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, **Gruvbox Dark Medium**, and **Tokyo Night Storm**.
+Six themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, and **Catppuccin Latte** (the first and only light theme).
 Swap via the fish function `theme-set`:
 
 ```fish
@@ -125,8 +125,11 @@ theme-set mocha        # switch to Catppuccin Mocha
 theme-set dracula      # switch to Dracula
 theme-set gruvbox      # switch to Gruvbox Dark Medium
 theme-set tokyo-night  # switch to Tokyo Night Storm
+theme-set latte        # switch to Catppuccin Latte (light, partial coverage)
 theme-set solarized    # switch back
 ```
+
+**Latte caveat:** Catppuccin Latte is the only light theme and ships with **partial tier-1 coverage** — only Ghostty, tmux, and starship have Latte variants. delta, glow, gh-dash, lnav, and nvim keep their previous (dark) theme during a Latte session. Issue #215 tracks the full-coverage follow-up.
 
 The function flips per-tool symlinks under `~/.config/themes/`,
 `~/.config/ghostty/theme.ghostty`, `~/.config/starship.toml`,

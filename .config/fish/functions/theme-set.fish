@@ -1,10 +1,10 @@
-function theme-set --description 'Switch colour scheme between solarized, mocha, dracula, gruvbox, and tokyo-night'
+function theme-set --description 'Switch colour scheme between solarized, mocha, dracula, gruvbox, tokyo-night, and latte'
     set -l name $argv[1]
     switch $name
-        case solarized mocha dracula gruvbox tokyo-night
+        case solarized mocha dracula gruvbox tokyo-night latte
             # OK
         case '*'
-            echo "Usage: theme-set <solarized|mocha|dracula|gruvbox|tokyo-night>" >&2
+            echo "Usage: theme-set <solarized|mocha|dracula|gruvbox|tokyo-night|latte>" >&2
             return 1
     end
 
@@ -25,26 +25,46 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
             # Catppuccin Mocha (closest pastel-on-dark in bat's catalogue).
             set bat_theme "Catppuccin Mocha"
             set vivid_theme "tokyonight-storm"
+        case latte
+            set bat_theme "Catppuccin Latte"
+            set vivid_theme "catppuccin-latte"
         case '*'
             set bat_theme "Solarized (dark)"
             set vivid_theme "solarized-dark"
     end
 
-    # Flip symlinks. -sfn replaces the link atomically.
-    ln -sfn $name.tmux              ~/.config/themes/current.tmux
-    ln -sfn delta-$name.gitconfig   ~/.config/themes/delta-current.gitconfig
-    ln -sfn theme-$name.ghostty     ~/.config/ghostty/theme.ghostty
-    ln -sfn starship-$name.toml     ~/.config/starship.toml
-    ln -sfn glamour-$name.json      ~/.config/glow/glamour.json
-    ln -sfn theme-$name.json        ~/.config/lnav/configs/installed/theme.json
+    # Flip symlinks. -sfn replaces the link atomically. Each flip is
+    # existence-guarded on the source: partial-coverage themes (e.g. Latte
+    # ships only ghostty/tmux/starship) coexist with full-coverage ones
+    # without a bespoke `case` branch. Five themes have every variant present
+    # and pass every guard; Latte has four guards fail and those tools keep
+    # their previous symlinks pointing at the most-recent dark theme.
+    # Future tier-1 extensions for Latte are purely additive — drop the
+    # variant file in, the guard auto-engages, no theme-set changes.
+    test -f ~/.config/themes/$name.tmux \
+        ; and ln -sfn $name.tmux ~/.config/themes/current.tmux
+    test -f ~/.config/themes/delta-$name.gitconfig \
+        ; and ln -sfn delta-$name.gitconfig ~/.config/themes/delta-current.gitconfig
+    test -f ~/.config/ghostty/theme-$name.ghostty \
+        ; and ln -sfn theme-$name.ghostty ~/.config/ghostty/theme.ghostty
+    test -f ~/.config/starship-$name.toml \
+        ; and ln -sfn starship-$name.toml ~/.config/starship.toml
+    test -f ~/.config/glow/glamour-$name.json \
+        ; and ln -sfn glamour-$name.json ~/.config/glow/glamour.json
+    test -f ~/.config/lnav/configs/installed/theme-$name.json \
+        ; and ln -sfn theme-$name.json ~/.config/lnav/configs/installed/theme.json
 
     # gh-dash live config is a generated real file, not a symlink.
     # base.yml has no `theme:` key; theme-colors-$name.yml has only `theme:` —
     # plain concatenation produces valid YAML, no merge engine needed.
-    cat \
-        ~/.config/gh-dash/config-base.yml \
-        ~/.config/gh-dash/theme-colors-$name.yml \
-        > ~/.config/gh-dash/config.yml
+    # Existence-guarded like the symlink flips above: when no Latte variant
+    # exists, gh-dash keeps its previous config.yml.
+    if test -f ~/.config/gh-dash/theme-colors-$name.yml
+        cat \
+            ~/.config/gh-dash/config-base.yml \
+            ~/.config/gh-dash/theme-colors-$name.yml \
+            > ~/.config/gh-dash/config.yml
+    end
 
     # Persisted env vars; survive shell restarts. Open shells need new
     # session to pick up the values. BAT_THEME is read by bat at startup;
