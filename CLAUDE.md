@@ -43,20 +43,6 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
 - **`Brewfile` is installed by bootstrap.** `bootstrap.sh` runs
   `brew bundle --file=$DOTFILES/Brewfile` unconditionally at the top,
   before any symlinks. Aborts on failure (`set -euo pipefail`).
-- **`~/.dotfiles-extras` is the per-machine opt-in gate.** Untracked
-  newline-separated list of extras `bootstrap.sh` should install on
-  this machine only. Parsed by `install_extras()`; each known entry
-  (e.g. `qmk_hid`) dispatches to `install_extra_<name>`. Missing
-  file = no-op for the whole block. Unknown entries warn and
-  continue. Per-extra install functions are `command -v`-guarded
-  for idempotency and **warn-don't-abort** on failure (same as the
-  gh-dash extension install) so optional extras can't break
-  whole-machine bootstrap. New extras: add a `case` arm + an
-  `install_extra_<name>` function, document the entry in the
-  README's "Optional extras" table. Don't replace this with a
-  per-machine `Brewfile.local`, env vars, or anything in the repo —
-  the marker file must stay in `$HOME` so the opt-in can't
-  propagate.
 - **Global gitignore is symlinked from `.gitignore_global`.**
   `bootstrap.sh` links it to `~/.gitignore_global` (the path
   `core.excludesfile` already points to). Lists the cross-repo
@@ -556,10 +542,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   and `lnav/configs/installed` (mixed-dir) +
   `lnav/formats/installed` (whole-dir)),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
-  `bin/` files symlink to `~/.local/bin/`. `man/*.1` files symlink to
-  `~/.local/share/man/man1/` (user-scope groff/troff pages; `MANPATH` is
-  pre-pended in `.config/fish/conf.d/00-env.fish` so `man <cmd>` picks
-  them up — `qmk_hid.1` is the first).
+  `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
   (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.

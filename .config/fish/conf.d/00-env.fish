@@ -25,12 +25,6 @@ end
 
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
-# Prepend the user-scope man tree so `man <cmd>` picks up dotfiles-shipped
-# pages (~/.local/share/man/man1/*.1). Trailing colon = "prepend to the
-# default list" per man(1)'s MANPATH grammar; without it macOS replaces the
-# default search path entirely.
-set -gx MANPATH $HOME/.local/share/man:
-
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux
 # integration that survives B-scope.
 if test -n "$TMUX"
