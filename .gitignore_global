@@ -23,6 +23,7 @@ reports/
 
 # Neovim per-project config
 .nvim.lua
+.projections.json
 
 # Ruby LSP cache
 .ruby-lsp/
