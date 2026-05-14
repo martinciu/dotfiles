@@ -199,46 +199,6 @@ if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
     echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
 fi
 
-# --- optional extras (per-machine opt-in via ~/.dotfiles-extras)
-# Marker file: ~/.dotfiles-extras, newline-separated list of extras to
-# install. `#` line-comments and blank lines ignored. Missing file = no-op.
-# Each known extra dispatches to install_extra_<name>. Unknown entries
-# warn and continue. Install failures warn and continue (matches the
-# gh-dash extension precedent above — optional extras must not abort
-# whole-machine bootstrap).
-install_extra_qmk_hid() {
-  if ! command -v rustup >/dev/null 2>&1; then
-    echo "🦀 installing rustup (stable toolchain, no PATH edits)..."
-    if ! curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-         | sh -s -- -y --default-toolchain stable --no-modify-path; then
-      echo "⚠️  rustup install failed — skipping qmk_hid"
-      return 0
-    fi
-  fi
-  if ! command -v qmk_hid >/dev/null 2>&1 \
-       && ! [ -x "$HOME/.cargo/bin/qmk_hid" ]; then
-    echo "⌨️  installing qmk_hid v0.1.13 via cargo (source build, ~2 min)..."
-    "$HOME/.cargo/bin/cargo" install \
-      --git https://github.com/FrameworkComputer/qmk_hid \
-      --tag v0.1.13 \
-      --locked \
-      || echo "⚠️  qmk_hid install failed"
-  fi
-}
-
-install_extras() {
-  local marker="$HOME/.dotfiles-extras"
-  [ -f "$marker" ] || return 0
-  while IFS= read -r extra; do
-    case "$extra" in
-      qmk_hid) install_extra_qmk_hid ;;
-      *)       echo "⚠️  unknown extra in ~/.dotfiles-extras: '$extra'" ;;
-    esac
-  done < <(grep -vE '^\s*(#|$)' "$marker")
-}
-
-install_extras
-
 # --- lnav (TUI log navigator)
 # ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
 # the repo. configs/installed/ is mixed-dir: tracked theme variants
@@ -391,16 +351,6 @@ link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 for src in "$DOTFILES"/bin/*; do
   [ -e "$src" ] || continue
   link "bin/$(basename "$src")" "$HOME/.local/bin/$(basename "$src")"
-done
-
-# --- man pages (section 1, user-scope)
-# Mirror the bin/ pattern: each tracked man page is symlinked into the
-# user-scope man tree. macOS's `man` walks $HOME/.local/share/man via
-# /etc/manpaths.d entries on most installs; `manpath` reports the live list.
-mkdir -p "$HOME/.local/share/man/man1"
-for src in "$DOTFILES"/man/*.1; do
-  [ -e "$src" ] || continue
-  link "man/$(basename "$src")" "$HOME/.local/share/man/man1/$(basename "$src")"
 done
 
 # --- TPM (clone if missing; warn but don't abort if offline)
