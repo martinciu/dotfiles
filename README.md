@@ -94,6 +94,31 @@ so this is a one-time manual edit. Add (or merge into) the top-level
 These drive the `claude[<name>]` window title (tmux's
 `automatic-rename-format` reads `@claude_session_name`).
 
+### Optional extras (machine-local opt-in)
+
+`bootstrap.sh` will install extra tools on this machine only if you
+opt in via `~/.dotfiles-extras` — a newline-separated list of extras
+to install. The file is **per-machine**, lives in `$HOME` (not in the
+repo), and is not seeded by bootstrap (opt-in is intentionally
+explicit). `#` comments and blank lines ignored.
+
+Currently supported:
+
+| Entry | Installs | Why opt-in |
+|---|---|---|
+| `qmk_hid` | `rustup` (stable, `--no-modify-path`) + `cargo install --git --tag v0.1.13` of [`FrameworkComputer/qmk_hid`](https://github.com/FrameworkComputer/qmk_hid) | Source build (no macOS release asset). Pulls in ~1 GB Rust toolchain — only worth it on machines with a Framework 16 keyboard. |
+
+Enable on this machine:
+
+```sh
+echo qmk_hid > ~/.dotfiles-extras
+./bootstrap.sh
+```
+
+Re-runs are idempotent (`command -v` guards skip already-installed
+tools). Disable: remove the line; bootstrap stops installing but does
+not uninstall — to undo qmk_hid, run `rustup self uninstall`.
+
 ## What's where
 
 | Tool         | Source path                          | Target              |
