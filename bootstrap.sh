@@ -230,6 +230,9 @@ install_extras() {
   local marker="$HOME/.dotfiles-extras"
   [ -f "$marker" ] || return 0
   while IFS= read -r extra; do
+    extra="${extra%$'\r'}"
+    extra="${extra#"${extra%%[![:space:]]*}"}"
+    extra="${extra%"${extra##*[![:space:]]}"}"
     case "$extra" in
       qmk_hid) install_extra_qmk_hid ;;
       *)       echo "⚠️  unknown extra in ~/.dotfiles-extras: '$extra'" ;;
