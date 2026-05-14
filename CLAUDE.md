@@ -556,7 +556,10 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   and `lnav/configs/installed` (mixed-dir) +
   `lnav/formats/installed` (whole-dir)),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
-  `bin/` files symlink to `~/.local/bin/`.
+  `bin/` files symlink to `~/.local/bin/`. `man/*.1` files symlink to
+  `~/.local/share/man/man1/` (user-scope groff/troff pages; `MANPATH` is
+  pre-pended in `.config/fish/conf.d/00-env.fish` so `man <cmd>` picks
+  them up — `qmk_hid.1` is the first).
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
   (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
 - Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.

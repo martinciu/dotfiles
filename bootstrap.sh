@@ -393,6 +393,16 @@ for src in "$DOTFILES"/bin/*; do
   link "bin/$(basename "$src")" "$HOME/.local/bin/$(basename "$src")"
 done
 
+# --- man pages (section 1, user-scope)
+# Mirror the bin/ pattern: each tracked man page is symlinked into the
+# user-scope man tree. macOS's `man` walks $HOME/.local/share/man via
+# /etc/manpaths.d entries on most installs; `manpath` reports the live list.
+mkdir -p "$HOME/.local/share/man/man1"
+for src in "$DOTFILES"/man/*.1; do
+  [ -e "$src" ] || continue
+  link "man/$(basename "$src")" "$HOME/.local/share/man/man1/$(basename "$src")"
+done
+
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then
