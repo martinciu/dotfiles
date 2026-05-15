@@ -77,6 +77,12 @@ split-inherit-working-directory = false
 # (The Polish-Pro layout broke the default `cmd+shift+,` for this user.)
 keybind = cmd+ctrl+shift+r=reload_config
 
+# ─── Keybindings (scrolling) ──────────────────
+# Scrolls Ghostty's buffer and passes the key through to apps (e.g. Claude Code).
+# Note: doesn't work inside tmux — tmux snaps the view back immediately.
+keybind = unconsumed:page_up=scroll_page_up
+keybind = unconsumed:page_down=scroll_page_down
+
 # ─── Keybindings (splits) ─────────────────────
 keybind = cmd+d=new_split:right
 keybind = cmd+shift+d=new_split:down
