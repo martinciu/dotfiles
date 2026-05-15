@@ -60,6 +60,53 @@ to the foo worktree", or "remove/cleanup the worktree", reach for
 no `wt prune` / `wt cleanup`. Only fall back to raw `git worktree`
 if `wt` itself is unavailable, and call that out before doing it.
 
+## Worktree cleanup — cheapest-signal-first before `wt remove`
+
+`wt list`'s `⊂` marker is a strict ancestor check (`git branch --merged`).
+It misses squash-merges by design, so worktrees that landed on `main` via a
+squash-merged PR show as `↑/✗` indefinitely. Worktrunk has a patch-id
+fallback (since v0.34, max-sixty/worktrunk#1820) but it only fires when
+`git merge-tree` reports a conflict — when `main` has moved many commits
+past the squash with no contested lines, the fallback never runs and the
+branch stays undimmed.
+
+When deciding whether a worktree is safe to remove (especially one shown
+as `↑/✗`), run these checks in cost order. Stop at the first positive
+signal — don't run a more expensive check after a cheaper one has already
+confirmed merged.
+
+1. **Branch name encodes an issue/PR number** (e.g. `100-legend`,
+   `134-preserve-scroll`) — extract the leading number `N`.
+2. **Local commit-message grep (instant)** —
+   `git log main --oneline --grep '#<N>' -1`. Squash-merged PRs land on
+   `main` with `(#<PR-number>)` in the subject and often `closes #<N>` in
+   the body. A hit ⇒ the work is in main.
+3. **Local ancestor check (instant)** —
+   `git branch --merged main | grep <branch>`. Catches non-squash merges
+   (rebase, fast-forward, merge-commit). Redundant with the `⊂` marker
+   but cheap enough to run as a sanity check.
+4. **GitHub issue state (one API call, ~200ms)** —
+   `gh issue view <N> --json state,closedAt`. Closed ⇒ likely merged
+   but not authoritative (issues close for "won't fix" / "duplicate" too).
+5. **GitHub PR state (one API call, ~200ms)** —
+   `gh pr list --head <branch> --state merged --limit 1`. Authoritative
+   on whether a PR with this branch ref was merged.
+6. **Patch-id equivalence (local, slowest)** —
+   `git cherry main <branch>`. All commits prefixed `-` ⇒ squash-merged
+   via patch-id matching. The final fallback — catches squash-merges
+   even when no PR-number convention exists in the commit subject.
+
+Once a positive signal is found, proceed with `wt remove <branch>` per
+the always-`wt` rule above. If all six checks fail, the worktree
+contains unmerged work — surface the local commits to the user before
+removing anything.
+
+Why: cheap local greps are ~10ms each; `gh` API calls are ~200ms each.
+For a `wt list` of 30 stale worktrees, running steps 1–3 across all of
+them costs <1s total and catches the common case (squash-merged with PR
+number in the subject). Reserve the network checks (4–5) and the
+heavier `git cherry` scan (6) for branches that survive the cheap pass.
+
 ## Exploration scope — ignore other worktrees
 
 When exploring a repo (Read, Grep, Glob, or shell `find`/`rg`), never
