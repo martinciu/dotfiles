@@ -35,7 +35,6 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `25-prompt` (starship), `30-aliases`,
   `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
   `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
-  `50-tmux-hooks` (fish_preexec → `@last_cmd` per-pane stamp),
   `99-secrets` (untracked). The two untracked files are copied from
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
   is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
@@ -389,27 +388,6 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
 - **Worktree status segment** uses `git rev-parse --git-dir` vs
   `--git-common-dir` for detection. Don't replace with
   `git worktree list` parsing.
-- **tmux window name follows the active pane's last typed command.**
-  Fish sets per-pane `@last_cmd` from a `fish_preexec` hook in
-  `.config/fish/conf.d/50-tmux-hooks.fish`. `tmux.conf` enables
-  `automatic-rename` reading it. Env-var assignments stripped; first
-  two whitespace tokens used. `allow-rename off` stays so OSC titles
-  can't override. Tests source the module under `*_DOTFILES_TEST=1`
-  and run an 11-case matrix.
-
-  Claude Code is not specially handled — interactive-shell launches
-  stamp `@last_cmd=claude`. Caveat: panes that bypass the shell
-  (`tmux new-window 'claude'`, sesh/tmuxinator `command = "claude"`)
-  have no preexec stamp, so the window falls back to
-  `#{pane_current_command}` — for Claude Code that's the version
-  string (e.g. `2.1.131`) because the binary lives at
-  `~/.local/share/claude/versions/<X.Y.Z>` and `comm` records the
-  resolved-symlink basename. Fix on the launch-config side.
-  `~/.config/tmux/bin/claude-tmux-window-name` and its
-  `SessionStart`/`Stop`/`SessionEnd` hooks survive: `set` mode dormant
-  (Claude Code dropped session JSON `.name` ~2.1.126), but `clear`
-  mode unsets `@last_cmd` on `SessionEnd` so the window flips back
-  promptly. Hook config is per-machine (not symlinked — see README).
 - **Bells silenced at every layer:** Ghostty `bell-features =`, vim
   `belloff=all`, tmux `bell-action/visual-bell/monitor-bell off`. Fish
   has no BEEP option; any `\a` is consumed at Ghostty/tmux. Don't
@@ -545,7 +523,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
   (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
-- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.
+- Helpers: `.config/tmux/bin/{tmux-git-status,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.
 
 ## Cheatsheets (`docs/`)
 
@@ -572,9 +550,7 @@ is `nvim-cheatsheet.html`).
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshots: `scripts/build-screenshots.sh`
 - Render diagrams: `scripts/build-diagrams.sh`
-- Tmux window-label: `scripts/test-fish-tmux-window-label.fish`
 - Pre-remove save-shared: `scripts/test-wt-pre-remove-save.sh`
-- Claude tmux window-name: `scripts/test-claude-tmux-window-name.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`

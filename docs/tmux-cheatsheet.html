@@ -88,7 +88,6 @@
       <li><strong>Hand-rolled status bar.</strong> No catppuccin/powerline plugins.</li>
       <li><strong>Prefix is <code>C-a</code></strong>, not <code>C-Space</code>.</li>
       <li><strong>No <code>bind -n M-*</code></strong> — Alt is reserved for Polish diacritics.</li>
-      <li><strong>Windows auto-rename</strong> from the active pane's last typed command (fish <code>fish_preexec</code> sets <code>@last_cmd</code>). <code>allow-rename off</code> stays so OSC titles can't override.</li>
       <li><strong>Worktree status segment</strong> uses <code>git rev-parse --git-dir</code> vs <code>--git-common-dir</code>. Don't replace with <code>git worktree list</code> parsing.</li>
     </ul>
   </div>
@@ -215,18 +214,6 @@
     </table>
     <p class="note"><strong>Quirk:</strong> we rebind <span class="k prefix">C-a</span><span class="k">l</span> to <em>pane-right</em> (vim style). To go to the previous window, use <span class="k prefix">C-a</span><span class="k">n</span>/<span class="k">p</span> or the picker.</p>
   </div>
-
-  <div class="card">
-    <h3>Auto-rename (custom)</h3>
-    <p>Window name follows the active pane's <strong>last typed command</strong>, set by fish <code>fish_preexec</code> via <code>@last_cmd</code>. Env-var assignments are stripped first; the first two whitespace-separated tokens are used.</p>
-    <ul class="compact">
-      <li><code>vim foo.rb</code> → window name: <code>vim foo.rb</code></li>
-      <li><code>FOO=bar bundle exec rspec</code> → <code>bundle exec</code></li>
-      <li>Pane that bypasses the shell (e.g. <code>tmux new-window 'claude'</code>) → falls back to <code>pane_current_command</code> (usually <code>fish</code>)</li>
-      <li><strong>Claude session active</strong> — window renders <code>claude[&lt;session-name&gt;]</code> (overrides last-typed-command label until Claude exits)</li>
-    </ul>
-    <p class="note"><code>allow-rename off</code> stays — OSC titles from apps (e.g. Claude Code) cannot override.</p>
-  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -345,7 +332,6 @@
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-status-right</code></td><td class="desc">orchestrator for the right-side status segment — composes PR pin (when present) + git chip flush-right</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-pr-detect</code></td><td class="desc">stale-while-revalidate file cache around <code>gh pr view</code> (TTL 60s) — echoes PR number for current branch or empty</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
-      <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-ssh-indicator</code></td><td class="desc">walks each attached client's <code>ps</code> ancestry; prints <code></code> + space when any ancestor is <code>sshd</code>/<code>sshd-session</code> — prepended inside the session chip</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-claude-usage</code></td><td class="desc">parses <code>ccpulse status --json</code> and emits the violet 7d + yellow 5h fused chip pair on the left of the status bar; atomic hide when <code>ccpulse</code> is missing or fields are null</td></tr>
       <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for the helpers</td></tr>
@@ -380,7 +366,6 @@
       <tr><td class="key"><code>tmux send-keys -t mywin "ls" Enter</code></td><td class="desc">type into a target pane</td></tr>
       <tr><td class="key"><code>tmux display-message -p '#S'</code></td><td class="desc">print current session name</td></tr>
       <tr><td class="key"><code>tmux info | grep …</code></td><td class="desc">debug runtime state</td></tr>
-      <tr><td class="key"><code>tmux show -p @last_cmd</code></td><td class="desc">read this pane's last command</td></tr>
     </table>
   </div>
 </div>
@@ -406,25 +391,17 @@
 <span class="c"># Bells silenced everywhere</span>
 <span class="kw">set</span> -g <span class="cmd">bell-action</span>  <span class="arg">none</span>
 <span class="kw">set</span> -g <span class="cmd">visual-bell</span>  <span class="arg">off</span>
-<span class="kw">set</span> -g <span class="cmd">monitor-bell</span> <span class="arg">off</span>
-
-<span class="c"># Window naming: @claude_session_name (Claude hooks) overrides</span>
-<span class="c"># @last_cmd (fish_preexec) overrides pane_current_command (fallback)</span>
-<span class="kw">set</span> -g <span class="cmd">allow-rename</span> <span class="arg">off</span>
-<span class="kw">set</span> -g <span class="cmd">automatic-rename</span> <span class="arg">on</span>
-<span class="kw">set</span> -g <span class="cmd">automatic-rename-format</span> '#{?#{!=:#{@claude_session_name},},claude[#{@claude_session_name}],#{?#{==:#{@last_cmd},},#{pane_current_command},#{@last_cmd}}}'</pre>
+<span class="kw">set</span> -g <span class="cmd">monitor-bell</span> <span class="arg">off</span></pre>
 
 <h3>Reload &amp; verify</h3>
 <table style="max-width:780px">
   <tr><td class="key"><span class="k prefix">C-a</span><span class="k">r</span></td><td class="desc">reload config inside running tmux</td></tr>
   <tr><td class="key"><code>scripts/test-helpers.sh</code></td><td class="desc">smoke-tests for status helpers</td></tr>
-  <tr><td class="key"><code>scripts/test-fish-tmux-window-label.fish</code></td><td class="desc">window-label extraction tests (mirror of fish_preexec stamping in <code>.config/fish/conf.d/50-tmux-hooks.fish</code>)</td></tr>
-  <tr><td class="key"><code>scripts/test-claude-tmux-window-name.sh</code></td><td class="desc">tests for the <code>claude[&lt;name&gt;]</code> window-title helper</td></tr>
   <tr><td class="key"><code>scripts/test-tmux-ssh-indicator.sh</code></td><td class="desc">SSH-indicator tests (mocks <code>tmux</code>+<code>ps</code> via PATH shim, asserts globe glyph emission)</td></tr>
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-13. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-16. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
