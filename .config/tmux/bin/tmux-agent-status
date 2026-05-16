@@ -1,0 +1,53 @@
+#!/opt/homebrew/bin/bash
+# Reads ~/.cache/tmux-agent-status/*.status (written by the
+# samleeney/tmux-agent-status plugin's hook handlers) and emits two
+# whitespace-separated lines that bin/tmux-status-right consumes:
+#
+#   line 1: <state>   — one of: empty | idle | working | wait
+#   line 2: <n_wait> <n_work> <n_done>
+#
+# State derivation:
+#   empty    — cache dir absent OR contains zero .status files
+#   idle     — N≥1 files, all `done`
+#   working  — N≥1 `working`, 0 `wait`
+#   wait     — N≥1 `wait` (regardless of `working`)
+#
+# Unknown tokens are silently ignored. v1 reads only top-level
+# <session>.status files; the plugin's panes/<session>_<pane>.status
+# layer is a purely additive future extension.
+#
+# This is the public contract. Other status-bar code may grow to consume
+# this output — keep the two-line shape stable.
+
+set -e
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-agent-status"
+if [ ! -d "$cache_dir" ]; then
+  printf 'empty\n0 0 0\n'
+  exit 0
+fi
+
+shopt -s nullglob
+files=("$cache_dir"/*.status)
+if [ ${#files[@]} -eq 0 ]; then
+  printf 'empty\n0 0 0\n'
+  exit 0
+fi
+
+declare -i n_wait=0 n_work=0 n_done=0
+for f in "${files[@]}"; do
+  state=""
+  { read -r state || true; } < "$f"
+  case "$state" in
+    wait)    n_wait+=1 ;;
+    working) n_work+=1 ;;
+    done)    n_done+=1 ;;
+  esac
+done
+
+if   [ "$n_wait" -gt 0 ]; then printf 'wait\n'
+elif [ "$n_work" -gt 0 ]; then printf 'working\n'
+elif [ "$n_done" -gt 0 ]; then printf 'idle\n'
+else                            printf 'empty\n'
+fi
+printf '%d %d %d\n' "$n_wait" "$n_work" "$n_done"
