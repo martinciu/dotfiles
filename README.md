@@ -94,6 +94,39 @@ so this is a one-time manual edit. Add (or merge into) the top-level
 These drive the `claude[<name>]` window title (tmux's
 `automatic-rename-format` reads `@claude_session_name`).
 
+**5. tmux-agent-status hooks.** Same per-machine pattern as item 4 —
+`~/.claude/settings.json` is not symlinked from this repo, so wiring
+the four hook entries is manual. After `prefix + I` inside tmux
+installs the plugin via TPM, merge these into the same top-level
+`hooks` object. Where an array already exists (e.g.
+`UserPromptSubmit` and `PreToolUse` host ccstatusline; `Stop` hosts
+`claude-tmux-window-name set`), append the new entry as a sibling —
+do not nest:
+
+```json
+"UserPromptSubmit": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh UserPromptSubmit" } ] }
+],
+"PreToolUse": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh PreToolUse" } ] }
+],
+"Stop": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh Stop" } ] }
+],
+"Notification": [
+  { "hooks": [ { "type": "command",
+    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh Notification" } ] }
+]
+```
+
+These drive the agent-status chip in the right cluster of the tmux
+status bar (left of the PR pin): cyan when any Claude Code session is
+working, red when any is waiting on input, muted "N ready" when all
+done, hidden when no sessions are tracked.
+
 
 ## What's where
 
