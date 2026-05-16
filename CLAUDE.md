@@ -116,10 +116,30 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
+- **tmux-fingers gives one-keystroke copy of visible matches.**
+  TPM plugin `Morantron/tmux-fingers`. Bindings: `<prefix> F` enters
+  copy-mode (hint letter → match copied to clipboard via `pbcopy`),
+  `<prefix> J` enters jump-mode (hint letter → cursor at match inside
+  copy-mode). Default per-modifier actions in hint mode: `Ctrl+letter`
+  = open (URL → browser, path → Finder), `Shift+letter` = paste into
+  pane, `Tab` = multi-select. **No `bind -n M-*` recipes** from the
+  README — Alt stays reserved for Polish diacritics.
+  Hint colors use ANSI palette refs (`colour9`/`colour10`/`colour13`/
+  `colour14`) so they auto-adapt across all seven themes via Ghostty's
+  16-color palette — no per-theme variant files, same trick as
+  `FZF_DEFAULT_OPTS`. Custom patterns added on top of the built-ins:
+  `worktree-[a-z0-9._/-]+` (worktree branch names) and `#\d+` (PR/issue
+  refs). Built-ins kept on: `ip`, `uuid`, `sha`, `digit`, `url`, `path`,
+  `hex`, `kubernetes`, `git-status`, `git-status-branch`, `diff`. Fingers'
+  `<prefix> J` shadows the dashboard pager binding once TPM loads;
+  accepted, dashboard is scheduled for retirement separately.
+  **Fresh-machine setup:** after `prefix + I`, the first-run wizard
+  appears — pick "Build from source" (crystal must be on `$PATH`; install
+  via `brew tap morantron/tmux-fingers && brew install crystal` if needed).
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
   `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'`),
-  `tmux-sessionx`. Status bar is hand-rolled, behavior plugins aren't —
-  don't remove TPM.
+  `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled, behavior
+  plugins aren't — don't remove TPM.
 - **OSC 8 hyperlinks pass through tmux.** Two `terminal-features`
   entries (`xterm-ghostty:hyperlinks`, `xterm-256color:hyperlinks`).
   Without them, tmux strips OSC 8 and Claude Code's file-ref links don't

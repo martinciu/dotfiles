@@ -59,7 +59,7 @@
       <tr><td class="key">Mouse</td><td class="desc">on (URLs: <span class="k">⇧⌘ click</span>)</td></tr>
       <tr><td class="key">History</td><td class="desc">50,000 lines</td></tr>
       <tr><td class="key">Bells</td><td class="desc">silenced (<code>bell-action/visual-bell/monitor-bell off</code>)</td></tr>
-      <tr><td class="key">TPM plugins</td><td class="desc">tpm, tmux-sensible, tmux-resurrect, tmux-continuum, tmux-sessionx</td></tr>
+      <tr><td class="key">TPM plugins</td><td class="desc">tpm, tmux-sensible, tmux-resurrect, tmux-continuum, tmux-sessionx, tmux-fingers</td></tr>
     </table>
   </div>
 
@@ -287,6 +287,28 @@
       <tr><td class="key"><span class="k">v</span> / <span class="k">V</span></td><td class="desc">char / line selection (vi-mode)</td></tr>
     </table>
     <p class="note">Mouse drag also selects. macOS clipboard is wired through tmux's default OSC 52 path; if your terminal supports it (Ghostty does) <span class="k">Enter</span> reaches the system clipboard.</p>
+  </div>
+
+  <div class="card">
+    <h3>Fingers — one-keystroke copy <span class="pill">prefix F / J</span></h3>
+    <p>
+      <code>Morantron/tmux-fingers</code> overlays vimium-style letter
+      hints on every visible match in the active pane. Press the hint
+      letter; the match lands on the macOS clipboard via <code>pbcopy</code>.
+      Built-in patterns cover paths, URLs, SHAs, IPs, UUIDs, k8s names,
+      <code>git status</code> / <code>diff</code> hunks; custom patterns
+      add <code>worktree-…</code> branch names and <code>#N</code>
+      PR/issue refs.
+    </p>
+    <table>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">F</span></td><td class="desc">copy-mode: hint → letter → clipboard</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">J</span></td><td class="desc">jump-mode: hint → letter → cursor at match (inside copy-mode)</td></tr>
+      <tr><td class="key"><span class="k">a</span>…<span class="k">z</span></td><td class="desc">pick a hint (single letter copies / jumps)</td></tr>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">multi-select — pick several matches before confirming</td></tr>
+      <tr><td class="key"><span class="k">⇧</span> <span class="k">letter</span></td><td class="desc">paste match into the current pane instead of clipboard</td></tr>
+      <tr><td class="key"><span class="k">Ctrl</span> <span class="k">letter</span></td><td class="desc">open match (URL → browser, path → Finder via macOS default)</td></tr>
+    </table>
+    <p class="note">Hint colors use ANSI palette refs (<code>colour9</code>/<code>colour13</code>/<code>colour14</code>) so they auto-adapt across themes — no <code>theme-set</code> handoff needed. First-run: after <code>prefix + I</code>, the wizard appears — pick "Build from source" (crystal required).</p>
   </div>
 </div>
 
