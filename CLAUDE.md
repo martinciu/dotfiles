@@ -135,7 +135,10 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   accepted, dashboard is scheduled for retirement separately.
   **Fresh-machine setup:** after `prefix + I`, the first-run wizard
   appears — pick "Build from source" (crystal must be on `$PATH`; install
-  via `brew tap morantron/tmux-fingers && brew install crystal` if needed).
+  via `brew install crystal` if absent). Why no `brew "tmux-fingers"` in
+  Brewfile: the morantron tap also compiles Crystal from source, so the
+  wizard fires either way — declaring it gains nothing over documenting
+  the one-liner here.
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
   `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'`),
   `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled, behavior
