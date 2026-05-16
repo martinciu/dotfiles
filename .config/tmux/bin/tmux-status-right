@@ -3,45 +3,114 @@
 #
 # Usage: tmux-status-right <pwd>
 #
-# Layout:
-#   With PR  : [orange ◖][orange body: <pr-glyph> #<num>][git chip flush-right
-#              with prev_bg=orange — tmux-git-status's tri_l renders as the
-#              yellow-on-orange separator]
-#   Without PR: [git chip flush-right, prev_bg=bar-bg]
+# Layout (left → right, flush-right anchor):
 #
-# Both branches end without a closing cap — the git chip body extends to
-# the screen edge, mirroring the session chip's flush-left anchor.
+#   [optional agent slot][optional PR slot][git chip]
+#
+# Agent slot (from bin/tmux-agent-status output):
+#   empty    → no slot emitted
+#   idle     → muted "<check> N ready" text on bar_bg, no chip cap
+#   working  → cyan chip:  bar_bg <tri_l> #[cyan bold] <bolt> N
+#   wait     → red  chip:  bar_bg <tri_l> #[red  bold] <pause> K [• <bolt> N]
+#
+# PR slot (from bin/tmux-pr-detect): unchanged — orange chip when a
+# PR exists for the current branch. Its leading <tri_l>'s prev_bg is
+# whatever the agent slot left behind (cyan, red, or bar_bg).
+#
+# Git chip (delegated to bin/tmux-git-status): unchanged contract.
+# Receives the final prev_bg (orange when PR present; otherwise the
+# agent's trailing bg, or bar_bg).
 
 set -e
 pwd_in="${1:-$PWD}"
-
-# Colours read from tmux @color_* options (see ~/.config/themes/*.tmux).
-# Solarized hex retained as fallback so the helper still works when invoked
-# outside a tmux server (e.g. from scripts/test-helpers.sh).
-bar_bg="$(tmux show-option -gv @color_bar_bg          2>/dev/null)"; : "${bar_bg:=#073642}"
-pr_bg="$(tmux show-option  -gv @color_accent_orange   2>/dev/null)"; : "${pr_bg:=#cb4b16}"
-pr_fg="$(tmux show-option  -gv @color_light_fg        2>/dev/null)"; : "${pr_fg:=#fdf6e3}"
 helper_dir="$(dirname "${BASH_SOURCE[0]}")"
 
-# Powerline rounded left cap (U+E0B6) and nf-oct-git_pull_request (U+F407)
-# as raw UTF-8 byte sequences (avoids editor-dependent literal embedding;
-# matches the pattern in tmux-git-status).
-tri_l=$(printf '\xee\x82\xb6')
-pr_glyph=$(printf '\xef\x90\x87')
+# ─── Palette ────────────────────────────────
+# Solarized hex retained as fallback so the helper still works when
+# invoked outside a tmux server (test harness path).
+bar_bg="$(tmux  show-option -gv @color_bar_bg        2>/dev/null || true)"; : "${bar_bg:=#073642}"
+muted="$(tmux   show-option -gv @color_muted_fg      2>/dev/null || true)"; : "${muted:=#586e75}"
+red="$(tmux     show-option -gv @color_accent_red    2>/dev/null || true)"; : "${red:=#dc322f}"
+cyan="$(tmux    show-option -gv @color_accent_cyan   2>/dev/null || true)"; : "${cyan:=#2aa198}"
+pr_bg="$(tmux   show-option -gv @color_accent_orange 2>/dev/null || true)"; : "${pr_bg:=#cb4b16}"
+chip_fg="$(tmux show-option -gv @color_light_fg      2>/dev/null || true)"; : "${chip_fg:=#fdf6e3}"
 
-pr_num=$("$helper_dir/tmux-pr-detect" "$pwd_in" 2>/dev/null || true)
+# ─── Glyphs (raw UTF-8; editor-independent) ─
+tri_l=$(printf    '\xee\x82\xb6')   # U+E0B6 left rounded cap
+pr_glyph=$(printf '\xef\x90\x87')   # U+F407 nf-oct-git_pull_request
+bolt=$(printf     '\xef\x83\xa7')   # U+F0E7 nf-fa-bolt        (working)
+pause=$(printf    '\xef\x81\x8c')   # U+F04C nf-fa-pause       (waiting)
+check=$(printf    '\xef\x80\x8c')   # U+F00C nf-fa-check       (ready)
 
-if [ -n "$pr_num" ]; then
-  # Orange PR chip: rounded left cap on bar bg, then bold body. No right
-  # cap — the next chip's tri_l serves as the visual transition.
-  printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #%s ' \
-    "$pr_bg" "$bar_bg" "$tri_l" \
-    "$pr_fg" "$pr_bg" \
-    "$pr_glyph" "$pr_num"
-  # Git chip with prev_bg=orange (so its tri_l becomes the yellow-on-orange
-  # separator) and next_bg='' (flush-right).
-  "$helper_dir/tmux-git-status" "$pwd_in" "$pr_bg" ''
-else
-  # No PR — git chip alone, flush-right.
-  "$helper_dir/tmux-git-status" "$pwd_in" "$bar_bg" ''
+# ─── Agent slot ─────────────────────────────
+# `tmux-agent-status` emits two lines. The orchestrator picks them up
+# via `command -v` so a PATH-shim in the test harness wins over the
+# repo binary; in a live tmux server, the helper_dir copy is on PATH
+# automatically when called from tmux-status-right.
+agent_bin="$(command -v tmux-agent-status 2>/dev/null || true)"
+if [ -z "$agent_bin" ]; then
+  agent_bin="$helper_dir/tmux-agent-status"
 fi
+
+agent_state="empty"
+agent_n_wait=0
+agent_n_work=0
+agent_n_done=0
+if [ -x "$agent_bin" ]; then
+  { read -r agent_state || true; read -r agent_n_wait agent_n_work agent_n_done || true; } < <("$agent_bin")
+fi
+
+agent_slot=""
+trailing_bg="$bar_bg"
+case "$agent_state" in
+  working)
+    body=$(printf ' %s %d ' "$bolt" "$agent_n_work")
+    agent_slot=$(printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold]%s' \
+      "$cyan" "$bar_bg" "$tri_l" \
+      "$chip_fg" "$cyan" \
+      "$body")
+    trailing_bg="$cyan"
+    ;;
+  wait)
+    if [ "$agent_n_work" -gt 0 ]; then
+      body=$(printf ' %s %d \xe2\x80\xa2 %s %d ' \
+        "$pause" "$agent_n_wait" "$bolt" "$agent_n_work")
+    else
+      body=$(printf ' %s %d ' "$pause" "$agent_n_wait")
+    fi
+    agent_slot=$(printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold]%s' \
+      "$red" "$bar_bg" "$tri_l" \
+      "$chip_fg" "$red" \
+      "$body")
+    trailing_bg="$red"
+    ;;
+  idle)
+    agent_slot=$(printf '#[fg=%s,bg=%s] %s %d ready ' \
+      "$muted" "$bar_bg" "$check" "$agent_n_done")
+    trailing_bg="$bar_bg"
+    ;;
+  empty|*)
+    agent_slot=""
+    trailing_bg="$bar_bg"
+    ;;
+esac
+
+# ─── PR slot ────────────────────────────────
+pr_detect_bin="$(command -v tmux-pr-detect 2>/dev/null || true)"
+if [ -z "$pr_detect_bin" ]; then
+  pr_detect_bin="$helper_dir/tmux-pr-detect"
+fi
+pr_num=$("$pr_detect_bin" "$pwd_in" 2>/dev/null || true)
+
+pr_slot=""
+if [ -n "$pr_num" ]; then
+  pr_slot=$(printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s #%s ' \
+    "$pr_bg" "$trailing_bg" "$tri_l" \
+    "$chip_fg" "$pr_bg" \
+    "$pr_glyph" "$pr_num")
+  trailing_bg="$pr_bg"
+fi
+
+# ─── Compose + delegate to git chip ─────────
+printf '%s%s' "$agent_slot" "$pr_slot"
+"$helper_dir/tmux-git-status" "$pwd_in" "$trailing_bg" ''

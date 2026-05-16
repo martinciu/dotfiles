@@ -233,6 +233,90 @@ else
   teardown_sandbox
 fi
 
+# ─── Agent-slot composition (Task 3 of plan #231) ─────────────
+echo
+echo "tmux-status-right — agent slot"
+echo "──────────────────────────────"
+
+# Helper: build a sandbox with both tmux-pr-detect and tmux-agent-status
+# shimmed onto PATH. $1 = PR number to emit ('' for no PR). $2 = first
+# stdout line of the agent helper. $3 = second line.
+# Also unsets TMUX and points TMUX_TMPDIR at an empty dir so the
+# orchestrator cannot reach a live tmux server and uses Solarized
+# fallback colours instead of whatever theme is active.
+setup_agent_sandbox() {
+  local pr="$1" agent_line1="$2" agent_line2="$3"
+  _SAVED_PATH="$PATH"; _SAVED_HOME="$HOME"
+  _SAVED_TMUX="${TMUX:-}"; _SAVED_TMUX_TMPDIR="${TMUX_TMPDIR:-}"; _SAVED_TMPDIR="${TMPDIR:-}"
+  TEST_HOME=$(mktemp -d)
+  mkdir -p "$TEST_HOME/bin"
+
+  cat > "$TEST_HOME/bin/tmux-pr-detect" <<EOF
+#!/opt/homebrew/bin/bash
+printf '%s' "$pr"
+EOF
+  chmod +x "$TEST_HOME/bin/tmux-pr-detect"
+
+  cat > "$TEST_HOME/bin/tmux-agent-status" <<EOF
+#!/opt/homebrew/bin/bash
+printf '%s\n%s\n' "$agent_line1" "$agent_line2"
+EOF
+  chmod +x "$TEST_HOME/bin/tmux-agent-status"
+
+  export PATH="$TEST_HOME/bin:$PATH"
+  export HOME="$TEST_HOME"
+  # Prevent the orchestrator from reaching the live tmux server so
+  # Solarized hex fallbacks are used for colour assertions.
+  # tmux searches: $TMUX (cleared) → $TMUX_TMPDIR/tmux-<uid>/ →
+  # $TMPDIR/tmux-<uid>/ → /tmp/tmux-<uid>/. Overriding both TMUX_TMPDIR
+  # and TMPDIR with an empty dir ensures no socket is found.
+  mkdir -p "$TEST_HOME/no-tmux-socket"
+  unset TMUX
+  export TMUX_TMPDIR="$TEST_HOME/no-tmux-socket"
+  export TMPDIR="$TEST_HOME/no-tmux-socket"
+}
+
+teardown_agent_sandbox() {
+  PATH="$_SAVED_PATH"; HOME="$_SAVED_HOME"
+  export PATH HOME
+  if [ -n "${_SAVED_TMUX:-}" ]; then export TMUX="$_SAVED_TMUX"; else unset TMUX; fi
+  if [ -n "${_SAVED_TMUX_TMPDIR:-}" ]; then export TMUX_TMPDIR="$_SAVED_TMUX_TMPDIR"; else unset TMUX_TMPDIR; fi
+  if [ -n "${_SAVED_TMPDIR:-}" ]; then export TMPDIR="$_SAVED_TMPDIR"; else unset TMPDIR; fi
+  rm -rf "$TEST_HOME"
+  unset TEST_HOME _SAVED_PATH _SAVED_HOME _SAVED_TMUX _SAVED_TMUX_TMPDIR _SAVED_TMPDIR
+}
+
+# Case A: no agent, no PR — git chip flush-right, prev_bg=bar_bg.
+setup_agent_sandbox '' 'empty' '0 0 0'
+out=$("$ORCHESTRATOR" "$REPO")
+assert_not_contains "$out" '#cb4b16' "A. no agent + no PR → no orange chip"
+assert_not_contains "$out" '#dc322f' "A. no agent + no PR → no red chip"
+assert_not_contains "$out" '#2aa198' "A. no agent + no PR → no cyan chip"
+teardown_agent_sandbox
+
+# Case B: working agent (cyan), no PR.
+setup_agent_sandbox '' 'working' '0 2 0'
+out=$("$ORCHESTRATOR" "$REPO")
+assert_contains     "$out" '#2aa198' "B. working agent → cyan chip"
+assert_not_contains "$out" '#dc322f' "B. working agent → no red chip"
+assert_not_contains "$out" '#cb4b16' "B. no PR → no orange chip"
+teardown_agent_sandbox
+
+# Case C: waiting agent (red, dominant) + working tally, with PR.
+setup_agent_sandbox '107' 'wait' '1 1 0'
+out=$("$ORCHESTRATOR" "$REPO")
+assert_contains "$out" '#dc322f' "C. waiting agent → red chip"
+assert_contains "$out" '#cb4b16' "C. PR present → orange chip"
+teardown_agent_sandbox
+
+# Case D: idle agent (muted N ready, no chip bg) + no PR.
+setup_agent_sandbox '' 'idle' '0 0 3'
+out=$("$ORCHESTRATOR" "$REPO")
+assert_contains     "$out" 'ready'    "D. idle agent → 'ready' text"
+assert_not_contains "$out" '#2aa198' "D. idle agent → no cyan chip bg"
+assert_not_contains "$out" '#dc322f' "D. idle agent → no red chip bg"
+teardown_agent_sandbox
+
 echo
 if [ "$fail" -gt 0 ]; then
   echo "──────"
