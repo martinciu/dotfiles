@@ -56,8 +56,10 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   blue (session chip, left), green (active window pin, center), violet
   (main-checkout git chip on the right + 7d Claude-usage chip on the
   left), yellow (worktree git chip on the right + 5h Claude-usage chip
-  on the left), orange (PR pin, left of git chip). When adding a pin,
-  pick from unused accents (red, magenta, cyan); reconsider if all are
+  on the left), orange (PR pin, left of git chip), **red** (agent-status
+  chip "needs input" state, left of PR pin), **cyan** (agent-status chip
+  "working" state, same slot). When adding a pin,
+  pick from unused accents (magenta); reconsider if all are
   taken. **Palette reuse across the left and right clusters is
   permitted** — the usage cluster's violet and yellow slots are
   positional, not paired with anything on the right. Two violets or
@@ -114,6 +116,33 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   The cluster's violet/yellow palette is positional and independent
   of the right-side git chips' palette — see the palette-reuse note
   in the unique-accent rule.
+- **tmux Claude agent-status chip** wired into `status-right` via
+  `bin/tmux-status-right`, slotted *left* of the PR pin. Reads
+  `bin/tmux-agent-status` (a thin consumer of
+  `~/.cache/tmux-agent-status/*.status` files written by the
+  `samleeney/tmux-agent-status` plugin's Claude Code hook handlers).
+  Two-line stdout contract: `<state>` ∈ {empty, idle, working, wait},
+  then `<n_wait> <n_work> <n_done>`. Adaptive single chip, same shape
+  as the 7d usage chip's auto-expand: `empty` hides entirely, `idle`
+  renders muted `<check> N ready` on `bar_bg` (no chip bg), `working`
+  is a cyan chip ` <bolt> N `, `wait` is a red chip ` <pause> K ` (or
+  ` <pause> K • <bolt> N ` when both states co-exist). State precedence
+  `wait > working > done > empty` because "needs input" is the only
+  actionable state. Glyphs: `nf-fa-bolt` (U+F0E7), `nf-fa-pause`
+  (U+F04C), `nf-fa-check` (U+F00C). Plugin runs in popup-only mode
+  (`@agent-switcher-style 'popup'`) — no per-session sidebar.
+  Notification sound disabled (`@agent-notification-sound 'none'`) per
+  the bells-silenced posture. Keybindings claim plugin defaults
+  (`<prefix> S` popup switcher, `<prefix> N` next-ready, `<prefix> W`
+  wait, `<prefix> p` park; `<prefix> o` is dead in popup mode).
+  `<prefix> p` shadows tmux's default `previous-window`; existing
+  `<prefix> ,` / `.` cycle bindings cover it. Hook config lives in
+  `~/.claude/settings.json` per-machine (same pattern as ccstatusline
+  and `claude-tmux-window-name`; see README "Manual extras" item 5,
+  and #232 for the cross-cutting follow-up to track that file). The
+  unique-accent rule above gains two entries: **red** claimed by the
+  needs-input state, **cyan** claimed by the working state; magenta
+  still free. Smoke test: `scripts/test-tmux-agent-status.sh`.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
