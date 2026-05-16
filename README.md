@@ -71,30 +71,6 @@ git config --global delta.line-numbers true
 git config --global include.path "~/.config/themes/delta-current.gitconfig"
 ```
 
-**4. Claude Code window-title hooks.** `~/.claude/settings.json` is not
-symlinked from this repo (it accumulates machine-local permission state),
-so this is a one-time manual edit. Add (or merge into) the top-level
-`hooks` object:
-
-```json
-"SessionStart": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
-],
-"Stop": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name set" } ] }
-],
-"SessionEnd": [
-  { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/bin/claude-tmux-window-name clear" } ] }
-]
-```
-
-These drive the `claude[<name>]` window title (tmux's
-`automatic-rename-format` reads `@claude_session_name`).
-
-
 ## What's where
 
 | Tool         | Source path                          | Target              |

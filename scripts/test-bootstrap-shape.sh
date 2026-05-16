@@ -70,7 +70,7 @@ assert_symlink_to "$HOME/.config/fish/config.fish"     "$REPO/.config/fish/confi
 assert_symlink_to "$HOME/.config/fish/completions"     "$REPO/.config/fish/completions"     "completions/ symlink"
 assert_symlink_to "$HOME/.config/fish/functions"       "$REPO/.config/fish/functions"       "functions/ symlink"
 for f in 00-env.fish 10-colors.fish 20-mise.fish 25-prompt.fish \
-         30-aliases.fish 35-abbreviations.fish 40-plugins.fish 50-tmux-hooks.fish; do
+         30-aliases.fish 35-abbreviations.fish 40-plugins.fish; do
   assert_symlink_to "$HOME/.config/fish/conf.d/$f" "$REPO/.config/fish/conf.d/$f" "conf.d/$f symlink"
 done
 assert_real_file  "$HOME/.config/fish/conf.d/15-local.fish"  "15-local.fish is a real file"
