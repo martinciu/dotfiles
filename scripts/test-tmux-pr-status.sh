@@ -52,8 +52,12 @@ assert_not_contains() {
 }
 
 # Build a sandbox: TEST_HOME for $HOME, plus a bin/ holding our gh shim.
+# Also stubs `tmux` so the orchestrator cannot reach the live tmux server —
+# forcing Solarized hex fallbacks for colour assertions rather than reading
+# the active theme's @color_accent_orange.
 setup_sandbox() {
   local fixture="$1" gh_response="$2"
+  _SAVED_PATH="$PATH"; _SAVED_HOME="$HOME"
   TEST_HOME=$(mktemp -d)
   mkdir -p "$TEST_HOME/bin"
   GH_CALLS="$TEST_HOME/gh-calls"
@@ -75,6 +79,19 @@ esac
 EOF
   chmod +x "$TEST_HOME/bin/gh"
 
+  # Stub `tmux` so show-option returns empty stdout (exit 0) → the
+  # `: "${var:=<solarized-hex>}"` fallbacks in tmux-status-right and
+  # tmux-git-status kick in. Without this, calls to the live tmux server would
+  # return the active theme's @color_accent_orange (e.g. Tokyo Night's #ff9e64)
+  # instead of the Solarized #cb4b16 the assertions expect, making the tests
+  # theme-dependent.
+  cat > "$TEST_HOME/bin/tmux" <<'EOF'
+#!/opt/homebrew/bin/bash
+# Shim: show-option returns empty (triggers Solarized fallbacks); all else no-ops.
+exit 0
+EOF
+  chmod +x "$TEST_HOME/bin/tmux"
+
   # XDG_CACHE_HOME under TEST_HOME so cache files are isolated.
   export XDG_CACHE_HOME="$TEST_HOME/cache"
   export HOME="$TEST_HOME"
@@ -82,10 +99,10 @@ EOF
 }
 
 teardown_sandbox() {
+  PATH="$_SAVED_PATH"; HOME="$_SAVED_HOME"
+  export PATH HOME
   rm -rf "$TEST_HOME"
-  PATH="${PATH#$TEST_HOME/bin:}"
-  export PATH
-  unset TEST_HOME GH_CALLS XDG_CACHE_HOME
+  unset TEST_HOME GH_CALLS XDG_CACHE_HOME _SAVED_PATH _SAVED_HOME
 }
 
 # Wait for a backgrounded refresh to finish writing its cache file.
