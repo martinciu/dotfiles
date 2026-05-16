@@ -123,9 +123,14 @@ do not nest:
 ```
 
 These drive the agent-status chip in the right cluster of the tmux
-status bar (left of the PR pin): cyan when any Claude Code session is
-working, red when any is waiting on input, muted "N ready" when all
-done, hidden when no sessions are tracked.
+status bar (left of the PR pin): **cyan** when any Claude Code session
+is actively responding; **red** when one or more sessions are in
+operator-marked wait mode (set via `<prefix> W`); muted **"N ready"**
+when all sessions are settled — finished a turn *or* blocked on a
+permission prompt (both `Stop` and `Notification` write `done`, so the
+chip does not distinguish them); hidden when no sessions are tracked.
+The plugin's `better-hook.sh` keys each session by tmux session name
+(via `tmux display-message`), not by Claude's session id.
 
 
 ## What's where

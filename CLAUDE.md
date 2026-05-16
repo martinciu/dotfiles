@@ -57,7 +57,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (main-checkout git chip on the right + 7d Claude-usage chip on the
   left), yellow (worktree git chip on the right + 5h Claude-usage chip
   on the left), orange (PR pin, left of git chip), **red** (agent-status
-  chip "needs input" state, left of PR pin), **cyan** (agent-status chip
+  chip operator-wait state, left of PR pin), **cyan** (agent-status chip
   "working" state, same slot). When adding a pin,
   pick from unused accents (magenta); reconsider if all are
   taken. **Palette reuse across the left and right clusters is
@@ -127,8 +127,16 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   renders muted `<check> N ready` on `bar_bg` (no chip bg), `working`
   is a cyan chip ` <bolt> N `, `wait` is a red chip ` <pause> K ` (or
   ` <pause> K • <bolt> N ` when both states co-exist). State precedence
-  `wait > working > done > empty` because "needs input" is the only
-  actionable state. Glyphs: `nf-fa-bolt` (U+F0E7), `nf-fa-pause`
+  `wait > working > done > empty` because operator-marked wait is the
+  highest-priority signal — you've explicitly parked the session and
+  don't want it drowned out by transient working/done noise. **State
+  origins (upstream `better-hook.sh` behavior):** `working` from
+  Claude Code's `UserPromptSubmit` / `PreToolUse` hooks; `done` from
+  `Stop` *and* `Notification` (the chip does not distinguish "turn
+  finished" from "blocked on permission prompt" — both surface as
+  muted "N ready"); `wait` only from the operator pressing
+  `<prefix> W` on a tmux session, never from a Claude lifecycle
+  event. Glyphs: `nf-fa-bolt` (U+F0E7), `nf-fa-pause`
   (U+F04C), `nf-fa-check` (U+F00C). Plugin runs in popup-only mode
   (`@agent-switcher-style 'popup'`) — no per-session sidebar.
   Notification sound disabled (`@agent-notification-sound 'none'`) per
@@ -141,7 +149,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   and `claude-tmux-window-name`; see README "Manual extras" item 5,
   and #232 for the cross-cutting follow-up to track that file). The
   unique-accent rule above gains two entries: **red** claimed by the
-  needs-input state, **cyan** claimed by the working state; magenta
+  operator-wait state, **cyan** claimed by the working state; magenta
   still free. Smoke test: `scripts/test-tmux-agent-status.sh`.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish

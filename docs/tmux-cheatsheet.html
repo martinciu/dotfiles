@@ -317,7 +317,7 @@
     <ul class="compact">
       <li><strong>Left:</strong> session name on a blue chip with a powerline arrow (gains a leading globe glyph <code></code> <code>nf-fa-globe</code> when any attached tmux client is SSH-rooted — drives <code>tmux-ssh-indicator</code>), followed by the Claude-usage cluster: violet 7d chip (<code>🤖</code> U+1F916 + <code></code> <code>nf-oct-calendar</code>, compact <code>&lt;pct&gt;%</code> that auto-expands to add <code>• &lt;reset&gt;</code> at <code>pct ≥ 80</code>) fused with the yellow 5h chip (<code></code> <code>nf-fa-hourglass-half</code>, always shows <code>&lt;pct&gt;% • &lt;reset&gt;</code>). On overreach (<code>projection.&lt;window&gt;.will_overreach == true</code> from <code>ccpulse</code>), the affected chip inserts <code></code> <code>nf-fa-fire</code> + <code>→ &lt;projected_pct&gt;%</code> after the <code>&lt;pct&gt;%</code>; the 7d chip auto-expands on overreach even at low <code>pct</code>. Whole cluster hides cleanly when <code>ccpulse</code> is missing or any of the four core fields are null; missing <code>projection</code> field renders the cluster without overreach decoration (graceful degrade). Drives <code>tmux-claude-usage</code>.</li>
       <li><strong>Center (absolute-centered on the full bar):</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>green</code>-on-<code>base3</code> chip with rounded powerline caps.</li>
-      <li><strong>Right:</strong> agent-status chip (left of PR pin) — cyan when any Claude Code session is working, red when any is waiting on input, muted "N ready" when all done, hidden when no sessions tracked. Then optional orange PR pin (open/draft PR for current branch). Then branch chip: violet for main checkout, yellow for worktree, always flush-right (no closing cap). Drives <code>tmux-status-right</code> → <code>tmux-agent-status</code> + <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
+      <li><strong>Right:</strong> agent-status chip (left of PR pin) — cyan when any Claude Code session is actively responding, red when one or more sessions are in operator-marked wait mode (<span class="k prefix">C-a</span> <span class="k">W</span>), muted "N ready" when sessions are settled (turn finished <em>or</em> blocked on a permission prompt — both surface the same), hidden when no sessions tracked. Then optional orange PR pin (open/draft PR for current branch). Then branch chip: violet for main checkout, yellow for worktree, always flush-right (no closing cap). Drives <code>tmux-status-right</code> → <code>tmux-agent-status</code> + <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
     </ul>
   </div>
 
@@ -338,7 +338,7 @@
       <span class="swatch"><i style="background:#6c71c4"></i> violet (main branch)</span>
       <span class="swatch"><i style="background:#cb4b16"></i> orange (PR pin)</span>
       <span class="swatch"><i style="background:#2aa198"></i> cyan (agent working)</span>
-      <span class="swatch"><i style="background:#dc322f"></i> red (agent waiting)</span>
+      <span class="swatch"><i style="background:#dc322f"></i> red (operator wait)</span>
     </div>
     <p class="note">Selection / message style uses cyan-on-base03; pane border switches base01 → blue when active.</p>
   </div>
