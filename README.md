@@ -97,28 +97,30 @@ These drive the `claude[<name>]` window title (tmux's
 **5. tmux-agent-status hooks.** Same per-machine pattern as item 4 —
 `~/.claude/settings.json` is not symlinked from this repo, so wiring
 the four hook entries is manual. After `prefix + I` inside tmux
-installs the plugin via TPM, merge these into the same top-level
-`hooks` object. Where an array already exists (e.g.
-`UserPromptSubmit` and `PreToolUse` host ccstatusline; `Stop` hosts
-`claude-tmux-window-name set`), append the new entry as a sibling —
-do not nest:
+installs the upstream plugin via TPM, merge these into the same
+top-level `hooks` object. Hooks point at a dotfiles-owned wrapper
+(`bin/tmux-agent-status-hook`) rather than the plugin's own
+`better-hook.sh` — see the "why a wrapper" note below. Where an array
+already exists (e.g. `UserPromptSubmit` and `PreToolUse` host
+ccstatusline; `Stop` hosts `claude-tmux-window-name set`), append the
+new entry as a sibling — do not nest:
 
 ```json
 "UserPromptSubmit": [
   { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh UserPromptSubmit" } ] }
+    "command": "~/.config/tmux/bin/tmux-agent-status-hook UserPromptSubmit" } ] }
 ],
 "PreToolUse": [
   { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh PreToolUse" } ] }
+    "command": "~/.config/tmux/bin/tmux-agent-status-hook PreToolUse" } ] }
 ],
 "Stop": [
   { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh Stop" } ] }
+    "command": "~/.config/tmux/bin/tmux-agent-status-hook Stop" } ] }
 ],
 "Notification": [
   { "hooks": [ { "type": "command",
-    "command": "~/.config/tmux/plugins/tmux-agent-status/hooks/better-hook.sh Notification" } ] }
+    "command": "~/.config/tmux/bin/tmux-agent-status-hook Notification" } ] }
 ]
 ```
 
@@ -129,8 +131,20 @@ operator-marked wait mode (set via `<prefix> W`); muted **"N ready"**
 when all sessions are settled — finished a turn *or* blocked on a
 permission prompt (both `Stop` and `Notification` write `done`, so the
 chip does not distinguish them); hidden when no sessions are tracked.
-The plugin's `better-hook.sh` keys each session by tmux session name
-(via `tmux display-message`), not by Claude's session id.
+The wrapper keys each session by tmux session name (via
+`tmux display-message`), sanitizing `/` → `_` in the path, not by
+Claude's session id.
+
+*Why a wrapper instead of pointing at the plugin's `better-hook.sh`
+directly?* The upstream plugin builds flat cache paths like
+`$STATUS_DIR/<session>.status` and chokes when session names contain
+`/` — which is exactly the `s` worktree-session convention
+(`<project>/<branch>`). The wrapper sanitizes `/` → `_` before writing,
+so `dotfiles/231-tmux-agent-status` becomes
+`dotfiles_231-tmux-agent-status.status` instead of a broken nested path.
+The plugin's switcher and popup read the same cache files, so they see
+our writes too. The durable fix is to land the sanitization upstream
+in `samleeney/tmux-agent-status`.
 
 
 ## What's where

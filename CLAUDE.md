@@ -147,10 +147,20 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `<prefix> ,` / `.` cycle bindings cover it. Hook config lives in
   `~/.claude/settings.json` per-machine (same pattern as ccstatusline
   and `claude-tmux-window-name`; see README "Manual extras" item 5,
-  and #232 for the cross-cutting follow-up to track that file). The
-  unique-accent rule above gains two entries: **red** claimed by the
-  operator-wait state, **cyan** claimed by the working state; magenta
-  still free. Smoke test: `scripts/test-tmux-agent-status.sh`.
+  and #232 for the cross-cutting follow-up to track that file).
+  **Hooks point at a dotfiles-owned wrapper, not the upstream plugin's
+  `better-hook.sh`.** The wrapper at `bin/tmux-agent-status-hook`
+  sanitizes `/` → `_` before writing the cache path; the upstream
+  hook builds flat paths and chokes on `/`-bearing session names like
+  `dotfiles/231-tmux-agent-status` (the `s` worktree convention). Our
+  wrapper writes the same `<sanitized>.status` shape the plugin's
+  switcher reads, so the popup/sidebar pick up our state too. Patching
+  upstream is the durable fix — track via the linked issue against
+  `samleeney/tmux-agent-status`. The unique-accent rule above gains two
+  entries: **red** claimed by the operator-wait state, **cyan** claimed
+  by the working state; magenta still free. Smoke tests:
+  `scripts/test-tmux-agent-status.sh` (reader),
+  `scripts/test-tmux-agent-status-hook.sh` (writer).
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
@@ -582,7 +592,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config
   (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
-- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.
+- Helpers: `.config/tmux/bin/{tmux-git-status,claude-tmux-window-name,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right,tmux-agent-status,tmux-agent-status-hook}`.
 
 ## Cheatsheets (`docs/`)
 
@@ -614,6 +624,8 @@ is `nvim-cheatsheet.html`).
 - Claude tmux window-name: `scripts/test-claude-tmux-window-name.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
+- tmux agent-status reader: `scripts/test-tmux-agent-status.sh`
+- tmux agent-status hook (writer): `scripts/test-tmux-agent-status-hook.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Dashboard smoke + integration: `scripts/test-dashboard.sh`

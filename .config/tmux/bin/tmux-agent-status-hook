@@ -1,0 +1,50 @@
+#!/opt/homebrew/bin/bash
+# Dotfiles-owned Claude Code hook writer for the agent-status chip.
+#
+# Why this exists instead of pointing settings.json directly at the
+# upstream plugin's `better-hook.sh`: that script builds flat paths
+# like `$STATUS_DIR/<session>.status`, which breaks for tmux sessions
+# whose names contain '/' (the `s` worktree convention writes sessions
+# as `<project>/<branch>`). better-hook.sh's writes then silently fail
+# (mkdir is not done for the implied parent), and the agent-status
+# chip stays empty forever. See README "Manual extras" item 5 and the
+# upstream-issue link there for the durable fix.
+#
+# This wrapper sanitizes '/' → '_' and writes the state directly. The
+# top-level <session>.status path is the same shape the upstream
+# plugin reads, so its switcher / popup still sees our writes; only
+# the broken nested-path code path is bypassed.
+#
+# Contract:
+#   $1                 — one of: UserPromptSubmit | PreToolUse | Stop | Notification
+#   stdin (drained)    — Claude Code event JSON (ignored; drained to avoid
+#                        EPIPE in the caller per the hook protocol)
+#   side effect        — writes a single token (working | done) to
+#                        $XDG_CACHE_HOME/tmux-agent-status/<sanitized>.status
+#                        (default $HOME/.cache); creates the dir if absent.
+#
+# Outside tmux (no $TMUX, empty session name) the script exits 0
+# without touching the cache.
+
+set -e
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-agent-status"
+
+# Drain stdin so Claude Code's writer side never blocks on EPIPE.
+cat >/dev/null 2>&1 || true
+
+[ -n "${TMUX:-}" ] || exit 0
+session=$(tmux display-message -p '#{session_name}' 2>/dev/null || true)
+[ -n "$session" ] || exit 0
+
+# Sanitize '/' so flat-path writes succeed under <project>/<branch> names.
+session="${session//\//_}"
+
+case "${1:-}" in
+  UserPromptSubmit|PreToolUse) state=working ;;
+  Stop|Notification)            state=done ;;
+  *) exit 0 ;;
+esac
+
+mkdir -p "$cache_dir"
+printf '%s\n' "$state" > "$cache_dir/${session}.status"
