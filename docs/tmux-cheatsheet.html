@@ -76,6 +76,10 @@
       <tr><td class="key"><code>s [&lt;project&gt;] [&lt;name&gt;]</code></td><td class="desc">create-or-attach worktree+session — inside tmux 1 arg = worktree name in current project, outside tmux 1 arg = project, 0 args = fzf picker</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">T</span></td><td class="desc">clock-mode <span class="muted">(swapped from default <code>t</code>)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">P</span></td><td class="desc">open current branch's PR in browser via <code>gh pr view --web</code> (silent when no PR — counterpart to the orange status-bar PR pin)</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">S</span></td><td class="desc">tmux-agent-status — open hierarchical fzf switcher (sessions / windows / panes) <span class="muted">(<code>samleeney/tmux-agent-status</code>)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">N</span></td><td class="desc">tmux-agent-status — jump to next "ready" / waiting agent session</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">W</span></td><td class="desc">tmux-agent-status — put current session or pane into timed wait mode</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">p</span></td><td class="desc">tmux-agent-status — park current session or pane <span class="muted">(shadows tmux default <code>previous-window</code>; use <span class="k prefix">C-a</span> <span class="k">,</span> for that)</span></td></tr>
       <tr><td class="key"><span class="k">⇧⌘ click</span></td><td class="desc">Claude Code file links → routes via macOS file-type defaults (OSC 8 passthrough enabled in <code>tmux.conf</code> via <code>terminal-features hyperlinks</code>)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">?</span></td><td class="desc">list all keybindings</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">:</span></td><td class="desc">command prompt</td></tr>
@@ -313,7 +317,7 @@
     <ul class="compact">
       <li><strong>Left:</strong> session name on a blue chip with a powerline arrow (gains a leading globe glyph <code></code> <code>nf-fa-globe</code> when any attached tmux client is SSH-rooted — drives <code>tmux-ssh-indicator</code>), followed by the Claude-usage cluster: violet 7d chip (<code>🤖</code> U+1F916 + <code></code> <code>nf-oct-calendar</code>, compact <code>&lt;pct&gt;%</code> that auto-expands to add <code>• &lt;reset&gt;</code> at <code>pct ≥ 80</code>) fused with the yellow 5h chip (<code></code> <code>nf-fa-hourglass-half</code>, always shows <code>&lt;pct&gt;% • &lt;reset&gt;</code>). On overreach (<code>projection.&lt;window&gt;.will_overreach == true</code> from <code>ccpulse</code>), the affected chip inserts <code></code> <code>nf-fa-fire</code> + <code>→ &lt;projected_pct&gt;%</code> after the <code>&lt;pct&gt;%</code>; the 7d chip auto-expands on overreach even at low <code>pct</code>. Whole cluster hides cleanly when <code>ccpulse</code> is missing or any of the four core fields are null; missing <code>projection</code> field renders the cluster without overreach decoration (graceful degrade). Drives <code>tmux-claude-usage</code>.</li>
       <li><strong>Center (absolute-centered on the full bar):</strong> windows. Inactive = <code>base01</code> on <code>base02</code>; active = <code>green</code>-on-<code>base3</code> chip with rounded powerline caps.</li>
-      <li><strong>Right:</strong> orange PR pin (when the current branch has an open/draft PR) glued to the branch chip via a rounded yellow-on-orange separator. Branch chip is violet for main checkout, yellow for worktree, always flush-right (no closing cap — mirrors the session chip's flush-left anchor). Drives <code>tmux-status-right</code> → <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
+      <li><strong>Right:</strong> agent-status chip (left of PR pin) — cyan when any Claude Code session is working, red when any is waiting on input, muted "N ready" when all done, hidden when no sessions tracked. Then optional orange PR pin (open/draft PR for current branch). Then branch chip: violet for main checkout, yellow for worktree, always flush-right (no closing cap). Drives <code>tmux-status-right</code> → <code>tmux-agent-status</code> + <code>tmux-pr-detect</code> + <code>tmux-git-status</code>.</li>
     </ul>
   </div>
 
@@ -333,8 +337,8 @@
       <span class="swatch"><i style="background:#b58900"></i> yellow (worktree branch)</span>
       <span class="swatch"><i style="background:#6c71c4"></i> violet (main branch)</span>
       <span class="swatch"><i style="background:#cb4b16"></i> orange (PR pin)</span>
-      <span class="swatch"><i style="background:#2aa198"></i> cyan (selection)</span>
-      <span class="swatch"><i style="background:#dc322f"></i> red</span>
+      <span class="swatch"><i style="background:#2aa198"></i> cyan (agent working)</span>
+      <span class="swatch"><i style="background:#dc322f"></i> red (agent waiting)</span>
     </div>
     <p class="note">Selection / message style uses cyan-on-base03; pane border switches base01 → blue when active.</p>
   </div>
@@ -342,7 +346,8 @@
   <div class="card">
     <h3>Status helpers</h3>
     <table>
-      <tr><td class="key"><code>~/.config/tmux/bin/tmux-status-right</code></td><td class="desc">orchestrator for the right-side status segment — composes PR pin (when present) + git chip flush-right</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-status-right</code></td><td class="desc">orchestrator for the right-side status segment — composes agent-status chip + PR pin (when present) + git chip flush-right</td></tr>
+      <tr><td class="key"><code>~/.config/tmux/bin/tmux-agent-status</code></td><td class="desc">reads <code>~/.cache/tmux-agent-status/*.status</code> (written by <code>samleeney/tmux-agent-status</code> hooks); emits <code>&lt;state&gt;</code> + counts on two lines; state precedence: wait &gt; working &gt; done &gt; empty</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-pr-detect</code></td><td class="desc">stale-while-revalidate file cache around <code>gh pr view</code> (TTL 60s) — echoes PR number for current branch or empty</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/tmux-git-status</code></td><td class="desc">git/worktree status segment, colors as args</td></tr>
       <tr><td class="key"><code>~/.config/tmux/bin/claude-tmux-window-name</code></td><td class="desc">sets/clears <code>@claude_session_name</code> from Claude Code hooks (drives <code>claude[&lt;name&gt;]</code> window title)</td></tr>
@@ -424,7 +429,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-13. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-16. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
