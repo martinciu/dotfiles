@@ -240,6 +240,12 @@ else
   fi
 fi
 
+# ─── tmux-agent-status ───────────────────────
+if ! bash "$(dirname "$0")/test-tmux-agent-status.sh"; then
+  fail=$((fail+1))
+  fail_msgs+=("FAIL  scripts/test-tmux-agent-status.sh reported failures")
+fi
+
 if ! bash "$(dirname "$0")/test-s.sh"; then
   fail=$((fail+1))
   fail_msgs+=("FAIL  scripts/test-s.sh reported failures")
