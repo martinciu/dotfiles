@@ -90,6 +90,17 @@ are safe in every session. `bd init` is **not** part of fresh-machine
 setup — running it is a per-project decision, currently gated on the
 follow-up issues opened against #244.
 
+**5. `atuin import fish`** — one-time backfill of existing fish history
+into the atuin sqlite store. Run after `brew bundle` (which installs
+atuin) and after `bootstrap.sh` (which symlinks `~/.config/atuin/`):
+
+```sh
+atuin import fish
+```
+
+Safe to re-run (idempotent for already-imported rows). After this,
+Ctrl-R and Up open atuin's picker (config at `.config/atuin/config.toml`).
+
 ## What's where
 
 | Tool         | Source path                          | Target              |

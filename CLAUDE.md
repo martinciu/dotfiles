@@ -35,10 +35,33 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `25-prompt` (starship), `30-aliases`,
   `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
   `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `45-atuin` (atuin Ctrl-R + Up; rebinds after fzf),
   `99-secrets` (untracked). The two untracked files are copied from
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
   is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
   tab-completion. Smoke test: `scripts/test-fish-loads.sh`.
+- **`atuin` owns Ctrl-R and Up arrow** (`~/.config/atuin/config.toml`,
+  wired by `.config/fish/conf.d/45-atuin.fish` via
+  `atuin init fish | source`, loaded after fzf so atuin's rebinds win).
+  Sqlite history at `~/.local/share/atuin/history.db` (machine-global,
+  outside the repo — worktrunk's copy-ignored never touches it). fish's
+  own `~/.local/share/fish/fish_history` keeps recording in parallel
+  (cheap revert: delete `45-atuin.fish`). Picker UX locked in:
+  `filter_mode = "global"` with Ctrl-R cycling
+  `global → host → session → directory` inside the picker; Up opens a
+  session-scoped mini-picker
+  (`filter_mode_shell_up_key_binding = "session"`); `enter_accept = false`
+  so Enter pastes to the commandline and Tab runs immediately (fzf
+  parity); `inline_height = 20` keeps the tmux statusbar visible above
+  the popup; `columns = ["exit", "duration", "command"]` puts the
+  ✓/✗ marker first. Theming: `[theme] name = "default"` uses ANSI
+  palette refs (same trick as `FZF_DEFAULT_OPTS`), auto-adapts across
+  all 7 themes via Ghostty's 16-color palette — no per-theme files,
+  no `theme-set` coupling. Failed commands are **shown with ✗**, not
+  hidden — visual filter, not behavioural. fzf's other widgets
+  (Ctrl-T file, Ctrl-V variable, Ctrl-S process) are unaffected.
+  First-time only: `atuin import fish` to backfill `fish_history` into
+  the sqlite store.
 - **`Brewfile` is installed by bootstrap.** `bootstrap.sh` runs
   `brew bundle --file=$DOTFILES/Brewfile` unconditionally at the top,
   before any symlinks. Aborts on failure (`set -euo pipefail`).
@@ -414,7 +437,8 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `delta-current.gitconfig` include), `glow` / `md` (via `glamour.json`
   symlink), `vivid` / `LS_COLORS` (via `$VIVID_THEME`, read by
   `.config/fish/conf.d/10-colors.fish`), fzf (palette-symbolic refs in
-  `FZF_DEFAULT_OPTS`, auto-adapts via Ghostty's 16-color palette).
+  `FZF_DEFAULT_OPTS`, auto-adapts via Ghostty's 16-color palette),
+  atuin (`[theme] name = "default"`, same ANSI-palette trick).
   Stay Solarized-only: `procs` (`ps`), `tailspin` (`tspin`), `xh`. Pins:
   `bat --theme="Solarized (dark)"` is the fallback when `$BAT_THEME` is
   unset; `procs` reads `.config/procs/procs.toml`, `md` passes

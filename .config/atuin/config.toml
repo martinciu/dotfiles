@@ -1,0 +1,37 @@
+# Local-only history store. No sync, no telemetry, no remote.
+# Picker config locks in the answers from issue #245:
+#   - default scope = global (atuin default); Ctrl-R cycles within picker
+#   - Up arrow opens session-scoped picker (NOT disabled)
+#   - Enter pastes to commandline; Tab runs immediately (fzf-parity)
+#   - inline popup (~20 rows), keeps tmux statusbar visible
+#   - default ANSI-palette theme; auto-adapts via Ghostty's 16-color palette
+auto_sync = false
+update_check = false
+
+# Picker geometry — inline popup over the prompt, not full-screen.
+inline_height = 20
+
+# Default scope on Ctrl-R open.
+filter_mode = "global"
+
+# Up arrow picker scope. atuin Up opens a session-scoped mini-picker.
+filter_mode_shell_up_key_binding = "session"
+
+# Enter = paste to commandline (fzf parity); Tab = run immediately.
+enter_accept = false
+
+# Cycle order inside the picker (Ctrl-R cycles through these).
+[search]
+filters = ["global", "host", "session", "directory"]
+
+# Per-row visible columns. Exit code first so ✓/✗ leads each row.
+# (atuin schema: picker columns live under [ui], not [search].)
+[ui]
+columns = ["exit", "duration", "command"]
+
+# Default theme uses terminal ANSI palette refs — auto-themes across all
+# 7 dotfile themes (Solarized / Mocha / Frappé / Dracula / Gruvbox /
+# Tokyo Night Storm / Latte) via Ghostty's 16-color palette. Same trick
+# as FZF_DEFAULT_OPTS in .config/fish/conf.d/10-colors.fish.
+[theme]
+name = "default"
