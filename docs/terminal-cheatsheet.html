@@ -576,7 +576,7 @@
   <div class="card">
     <h3>Notes</h3>
     <table>
-      <tr><td class="key">✓ / ✗</td><td class="desc">leading column = exit-status marker on each row</td></tr>
+      <tr><td class="key">exit code</td><td class="desc">trailing column on each row — raw integer (<code>-1</code> = "completion never recorded"; <code>0</code> = success; anything else = the actual exit code), coloured green/red</td></tr>
       <tr><td class="key"><code>~/.local/share/atuin/history.db</code></td><td class="desc">sqlite store; machine-global, outside the repo</td></tr>
       <tr><td class="key"><code>fish_history</code></td><td class="desc">still recorded in parallel; revert by deleting <code>45-atuin.fish</code></td></tr>
       <tr><td class="key"><code>atuin import fish</code></td><td class="desc">one-time backfill from existing fish history</td></tr>
