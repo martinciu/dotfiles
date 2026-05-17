@@ -34,27 +34,41 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
   `25-prompt` (starship), `30-aliases`,
   `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
-  `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `40-plugins` (fzf, zoxide, wt),
   `45-atuin` (atuin Ctrl-R + Up; rebinds after fzf),
   `99-secrets` (untracked). The two untracked files are copied from
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
   is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
   tab-completion. Smoke test: `scripts/test-fish-loads.sh`.
-- **`atuin` owns Ctrl-R and Up arrow** (`~/.config/atuin/config.toml`,
+- **`atuin` owns Ctrl-R only** (`~/.config/atuin/config.toml`,
   wired by `.config/fish/conf.d/45-atuin.fish` via
-  `atuin init fish | source`, loaded after fzf so atuin's rebinds win).
-  Sqlite history at `~/.local/share/atuin/history.db` (machine-global,
-  outside the repo — worktrunk's copy-ignored never touches it). fish's
-  own `~/.local/share/fish/fish_history` keeps recording in parallel
-  (cheap revert: delete `45-atuin.fish`). Picker UX locked in:
-  `filter_mode = "global"` with Ctrl-R cycling
-  `global → host → session → directory` inside the picker; Up opens a
-  session-scoped mini-picker
-  (`filter_mode_shell_up_key_binding = "session"`); `enter_accept = false`
+  `atuin init fish --disable-up-arrow | source`, loaded after fzf so
+  atuin's Ctrl-R rebind wins). `--disable-up-arrow` leaves the Up key
+  on fish's native history-search (previous command) — atuin's
+  session-scoped mini-picker on Up felt redundant against fish's
+  built-in. Sqlite history at `~/.local/share/atuin/history.db`
+  (machine-global, outside the repo — worktrunk's copy-ignored never
+  touches it). fish's own `~/.local/share/fish/fish_history` keeps
+  recording in parallel (cheap revert: delete `45-atuin.fish`).
+  Picker UX locked in: `filter_mode = "session"` (narrow first; the
+  most recent commands from this shell surface immediately) with
+  Ctrl-R cycling `session → workspace → global` inside the picker.
+  `workspaces = true` enables the `workspace` scope (current git
+  repo); skipped silently when cwd is outside any repo.
+  `enter_accept = false`
   so Enter pastes to the commandline and Tab runs immediately (fzf
   parity); `inline_height = 20` keeps the tmux statusbar visible above
-  the popup; `columns = ["exit", "duration", "command"]` puts the
-  ✓/✗ marker first. Theming: `[theme] name = "default"` uses ANSI
+  the popup, with picker chrome stripped (`show_help`, `show_tabs`,
+  `show_preview` all `false`) so every row goes to the result list;
+  `columns = ["datetime", "exit", "command"]` puts the timestamp on
+  the left and the raw exit-code integer in a fixed-position column
+  just before the command (atuin's `command()` renderer ignores its
+  allocated width and draws to the row edge — a trailing column
+  after `command` would get clipped or rendered mid-row, so `exit`
+  sits before; the value is colour-coded green/red, not a glyph);
+  `exit_mode = "return-query"` keeps the typed query at the prompt
+  on Esc (Ctrl+C / Ctrl+D still discard). Theming:
+  `[theme] name = "default"` uses ANSI
   palette refs (same trick as `FZF_DEFAULT_OPTS`), auto-adapts across
   all 7 themes via Ghostty's 16-color palette — no per-theme files,
   no `theme-set` coupling. Failed commands are **shown with ✗**, not
@@ -137,8 +151,11 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   of the right-side git chips' palette — see the palette-reuse note
   in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
-  switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
-  diacritics — never `bind -n M-*`). Splits: `|` and `-`.
+  switching). Pane nav: `<prefix> h/j/k/l` — by choice, not necessity.
+  `bind -n M-*` is safe with Ghostty's `macos-option-as-alt = left`
+  (only left-Option fires M-*; right-Option still types Polish
+  diacritics), but no root Alt bindings are wired here. Splits: `|`
+  and `-`.
   **Cycling pairs are single-canonical** — exactly one keystroke combo
   per motion, no duplicates: window cycling on `,` / `.` only (defaults
   `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound — the `C-p`/`C-n`
@@ -156,7 +173,9 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   copy-mode). Default per-modifier actions in hint mode: `Ctrl+letter`
   = open (URL → browser, path → Finder), `Shift+letter` = paste into
   pane, `Tab` = multi-select. **No `bind -n M-*` recipes** from the
-  README — Alt stays reserved for Polish diacritics.
+  README adopted — `<prefix> F` / `<prefix> J` are the canonical
+  bindings; root M-* would be safe with the Option split but the
+  prefix path is the established muscle memory.
   Hint colors use ANSI palette refs (`colour9`/`colour10`/`colour13`/
   `colour14`) so they auto-adapt across all seven themes via Ghostty's
   16-color palette — no per-theme variant files, same trick as
@@ -179,6 +198,30 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Without them, tmux strips OSC 8 and Claude Code's file-ref links don't
   render. `file://` click routing: macOS file-type defaults — no `duti`,
   no Ghostty `link` rule.
+- **Option key is split: left = Alt, right = Polish.**
+  `macos-option-as-alt = left` in `.config/ghostty/config.ghostty`
+  routes left-Option to ESC-prefixed byte sequences (the "Alt+key"
+  encoding atuin / fish-readline / vim-nvim / tmux all read); right-
+  Option keeps producing Polish diacritics (ą ć ę ł ń ó ś ź ż) via the
+  OS layout. The two physical keys split cleanly. Why not `right_cmd`:
+  Ghostty 1.3 keybinds reject sided modifiers (`error.InvalidFormat`),
+  and `key-remap = right_cmd=alt` rewrites keybind matching but not
+  byte emission, so the modifier was silently dropped and apps only
+  saw the bare key. Two companion settings make the split useful:
+  `set -g extended-keys on` in `tmux.conf` so modifier+arrow CSI
+  sequences (`ESC [1;3A`) reach inner apps (without it, `<prefix>
+  M-Left/Right` pane resize is silent); `keybind = alt+arrow_left/
+  right=unbind` in Ghostty so its default readline word-jump
+  translation (`alt+arrow_left → esc:b`) doesn't shadow tmux's
+  pane-resize bindings. Trade-off: left-Option no longer types Polish
+  *inside Ghostty*, and Alt+arrow at the shell prompt no longer
+  triggers readline word-jump — use Alt+b / Alt+f instead (always
+  worked, now reliably via left Option). Consumers in this repo:
+  atuin row-N picker shortcuts (`Alt+1`..`9`,`0`), fish/readline
+  word-jump (Alt+f / Alt+b / Alt+d), fzf Alt-C cd-widget, LazyVim
+  `<A-j>` / `<A-k>` line-move, tmux `<prefix> M-Up/Down/Left/Right`
+  pane resize + `<prefix> M-1`..`7` layout select. Smoke test:
+  `scripts/test-ghostty-config.sh`.
 - **Sesh config is split: shared + machine-local.** Repo tracks
   `.config/sesh/sesh.toml` (a `Home 🏠` session for `~` plus
   `import = ["~/.config/sesh/sesh.local.toml"]`). Machine-local sessions
@@ -219,8 +262,14 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   dir (mixed-dir pattern): `init.lua`, `mason-lock.json`, `lua/` are
   symlinked from the repo; `lazy/`, `mason/`, `site/`, `lazyvim.json`,
   `lazy-lock.json` are real and stay outside the repo.
-- **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
-  (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't re-add.
+- **LazyVim Alt-keymaps kept as default.** `<A-j>/<A-k>` (move-line)
+  ship in LazyVim and stay. Safe here because Ghostty splits the
+  Option key: `macos-option-as-alt = left` makes **left Option** emit
+  ESC+key (the byte sequence nvim reads as `<A-x>`), while **right
+  Option** still produces Polish diacritics via the OS layout. So
+  left-Option-j/k drives line-move; right-Option types ą/ć/ę/ł/ń/ó/ś/ź/ż.
+  Don't reinstate the `pcall(del, …, "<A-j>")` block in
+  `lua/config/keymaps.lua` — it was the pre-split workaround.
 - **LSPs off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
   sets `enabled = false, mason = false` on every LazyVim-core/extra
   server (`lua_ls`, `jsonls`, `marksman`, `vtsls`, `ts_ls`,
@@ -623,6 +672,7 @@ is `nvim-cheatsheet.html`).
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
+- Ghostty config smoke: `scripts/test-ghostty-config.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`

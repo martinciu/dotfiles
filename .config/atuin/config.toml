@@ -1,33 +1,59 @@
 # Local-only history store. No sync, no telemetry, no remote.
-# Picker config locks in the answers from issue #245:
+# Picker config:
+#   - Ctrl-R opens atuin's picker (scope cycles inside it)
+#   - Up arrow stays on fish's native history-search (disabled in
+#     `.config/fish/conf.d/45-atuin.fish` via `--disable-up-arrow`)
 #   - default scope = global (atuin default); Ctrl-R cycles within picker
-#   - Up arrow opens session-scoped picker (NOT disabled)
 #   - Enter pastes to commandline; Tab runs immediately (fzf-parity)
 #   - inline popup (~20 rows), keeps tmux statusbar visible
 #   - default ANSI-palette theme; auto-adapts via Ghostty's 16-color palette
 auto_sync = false
 update_check = false
 
+# Enable the `workspace` filter scope so the picker can be narrowed to
+# the current git repo. Skipped silently when cwd is outside any repo.
+workspaces = true
+
 # Picker geometry — inline popup over the prompt, not full-screen.
+# Default chrome (help row, tab bar, preview pane) all off: with
+# inline_height = 20 every row matters; the visible result list is
+# easier to scan than a preview of the highlighted command, and the
+# help/tab rows are static once you know the cycle.
 inline_height = 20
+show_help = false
+show_tabs = false
+show_preview = false
 
-# Default scope on Ctrl-R open.
-filter_mode = "global"
-
-# Up arrow picker scope. atuin Up opens a session-scoped mini-picker.
-filter_mode_shell_up_key_binding = "session"
+# Default scope on Ctrl-R open. Session-first so the most recent
+# commands from this shell surface immediately; Ctrl-R widens.
+filter_mode = "session"
 
 # Enter = paste to commandline (fzf parity); Tab = run immediately.
 enter_accept = false
 
-# Cycle order inside the picker (Ctrl-R cycles through these).
-[search]
-filters = ["global", "host", "session", "directory"]
+# Esc returns the typed query to the prompt instead of clearing it,
+# so a stray Esc + edit + Ctrl-R doesn't lose the in-progress search.
+# Ctrl+C / Ctrl+D still discard the query.
+exit_mode = "return-query"
 
-# Per-row visible columns. Exit code first so ✓/✗ leads each row.
-# (atuin schema: picker columns live under [ui], not [search].)
+
+# Cycle order inside the picker (Ctrl-R cycles through these).
+# session → workspace → global, narrow-to-wide; `directory` is
+# dropped (workspace is the repo-aware superset that's more useful
+# than cwd-only filtering).
+[search]
+filters = ["session", "workspace", "global"]
+
+# Per-row visible columns. `exit` sits before `command` because
+# atuin's `command()` renderer ignores its allocated width and draws
+# to the row edge — putting `exit` after it would push the exit
+# integer out of sight (or render it next to the command, not pinned
+# right). Order is `datetime` → `exit` → `command`: timestamp left,
+# exit code in a fixed-position scan column (raw integer `-1` / `0`
+# / `127` coloured green or red, not a glyph), command expands last.
+# Schema note: picker columns live under [ui], not [search].
 [ui]
-columns = ["exit", "duration", "command"]
+columns = ["datetime", "exit", "command"]
 
 # Default theme uses terminal ANSI palette refs — auto-themes across all
 # 7 dotfile themes (Solarized / Mocha / Frappé / Dracula / Gruvbox /

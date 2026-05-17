@@ -555,9 +555,9 @@
     <h3>Shell key bindings</h3>
     <table>
       <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">atuin history picker — full screen-aware popup with scope cycling</td></tr>
-      <tr><td class="key"><span class="k">Up</span></td><td class="desc">session-scoped mini-picker (was: fish previous-command)</td></tr>
+      <tr><td class="key"><span class="k">Up</span></td><td class="desc">fish native history-search (atuin's up-arrow binding disabled via <code>--disable-up-arrow</code>)</td></tr>
     </table>
-    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>global → host → session → directory</code>. Default scope is <code>global</code>.</p>
+    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>session → workspace → global</code>. Default scope is <code>session</code>; <code>workspace</code> is the current git repo (skipped outside a repo).</p>
   </div>
 
   <div class="card">
@@ -565,10 +565,10 @@
     <table>
       <tr><td class="key"><span class="k">Enter</span></td><td class="desc">paste selected command to commandline (does not run)</td></tr>
       <tr><td class="key"><span class="k">Tab</span></td><td class="desc">run selected command immediately</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (global → host → session → directory)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (session → workspace → global)</td></tr>
       <tr><td class="key"><span class="k">Ctrl-S</span></td><td class="desc">toggle exact / fuzzy match</td></tr>
       <tr><td class="key"><span class="k">Ctrl-N</span> / <span class="k">Ctrl-P</span></td><td class="desc">next / prev match (arrows work too)</td></tr>
-      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">cancel</td></tr>
+      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">return typed query to the prompt (<code>exit_mode = "return-query"</code>); Ctrl+C / Ctrl+D discard</td></tr>
       <tr><td class="key"><code>cwd:.</code></td><td class="desc">filter syntax — restrict to current directory</td></tr>
     </table>
   </div>
@@ -576,7 +576,7 @@
   <div class="card">
     <h3>Notes</h3>
     <table>
-      <tr><td class="key">✓ / ✗</td><td class="desc">leading column = exit-status marker on each row</td></tr>
+      <tr><td class="key">exit code</td><td class="desc">fixed-position column between datetime and command — raw integer (<code>-1</code> = "completion never recorded"; <code>0</code> = success; anything else = the actual exit code), coloured green/red</td></tr>
       <tr><td class="key"><code>~/.local/share/atuin/history.db</code></td><td class="desc">sqlite store; machine-global, outside the repo</td></tr>
       <tr><td class="key"><code>fish_history</code></td><td class="desc">still recorded in parallel; revert by deleting <code>45-atuin.fish</code></td></tr>
       <tr><td class="key"><code>atuin import fish</code></td><td class="desc">one-time backfill from existing fish history</td></tr>
@@ -594,7 +594,7 @@
     <table>
       <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc warn">REPLACED by <a href="#atuin">atuin</a> — fzf no longer owns Ctrl-R</td></tr>
       <tr><td class="key"><span class="k">Ctrl-T</span></td><td class="desc">file picker → inserts paths at the cursor</td></tr>
-      <tr><td class="key"><span class="k">Alt-C</span></td><td class="desc warn">UNBOUND — Alt is reserved for Polish diacritics</td></tr>
+      <tr><td class="key"><span class="k">Alt-C</span></td><td class="desc">cd into directory under cursor (left-Option in Ghostty; right-Option still types Polish)</td></tr>
     </table>
     <p class="note">Tab-complete works through fzf for <code>kill **&lt;Tab&gt;</code>, <code>cd **&lt;Tab&gt;</code>, <code>ssh **&lt;Tab&gt;</code>, etc.</p>
   </div>

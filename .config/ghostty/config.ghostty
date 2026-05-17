@@ -72,6 +72,30 @@ tab-inherit-working-directory = false
 window-inherit-working-directory = false
 split-inherit-working-directory = false
 
+# ─── Left Option = Alt (right Option = Polish) ─
+# Ghostty distinguishes left and right Option natively. `left` means:
+# left-Option emits ESC+key for TUIs (atuin row-N shortcuts, fish/readline
+# word-jump, etc.) while right-Option keeps producing Polish diacritics
+# via the OS layout (ą, ć, ę, ł, ń, ó, ś, ź, ż). Why this and not
+# right_cmd: Ghostty 1.3 keybinds do not accept sided modifiers
+# (`right_cmd+x` is `error.InvalidFormat`), and `key-remap = right_cmd=alt`
+# only changes keybind matching, not byte emission, so the modifier was
+# silently dropped and apps only saw the bare key. macos-option-as-alt
+# operates at the byte-emission layer and is the supported way to do this.
+macos-option-as-alt = left
+
+# ─── Unbind alt+arrow translation ─────────────
+# Ghostty defaults map alt+arrow_left → `esc:b` and alt+arrow_right →
+# `esc:f` (readline word-jump shortcut). That intercept means tmux
+# inside Ghostty never sees the proper Alt+Left/Right CSI sequence
+# (`ESC [1;3D` / `ESC [1;3C`), so `<prefix> M-Left` / `<prefix> M-Right`
+# (pane resize) don't fire — only `<prefix> M-Up` / `M-Down` work.
+# Unbind so the raw CSI form reaches tmux. Trade-off: at a plain shell
+# prompt, Alt+arrow no longer triggers readline word-jump — use
+# Alt+f / Alt+b instead (always worked, now reliably via left Option).
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
+
 # ─── Keybindings (config reload) ──────────────
 # Three-modifier combo to avoid clashes with launchers / menu shortcuts.
 # (The Polish-Pro layout broke the default `cmd+shift+,` for this user.)
