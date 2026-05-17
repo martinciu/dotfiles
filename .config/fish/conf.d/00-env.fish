@@ -3,8 +3,12 @@
 eval (/opt/homebrew/bin/brew shellenv)
 
 set -gx EDITOR vim
-set -gx LANG en_US.UTF-8
-set -gx LC_ALL en_US.UTF-8
+set -gx LANG en_US.UTF-8 # fallback for any LC_* you don't set
+set -gx LC_MESSAGES en_US.UTF-8 # English UI / error text
+set -gx LC_CTYPE en_US.UTF-8 # character classification
+set -gx LC_COLLATE en_US.UTF-8 # sort order (avoids ą interleaving)
+set -gx LC_TIME pl_PL.UTF-8 # Polish dates, week starts Monday
+set -gx LC_NUMERIC pl_PL.UTF-8 # 1 234,56 instead of 1,234.56
 
 # Kill the default "Welcome to fish, the friendly interactive shell" banner.
 # `-g` (not `-U`) so this conf.d file stays the source of truth — flipping
