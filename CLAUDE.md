@@ -219,8 +219,14 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   dir (mixed-dir pattern): `init.lua`, `mason-lock.json`, `lua/` are
   symlinked from the repo; `lazy/`, `mason/`, `site/`, `lazyvim.json`,
   `lazy-lock.json` are real and stay outside the repo.
-- **LazyVim Alt-keymaps removed** in `lua/config/keymaps.lua`
-  (`<A-j>/<A-k>`) — Alt is reserved for Polish diacritics. Don't re-add.
+- **LazyVim Alt-keymaps kept as default.** `<A-j>/<A-k>` (move-line)
+  ship in LazyVim and stay. Safe here because Ghostty splits the
+  Option key: `macos-option-as-alt = left` makes **left Option** emit
+  ESC+key (the byte sequence nvim reads as `<A-x>`), while **right
+  Option** still produces Polish diacritics via the OS layout. So
+  left-Option-j/k drives line-move; right-Option types ą/ć/ę/ł/ń/ó/ś/ź/ż.
+  Don't reinstate the `pcall(del, …, "<A-j>")` block in
+  `lua/config/keymaps.lua` — it was the pre-split workaround.
 - **LSPs off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
   sets `enabled = false, mason = false` on every LazyVim-core/extra
   server (`lua_ls`, `jsonls`, `marksman`, `vtsls`, `ts_ls`,
