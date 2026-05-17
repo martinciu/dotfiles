@@ -72,6 +72,18 @@ tab-inherit-working-directory = false
 window-inherit-working-directory = false
 split-inherit-working-directory = false
 
+# ─── Left Option = Alt (right Option = Polish) ─
+# Ghostty distinguishes left and right Option natively. `left` means:
+# left-Option emits ESC+key for TUIs (atuin row-N shortcuts, fish/readline
+# word-jump, etc.) while right-Option keeps producing Polish diacritics
+# via the OS layout (ą, ć, ę, ł, ń, ó, ś, ź, ż). Why this and not
+# right_cmd: Ghostty 1.3 keybinds do not accept sided modifiers
+# (`right_cmd+x` is `error.InvalidFormat`), and `key-remap = right_cmd=alt`
+# only changes keybind matching, not byte emission, so the modifier was
+# silently dropped and apps only saw the bare key. macos-option-as-alt
+# operates at the byte-emission layer and is the supported way to do this.
+macos-option-as-alt = left
+
 # ─── Keybindings (config reload) ──────────────
 # Three-modifier combo to avoid clashes with launchers / menu shortcuts.
 # (The Polish-Pro layout broke the default `cmd+shift+,` for this user.)
