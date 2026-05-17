@@ -84,6 +84,18 @@ split-inherit-working-directory = false
 # operates at the byte-emission layer and is the supported way to do this.
 macos-option-as-alt = left
 
+# ─── Unbind alt+arrow translation ─────────────
+# Ghostty defaults map alt+arrow_left → `esc:b` and alt+arrow_right →
+# `esc:f` (readline word-jump shortcut). That intercept means tmux
+# inside Ghostty never sees the proper Alt+Left/Right CSI sequence
+# (`ESC [1;3D` / `ESC [1;3C`), so `<prefix> M-Left` / `<prefix> M-Right`
+# (pane resize) don't fire — only `<prefix> M-Up` / `M-Down` work.
+# Unbind so the raw CSI form reaches tmux. Trade-off: at a plain shell
+# prompt, Alt+arrow no longer triggers readline word-jump — use
+# Alt+f / Alt+b instead (always worked, now reliably via left Option).
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
+
 # ─── Keybindings (config reload) ──────────────
 # Three-modifier combo to avoid clashes with launchers / menu shortcuts.
 # (The Polish-Pro layout broke the default `cmd+shift+,` for this user.)
