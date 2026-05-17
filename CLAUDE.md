@@ -130,9 +130,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `FZF_DEFAULT_OPTS`. Custom patterns added on top of the built-ins:
   `worktree-[a-z0-9._/-]+` (worktree branch names) and `#\d+` (PR/issue
   refs). Built-ins kept on: `ip`, `uuid`, `sha`, `digit`, `url`, `path`,
-  `hex`, `kubernetes`, `git-status`, `git-status-branch`, `diff`. Fingers'
-  `<prefix> J` shadows the dashboard pager binding once TPM loads;
-  accepted, dashboard is scheduled for retirement separately.
+  `hex`, `kubernetes`, `git-status`, `git-status-branch`, `diff`.
   **Fresh-machine setup:** after `prefix + I`, the first-run wizard
   appears — pick "Build from source" (crystal must be on `$PATH`; install
   via `brew install crystal` if absent). Why no `brew "tmux-fingers"` in
@@ -179,20 +177,6 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (the primary checkout's branch is filtered out by path comparison).
   Completions are non-exclusive — typing a fresh name still creates
   a new worktree.
-- **`dashboard` is the multi-session live preview command**
-  (`bin/dashboard`, symlinked to `~/.local/bin/dashboard`). Surface:
-  `dashboard <pattern> [--cols N]`, plus internal
-  `--page-down`/`--page-up`/`--rebuild`. Spawns/rebuilds a
-  `dashboard-<derived>` session with one polled `watch + capture-pane`
-  tile per matched session (excluding `dashboard-*`). Prefix uses `-`
-  not `:` (tmux rewrites `:`). `<prefix> J/K` page rows; no-ops outside
-  `dashboard-*`. Bindings pass `DASHBOARD_TARGET=#{session_name}` —
-  `display-message -p '#S'` in `run-shell` returns the global
-  most-recent session, not the run-shell target. `--cols N` forces an
-  N-column grid via two-pass split; otherwise tmux's `tiled` is used.
-  Don't replace polling with `link-window` or nested `tmux attach`.
-  Reads `$TMUX_SOCKET` (test-mode isolation) and `$DASHBOARD_NO_FINISH`
-  (skip final attach — used by integration tests).
 - **`vim`/`vimdiff` are fish aliases to nvim**; **`vi` is `command vim`**
   (legacy minimal vim). All guarded on `command -v nvim`. Minimal vim
   (`.vimrc` ~30 lines, `.vim/colors/solarized8.vim`) is reachable via
@@ -578,7 +562,6 @@ is `nvim-cheatsheet.html`).
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
-- Dashboard smoke + integration: `scripts/test-dashboard.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
