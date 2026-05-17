@@ -4,6 +4,7 @@
 # Core
 brew "git"
 brew "tmux"
+brew "crystal"  # compiles tmux-fingers from source on first `prefix + I` (TPM wizard always builds; no prebuilt binary)
 brew "jq"   # JSON parsing in shell helpers
 brew "gh"   # GitHub CLI — drives tmux-pr-detect + <prefix> P (gh pr view --web)
 brew "bash"   # bash 5; pinned-shebang scripts target /opt/homebrew/bin/bash
