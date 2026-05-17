@@ -348,6 +348,10 @@ link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 # Symlink each file individually because ~/.local/bin/ typically contains
 # other user-installed binaries that shouldn't be displaced by linking the
 # whole directory.
+# One-time cleanup: bin/dashboard removed in #239; rm the stale symlink
+# left behind on already-bootstrapped machines. Idempotent — silent on
+# missing file. Safe to leave indefinitely.
+rm -f "$HOME/.local/bin/dashboard"
 for src in "$DOTFILES"/bin/*; do
   [ -e "$src" ] || continue
   link "bin/$(basename "$src")" "$HOME/.local/bin/$(basename "$src")"
