@@ -1,0 +1,21 @@
+theme:
+    colors:
+        text:
+            primary: "#d8dee9"
+            secondary: "#b48ead"
+            inverted: "#2e3440"
+            faint: "#4c566a"
+            warning: "#ebcb8b"
+            success: "#a3be8c"
+            error: "#bf616a"
+        background:
+            selected: "#434c5e"
+        border:
+            primary: "#4c566a"
+            secondary: "#434c5e"
+            faint: "#434c5e"
+    ui:
+        sectionsShowCount: true
+        table:
+            showSeparator: true
+            compact: true
