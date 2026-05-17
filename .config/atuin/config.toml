@@ -11,10 +11,8 @@ update_check = false
 # Picker geometry — inline popup over the prompt, not full-screen.
 inline_height = 20
 
-# Default scope on Ctrl-R open + cycle order inside the picker.
+# Default scope on Ctrl-R open.
 filter_mode = "global"
-[search]
-filters = ["global", "host", "session", "directory"]
 
 # Up arrow picker scope. atuin Up opens a session-scoped mini-picker.
 filter_mode_shell_up_key_binding = "session"
@@ -22,7 +20,13 @@ filter_mode_shell_up_key_binding = "session"
 # Enter = paste to commandline (fzf parity); Tab = run immediately.
 enter_accept = false
 
+# Cycle order inside the picker (Ctrl-R cycles through these).
+[search]
+filters = ["global", "host", "session", "directory"]
+
 # Per-row visible columns. Exit code first so ✓/✗ leads each row.
+# (atuin schema: picker columns live under [ui], not [search].)
+[ui]
 columns = ["exit", "duration", "command"]
 
 # Default theme uses terminal ANSI palette refs — auto-themes across all
