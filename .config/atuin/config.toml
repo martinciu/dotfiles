@@ -1,7 +1,9 @@
 # Local-only history store. No sync, no telemetry, no remote.
-# Picker config locks in the answers from issue #245:
+# Picker config:
+#   - Ctrl-R opens atuin's picker (scope cycles inside it)
+#   - Up arrow stays on fish's native history-search (disabled in
+#     `.config/fish/conf.d/45-atuin.fish` via `--disable-up-arrow`)
 #   - default scope = global (atuin default); Ctrl-R cycles within picker
-#   - Up arrow opens session-scoped picker (NOT disabled)
 #   - Enter pastes to commandline; Tab runs immediately (fzf-parity)
 #   - inline popup (~20 rows), keeps tmux statusbar visible
 #   - default ANSI-palette theme; auto-adapts via Ghostty's 16-color palette
@@ -13,9 +15,6 @@ inline_height = 20
 
 # Default scope on Ctrl-R open.
 filter_mode = "global"
-
-# Up arrow picker scope. atuin Up opens a session-scoped mini-picker.
-filter_mode_shell_up_key_binding = "session"
 
 # Enter = paste to commandline (fzf parity); Tab = run immediately.
 enter_accept = false

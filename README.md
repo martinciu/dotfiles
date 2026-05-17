@@ -99,7 +99,8 @@ atuin import fish
 ```
 
 Safe to re-run (idempotent for already-imported rows). After this,
-Ctrl-R and Up open atuin's picker (config at `.config/atuin/config.toml`).
+Ctrl-R opens atuin's picker (config at `.config/atuin/config.toml`).
+Up stays on fish's native history-search.
 
 ## What's where
 

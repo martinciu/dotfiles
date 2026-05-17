@@ -40,17 +40,18 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
   is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
   tab-completion. Smoke test: `scripts/test-fish-loads.sh`.
-- **`atuin` owns Ctrl-R and Up arrow** (`~/.config/atuin/config.toml`,
+- **`atuin` owns Ctrl-R only** (`~/.config/atuin/config.toml`,
   wired by `.config/fish/conf.d/45-atuin.fish` via
-  `atuin init fish | source`, loaded after fzf so atuin's rebinds win).
-  Sqlite history at `~/.local/share/atuin/history.db` (machine-global,
-  outside the repo — worktrunk's copy-ignored never touches it). fish's
-  own `~/.local/share/fish/fish_history` keeps recording in parallel
-  (cheap revert: delete `45-atuin.fish`). Picker UX locked in:
-  `filter_mode = "global"` with Ctrl-R cycling
-  `global → host → session → directory` inside the picker; Up opens a
-  session-scoped mini-picker
-  (`filter_mode_shell_up_key_binding = "session"`); `enter_accept = false`
+  `atuin init fish --disable-up-arrow | source`, loaded after fzf so
+  atuin's Ctrl-R rebind wins). `--disable-up-arrow` leaves the Up key
+  on fish's native history-search (previous command) — atuin's
+  session-scoped mini-picker on Up felt redundant against fish's
+  built-in. Sqlite history at `~/.local/share/atuin/history.db`
+  (machine-global, outside the repo — worktrunk's copy-ignored never
+  touches it). fish's own `~/.local/share/fish/fish_history` keeps
+  recording in parallel (cheap revert: delete `45-atuin.fish`).
+  Picker UX locked in: `filter_mode = "global"` with Ctrl-R cycling
+  `global → session → directory` inside the picker; `enter_accept = false`
   so Enter pastes to the commandline and Tab runs immediately (fzf
   parity); `inline_height = 20` keeps the tmux statusbar visible above
   the popup; `columns = ["exit", "duration", "command"]` puts the
