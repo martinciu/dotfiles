@@ -142,11 +142,11 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   refs). Built-ins kept on: `ip`, `uuid`, `sha`, `digit`, `url`, `path`,
   `hex`, `kubernetes`, `git-status`, `git-status-branch`, `diff`.
   **Fresh-machine setup:** after `prefix + I`, the first-run wizard
-  appears — pick "Build from source" (crystal must be on `$PATH`; install
-  via `brew install crystal` if absent). Why no `brew "tmux-fingers"` in
-  Brewfile: the morantron tap also compiles Crystal from source, so the
-  wizard fires either way — declaring it gains nothing over documenting
-  the one-liner here.
+  appears — pick "Build from source". `crystal` is declared in
+  `Brewfile` so it's already on `$PATH` after `brew bundle`. Why no
+  `brew "tmux-fingers"` in Brewfile: the morantron tap also compiles
+  from source, so the wizard fires either way — declaring it gains
+  nothing.
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
   `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'`),
   `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled, behavior
