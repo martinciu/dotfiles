@@ -548,13 +548,51 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="atuin">atuin <span class="tool-tag">shell history</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Shell key bindings</h3>
+    <table>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">atuin history picker — full screen-aware popup with scope cycling</td></tr>
+      <tr><td class="key"><span class="k">Up</span></td><td class="desc">session-scoped mini-picker (was: fish previous-command)</td></tr>
+    </table>
+    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>global → host → session → directory</code>. Default scope is <code>global</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Inside the picker</h3>
+    <table>
+      <tr><td class="key"><span class="k">Enter</span></td><td class="desc">paste selected command to commandline (does not run)</td></tr>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">run selected command immediately</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (global → host → session → directory)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-S</span></td><td class="desc">toggle exact / fuzzy match</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-N</span> / <span class="k">Ctrl-P</span></td><td class="desc">next / prev match (arrows work too)</td></tr>
+      <tr><td class="key"><span class="k">Esc</span></td><td class="desc">cancel</td></tr>
+      <tr><td class="key"><code>cwd:.</code></td><td class="desc">filter syntax — restrict to current directory</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Notes</h3>
+    <table>
+      <tr><td class="key">✓ / ✗</td><td class="desc">leading column = exit-status marker on each row</td></tr>
+      <tr><td class="key"><code>~/.local/share/atuin/history.db</code></td><td class="desc">sqlite store; machine-global, outside the repo</td></tr>
+      <tr><td class="key"><code>fish_history</code></td><td class="desc">still recorded in parallel; revert by deleting <code>45-atuin.fish</code></td></tr>
+      <tr><td class="key"><code>atuin import fish</code></td><td class="desc">one-time backfill from existing fish history</td></tr>
+    </table>
+    <p class="note">Config in <code>.config/atuin/config.toml</code>. Theme is <code>default</code> — auto-adapts to whatever Ghostty's 16-color palette is via ANSI refs, same trick as <code>FZF_DEFAULT_OPTS</code>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="fzf">fzf <span class="tool-tag">fuzzy finder</span></h2>
 
 <div class="grid">
   <div class="card">
     <h3>Shell key bindings</h3>
     <table>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">fuzzy history search</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc warn">REPLACED by <a href="#atuin">atuin</a> — fzf no longer owns Ctrl-R</td></tr>
       <tr><td class="key"><span class="k">Ctrl-T</span></td><td class="desc">file picker → inserts paths at the cursor</td></tr>
       <tr><td class="key"><span class="k">Alt-C</span></td><td class="desc warn">UNBOUND — Alt is reserved for Polish diacritics</td></tr>
     </table>
@@ -611,7 +649,7 @@
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
 <footer>
-  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-11.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-17.
   Refresh after meaningful color-tooling changes.
 </footer>
 
