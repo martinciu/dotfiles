@@ -44,14 +44,16 @@ exit_mode = "return-query"
 [search]
 filters = ["session", "workspace", "global"]
 
-# Per-row visible columns. atuin's column renderer supports a fixed-
-# width column after the expanding one, so `exit` pins to the right
-# edge of each row (right-aligned within its 3-char column) — handy
-# scan target for the actual integer (`-1`, `0`, `127`, …). atuin
-# renders the raw exit value coloured green/red, not a glyph.
+# Per-row visible columns. `exit` sits before `command` because
+# atuin's `command()` renderer ignores its allocated width and draws
+# to the row edge — putting `exit` after it would push the exit
+# integer out of sight (or render it next to the command, not pinned
+# right). Order is `datetime` → `exit` → `command`: timestamp left,
+# exit code in a fixed-position scan column (raw integer `-1` / `0`
+# / `127` coloured green or red, not a glyph), command expands last.
 # Schema note: picker columns live under [ui], not [search].
 [ui]
-columns = ["datetime", "command", "exit"]
+columns = ["datetime", "exit", "command"]
 
 # Default theme uses terminal ANSI palette refs — auto-themes across all
 # 7 dotfile themes (Solarized / Mocha / Frappé / Dracula / Gruvbox /

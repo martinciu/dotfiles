@@ -60,10 +60,12 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   parity); `inline_height = 20` keeps the tmux statusbar visible above
   the popup, with picker chrome stripped (`show_help`, `show_tabs`,
   `show_preview` all `false`) so every row goes to the result list;
-  `columns = ["datetime", "command", "exit"]` puts the timestamp on
-  the left and pins the raw exit-code integer to the right edge
-  (atuin's column renderer supports a fixed-width column after the
-  expanding one; exit is colour-coded green/red, not a glyph);
+  `columns = ["datetime", "exit", "command"]` puts the timestamp on
+  the left and the raw exit-code integer in a fixed-position column
+  just before the command (atuin's `command()` renderer ignores its
+  allocated width and draws to the row edge — a trailing column
+  after `command` would get clipped or rendered mid-row, so `exit`
+  sits before; the value is colour-coded green/red, not a glyph);
   `exit_mode = "return-query"` keeps the typed query at the prompt
   on Esc (Ctrl+C / Ctrl+D still discard). Theming:
   `[theme] name = "default"` uses ANSI
