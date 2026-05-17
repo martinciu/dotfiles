@@ -104,8 +104,8 @@
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">d</span></td><td class="desc">detach</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">s</span></td><td class="desc">session picker (tree)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">$</span></td><td class="desc">rename current session</td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">(</span> / <span class="k">)</span></td><td class="desc">prev / next session</td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">L</span></td><td class="desc">switch to last session</td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">Tab</span> / <span class="k">S-Tab</span></td><td class="desc">next / prev session <span class="muted">(repeatable; defaults <code>(</code>/<code>)</code> unbound)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">Space</span></td><td class="desc">switch to last session <span class="muted">(default <code>L</code> unbound)</span></td></tr>
     </table>
     <p class="note">Closing the last pane of a session (<code>exit</code>, <code>Ctrl-D</code>) switches to the most-recently-used other session via <code>detach-on-destroy off</code>. Detaches only when no other session exists.</p>
   </div>
@@ -198,7 +198,7 @@
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">c</span></td><td class="desc">create window — opens at session root (<code>@session_root</code>, set by <code>s</code>) when present, else inherits pane cwd</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&amp;</span></td><td class="desc">kill window (confirm)</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">w</span></td><td class="desc">window picker (tree)</td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">swap window left / right <span class="muted">(repeatable; follows the window)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">&lt;</span> / <span class="k">&gt;</span></td><td class="desc">swap window left / right <span class="muted">(repeatable; <code>-d</code> keeps focus on the moved window — its index changes, not yours)</span></td></tr>
       <tr><td class="key"><code>:rename-window &lt;name&gt;</code></td><td class="desc">force a name <span class="muted">(no keybind — <code>automatic-rename</code> would clobber it anyway)</span></td></tr>
     </table>
   </div>
@@ -206,13 +206,12 @@
   <div class="card">
     <h3>Switch</h3>
     <table>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">.</span> / <span class="k">,</span></td><td class="desc">next / prev window <span class="muted">(repeatable)</span></td></tr>
-      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">n</span> / <span class="k">p</span></td><td class="desc">next / prev window <span class="muted">(tmux default; same as <code>.</code>/<code>,</code>)</span></td></tr>
+      <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">.</span> / <span class="k">,</span></td><td class="desc">next / prev window <span class="muted">(repeatable; defaults <code>n</code>/<code>p</code> and <code>tmux-sensible</code>'s <code>C-n</code>/<code>C-p</code> unbound)</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">1</span>…<span class="k">9</span></td><td class="desc">window 1–9 by number</td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">l</span></td><td class="desc">last window <span class="muted">(but <code>l</code> is also pane-right here — see "Quirks")</span></td></tr>
       <tr><td class="key"><span class="k prefix">C-a</span> <span class="k">f</span></td><td class="desc">find by name (search)</td></tr>
     </table>
-    <p class="note"><strong>Quirk:</strong> we rebind <span class="k prefix">C-a</span><span class="k">l</span> to <em>pane-right</em> (vim style). To go to the previous window, use <span class="k prefix">C-a</span><span class="k">n</span>/<span class="k">p</span> or the picker.</p>
+    <p class="note"><strong>Quirk:</strong> we rebind <span class="k prefix">C-a</span><span class="k">l</span> to <em>pane-right</em> (vim style). To hop between windows, use <span class="k prefix">C-a</span><span class="k">,</span>/<span class="k">.</span> or the picker.</p>
   </div>
 </div>
 
@@ -423,7 +422,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-16. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-17. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>

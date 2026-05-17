@@ -116,6 +116,16 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
   switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
   diacritics — never `bind -n M-*`). Splits: `|` and `-`.
+  **Cycling pairs are single-canonical** — exactly one keystroke combo
+  per motion, no duplicates: window cycling on `,` / `.` only (defaults
+  `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound — the `C-p`/`C-n`
+  unbinds must sit *after* `run '~/.config/tmux/plugins/tpm/tpm'` since
+  the plugin re-applies them otherwise); session cycling on `Tab` /
+  `S-Tab` / `Space` only (defaults `(`/`)`/`L` unbound). Window reorder
+  on `<` / `>`: `swap-window -d -t ±1` — `-d` keeps focus on the moved
+  window (its index changes with the swap; without `-d` focus would
+  jump to the displaced neighbour instead). All four are `-r` so a
+  single prefix press lets you keep nudging until placed.
 - **tmux-fingers gives one-keystroke copy of visible matches.**
   TPM plugin `Morantron/tmux-fingers`. Bindings: `<prefix> F` enters
   copy-mode (hint letter → match copied to clipboard via `pbcopy`),
