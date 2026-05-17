@@ -19,6 +19,9 @@ brew "zoxide"  # frecency-ranked dir jumping; sesh picker source
 # Worktree manager
 brew "worktrunk"
 
+# Issue tracker
+brew "beads"  # `bd` — distributed graph issue tracker for AI agents; pulls dolt + icu4c@78 transitively. README "Manual extras" covers the `bd setup claude` one-time hook step.
+
 # Runtime version manager (Node + Ruby) + Python package runner
 brew "mise"
 brew "uv"  # owns the Python lifecycle: interpreters (`uv python install --default`), projects (`uv add`/`run`/`sync`), CLIs (`uv tool`), pip-shim (`uv pip`)
