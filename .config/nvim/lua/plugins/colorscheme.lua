@@ -102,6 +102,25 @@ return {
       end
     end,
   },
+  -- Nord (new — loaded when theme.lua resolves to nord).
+  {
+    "gbprod/nord.nvim",
+    name = "nord",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      styles = {
+        comments = { italic = true },
+        keywords = { italic = true },
+      },
+    },
+    config = function(_, opts)
+      require("nord").setup(opts)
+      if current == "nord" then
+        vim.cmd.colorscheme("nord")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",
