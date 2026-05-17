@@ -140,6 +140,9 @@ Smoke test: `scripts/test-theme-switch.sh`.
 - session switcher (tmux-sessionx): `<prefix> t`  (clock-mode moved to `<prefix> T`)
 - pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
+- window cycling: `<prefix> ,` (prev) / `<prefix> .` (next) — repeatable. Defaults `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound; this is the only cycle pair.
+- session cycling: `<prefix> Tab` (next) / `<prefix> S-Tab` (prev) / `<prefix> Space` (last) — repeatable. Defaults `(`/`)`/`L` unbound.
+- window reorder: `<prefix> <` (left) / `<prefix> >` (right) — repeatable, focus follows the moved window.
 - reload tmux: `<prefix> r`
 - TPM plugin install: `<prefix> I` (capital I)
 - worktree+session command (any shell): `s [<project>] [<name>]` — inside tmux 1 arg = worktree name in current project; outside tmux 1 arg = project name (attach), 0 args = fzf picker. Branch name verbatim — the `worktree-` prefix is reserved for the `EnterWorktree` workflow.
