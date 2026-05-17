@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 7 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 8 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -297,7 +297,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   were noise, not signal. Run `:Lazy restore` against the working
   tree's own lockfile when you need reproducibility on a single
   machine.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Catppuccin Frappé ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Catppuccin Latte.**
+- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Catppuccin Frappé ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Nord ↔ Catppuccin Latte.**
   Solarized Dark is the canonical default. Catppuccin Latte is the **first
   and only light theme** and ships with **partial tier-1 coverage**: only
   Ghostty, tmux, and starship have Latte variants — delta, glow, gh-dash,
@@ -313,14 +313,14 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
   Per-tool variant files use the naming convention `*-solarized.<ext>`
   / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` /
-  `*-tokyo-night.<ext>` / `*-latte.<ext>` (where present — Latte is
+  `*-tokyo-night.<ext>` / `*-nord.<ext>` / `*-latte.<ext>` (where present — Latte is
   partial-coverage, see above) and live alongside their tool's config —
-  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,latte}.ghostty`,
-  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
-  `.config/gh-dash/theme-colors-{solarized,mocha,dracula,gruvbox,tokyo-night}.yml`
+  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,nord,latte}.ghostty`,
+  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.json`,
+  `.config/gh-dash/theme-colors-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.yml`
   (alongside the shared `.config/gh-dash/config-base.yml`),
-  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night}.json`,
-  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night,latte}.toml`. The active
+  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.json`,
+  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night,nord,latte}.toml`. The active
   variant is picked via a machine-local symlink at the tool's normal
   config path. gh-dash is the one exception: its live `config.yml` is a
   generated real file (`cat config-base.yml theme-colors-<name>.yml > config.yml`)
@@ -379,7 +379,27 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Night**, so `.config/lnav/configs/installed/tokyo-night.json` is a
   second vendored theme-defs (same shape as `gruvbox.json`, hex from
   `folke/tokyonight.nvim` MIT). Night / Moon / Day variants of Tokyo
-  Night are out of v1. **Catppuccin Latte is the first light theme**
+  Night are out of v1. Nord (Sven Greb's 16-color palette) is the
+  **first theme to break the dark-on-accent chip-text pattern** since
+  Solarized — `@color_light_fg = "#eceff4"` (nord6) is light, matching
+  Solarized's light-on-saturated and diverging from Mocha/Dracula/
+  Gruvbox/Tokyo-Night. Reason: Nord's Frost-blue session chip
+  (`#5e81ac`) reads flat with dark text. Nord also breaks the
+  cross-theme `pastel_rose` role: starship uses `#8fbcbb` (nord7
+  Frost teal) instead of a rose-adjacent hex, embracing Nord's
+  arctic identity in the most prominent prompt slot. Within Nord,
+  starship `base3 = "#2e3440"` (dark) **does not align** with tmux
+  `@color_light_fg` (light) — the divergence is contained to the
+  starship/tmux file pair and commented on both sides. Nord has one
+  canonical purple (`#b48ead` nord15), so `@color_accent_magenta`
+  and `@color_accent_violet` resolve to the same hex — palette-
+  faithful; no current tmux pin distinguishes the two roles.
+  **lnav 0.14 does not ship Nord**, so
+  `.config/lnav/configs/installed/nord.json` is a third vendored
+  theme-defs (same shape as `gruvbox.json` / `tokyo-night.json`,
+  hex from `nordtheme.com` MIT). Single canonical variant; Hard /
+  Soft / Light branches out of scope.
+  **Catppuccin Latte is the first light theme**
   and inverts a few assumptions baked into the dark-only collection:
   bar bg is mantle `#e6e9ef` (not a dark surface), and tmux chips
   use **light-on-saturated** chip text (`@color_light_fg = "#eff1f5"`)
@@ -395,11 +415,12 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   setup, see README). nvim picks its colorscheme at startup via the
   resolver in `lua/config/theme.lua` (reads `readlink` of
   `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`,
-  `ellisonleao/gruvbox.nvim`, and `folke/tokyonight.nvim` plugins
+  `ellisonleao/gruvbox.nvim`, `folke/tokyonight.nvim`, and
+  `gbprod/nord.nvim` plugins
   are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
   "don't clobber" guards preserve any prior `theme-set mocha`,
-  `theme-set dracula`, `theme-set gruvbox`, or `theme-set
-  tokyo-night` pick across re-runs. Out of v1:
+  `theme-set dracula`, `theme-set gruvbox`, `theme-set
+  tokyo-night`, or `theme-set nord` pick across re-runs. Out of v1:
   `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
 - **Switchable Ghostty fonts — 17 Nerd Fonts, optional weight + size.**
@@ -541,7 +562,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `35-abbreviations.fish`). Mixed-dir layout under `.config/gh-dash/`:
   `config-base.yml` holds the shared schema (sections, defaults, layout,
   pager, etc., **no `theme:` key**), and `theme-colors-{solarized,mocha,
-  dracula,gruvbox,tokyo-night}.yml` each hold *only* the top-level `theme:`
+  dracula,gruvbox,tokyo-night,nord}.yml` each hold *only* the top-level `theme:`
   block (both `colors` and the small `ui` block — `ui` duplicates 5× and
   that's accepted, since YAML can't merge two `theme:` keys after
   concatenation). PR section is a single `Open` view (`is:open`); issues
@@ -632,7 +653,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `btop`, `ccstatusline`, `procs`, `tailspin`, `tmux`, `xh`; mixed-dir
   per tool: `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`, `worktrunk`;
   themes dir: `themes/` (palette files + delta snippets); plus
-  `starship-{solarized,mocha,dracula,gruvbox,tokyo-night}.toml`, partial links for `sesh/sesh.toml`
+  `starship-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.toml`, partial links for `sesh/sesh.toml`
   and `lnav/configs/installed` (mixed-dir) +
   `lnav/formats/installed` (whole-dir)),
   `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
