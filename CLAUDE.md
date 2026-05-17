@@ -198,6 +198,30 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Without them, tmux strips OSC 8 and Claude Code's file-ref links don't
   render. `file://` click routing: macOS file-type defaults — no `duti`,
   no Ghostty `link` rule.
+- **Option key is split: left = Alt, right = Polish.**
+  `macos-option-as-alt = left` in `.config/ghostty/config.ghostty`
+  routes left-Option to ESC-prefixed byte sequences (the "Alt+key"
+  encoding atuin / fish-readline / vim-nvim / tmux all read); right-
+  Option keeps producing Polish diacritics (ą ć ę ł ń ó ś ź ż) via the
+  OS layout. The two physical keys split cleanly. Why not `right_cmd`:
+  Ghostty 1.3 keybinds reject sided modifiers (`error.InvalidFormat`),
+  and `key-remap = right_cmd=alt` rewrites keybind matching but not
+  byte emission, so the modifier was silently dropped and apps only
+  saw the bare key. Two companion settings make the split useful:
+  `set -g extended-keys on` in `tmux.conf` so modifier+arrow CSI
+  sequences (`ESC [1;3A`) reach inner apps (without it, `<prefix>
+  M-Left/Right` pane resize is silent); `keybind = alt+arrow_left/
+  right=unbind` in Ghostty so its default readline word-jump
+  translation (`alt+arrow_left → esc:b`) doesn't shadow tmux's
+  pane-resize bindings. Trade-off: left-Option no longer types Polish
+  *inside Ghostty*, and Alt+arrow at the shell prompt no longer
+  triggers readline word-jump — use Alt+b / Alt+f instead (always
+  worked, now reliably via left Option). Consumers in this repo:
+  atuin row-N picker shortcuts (`Alt+1`..`9`,`0`), fish/readline
+  word-jump (Alt+f / Alt+b / Alt+d), fzf Alt-C cd-widget, LazyVim
+  `<A-j>` / `<A-k>` line-move, tmux `<prefix> M-Up/Down/Left/Right`
+  pane resize + `<prefix> M-1`..`7` layout select. Smoke test:
+  `scripts/test-ghostty-config.sh`.
 - **Sesh config is split: shared + machine-local.** Repo tracks
   `.config/sesh/sesh.toml` (a `Home 🏠` session for `~` plus
   `import = ["~/.config/sesh/sesh.local.toml"]`). Machine-local sessions
@@ -648,6 +672,7 @@ is `nvim-cheatsheet.html`).
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
+- Ghostty config smoke: `scripts/test-ghostty-config.sh`
 - Reapply symlinks (idempotent): `$PROJECTS_HOME/dotfiles/bootstrap.sh`
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
