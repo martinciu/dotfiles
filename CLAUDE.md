@@ -54,8 +54,12 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `global → session → directory` inside the picker; `enter_accept = false`
   so Enter pastes to the commandline and Tab runs immediately (fzf
   parity); `inline_height = 20` keeps the tmux statusbar visible above
-  the popup; `columns = ["exit", "duration", "command"]` puts the
-  ✓/✗ marker first. Theming: `[theme] name = "default"` uses ANSI
+  the popup, with picker chrome stripped (`show_help`, `show_tabs`,
+  `show_preview` all `false`) so every row goes to the result list;
+  `columns = ["exit", "duration", "command"]` puts the ✓/✗ marker
+  first; `exit_mode = "return-query"` keeps the typed query at the
+  prompt on Esc (Ctrl+C / Ctrl+D still discard). Theming:
+  `[theme] name = "default"` uses ANSI
   palette refs (same trick as `FZF_DEFAULT_OPTS`), auto-adapts across
   all 7 themes via Ghostty's 16-color palette — no per-theme files,
   no `theme-set` coupling. Failed commands are **shown with ✗**, not

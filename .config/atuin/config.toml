@@ -11,13 +11,25 @@ auto_sync = false
 update_check = false
 
 # Picker geometry — inline popup over the prompt, not full-screen.
+# Default chrome (help row, tab bar, preview pane) all off: with
+# inline_height = 20 every row matters; the visible result list is
+# easier to scan than a preview of the highlighted command, and the
+# help/tab rows are static once you know the cycle.
 inline_height = 20
+show_help = false
+show_tabs = false
+show_preview = false
 
 # Default scope on Ctrl-R open.
 filter_mode = "global"
 
 # Enter = paste to commandline (fzf parity); Tab = run immediately.
 enter_accept = false
+
+# Esc returns the typed query to the prompt instead of clearing it,
+# so a stray Esc + edit + Ctrl-R doesn't lose the in-progress search.
+# Ctrl+C / Ctrl+D still discard the query.
+exit_mode = "return-query"
 
 
 # Cycle order inside the picker (Ctrl-R cycles through these).
