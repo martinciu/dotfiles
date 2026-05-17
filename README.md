@@ -168,7 +168,7 @@ Smoke test: `scripts/test-theme-switch.sh`.
 
 - tmux prefix: `C-a`
 - session switcher (tmux-sessionx): `<prefix> t`  (clock-mode moved to `<prefix> T`)
-- pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish diacritics)
+- pane nav: `<prefix> h/j/k/l` (prefix by choice; left-Option in Ghostty acts as Alt, right-Option still types Polish)
 - splits: `<prefix> |` (right) / `<prefix> -` (down)
 - window cycling: `<prefix> ,` (prev) / `<prefix> .` (next) — repeatable. Defaults `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound; this is the only cycle pair.
 - session cycling: `<prefix> Tab` (next) / `<prefix> S-Tab` (prev) / `<prefix> Space` (last) — repeatable. Defaults `(`/`)`/`L` unbound.

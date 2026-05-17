@@ -9,9 +9,6 @@ end
 # Overriding to 1,3.. drops the unix timestamp column.
 set -gx FZF_CTRL_R_OPTS "--with-nth=1,3.."
 
-# Alt-C is reserved for Polish diacritics; remove fzf's cd-widget binding.
-bind -e \ec 2>/dev/null
-
 # zoxide — frecency-ranked cd.
 if command -q zoxide
     set -gx _ZO_EXCLUDE_DIRS "$HOME:$HOME/Downloads/*:$HOME/.config/*:$HOME/Library/*"

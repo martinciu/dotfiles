@@ -34,7 +34,7 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
   `25-prompt` (starship), `30-aliases`,
   `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
-  `40-plugins` (fzf, zoxide, wt, Polish-diacritic Alt-C unbind),
+  `40-plugins` (fzf, zoxide, wt),
   `45-atuin` (atuin Ctrl-R + Up; rebinds after fzf),
   `99-secrets` (untracked). The two untracked files are copied from
   `.template` companions by `bootstrap.sh`. `functions/less.fish`
@@ -137,8 +137,11 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   of the right-side git chips' palette — see the palette-reuse note
   in the unique-accent rule.
 - **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
-  switching). Pane nav: `<prefix> h/j/k/l` (Alt is reserved for Polish
-  diacritics — never `bind -n M-*`). Splits: `|` and `-`.
+  switching). Pane nav: `<prefix> h/j/k/l` — by choice, not necessity.
+  `bind -n M-*` is safe with Ghostty's `macos-option-as-alt = left`
+  (only left-Option fires M-*; right-Option still types Polish
+  diacritics), but no root Alt bindings are wired here. Splits: `|`
+  and `-`.
   **Cycling pairs are single-canonical** — exactly one keystroke combo
   per motion, no duplicates: window cycling on `,` / `.` only (defaults
   `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound — the `C-p`/`C-n`
@@ -156,7 +159,9 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   copy-mode). Default per-modifier actions in hint mode: `Ctrl+letter`
   = open (URL → browser, path → Finder), `Shift+letter` = paste into
   pane, `Tab` = multi-select. **No `bind -n M-*` recipes** from the
-  README — Alt stays reserved for Polish diacritics.
+  README adopted — `<prefix> F` / `<prefix> J` are the canonical
+  bindings; root M-* would be safe with the Option split but the
+  prefix path is the established muscle memory.
   Hint colors use ANSI palette refs (`colour9`/`colour10`/`colour13`/
   `colour14`) so they auto-adapt across all seven themes via Ghostty's
   16-color palette — no per-theme variant files, same trick as

@@ -23,7 +23,7 @@
     <h1>Neovim <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
       LazyVim &middot; Solarized &middot; leader = <code>&lt;Space&gt;</code> &middot; localleader = <code>\</code>
-      &middot; Polish keyboard: <span class="warn">no Alt-bindings</span>
+      &middot; <span class="accent">left Option = Alt</span>, right Option = Polish
     </div>
   </div>
   <a class="hero-cta" href="images/example_vim.png">view full screenshot</a>
@@ -90,7 +90,7 @@
   <div class="card">
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
-      <li><strong>No Alt mappings.</strong> Alt is reserved for Polish diacritics. <code>&lt;A-j&gt;</code>/<code>&lt;A-k&gt;</code> are explicitly removed.</li>
+      <li><strong>Alt mappings via left Option.</strong> Ghostty's <code>macos-option-as-alt = left</code> routes left-Option to Alt; right-Option still produces Polish diacritics via the OS layout. LazyVim's <code>&lt;A-j&gt;</code> / <code>&lt;A-k&gt;</code> (move-line) are kept.</li>
       <li><strong>Solarized + JetBrainsMono Nerd Font</strong> only.</li>
       <li><strong>Lockfiles committed:</strong> <code>lazy-lock.json</code>, <code>mason-lock.json</code>.</li>
       <li>Mason: <code>:MasonLock</code> snapshots, <code>:MasonLockUpdate</code> upgrades + snapshots.</li>
@@ -359,7 +359,7 @@
       <tr><td class="key"><span class="k">Ctrl-e</span></td><td class="desc">cancel / hide menu</td></tr>
       <tr><td class="key"><span class="k">Ctrl-d</span> / <span class="k">Ctrl-f</span></td><td class="desc">scroll docs up / down</td></tr>
     </table>
-    <p class="note">No <code>&lt;A-...&gt;</code> bindings — Polish diacritics policy.</p>
+    <p class="note"><code>&lt;A-...&gt;</code> bindings reach nvim via left Option (right Option types Polish).</p>
   </div>
 
 </div>
@@ -582,12 +582,11 @@
 
 <h3>Removed defaults</h3>
 <ul class="compact">
-  <li><code>&lt;A-j&gt;</code>, <code>&lt;A-k&gt;</code> (move-line) — Alt is reserved for Polish diacritics.</li>
   <li><code>gzip</code>, <code>tarPlugin</code>, <code>tohtml</code>, <code>tutor</code>, <code>zipPlugin</code> are disabled in <code>lazy.lua</code>.</li>
 </ul>
 
 <footer>
-  Built from <code>~/.config/nvim/</code> on 2026-05-05. Refresh after meaningful config changes.
+  Built from <code>~/.config/nvim/</code> on 2026-05-17. Refresh after meaningful config changes.
   <br>
   Cheat-skill: when in doubt, press <span class="k leader">␣</span> and read which-key.
 </footer>
