@@ -159,6 +159,8 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
+link ".config/atuin"   "$HOME/.config/atuin"
+
 # --- gh-dash (TUI for PRs/issues/notifications; switchable theme)
 # ~/.config/gh-dash/ is a real dir. Shared schema lives in config-base.yml;
 # per-theme palettes live in theme-colors-<name>.yml. Both are tracked and

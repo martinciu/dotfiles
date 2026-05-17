@@ -15,6 +15,7 @@ brew "fzf"
 tap  "joshmedeski/sesh"
 brew "joshmedeski/sesh/sesh"
 brew "zoxide"  # frecency-ranked dir jumping; sesh picker source
+brew "atuin"   # Ctrl-R history picker with exit-status markers + scope cycling; wired by .config/fish/conf.d/45-atuin.fish
 
 # Worktree manager
 brew "worktrunk"
