@@ -1,0 +1,5 @@
+# Nord — Ghostty 1.0+ built-in. Theme name is case-sensitive
+# (capitalized). Three other Nord variants ship (`Nord Light`,
+# `Nord Wave`, `Nordfox`) — only the canonical Nord is wired.
+# Active when ~/.config/ghostty/theme.ghostty → this file (theme-set nord).
+theme = Nord

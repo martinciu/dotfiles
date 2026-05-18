@@ -1,0 +1,65 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+palette = "nord"
+
+format = """$directory[](fg:pastel_rose)
+$character"""
+
+right_format = "$status$cmd_duration"
+
+[palettes.nord]
+# Nord palette (Sven Greb) — see ../themes/nord.tmux for the same
+# semantic roles expressed as tmux user options. Names mirror Nord's
+# Polar Night / Snow Storm / Frost / Aurora group vocabulary.
+bg           = "#2e3440"
+bg_darker    = "#3b4252"
+bg_lighter   = "#434c5e"
+selection    = "#4c566a"
+fg           = "#d8dee9"
+comment      = "#4c566a"
+red          = "#bf616a"
+orange       = "#d08770"
+yellow       = "#ebcb8b"
+green        = "#a3be8c"
+cyan         = "#88c0d0"
+purple       = "#b48ead"
+pink         = "#b48ead"   # no distinct pink in the palette; reuse purple
+frame        = "#4c566a"   # nord3 — muted frame
+# Personal accent — per-theme equivalent of Solarized's #DA627D pastel
+# rose and Dracula's pink. Nord deliberately picks Frost teal (nord7)
+# over Aurora purple/red — embraces Nord's arctic identity; the
+# starship prompt is the most prominent place to express it. Role name
+# stays `pastel_rose` for portability of the prompt format.
+pastel_rose = "#8fbcbb"
+# Alias so the prompt format below stays portable across themes.
+# base3 here is dark (#2e3440 = nord0) — chip-text inversion for the
+# Frost-teal pastel_rose, on which light text reads as a low-contrast
+# wash. Within Nord, starship `base3` diverges from tmux
+# `@color_light_fg` (which is light = #eceff4 nord6) — the divergence
+# is intentional, contained to this file pair, and documented on both
+# sides. Do not "align" the two.
+base3       = "#2e3440"
+
+[directory]
+format = "[ $path ]($style)"
+style  = "fg:base3 bg:pastel_rose"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[character]
+success_symbol = "[❯](bold fg:pastel_rose)"
+error_symbol   = "[❯](bold fg:pastel_rose)"
+vicmd_symbol   = "[❮](bold fg:pastel_rose)"
+
+[cmd_duration]
+min_time = 2000
+format   = "[ $duration]($style) "
+style    = "fg:pastel_rose"
+
+[status]
+disabled = false
+format   = "[✘ $status]($style) "
+style    = "fg:pastel_rose"
+
+[jobs]
+disabled = true

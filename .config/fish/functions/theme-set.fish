@@ -1,10 +1,10 @@
-function theme-set --description 'Switch colour scheme between solarized, mocha, frappe, dracula, gruvbox, tokyo-night, and latte'
+function theme-set --description 'Switch colour scheme between solarized, mocha, frappe, dracula, gruvbox, tokyo-night, nord, and latte'
     set -l name $argv[1]
     switch $name
-        case solarized mocha frappe dracula gruvbox tokyo-night latte
+        case solarized mocha frappe dracula gruvbox tokyo-night nord latte
             # OK
         case '*'
-            echo "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|latte>" >&2
+            echo "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte>" >&2
             return 1
     end
 
@@ -28,6 +28,10 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
             # Catppuccin Mocha (closest pastel-on-dark in bat's catalogue).
             set bat_theme "Catppuccin Mocha"
             set vivid_theme "tokyonight-storm"
+        case nord
+            # bat 0.26+ ships `Nord` built-in (capitalized, no hyphen).
+            set bat_theme "Nord"
+            set vivid_theme "nord"
         case latte
             set bat_theme "Catppuccin Latte"
             set vivid_theme "catppuccin-latte"

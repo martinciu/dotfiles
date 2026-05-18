@@ -3,4 +3,5 @@ complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a mocha    
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a dracula     -d 'Dracula'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a gruvbox     -d 'Gruvbox Dark Medium'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a tokyo-night -d 'Tokyo Night Storm'
+complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a nord        -d 'Nord'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a latte       -d 'Catppuccin Latte (light)'

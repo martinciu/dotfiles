@@ -1,0 +1,12 @@
+# Nord delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. plus/minus emph hex are hand-derived from
+# Aurora green (#a3be8c) and red (#bf616a). bat 0.26+ ships `Nord`
+# built-in (capitalized, no hyphen — verified via `bat --list-themes`).
+# No fallback needed (contrast: Tokyo Night fell back to Catppuccin
+# Mocha because no `tokyonight*` syntax theme ships in bat).
+[delta]
+    syntax-theme = Nord
+    plus-style = "syntax #1e2e1a"
+    minus-style = "syntax #3e1a1c"
+    plus-emph-style = "syntax #2a4a1a"
+    minus-emph-style = "syntax #6a1f25"

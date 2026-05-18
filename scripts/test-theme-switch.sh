@@ -130,18 +130,28 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-nig
 assert_gh_dash_config "#c0caf5" "gh-dash config.yml ← base + theme-colors-tokyo-night"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
 
-# Forward: tokyo-night → latte (partial-coverage theme — only ghostty/tmux/starship
-# flip; delta/glow/lnav/gh-dash stay on tokyo-night by design, see spec).
+# Forward: tokyo-night → nord
+run_theme_set nord
+assert_link "$HOME/.config/themes/current.tmux"               "nord.tmux"               "current.tmux → nord.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-nord.gitconfig"    "delta-current.gitconfig → delta-nord.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-nord.ghostty"      "ghostty theme.ghostty → theme-nord.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-nord.toml"      "starship.toml → starship-nord.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json"       "glow glamour.json → glamour-nord.json"
+assert_gh_dash_config "#d8dee9" "gh-dash config.yml ← base + theme-colors-nord"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav theme.json → theme-nord.json"
+
+# Forward: nord → latte (partial-coverage theme — only ghostty/tmux/starship
+# flip; delta/glow/lnav/gh-dash stay on nord by design, see spec).
 run_theme_set latte
 # Positive contract — what flips:
 assert_link "$HOME/.config/themes/current.tmux"               "latte.tmux"               "current.tmux → latte.tmux"
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-latte.ghostty"      "ghostty theme.ghostty → theme-latte.ghostty"
 assert_link "$HOME/.config/starship.toml"                     "starship-latte.toml"      "starship.toml → starship-latte.toml"
-# Negative contract — what does NOT flip (partial coverage stays on previous theme):
-assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-tokyo-night.gitconfig"    "delta stays on tokyo-night (no delta-latte.gitconfig)"
-assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-night.json"       "glow stays on tokyo-night (no glamour-latte.json)"
-assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav stays on tokyo-night (no theme-latte.json)"
-assert_gh_dash_config "#c0caf5" "gh-dash stays on tokyo-night (no theme-colors-latte.yml)"
+# Negative contract — what does NOT flip (partial coverage stays on previous theme = nord):
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-nord.gitconfig"    "delta stays on nord (no delta-latte.gitconfig)"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json"       "glow stays on nord (no glamour-latte.json)"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav stays on nord (no theme-latte.json)"
+assert_gh_dash_config "#d8dee9" "gh-dash stays on nord (no theme-colors-latte.yml)"
 
 # Reverse: latte → solarized
 run_theme_set solarized
