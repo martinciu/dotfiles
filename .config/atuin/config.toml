@@ -20,6 +20,7 @@ workspaces = true
 # easier to scan than a preview of the highlighted command, and the
 # help/tab rows are static once you know the cycle.
 inline_height = 20
+style = "auto"
 show_help = false
 show_tabs = false
 show_preview = false
