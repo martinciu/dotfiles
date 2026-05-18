@@ -3,7 +3,7 @@
 #   - Ctrl-R opens atuin's picker (scope cycles inside it)
 #   - Up arrow stays on fish's native history-search (disabled in
 #     `.config/fish/conf.d/45-atuin.fish` via `--disable-up-arrow`)
-#   - default scope = global (atuin default); Ctrl-R cycles within picker
+#   - default scope = global; Ctrl-R cycles within picker
 #   - Enter pastes to commandline; Tab runs immediately (fzf-parity)
 #   - inline popup (~20 rows), keeps tmux statusbar visible
 #   - default ANSI-palette theme; auto-adapts via Ghostty's 16-color palette
@@ -20,13 +20,14 @@ workspaces = true
 # easier to scan than a preview of the highlighted command, and the
 # help/tab rows are static once you know the cycle.
 inline_height = 20
+style = "auto"
 show_help = false
 show_tabs = false
 show_preview = false
 
-# Default scope on Ctrl-R open. Session-first so the most recent
-# commands from this shell surface immediately; Ctrl-R widens.
-filter_mode = "session"
+# Default scope on Ctrl-R open. Global-first so every command is in
+# reach without cycling; Ctrl-R narrows to session, then workspace.
+filter_mode = "global"
 
 # Enter = paste to commandline (fzf parity); Tab = run immediately.
 enter_accept = false
@@ -38,11 +39,11 @@ exit_mode = "return-query"
 
 
 # Cycle order inside the picker (Ctrl-R cycles through these).
-# session → workspace → global, narrow-to-wide; `directory` is
+# global → session → workspace, wide-to-narrow; `directory` is
 # dropped (workspace is the repo-aware superset that's more useful
 # than cwd-only filtering).
 [search]
-filters = ["session", "workspace", "global"]
+filters = ["global", "session", "workspace"]
 
 # Per-row visible columns. `exit` sits before `command` because
 # atuin's `command()` renderer ignores its allocated width and draws
