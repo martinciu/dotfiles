@@ -50,9 +50,9 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (machine-global, outside the repo — worktrunk's copy-ignored never
   touches it). fish's own `~/.local/share/fish/fish_history` keeps
   recording in parallel (cheap revert: delete `45-atuin.fish`).
-  Picker UX locked in: `filter_mode = "session"` (narrow first; the
-  most recent commands from this shell surface immediately) with
-  Ctrl-R cycling `session → workspace → global` inside the picker.
+  Picker UX locked in: `filter_mode = "global"` (wide first; every
+  command is in reach without cycling) with Ctrl-R cycling
+  `global → session → workspace` inside the picker.
   `workspaces = true` enables the `workspace` scope (current git
   repo); skipped silently when cwd is outside any repo.
   `enter_accept = false`
