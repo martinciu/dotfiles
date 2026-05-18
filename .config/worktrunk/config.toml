@@ -274,21 +274,12 @@ trust-mise = "mise trust --yes 2>/dev/null || true"
 [[pre-remove]]
 save-shared = "wt -C {{ primary_worktree_path }} step copy-ignored --from {{ branch }}"
 
-# Clean up worktree-local bd database on wt remove. No-op in repos
-# without .beads/, so safe to keep enabled everywhere. Personal
-# infrastructure for the /mc:* workflow — kept out of any project
-# wt.toml so teammates don't inherit bd-specific hooks. Separate
-# stage from save-shared so the gitignored-flow-back completes before
-# .beads/ is deleted (ordering doesn't actually matter — .beads/ is
-# excluded from copy-ignored below — but the separation is explicit).
-[[pre-remove]]
-beads = "[ -d .beads ] && rm -rf .beads || true"
-
 # Prevent `wt step copy-ignored` from propagating .beads/ between
-# worktrees. Without this, post-start would carry .beads/ from
-# primary into each new worktree (shadowing main's shared DB if you
-# ever switch to that mode), and pre-remove save-shared would flow
-# a worktree's .beads/ back to primary on teardown (clobbering the
-# real DB). Combines with project-config excludes.
+# worktrees. With repo-wide (shared-mode) bd, main has the only
+# .beads/ and all worktrees walk up to find it. Without this exclude,
+# post-start would copy that .beads/ into each new worktree —
+# shadowing main's DB on every bd call from the worktree — and
+# pre-remove save-shared would flow the stale worktree DB back to
+# main, clobbering real state. Load-bearing.
 [step.copy-ignored]
 exclude = [".beads/"]
