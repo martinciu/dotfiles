@@ -121,6 +121,30 @@ return {
       end
     end,
   },
+  -- Rose Pine (new — loaded when theme.lua resolves to rose-pine or rose-pine-moon).
+  -- Single plugin exposes both variants via :colorscheme rose-pine /
+  -- :colorscheme rose-pine-moon. Dawn (light variant) is also available but
+  -- not wired in this repo per the spec's deferred-variant decision.
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      variant = "auto", -- variant is selected per `:colorscheme` call below
+      styles = {
+        italic = true,
+      },
+    },
+    config = function(_, opts)
+      require("rose-pine").setup(opts)
+      if current == "rose-pine" then
+        vim.cmd.colorscheme("rose-pine")
+      elseif current == "rose-pine-moon" then
+        vim.cmd.colorscheme("rose-pine-moon")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",
