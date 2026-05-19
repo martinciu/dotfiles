@@ -97,11 +97,13 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     tmux refresh-client -S                    2>/dev/null
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, ghostty (via keystroke)"
     echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
 
     # Fire the ghostty config reload (cmd+ctrl+shift+r via System Events when
-    # Ghostty is frontmost). Discard the helper's info line — the reload still
-    # happens as a side effect; the printed "how to" was just noise.
-    __ghostty_reload >/dev/null
+    # Ghostty is frontmost). Surface the helper's status so the user can tell
+    # whether the keystroke fired — silent reload is indistinguishable from a
+    # missing Accessibility permission, which is the usual culprit when
+    # Ghostty's colors don't update after theme-set.
+    __ghostty_reload | sed 's/^/  ghostty: /'
 end
