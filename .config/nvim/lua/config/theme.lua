@@ -7,6 +7,8 @@
 --   "gruvbox"
 --   "tokyonight-storm"
 --   "nord"
+--   "rose-pine"
+--   "rose-pine-moon"
 local M = {}
 
 function M.current()
@@ -24,6 +26,10 @@ function M.current()
       return "tokyonight-storm"
     elseif link:match("nord") then
       return "nord"
+    elseif link:match("rose%-pine%-moon") then
+      return "rose-pine-moon"
+    elseif link:match("rose%-pine") then
+      return "rose-pine"
     end
   end
   return "solarized"

@@ -1,0 +1,12 @@
+# Rose Pine delta config. Active when ~/.config/themes/delta-current.gitconfig
+# symlinks to this file. plus/minus emph hex are hand-derived from
+# foam (#9ccfd8 — green/ins role) and love (#eb6f92 — red/del role)
+# tinted dark for line-background legibility against Rose Pine's
+# base #191724. bat 0.26+ has no rose-pine syntax theme; fall back to
+# Catppuccin Mocha (closest pastel-on-dark, Tokyo Night precedent).
+[delta]
+    syntax-theme = Catppuccin Mocha
+    plus-style = "syntax #1a2e2c"
+    minus-style = "syntax #3e1a25"
+    plus-emph-style = "syntax #1f4541"
+    minus-emph-style = "syntax #6a1f35"

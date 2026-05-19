@@ -1,10 +1,10 @@
-function theme-set --description 'Switch colour scheme between solarized, mocha, frappe, dracula, gruvbox, tokyo-night, nord, and latte'
+function theme-set --description 'Switch colour scheme between solarized, mocha, frappe, dracula, gruvbox, tokyo-night, nord, latte, rose-pine, and rose-pine-moon'
     set -l name $argv[1]
     switch $name
-        case solarized mocha frappe dracula gruvbox tokyo-night nord latte
+        case solarized mocha frappe dracula gruvbox tokyo-night nord latte rose-pine rose-pine-moon
             # OK
         case '*'
-            echo "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte>" >&2
+            echo "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon>" >&2
             return 1
     end
 
@@ -35,6 +35,16 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
         case latte
             set bat_theme "Catppuccin Latte"
             set vivid_theme "catppuccin-latte"
+        case rose-pine
+            # bat 0.26 has no rose-pine syntax theme; fall back to
+            # Catppuccin Mocha (closest pastel-on-dark; Tokyo Night
+            # precedent).
+            set bat_theme "Catppuccin Mocha"
+            set vivid_theme "rose-pine"
+        case rose-pine-moon
+            # Same bat fallback as Main; vivid ships moon natively.
+            set bat_theme "Catppuccin Mocha"
+            set vivid_theme "rose-pine-moon"
         case '*'
             set bat_theme "Solarized (dark)"
             set vivid_theme "solarized-dark"
@@ -89,9 +99,13 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
     echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
-
-    # Fire the ghostty config reload (cmd+ctrl+shift+r via System Events when
-    # Ghostty is frontmost). Discard the helper's info line — the reload still
-    # happens as a side effect; the printed "how to" was just noise.
+    # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
+    # when `theme` changes — only NEW windows/tabs/splits opened after reload
+    # pick up the new palette. Existing windows keep their old theme until a
+    # full Ghostty restart (cmd+q + reopen). See ghostty-org/ghostty#1141.
+    # We still fire the reload keystroke so subsequent splits/tabs inherit
+    # the new theme without restarting; just don't expect the current window
+    # to repaint.
+    echo "  ghostty: new windows only — existing surfaces keep old theme until restart (ghostty#1141)"
     __ghostty_reload >/dev/null
 end

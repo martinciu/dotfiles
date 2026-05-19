@@ -1,0 +1,6 @@
+# Rose Pine — Ghostty 1.0+ built-in. Theme name is case-sensitive
+# (verify with `ghostty +list-themes | grep -i rose`). Three Rose Pine
+# variants ship (`Rose Pine`, `Rose Pine Moon`, `Rose Pine Dawn`) —
+# Main and Moon are wired in this repo; Dawn is deferred.
+# Active when ~/.config/ghostty/theme.ghostty → this file (theme-set rose-pine).
+theme = Rose Pine

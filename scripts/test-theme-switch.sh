@@ -140,18 +140,38 @@ assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json
 assert_gh_dash_config "#d8dee9" "gh-dash config.yml ← base + theme-colors-nord"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav theme.json → theme-nord.json"
 
-# Forward: nord → latte (partial-coverage theme — only ghostty/tmux/starship
+# Forward: nord → rose-pine
+run_theme_set rose-pine
+assert_link "$HOME/.config/themes/current.tmux"               "rose-pine.tmux"               "current.tmux → rose-pine.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine.gitconfig"    "delta-current.gitconfig → delta-rose-pine.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-rose-pine.ghostty"      "ghostty theme.ghostty → theme-rose-pine.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-rose-pine.toml"      "starship.toml → starship-rose-pine.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine.json"       "glow glamour.json → glamour-rose-pine.json"
+assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine.json"         "lnav theme.json → theme-rose-pine.json"
+
+# Forward: rose-pine → rose-pine-moon
+run_theme_set rose-pine-moon
+assert_link "$HOME/.config/themes/current.tmux"               "rose-pine-moon.tmux"               "current.tmux → rose-pine-moon.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine-moon.gitconfig"    "delta-current.gitconfig → delta-rose-pine-moon.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-rose-pine-moon.ghostty"      "ghostty theme.ghostty → theme-rose-pine-moon.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-rose-pine-moon.toml"      "starship.toml → starship-rose-pine-moon.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow glamour.json → glamour-rose-pine-moon.json"
+assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine-moon"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav theme.json → theme-rose-pine-moon.json"
+
+# Forward: rose-pine-moon → latte (partial-coverage theme — only ghostty/tmux/starship
 # flip; delta/glow/lnav/gh-dash stay on nord by design, see spec).
 run_theme_set latte
 # Positive contract — what flips:
 assert_link "$HOME/.config/themes/current.tmux"               "latte.tmux"               "current.tmux → latte.tmux"
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-latte.ghostty"      "ghostty theme.ghostty → theme-latte.ghostty"
 assert_link "$HOME/.config/starship.toml"                     "starship-latte.toml"      "starship.toml → starship-latte.toml"
-# Negative contract — what does NOT flip (partial coverage stays on previous theme = nord):
-assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-nord.gitconfig"    "delta stays on nord (no delta-latte.gitconfig)"
-assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json"       "glow stays on nord (no glamour-latte.json)"
-assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav stays on nord (no theme-latte.json)"
-assert_gh_dash_config "#d8dee9" "gh-dash stays on nord (no theme-colors-latte.yml)"
+# Negative contract — what does NOT flip (partial coverage stays on previous theme = rose-pine-moon):
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine-moon.gitconfig"    "delta stays on rose-pine-moon (no delta-latte.gitconfig)"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow stays on rose-pine-moon (no glamour-latte.json)"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav stays on rose-pine-moon (no theme-latte.json)"
+assert_gh_dash_config "#e0def4" "gh-dash stays on rose-pine-moon (no theme-colors-latte.yml)"
 
 # Reverse: latte → solarized
 run_theme_set solarized
