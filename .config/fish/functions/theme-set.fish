@@ -83,8 +83,13 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     set -Ux VIVID_THEME $vivid_theme
 
     # tmux: re-source config + force status redraw (silent if no server).
-    tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null
-    tmux refresh-client -S                    2>/dev/null
+    # Gated on FISH_DOTFILES_TEST so the test harness doesn't repaint the
+    # live status bar on every flip (same intent as the __ghostty_reload
+    # suppression below).
+    if not set -q FISH_DOTFILES_TEST
+        tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null
+        tmux refresh-client -S                    2>/dev/null
+    end
 
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
