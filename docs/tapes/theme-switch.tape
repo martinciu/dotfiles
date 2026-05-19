@@ -14,12 +14,11 @@ Set FontFamily "JetBrainsMono Nerd Font"
 Set FontSize 16
 Set Width 1600
 Set Height 900
-Set Theme "Solarized Dark"
+Set Theme "Builtin Solarized Dark"
 Set Padding 24
 Set Framerate 30
 Set PlaybackSpeed 1.0
 
-Require theme-set
 Require tmux
 Require bat
 

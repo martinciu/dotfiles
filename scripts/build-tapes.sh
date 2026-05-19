@@ -28,5 +28,5 @@ if [ "$count" -eq 0 ] && [ "$skipped" -eq 0 ]; then
   echo "No .tape files found under docs/tapes/."
   exit 0
 fi
-[ "$skipped" -gt 0 ] && echo "Skipped $skipped up-to-date tape(s)."
-[ "$count" -gt 0 ] && echo "Rendered $count tape(s)."
+[ "$skipped" -gt 0 ] && echo "Skipped $skipped up-to-date tape(s)." || true
+[ "$count" -gt 0 ] && echo "Rendered $count tape(s)." || true
