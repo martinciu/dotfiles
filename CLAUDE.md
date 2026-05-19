@@ -618,30 +618,27 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (`link_tracked_entries` only touches tracked files).
 - **`bd` is the beads issue tracker** (raw command, no alias). Distributed
   graph issue tracker for AI agents, Dolt-backed. Installed via `Brewfile`
-  (`brew "beads"`); the global Claude Code `SessionStart` + `PreCompact`
-  hooks in `~/.claude/settings.json` are a one-time manual step run after
-  first `brew bundle` via `bd setup claude --global` (see README
-  "Manual extras"). Deliberately not automated from `bootstrap.sh` — that
-  file does not write to `~/.claude/`. `bd prime` injects 1–2k tokens of
-  workflow context at session start (and again on context compaction) and
-  no-ops in projects without a `.beads/` directory, so the global hooks
-  are safe in every session. **Quirks of `bd setup claude --global` in
-  this repo:** (1) when CLAUDE.md is present in cwd, `bd setup` also
-  appends a "BEADS INTEGRATION v:1" section to it on every run —
-  reverted here because it preempts policy decisions still deferred (see
-  below) and contradicts existing conventions (TodoWrite/TaskCreate use,
-  MEMORY.md, PR-based workflow); (2) `bd setup claude --global --check`
-  therefore exits 1 with a "CLAUDE.md exists but no beads section found"
-  warning, even though the hooks side is correctly installed — ignore the
-  warning until the policy decision lands. **Don't run `bd init` here
-  yet** (or anywhere) — three policy decisions are deferred to follow-up
-  issues opened against #244: #246 (memory-layer niche — bd vs
-  episodic-memory MCP, per-project MEMORY.md auto-memory, and
-  `.superpowers/` specs+plans), #247 (AGENTS.md vs CLAUDE.md handling on
-  first `bd init` — bd writes AGENTS.md by default, and `bd setup`
-  clobbers CLAUDE.md on every run, see quirks above), #248 (`.beads/`
-  gitignore stance — bd's design intent is committed, for Dolt team sync;
-  we have not committed yet). Pin those before any `bd init`.
+  (`brew "beads"`). This repo is initialised in **stealth mode**
+  (`bd init --stealth`): `.beads/` and `.claude/settings.local.json` are
+  added to `.git/info/exclude` — local-only state, never tracked or
+  committed, invisible to collaborators. `.beads/config.yaml` carries
+  `no-git-ops: true`. The embedded Dolt DB name (`bd_198_nord` here) is
+  auto-derived from the branch active at init time and is just a local
+  label. Re-init **only** via `bd init --stealth`; a non-stealth re-init
+  would expose `.beads/` to git and contradict the stealth posture.
+  **Don't use bd's memory layer** — no `bd remember`, no `bd memories`,
+  no `bd forget`. Memory lives in
+  `~/.claude/projects/-Users-martinciu-code-dotfiles/memory/` (indexed
+  by `MEMORY.md`); that's the only memory system to read or write here.
+  **Don't install the `bd prime` SessionStart / PreCompact hooks** that
+  `bd setup claude --global` wires up. `bd prime` injects ~1–2k tokens
+  of context per session (mandatory beads-for-all-task-tracking,
+  "🚨 SESSION CLOSE PROTOCOL 🚨", a ban on TodoWrite/TaskCreate, etc.)
+  that contradicts this repo's actual conventions (TodoWrite/TaskCreate
+  task tracking, auto-memory, PR-based workflow). If a prior install
+  left those hooks in `~/.claude/settings.json`, remove them. The
+  `bd setup claude --global` step is **not** part of fresh-machine setup
+  — strike it from the README's "Manual extras" if still present.
 - **`diff` aliased to `difft`** (guarded). For ad-hoc, non-git
   comparisons. Git diffs unaffected (still `delta`); `vimdiff`
   unaffected (separate alias). Escape: `command diff`, `\diff`,
