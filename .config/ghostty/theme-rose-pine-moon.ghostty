@@ -1,0 +1,5 @@
+# Rose Pine Moon — accessibility-tuned medium-dark variant (2.5
+# contrast ratio). Ghostty 1.0+ built-in (verify with `ghostty
+# +list-themes | grep -i rose`). Active when
+# ~/.config/ghostty/theme.ghostty → this file (theme-set rose-pine-moon).
+theme = Rose Pine Moon
