@@ -3,8 +3,11 @@
 
 # ─── Theme ────────────────────────────────────
 # Theme + theme-specific overrides live in theme.ghostty (machine-local
-# symlink → theme-solarized.ghostty | theme-mocha.ghostty). Swap via
-# `theme-set <name>`; reload via cmd+ctrl+shift+r or `ghostty +reload`.
+# symlink → theme-solarized.ghostty | theme-mocha.ghostty | …). Swap via
+# `theme-set <name>`; reload via cmd+ctrl+shift+r. Caveat: Ghostty 1.3
+# reload_config does NOT repaint existing surfaces on theme change
+# (ghostty-org/ghostty#1141) — only new windows/tabs/splits inherit the
+# new theme. Restart Ghostty (cmd+q) to retheme everything.
 config-file = theme.ghostty
 
 # ─── Font ─────────────────────────────────────
@@ -14,7 +17,8 @@ config-file = theme.ghostty
 # bootstrap at 14). Weight lives in font-weight.ghostty (machine-local
 # real file; empty by default — font's own regular is used). All swap
 # via `font-set <name> [<size>] [<weight>]`; reload via
-# cmd+ctrl+shift+r or `ghostty +reload`.
+# cmd+ctrl+shift+r (font + size apply live; theme caveat above does not
+# apply to fonts).
 config-file = font.ghostty
 config-file = font-size.ghostty
 config-file = font-weight.ghostty

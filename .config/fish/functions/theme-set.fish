@@ -97,13 +97,15 @@ function theme-set --description 'Switch colour scheme between solarized, mocha,
     tmux refresh-client -S                    2>/dev/null
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, ghostty (via keystroke)"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
     echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
-
-    # Fire the ghostty config reload (cmd+ctrl+shift+r via System Events when
-    # Ghostty is frontmost). Surface the helper's status so the user can tell
-    # whether the keystroke fired — silent reload is indistinguishable from a
-    # missing Accessibility permission, which is the usual culprit when
-    # Ghostty's colors don't update after theme-set.
-    __ghostty_reload | sed 's/^/  ghostty: /'
+    # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
+    # when `theme` changes — only NEW windows/tabs/splits opened after reload
+    # pick up the new palette. Existing windows keep their old theme until a
+    # full Ghostty restart (cmd+q + reopen). See ghostty-org/ghostty#1141.
+    # We still fire the reload keystroke so subsequent splits/tabs inherit
+    # the new theme without restarting; just don't expect the current window
+    # to repaint.
+    echo "  ghostty: new windows only — existing surfaces keep old theme until restart (ghostty#1141)"
+    __ghostty_reload >/dev/null
 end
