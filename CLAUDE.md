@@ -673,6 +673,18 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Build all: `scripts/build-diagrams.sh`. Single file:
   `mmdc -i file.mmd -o file.svg`. Don't install via brew (parallel node
   stack) or `npm install -g` (not declarative, lost on node upgrade).
+- **`vhs` renders terminal tapes** (`charmbracelet/vhs`), installed via
+  Brewfile. Tape sources live at `docs/tapes/<name>.tape`; rendered
+  `.gif` + `.webm` sit alongside (same dir, same basename). All three
+  artefacts are committed. Build all: `scripts/build-tapes.sh` (stat-based
+  skip, re-runs only when the tape is newer than its outputs). Single
+  tape: `vhs docs/tapes/<name>.tape`. Recording environment is locked at
+  top-of-tape (`Set Shell fish`, `Set Theme "Builtin Solarized Dark"`,
+  `Set FontFamily "JetBrainsMono Nerd Font"`, `Set Width/Height/FontSize`)
+  — vhs spawns ttyd, not Ghostty, so `theme-set` and `font-set` do not
+  affect the recorder palette mid-tape (statusbar chips, starship accent,
+  and bat output still repaint via in-shell config swaps). No CI
+  auto-regen — local-only, run on touch.
 
 ## Where things live
 
@@ -714,6 +726,7 @@ is `nvim-cheatsheet.html`).
 - Helper smoke tests: `scripts/test-helpers.sh`
 - Regenerate screenshots: `scripts/build-screenshots.sh`
 - Render diagrams: `scripts/build-diagrams.sh`
+- Render tapes: `scripts/build-tapes.sh`
 - Pre-remove save-shared: `scripts/test-wt-pre-remove-save.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
