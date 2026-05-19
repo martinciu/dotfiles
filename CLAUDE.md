@@ -1,6 +1,6 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 8 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 10 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte / Rose Pine / Rose Pine Moon) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
@@ -410,17 +410,47 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   (dark) theme during a Latte session. bat 0.26+ ships
   `Catppuccin Latte` built-in; vivid 0.11+ ships
   `catppuccin-latte`; Ghostty 1.0+ ships the preset.
+  **Rose Pine (Main + Moon)** ships as the 9th and 10th selectable themes.
+  Two dark variants — Main (`base #191724`) is the canonical default;
+  Moon (`base #232136`) is the accessibility-tuned 2.5-contrast variant.
+  Rose Pine has **no canonical green** and **no canonical orange** — its
+  six-accent palette deliberately omits both roles. The role mapping
+  collapses those gaps onto the closest palette neighbours:
+  `accent_orange` and `accent_red` both resolve to love (`#eb6f92`);
+  `accent_green` and `accent_cyan` both resolve to foam (`#9ccfd8`). The
+  two intra-palette collisions are faithful to Rose Pine's spec — no
+  current tmux pin uses both halves of either pair simultaneously, so
+  the visible-chip uniqueness rule holds. `@color_light_fg = "#e0def4"`
+  (text) — light-on-accent inversion, matching Nord. Reason: pine
+  `#31748f` (Main) at L≈37% is too dark for legible dark-on-accent text;
+  Moon's brighter pine `#3e8fb0` is borderline. Light text resolves both.
+  Starship `pastel_rose = "#ebbcba"` (Main) / `#ea9a97` (Moon) — Rose
+  Pine's literal namesake colour finally lands on a prominent UI surface;
+  tmux chips use love/iris/foam/gold/pine. Rose is reserved for prompt
+  only. **bat 0.26+ does not ship Rose Pine** — both variants fall back
+  to `Catppuccin Mocha` for `$BAT_THEME` (Tokyo Night precedent). vivid
+  0.11+ ships `rose-pine` and `rose-pine-moon`; Ghostty 1.0+ ships
+  `Rose Pine` / `Rose Pine Moon` / `Rose Pine Dawn` presets. **lnav 0.14
+  does not ship Rose Pine**, so
+  `.config/lnav/configs/installed/rose-pine.json` is a vendored theme-defs
+  file (catppuccin precedent — both variants in a single file). The
+  `rose-pine/neovim` plugin provides `rose-pine` and `rose-pine-moon`
+  colorschemes. **Dawn (light variant) is out of scope in v1** —
+  Latte is the only light theme today; Dawn would require either
+  Latte-style partial coverage or scaffolding full coverage for one extra
+  variant. Defer.
   Delta is included from `~/.gitconfig` via
   `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
   setup, see README). nvim picks its colorscheme at startup via the
   resolver in `lua/config/theme.lua` (reads `readlink` of
   `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`,
-  `ellisonleao/gruvbox.nvim`, `folke/tokyonight.nvim`, and
-  `gbprod/nord.nvim` plugins
+  `ellisonleao/gruvbox.nvim`, `folke/tokyonight.nvim`,
+  `gbprod/nord.nvim`, and `rose-pine/neovim` plugins
   are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
   "don't clobber" guards preserve any prior `theme-set mocha`,
   `theme-set dracula`, `theme-set gruvbox`, `theme-set
-  tokyo-night`, or `theme-set nord` pick across re-runs. Out of v1:
+  tokyo-night`, `theme-set nord`, `theme-set rose-pine`, or
+  `theme-set rose-pine-moon` pick across re-runs. Out of v1:
   `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
   HTML toggle, screenshot regeneration, live nvim retheme.
 - **Switchable Ghostty fonts — 17 Nerd Fonts, optional weight + size.**
