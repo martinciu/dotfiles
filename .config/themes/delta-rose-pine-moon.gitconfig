@@ -1,0 +1,10 @@
+# Rose Pine Moon delta config. Same accent palette as rose-pine
+# (love/foam unchanged between Main and Moon); plus/minus tints shift
+# slightly to read against Moon's lifted base #232136. bat falls
+# back to Catppuccin Mocha as for Main.
+[delta]
+    syntax-theme = Catppuccin Mocha
+    plus-style = "syntax #1f3330"
+    minus-style = "syntax #421e2a"
+    plus-emph-style = "syntax #284c47"
+    minus-emph-style = "syntax #6e2438"
