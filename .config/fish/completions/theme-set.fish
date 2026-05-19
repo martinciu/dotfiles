@@ -5,3 +5,5 @@ complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a gruvbox  
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a tokyo-night -d 'Tokyo Night Storm'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a nord        -d 'Nord'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a latte       -d 'Catppuccin Latte (light)'
+complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine   -d 'Rose Pine Main'
+complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine-moon -d 'Rose Pine Moon (2.5 contrast)'
