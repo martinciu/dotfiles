@@ -138,6 +138,33 @@ How to apply:
   when running the skill.
 - Worktree directory: `.claude/worktrees/` (project-local; gitignored).
 
+## Issue tracking — GitHub, not beads
+
+When I say "create a card" / "open an issue" / "track this as work", that
+means a **GitHub issue** (`gh issue create`), **not** a bd issue
+(`bd create`). Beads is reserved for tracking the `/mc:*` slash-command
+workflow (mc:brainstorm → mc:execute → mc:fix → mc:review → mc:workflow),
+not general task planning.
+
+Why: planning, feature scoping, follow-ups, and cross-tool work all live
+in GitHub — that's where conversation history, labels, milestones, and
+PR linkage are. A planning card filed into beads is buried: invisible to
+collaborators (typical stealth-mode init), can't be linked cleanly from
+a PR, and doesn't show up in `gh issue list` / `gh dash`.
+
+How to apply:
+
+- Default to `gh issue create` for any planning / follow-up / "this
+  should be tracked" ask. Match the project's existing issue style (one
+  emoji in title, structured body with emoji-prefixed headings/bullets)
+  and reference parent issues with `Parent: #N`.
+- Use `bd create` only when the work is explicitly part of an `/mc:*`
+  flow — a brainstorm spawning child tasks, an execute step needing a
+  sub-issue, a fix queued for `mc:fix` to pick up.
+- Dupe-check before creating: skim `gh issue list --state=all --search
+  "<keyword>"`. `bd search` queries a different (per-project, stealth)
+  store and won't surface GitHub issues.
+
 ## Superpowers in auto mode
 
 Auto mode doesn't relax Superpowers' clarifying-question phase. When a
