@@ -71,26 +71,7 @@ git config --global delta.line-numbers true
 git config --global include.path "~/.config/themes/delta-current.gitconfig"
 ```
 
-**4. beads — wire global Claude Code hook.** `brew bundle` installs `bd`,
-but the global `SessionStart` + `PreCompact` hooks into
-`~/.claude/settings.json` are a one-time manual step (deliberately not
-automated from `bootstrap.sh` — that file does not write to
-`~/.claude/`):
-
-```sh
-# One-time: install the global SessionStart + PreCompact hooks that run `bd prime`
-bd setup claude --global
-
-# Verify (hooks side; CLAUDE.md warning is expected — see project CLAUDE.md note)
-bd setup claude --global --check
-```
-
-`bd prime` no-ops in projects without a `.beads/` directory, so these hooks
-are safe in every session. `bd init` is **not** part of fresh-machine
-setup — running it is a per-project decision, currently gated on the
-follow-up issues opened against #244.
-
-**5. `atuin import fish`** — one-time backfill of existing fish history
+**4. `atuin import fish`** — one-time backfill of existing fish history
 into the atuin sqlite store. Run after `brew bundle` (which installs
 atuin) and after `bootstrap.sh` (which symlinks `~/.config/atuin/`):
 
