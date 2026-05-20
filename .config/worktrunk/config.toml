@@ -283,3 +283,30 @@ save-shared = "wt -C {{ primary_worktree_path }} step copy-ignored --from {{ bra
 # main, clobbering real state. Load-bearing.
 [step.copy-ignored]
 exclude = [".beads/"]
+
+# Close the beads issue(s) tied to a worktree's branch when the worktree
+# is removed. bd issues are tagged with a `branch:<name>` label (one
+# branch can tag multiple issues), so the hook resolves the label to IDs
+# and closes all of them.
+#
+# Global on purpose, but a strict no-op where beads isn't in play — not
+# every repo has bd integrated. It bails immediately if `bd`/`jq` aren't
+# installed, swallows errors when a repo has no .beads/ DB, and always
+# `exit 0`s, so it can never fail or block a removal in a bd-less repo.
+#
+# post-remove (not pre-remove): it runs in the background after deletion,
+# so nothing it does can abort `wt remove`. Closing an issue is a "notify
+# external system" action — exactly post-remove's job. bd is pointed at
+# primary via `-C {{ primary_worktree_path }}` because the worktree's cwd
+# is gone by then, and the primary checkout holds the .beads/ DB.
+#
+# No "was it merged?" gate: branches land via squash-merged PRs, which
+# `git branch --merged` can't detect (see the worktree-cleanup notes in
+# CLAUDE.md), so a naive gate would never fire and the issue would never
+# close. The downside — a plain `wt remove` of an *abandoned* branch
+# closes its issue — is rare and recoverable with `bd reopen`.
+#
+# The `test -n "$ids"` guard is load-bearing: with no match, `bd close`
+# would get no IDs and fall back to closing the *last-touched* issue.
+[post-remove]
+bd-close = 'command -v bd >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || exit 0; ids=$(bd -C {{ primary_worktree_path }} list --label "branch:{{ branch }}" --json 2>/dev/null | jq -r ".[].id" 2>/dev/null); test -n "$ids" && bd -C {{ primary_worktree_path }} close $ids --reason "worktree {{ branch }} removed"; exit 0'
