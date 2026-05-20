@@ -8,6 +8,11 @@
         "backgroundColor": "bgBrightMagenta"
       },
       {
+        "id": "4830ad63-ce5a-4842-a2b5-52b6d664515d",
+        "type": "thinking-effort",
+        "backgroundColor": "bgBrightBlue"
+      },
+      {
         "id": "a83ffe56-6074-4e7d-826b-e4f89c4904f7",
         "type": "context-percentage",
         "backgroundColor": "bgBrightWhite"
@@ -30,6 +35,7 @@
   "defaultPadding": " ",
   "inheritSeparatorColors": false,
   "globalBold": false,
+  "gitCacheTtlSeconds": 5,
   "minimalistMode": true,
   "powerline": {
     "enabled": true,
