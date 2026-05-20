@@ -63,6 +63,9 @@ brew "duf"                      # modern df replacement (grouped, color-coded)
 brew "dust"                     # tree-style du replacement (largest-first, bar graphs)
 brew "hyperfine"                # command benchmarking (warmups, multi-run stats)
 
+# Documentation & demos
+brew "vhs"            # scripted terminal recorder (.tape -> GIF/WebM)
+
 # Fonts — JetBrains Mono is the default; others are switchable via `font-set`
 cask "font-jetbrains-mono-nerd-font"  # default; Solarized + JetBrainsMono Nerd Font everywhere (CLAUDE.md)
 cask "font-fira-code-nerd-font"       # popular ligature font; widest ligature set
