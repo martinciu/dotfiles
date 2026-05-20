@@ -674,9 +674,11 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `mmdc -i file.mmd -o file.svg`. Don't install via brew (parallel node
   stack) or `npm install -g` (not declarative, lost on node upgrade).
 - **`vhs` renders terminal tapes** (`charmbracelet/vhs`), installed via
-  Brewfile. Tape sources live at `docs/tapes/<name>.tape`; rendered
-  `.gif` + `.webm` sit alongside (same dir, same basename). All three
-  artefacts are committed. Build all: `scripts/build-tapes.sh` (stat-based
+  Brewfile. The capability ships wired-up with **no tapes committed
+  yet** — when you author a tape, its sources live at
+  `docs/tapes/<name>.tape` and the rendered `.gif` + `.webm` sit
+  alongside (same dir, same basename); commit all three together. Build
+  all: `scripts/build-tapes.sh` (stat-based
   skip, re-runs only when the tape is newer than its outputs). Single
   tape: `vhs docs/tapes/<name>.tape`. Recording environment is locked at
   top-of-tape (`Set Shell fish`, `Set Theme "Builtin Solarized Dark"`,
