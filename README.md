@@ -1,11 +1,5 @@
 # dotfiles
 
-<p align="center">
-  <img src="docs/tapes/theme-switch.gif"
-       alt="theme-set cycling Solarized → Dracula → Gruvbox; tmux statusbar and starship prompt swap live; bat output repaints alongside"
-       width="100%" />
-</p>
-
 Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte / Rose Pine / Rose Pine Moon via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
@@ -111,10 +105,6 @@ Up stays on fish's native history-search.
 | user bin     | `bin/*` (e.g. `s`)                   | `~/.local/bin/*`    |
 
 ## Switching themes
-
-<a href="docs/tapes/theme-switch.gif"><img src="docs/tapes/theme-switch.gif" alt="theme-set demo" width="100%" /></a>
-
-> Recorded via `vhs`; the window background palette is fixed by the recorder, so what you see swap live is the tmux statusbar chips, the starship prompt accent, and the `bat` syntax palette — not the underlying ANSI palette. The full swap is what `theme-set` does in your real terminal.
 
 Ten themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Catppuccin Frappé**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, **Nord**, **Catppuccin Latte** (the only light theme), **Rose Pine**, and **Rose Pine Moon**.
 Swap via the fish function `theme-set`:
