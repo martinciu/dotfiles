@@ -1,0 +1,12 @@
+# Trim the Docker build context to just the config the sandbox image bakes.
+*
+!.config
+!sandbox
+.config/*
+!.config/fish
+!.config/nvim
+!.config/worktrunk
+# Never ship machine-local fish files (belt-and-suspenders — these are not in the
+# repo working tree anyway, only their .template companions are).
+.config/fish/conf.d/15-local.fish
+.config/fish/conf.d/99-secrets.fish
