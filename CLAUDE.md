@@ -687,6 +687,19 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   affect the recorder palette mid-tape (statusbar chips, starship accent,
   and bat output still repaint via in-shell config swaps). No CI
   auto-regen — local-only, run on touch.
+- **`sandbox` runs untrusted CLI/TUI in an isolated Linux container.**
+  Built on a debian-slim image; bakes the portable dotfiles subset (full
+  interactive parity from the Brewfile MINUS tmux, ruby, procs, PLUS wt)
+  via `sandbox/{Dockerfile,mise.toml,install-linux.sh}`. Config is
+  single-source from the repo with one `00-env.fish` `/opt/homebrew` guard.
+  `bin/sandbox` is Mac-side only (drives docker/orb; not installed inside).
+  Two modes: **container** (no host mounts — safe for untrusted code;
+  named volume holds state; image rebuilds on a content-hash mismatch) and
+  **machine** (OrbStack VM mounts the Mac home — **trusted code only**).
+  Secrets are never baked in (templates seed empty files inside; inject at
+  runtime via `--env-file`/`-e`). Build requires `GITHUB_TOKEN` (aqua/github
+  backends hit the GitHub releases API). Out of scope: tmux, sesh, s, gh,
+  bd, theme-set, font-set, vhs inside the sandbox.
 
 ## Where things live
 
@@ -740,6 +753,7 @@ is `nvim-cheatsheet.html`).
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
 - Theme switch smoke: `scripts/test-theme-switch.sh`
+- Sandbox smoke: `scripts/test-sandbox.sh`
 
 ## First-time setup on a new machine
 

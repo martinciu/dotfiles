@@ -149,6 +149,65 @@ in `.config/fish/functions/theme-set.fish`.
 
 Smoke test: `scripts/test-theme-switch.sh`.
 
+## 🐳 Sandbox
+
+Run CLI/TUI tools you don't fully trust in an isolated Linux container that
+shares your portable dotfiles env (fish, nvim, bat, eza, fzf, wt, …):
+
+```fish
+sandbox <name>          # create/reattach — drops into fish
+sandbox <name> cmd ...  # run a one-shot command
+sandbox --rm fish       # throwaway ephemeral shell
+```
+
+**Two modes:**
+
+| Mode | Command | Isolation |
+|------|---------|-----------|
+| 🔒 Container (safe) | `sandbox <name>` | No host mounts. Named volume holds state. |
+| ⚠️  Machine (trusted) | `sandbox machine create <name>` | Mounts your Mac home. **TRUSTED CODE ONLY.** |
+
+**Lifecycle verbs:**
+
+```fish
+sandbox build           # (re)build the image
+sandbox ls              # list all sandboxes
+sandbox stop <name>     # stop (keep volume/state)
+sandbox rm <name>       # remove container + volume
+sandbox machine create <name>   # OrbStack machine — Mac home mounted
+sandbox machine ssh <name>      # SSH into machine (fish shell)
+sandbox machine rm <name>       # delete machine
+```
+
+**Flags** (for `sandbox <name>`):
+
+```
+--rm               ephemeral throwaway (no named volume)
+-p PORT            publish PORT to 127.0.0.1 only (LAN off)
+--mount DIR        bind-mount ONE dir at /home/dev/mnt
+--env-file FILE    inject env vars (e.g. ~/sandbox/<name>/.env)
+-e KEY=VAL         inject a single env var (repeatable)
+--memory V         memory limit (default 2g)
+--cpus V           CPU limit (default 2)
+```
+
+**Multi-shell:** open N Mac-tmux panes and run `sandbox <name>` in each —
+they all `docker exec` into the same persistent container.
+
+**Secret injection:** use `--env-file ~/sandbox/<name>/.env` (or `-e KEY=VAL`)
+to pass secrets at runtime. Never baked into the image.
+
+**Named-volume config-snapshot caveat:** a persistent sandbox keeps the config
+snapshot from when it was created. To pick up a rebuilt image:
+`sandbox rm <name> && sandbox <name>`.
+
+**Building the image:** `sandbox build` (or auto-triggered by `sandbox <name>`
+when sources change). Requires `GITHUB_TOKEN` to be set — the build fetches
+pre-built binaries from GitHub releases and hits the API rate limit without auth.
+The fastest way: `GITHUB_TOKEN=$(gh auth token) sandbox build`.
+
+Smoke test: `scripts/test-sandbox.sh`.
+
 ## Keymaps quick-ref
 
 - tmux prefix: `C-a`
