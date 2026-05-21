@@ -176,8 +176,12 @@ sandbox stop <name>     # stop (keep volume/state)
 sandbox rm <name>       # remove container + volume
 sandbox machine create <name>   # OrbStack machine — Mac home mounted
 sandbox machine ssh <name>      # SSH into machine (fish shell)
+sandbox machine ls              # list OrbStack machines
 sandbox machine rm <name>       # delete machine
 ```
+
+Container names round-trip: `sandbox ls` shows the bare `<name>`, which is what
+`stop`/`rm`/reattach take (a pasted `sandbox-<name>` is accepted too).
 
 **Flags** (for `sandbox <name>`):
 
@@ -218,9 +222,10 @@ snapshot from when it was created. To pick up a rebuilt image:
 `sandbox rm <name> && sandbox <name>`.
 
 **Building the image:** `sandbox build` (or auto-triggered by `sandbox <name>`
-when sources change). Requires `GITHUB_TOKEN` to be set — the build fetches
-pre-built binaries from GitHub releases and hits the API rate limit without auth.
-The fastest way: `GITHUB_TOKEN=$(gh auth token) sandbox build`.
+when sources change). The build fetches pre-built binaries from GitHub releases,
+so it needs a token to dodge the API rate limit — but it auto-uses
+`gh auth token` when `GITHUB_TOKEN` isn't already set, so a `gh auth login` is
+all you need. (`sandbox machine create` pulls the token from `gh` the same way.)
 
 Smoke test: `scripts/test-sandbox.sh`.
 
