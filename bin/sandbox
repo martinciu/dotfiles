@@ -33,6 +33,7 @@ Usage:
   sandbox stop <name>            stop a sandbox (keeps its volume/state)
   sandbox rm <name>              remove a sandbox AND its volume
   sandbox machine <create|ssh|rm> <name>   OrbStack machine (TRUSTED CODE ONLY)
+  sandbox machine ls                       list OrbStack machines
 
 Flags (for `sandbox <name>`):
   --rm                 ephemeral throwaway (no named volume)
@@ -168,7 +169,12 @@ cmd_machine() {
       [ -n "$name" ] || die "usage: sandbox machine rm <name>"
       orb delete "$name"
       ;;
-    *) die "usage: sandbox machine <create|ssh|rm> <name>" ;;
+    ls)
+      # Thin wrap: orb machines aren't namespaced/labelled like sandbox
+      # containers, so this lists ALL OrbStack machines, not just sandbox ones.
+      orb list
+      ;;
+    *) die "usage: sandbox machine <create|ssh|rm|ls> [name]" ;;
   esac
 }
 
