@@ -41,6 +41,17 @@ fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 # already 24-bit, so they're unaffected either way.
 set -q COLORTERM; or set -gx COLORTERM truecolor
 
+# OrbStack `sandbox machine` mounts the Mac home at /Users, and orb starts every
+# shell with cwd set to the translated Mac path. mise (activated in 20-mise.fish)
+# would then walk up into /Users and choke on the Mac's untrusted, Mac-specific
+# global config — breaking activation so starship and every shim drop off PATH.
+# Tell mise to ignore that whole subtree. Guard fires only in the machine: Mac is
+# Darwin (skips), the container has no /Users mount (skips). Must run before
+# 20-mise.fish, which 00-env.fish does.
+if test (uname) = Linux; and test -d /Users
+    set -gx MISE_IGNORED_CONFIG_PATHS /Users
+end
+
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux
 # integration that survives B-scope.
 if test -n "$TMUX"
