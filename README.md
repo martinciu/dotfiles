@@ -194,19 +194,21 @@ sandbox machine rm <name>       # delete machine
 **Multi-shell:** open N Mac-tmux panes and run `sandbox <name>` in each —
 they all `docker exec` into the same persistent container.
 
-**Per-project runtimes:** the image bakes the dotfiles tool set (fish, nvim,
-bat, fzf, wt, …), **not** language runtimes. Inside a sandbox, clone a repo and
-let its own `.mise.toml` provide the toolchain — `mise trust && mise install`
-fetches the project-pinned go/node/ruby/etc., then build as usual:
+**Per-project runtimes:** the image bakes `node` (lts) and `go` (latest)
+alongside the dotfiles tool set, but a project that pins a *specific* runtime
+version in its own `.mise.toml` needs `mise install` to fetch it — the baked
+`latest`/`lts` won't satisfy an exact pin. Inside a sandbox, clone a repo and
+let its `.mise.toml` drive the toolchain:
 
 ```fish
 git clone <repo> && cd <repo>
-mise trust && mise install
-make            # the project's pinned runtime is now on $PATH
+mise trust && mise install   # fetches the version this project pins
+make                         # that version is now on $PATH
 ```
 
 If a freshly installed tool isn't found yet (e.g. `make: go: No such file or
-directory`), `cd .` re-fires mise's dir hook to load it.
+directory` because the project pins a version other than the baked one),
+`cd .` re-fires mise's dir hook to load it.
 
 **Secret injection:** use `--env-file ~/sandbox/<name>/.env` (or `-e KEY=VAL`)
 to pass secrets at runtime. Never baked into the image.
