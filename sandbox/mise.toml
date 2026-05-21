@@ -4,6 +4,7 @@
 # for v1; a committed lockfile for reproducibility is a follow-up.
 [tools]
 node = "lts"
+go = "latest"
 neovim = "latest"
 bat = "latest"
 eza = "latest"
