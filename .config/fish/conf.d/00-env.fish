@@ -33,6 +33,14 @@ end
 
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
+# Ghostty exports COLORTERM=truecolor on the Mac, but `docker exec` forwards
+# only TERM — so inside the sandbox COLORTERM is empty and 24-bit-gating tools
+# (delta, starship, glow, btop, bat) fall back to 256-color. Backfill it when
+# missing so RGB output matches the host; the guard makes this a no-op on the
+# Mac (Ghostty already set it). nvim (termguicolors) and vivid's LS_COLORS are
+# already 24-bit, so they're unaffected either way.
+set -q COLORTERM; or set -gx COLORTERM truecolor
+
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux
 # integration that survives B-scope.
 if test -n "$TMUX"
