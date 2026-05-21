@@ -37,7 +37,7 @@ Usage:
 Flags (for `sandbox <name>`):
   --rm                 ephemeral throwaway (no named volume)
   -p PORT              publish PORT to 127.0.0.1 only (LAN off)
-  --mount DIR          bind-mount ONE dir at /home/dev/mnt (default ~/sandbox/<name>)
+  --mount DIR          bind-mount ONE dir at /home/dev/mnt
   --env-file FILE      pass an env file (e.g. ~/sandbox/<name>/.env) into the container
   -e KEY=VAL           pass a single env var (repeatable)
   --memory V --cpus V  resource limits (default 2g / 2)
