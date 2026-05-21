@@ -63,7 +63,7 @@ build_image() {
   docker build -f "$DOTFILES/sandbox/Dockerfile" "${secret_args[@]}" \
     --label "sandbox.srchash=$h" -t "$IMAGE" "$DOTFILES"
 }
-ensure_image() { image_stale && build_image || true; }
+ensure_image() { ! image_stale || build_image; }
 
 # Assemble the common docker run flags into a global array RUN_ARGS.
 assemble_run_args() {
