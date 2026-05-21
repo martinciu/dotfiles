@@ -88,6 +88,7 @@ assemble_run_args() {
 cmd_run() {
   local name="$1"; shift || true
   [ -n "$name" ] || usage
+  name="${name#sandbox-}"   # tolerate the docker name shown by `sandbox ls`
   ensure_image
   assemble_run_args
   if [ "$EPHEMERAL" -eq 1 ]; then
@@ -111,19 +112,43 @@ cmd_run() {
 
 cmd_build() { build_image; }
 
+# Strip the `sandbox-` prefix off the displayed names so they match the bare
+# name the other subcommands take (and the awk reformat keeps columns aligned,
+# which a plain `sed` over docker's `table` output would not).
 cmd_ls() {
-  echo "SANDBOXES:"
   docker ps -a --filter label=sandbox=1 \
-    --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' || true
+    --format '{{.Names}}\t{{.Status}}\t{{.Ports}}' \
+    | sed 's/^sandbox-//' \
+    | awk -F '\t' '
+        BEGIN { printf "%-20s %-18s %s\n", "SANDBOX", "STATUS", "PORTS" }
+        { printf "%-20s %-18s %s\n", $1, $2, $3 }' || true
 }
 
-cmd_stop() { [ -n "${1:-}" ] || usage; docker stop "sandbox-$1" >/dev/null && echo "stopped sandbox-$1"; }
+cmd_stop() {
+  [ -n "${1:-}" ] || usage
+  local name="${1#sandbox-}"
+  if docker stop "sandbox-$name" >/dev/null 2>&1; then
+    echo "stopped sandbox-$name"
+  else
+    die "no such sandbox '$name' (try: sandbox ls)"
+  fi
+}
 
 cmd_rm() {
   [ -n "${1:-}" ] || usage
-  docker rm -f "sandbox-$1" >/dev/null 2>&1 || true
-  docker volume rm "sandbox-$1" >/dev/null 2>&1 || true
-  echo "removed sandbox-$1 (container + volume)"
+  local name="${1#sandbox-}" what=""
+  # Check existence first: `docker rm -f` exits 0 even for a missing container,
+  # so its exit code can't tell us whether anything was actually there.
+  if docker container inspect "sandbox-$name" >/dev/null 2>&1; then
+    docker rm -f "sandbox-$name" >/dev/null
+    what="container"
+  fi
+  if docker volume inspect "sandbox-$name" >/dev/null 2>&1; then
+    docker volume rm "sandbox-$name" >/dev/null
+    what="${what:+$what + }volume"
+  fi
+  [ -n "$what" ] || die "no such sandbox '$name' (try: sandbox ls)"
+  echo "removed sandbox-$name ($what)"
 }
 
 cmd_machine() {
