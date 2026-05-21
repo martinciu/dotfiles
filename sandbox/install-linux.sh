@@ -11,7 +11,7 @@ MISE="$HOME/.local/bin/mise"
 stage_base() {
   $SUDO apt-get update
   $SUDO DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    ca-certificates curl git fish locales build-essential tini less unzip openssh-client
+    ca-certificates curl git fish procps locales build-essential tini less unzip openssh-client
   $SUDO rm -rf /var/lib/apt/lists/*
   # Locales the fish config references (en_US default; pl_PL for LC_TIME).
   $SUDO sed -i 's/^# *en_US.UTF-8/en_US.UTF-8/; s/^# *pl_PL.UTF-8/pl_PL.UTF-8/' /etc/locale.gen
