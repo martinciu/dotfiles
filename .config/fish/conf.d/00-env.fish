@@ -1,6 +1,10 @@
 # brew shellenv. conf.d runs for non-interactive shells too, so child
-# processes inherit PATH.
-eval (/opt/homebrew/bin/brew shellenv)
+# processes inherit PATH. Guarded so the same file loads on Linux (the
+# sandbox image), where Homebrew is absent — mise + fish_add_path below
+# cover PATH there.
+if test -x /opt/homebrew/bin/brew
+    eval (/opt/homebrew/bin/brew shellenv)
+end
 
 set -gx EDITOR vim
 set -gx LANG en_US.UTF-8 # fallback for any LC_* you don't set
