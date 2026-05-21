@@ -132,9 +132,24 @@ cmd_machine() {
     create)
       [ -n "$name" ] || die "usage: sandbox machine create <name>"
       echo "sandbox: ⚠️  machines mount your Mac home — TRUSTED CODE ONLY." >&2
+      # Auto-populate GITHUB_TOKEN from gh, same as the container build: mise
+      # hits the GH releases API for every aqua:/github: backend tool, and
+      # unauthenticated requests get 403 rate-limited. Passed inline into the
+      # provisioning shell below — briefly visible in the VM's process list,
+      # acceptable for a trusted, self-owned machine (orb run has no build-secret
+      # equivalent).
+      [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
+        && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
       orb create debian "$name"
       # Provision: copy the portable config in, then run the shared setup.
-      orb -m "$name" -- bash -lc '
+      # No `--` before the command: orb's `run` rejects it (Error: unknown flag --).
+      # cd "$HOME" first: orb defaults cwd to the translated Mac path, from which
+      # mise walks up and merges the Mac's global ~/.config/mise/config.toml over
+      # the home mount, pulling in non-sandbox tools (ruby, npm:*). Running from
+      # the machine home keeps mise to the copied sandbox config only.
+      orb -m "$name" bash -lc '
+        export GITHUB_TOKEN="'"${GITHUB_TOKEN:-}"'"
+        cd "$HOME"
         mkdir -p ~/.config/mise ~/.config/fish ~/.config/worktrunk ~/.sandbox
         cp -r '"$DOTFILES"'/.config/fish/. ~/.config/fish/
         cp -r '"$DOTFILES"'/.config/nvim ~/.config/nvim
