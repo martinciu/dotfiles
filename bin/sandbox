@@ -58,6 +58,9 @@ image_stale() { [ "$(image_hash)" != "$(sources_hash)" ]; }
 build_image() {
   local h; h="$(sources_hash)"
   echo "sandbox: building $IMAGE ..." >&2
+  # Auto-populate from gh CLI if not already set.
+  [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
+    && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
   local -a secret_args=()
   [ -n "${GITHUB_TOKEN:-}" ] && secret_args=(--secret "id=github_token,env=GITHUB_TOKEN")
   docker build -f "$DOTFILES/sandbox/Dockerfile" "${secret_args[@]}" \
