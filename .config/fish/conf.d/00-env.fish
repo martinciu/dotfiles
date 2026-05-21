@@ -1,6 +1,10 @@
 # brew shellenv. conf.d runs for non-interactive shells too, so child
-# processes inherit PATH.
-eval (/opt/homebrew/bin/brew shellenv)
+# processes inherit PATH. Guarded so the same file loads on Linux (the
+# sandbox image), where Homebrew is absent — mise + fish_add_path below
+# cover PATH there.
+if test -x /opt/homebrew/bin/brew
+    eval (/opt/homebrew/bin/brew shellenv)
+end
 
 set -gx EDITOR vim
 set -gx LANG en_US.UTF-8 # fallback for any LC_* you don't set
@@ -28,6 +32,25 @@ if command -q bat
 end
 
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
+
+# Ghostty exports COLORTERM=truecolor on the Mac, but `docker exec` forwards
+# only TERM — so inside the sandbox COLORTERM is empty and 24-bit-gating tools
+# (delta, starship, glow, btop, bat) fall back to 256-color. Backfill it when
+# missing so RGB output matches the host; the guard makes this a no-op on the
+# Mac (Ghostty already set it). nvim (termguicolors) and vivid's LS_COLORS are
+# already 24-bit, so they're unaffected either way.
+set -q COLORTERM; or set -gx COLORTERM truecolor
+
+# OrbStack `sandbox machine` mounts the Mac home at /Users, and orb starts every
+# shell with cwd set to the translated Mac path. mise (activated in 20-mise.fish)
+# would then walk up into /Users and choke on the Mac's untrusted, Mac-specific
+# global config — breaking activation so starship and every shim drop off PATH.
+# Tell mise to ignore that whole subtree. Guard fires only in the machine: Mac is
+# Darwin (skips), the container has no /Users mount (skips). Must run before
+# 20-mise.fish, which 00-env.fish does.
+if test (uname) = Linux; and test -d /Users
+    set -gx MISE_IGNORED_CONFIG_PATHS /Users
+end
 
 # Force Claude Code truecolor inside tmux. Single env line; the only tmux
 # integration that survives B-scope.

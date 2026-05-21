@@ -1,0 +1,236 @@
+#!/opt/homebrew/bin/bash
+# sandbox — run CLI/TUI tools in an isolated Linux container with the dotfiles
+# env. Mac-side wrapper around docker (OrbStack). See
+# .superpowers/specs/2026-05-21-containerized-sandbox.md for design rationale.
+set -euo pipefail
+
+IMAGE="sandbox:latest"
+
+# Resolve the repo root by following this script's symlink (~/.local/bin/sandbox
+# -> repo/bin/sandbox), so the build context is the repo that owns this script.
+src="${BASH_SOURCE[0]}"
+while [ -L "$src" ]; do
+  dir="$(cd -P "$(dirname "$src")" && pwd)"
+  src="$(readlink "$src")"
+  [[ $src != /* ]] && src="$dir/$src"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$src")" && pwd)"
+DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Defaults (overridable by flags).
+MEMORY="2g"; CPUS="2"; PIDS="512"
+PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0
+declare -a EXTRA_ENV=()
+
+die() { echo "sandbox: $*" >&2; exit 1; }
+
+usage() {
+  cat <<'EOF' >&2
+Usage:
+  sandbox <name> [cmd...]        create/reattach a named sandbox, drop into fish (or run cmd)
+  sandbox build                  (re)build the image
+  sandbox ls                     list sandboxes
+  sandbox stop <name>            stop a sandbox (keeps its volume/state)
+  sandbox rm <name>              remove a sandbox AND its volume
+  sandbox machine <create|ssh|rm> <name>   OrbStack machine (TRUSTED CODE ONLY)
+  sandbox machine ls                       list OrbStack machines
+
+Flags (for `sandbox <name>`):
+  --rm                 ephemeral throwaway (no named volume)
+  -p PORT              publish PORT to 127.0.0.1 only (LAN off)
+  --mount DIR          bind-mount ONE dir at /home/dev/mnt
+  --env-file FILE      pass an env file (e.g. ~/sandbox/<name>/.env) into the container
+  -e KEY=VAL           pass a single env var (repeatable)
+  --memory V --cpus V  resource limits (default 2g / 2)
+EOF
+  exit 1
+}
+
+command -v docker >/dev/null 2>&1 || die "docker not found (is OrbStack installed/running?)"
+
+sources_hash() {
+  ( cd "$DOTFILES" \
+    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml -type f -print0 2>/dev/null \
+       | sort -z | xargs -0 shasum | shasum | awk '{print $1}' )
+}
+image_hash() { docker image inspect "$IMAGE" --format '{{ index .Config.Labels "sandbox.srchash" }}' 2>/dev/null || true; }
+image_stale() { [ "$(image_hash)" != "$(sources_hash)" ]; }
+
+build_image() {
+  local h; h="$(sources_hash)"
+  echo "sandbox: building $IMAGE ..." >&2
+  # Auto-populate from gh CLI if not already set.
+  [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
+    && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+  local -a secret_args=()
+  [ -n "${GITHUB_TOKEN:-}" ] && secret_args=(--secret "id=github_token,env=GITHUB_TOKEN")
+  docker build -f "$DOTFILES/sandbox/Dockerfile" "${secret_args[@]}" \
+    --label "sandbox.srchash=$h" -t "$IMAGE" "$DOTFILES"
+}
+ensure_image() { ! image_stale || build_image; }
+
+# Assemble the common docker run flags into a global array RUN_ARGS.
+assemble_run_args() {
+  RUN_ARGS=(
+    --cap-drop ALL
+    --security-opt no-new-privileges
+    --memory "$MEMORY" --cpus "$CPUS" --pids-limit "$PIDS"
+  )
+  [ -n "$PORT" ] && RUN_ARGS+=(-p "127.0.0.1:${PORT}:${PORT}")
+  if [ -n "$MOUNT_DIR" ]; then
+    mkdir -p "$MOUNT_DIR"
+    RUN_ARGS+=(-v "${MOUNT_DIR}:/home/dev/mnt")
+  fi
+  [ -n "$ENV_FILE" ] && RUN_ARGS+=(--env-file "$ENV_FILE")
+  local kv; for kv in "${EXTRA_ENV[@]}"; do RUN_ARGS+=(-e "$kv"); done
+}
+
+cmd_run() {
+  local name="$1"; shift || true
+  [ -n "$name" ] || usage
+  name="${name#sandbox-}"   # tolerate the docker name shown by `sandbox ls`
+  ensure_image
+  assemble_run_args
+  if [ "$EPHEMERAL" -eq 1 ]; then
+    if [ "$#" -gt 0 ]; then
+      exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish -c "$*"
+    fi
+    exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish
+  fi
+  local cname="sandbox-$name"
+  if ! docker container inspect "$cname" >/dev/null 2>&1; then
+    docker run -d --name "$cname" --label sandbox=1 \
+      "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
+  elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
+    docker start "$cname" >/dev/null
+  fi
+  if [ "$#" -gt 0 ]; then
+    exec docker exec -it "$cname" fish -c "$*"
+  fi
+  exec docker exec -it "$cname" fish
+}
+
+cmd_build() { build_image; }
+
+# Strip the `sandbox-` prefix off the displayed names so they match the bare
+# name the other subcommands take (and the awk reformat keeps columns aligned,
+# which a plain `sed` over docker's `table` output would not).
+cmd_ls() {
+  docker ps -a --filter label=sandbox=1 \
+    --format '{{.Names}}\t{{.Status}}\t{{.Ports}}' \
+    | sed 's/^sandbox-//' \
+    | awk -F '\t' '
+        BEGIN { printf "%-20s %-18s %s\n", "SANDBOX", "STATUS", "PORTS" }
+        { printf "%-20s %-18s %s\n", $1, $2, $3 }' || true
+}
+
+cmd_stop() {
+  [ -n "${1:-}" ] || usage
+  local name="${1#sandbox-}"
+  if docker stop "sandbox-$name" >/dev/null 2>&1; then
+    echo "stopped sandbox-$name"
+  else
+    die "no such sandbox '$name' (try: sandbox ls)"
+  fi
+}
+
+cmd_rm() {
+  [ -n "${1:-}" ] || usage
+  local name="${1#sandbox-}" what=""
+  # Check existence first: `docker rm -f` exits 0 even for a missing container,
+  # so its exit code can't tell us whether anything was actually there.
+  if docker container inspect "sandbox-$name" >/dev/null 2>&1; then
+    docker rm -f "sandbox-$name" >/dev/null
+    what="container"
+  fi
+  if docker volume inspect "sandbox-$name" >/dev/null 2>&1; then
+    docker volume rm "sandbox-$name" >/dev/null
+    what="${what:+$what + }volume"
+  fi
+  [ -n "$what" ] || die "no such sandbox '$name' (try: sandbox ls)"
+  echo "removed sandbox-$name ($what)"
+}
+
+cmd_machine() {
+  command -v orb >/dev/null 2>&1 || die "orb not found (OrbStack)"
+  local sub="${1:-}" name="${2:-}"
+  case "$sub" in
+    create)
+      [ -n "$name" ] || die "usage: sandbox machine create <name>"
+      echo "sandbox: ⚠️  machines mount your Mac home — TRUSTED CODE ONLY." >&2
+      # Auto-populate GITHUB_TOKEN from gh, same as the container build: mise
+      # hits the GH releases API for every aqua:/github: backend tool, and
+      # unauthenticated requests get 403 rate-limited. Passed inline into the
+      # provisioning shell below — briefly visible in the VM's process list,
+      # acceptable for a trusted, self-owned machine (orb run has no build-secret
+      # equivalent).
+      [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
+        && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+      orb create debian "$name"
+      # Provision: copy the portable config in, then run the shared setup.
+      # No `--` before the command: orb's `run` rejects it (Error: unknown flag --).
+      # cd "$HOME" first: orb defaults cwd to the translated Mac path, from which
+      # mise walks up and merges the Mac's global ~/.config/mise/config.toml over
+      # the home mount, pulling in non-sandbox tools (ruby, npm:*). Running from
+      # the machine home keeps mise to the copied sandbox config only.
+      orb -m "$name" bash -lc '
+        export GITHUB_TOKEN="'"${GITHUB_TOKEN:-}"'"
+        cd "$HOME"
+        mkdir -p ~/.config/mise ~/.config/fish ~/.config/worktrunk ~/.sandbox
+        cp -r '"$DOTFILES"'/.config/fish/. ~/.config/fish/
+        cp -r '"$DOTFILES"'/.config/nvim ~/.config/nvim
+        cp '"$DOTFILES"'/.config/worktrunk/config.toml ~/.config/worktrunk/config.toml
+        cp '"$DOTFILES"'/sandbox/mise.toml ~/.config/mise/config.toml
+        cp '"$DOTFILES"'/sandbox/install-linux.sh ~/.sandbox/install-linux.sh
+        bash ~/.sandbox/install-linux.sh all
+      '
+      echo "sandbox: machine '$name' ready — sandbox machine ssh $name" >&2
+      ;;
+    ssh)
+      [ -n "$name" ] || die "usage: sandbox machine ssh <name>"
+      exec orb -m "$name" fish
+      ;;
+    rm)
+      [ -n "$name" ] || die "usage: sandbox machine rm <name>"
+      orb delete "$name"
+      ;;
+    ls)
+      # Thin wrap: orb machines aren't namespaced/labelled like sandbox
+      # containers, so this lists ALL OrbStack machines, not just sandbox ones.
+      orb list
+      ;;
+    *) die "usage: sandbox machine <create|ssh|rm|ls> [name]" ;;
+  esac
+}
+
+# --- arg parsing -------------------------------------------------------------
+[ "$#" -ge 1 ] || usage
+case "$1" in
+  build) cmd_build; exit 0 ;;
+  ls)    cmd_ls; exit 0 ;;
+  stop)  shift; cmd_stop "${1:-}"; exit 0 ;;
+  rm)    shift; cmd_rm "${1:-}"; exit 0 ;;
+  machine) shift; cmd_machine "$@"; exit 0 ;;
+  -h|--help) usage ;;
+esac
+
+NAME=""
+declare -a REST=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --rm) EPHEMERAL=1; shift ;;
+    -p) PORT="${2:?-p needs a PORT}"; shift 2 ;;
+    --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; shift 2 ;;
+    --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; shift 2 ;;
+    -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); shift 2 ;;
+    --memory) MEMORY="${2:?}"; shift 2 ;;
+    --cpus) CPUS="${2:?}"; shift 2 ;;
+    --) shift; REST+=("$@"); break ;;
+    -*)
+      # Once NAME is set, trailing flags/args are the command — pass them through.
+      if [ -n "$NAME" ]; then REST+=("$1"); shift; else die "unknown flag: $1"; fi
+      ;;
+    *) if [ -z "$NAME" ]; then NAME="$1"; else REST+=("$1"); fi; shift ;;
+  esac
+done
+cmd_run "$NAME" "${REST[@]}"

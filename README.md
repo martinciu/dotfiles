@@ -149,6 +149,86 @@ in `.config/fish/functions/theme-set.fish`.
 
 Smoke test: `scripts/test-theme-switch.sh`.
 
+## 🐳 Sandbox
+
+Run CLI/TUI tools you don't fully trust in an isolated Linux container that
+shares your portable dotfiles env (fish, nvim, bat, eza, fzf, wt, …):
+
+```fish
+sandbox <name>          # create/reattach — drops into fish
+sandbox <name> cmd ...  # run a one-shot command
+sandbox --rm fish       # throwaway ephemeral shell
+```
+
+**Two modes:**
+
+| Mode | Command | Isolation |
+|------|---------|-----------|
+| 🔒 Container (safe) | `sandbox <name>` | No host mounts. Named volume holds state. |
+| ⚠️  Machine (trusted) | `sandbox machine create <name>` | Mounts your Mac home. **TRUSTED CODE ONLY.** |
+
+**Lifecycle verbs:**
+
+```fish
+sandbox build           # (re)build the image
+sandbox ls              # list all sandboxes
+sandbox stop <name>     # stop (keep volume/state)
+sandbox rm <name>       # remove container + volume
+sandbox machine create <name>   # OrbStack machine — Mac home mounted
+sandbox machine ssh <name>      # SSH into machine (fish shell)
+sandbox machine ls              # list OrbStack machines
+sandbox machine rm <name>       # delete machine
+```
+
+Container names round-trip: `sandbox ls` shows the bare `<name>`, which is what
+`stop`/`rm`/reattach take (a pasted `sandbox-<name>` is accepted too).
+
+**Flags** (for `sandbox <name>`):
+
+```
+--rm               ephemeral throwaway (no named volume)
+-p PORT            publish PORT to 127.0.0.1 only (LAN off)
+--mount DIR        bind-mount ONE dir at /home/dev/mnt
+--env-file FILE    inject env vars (e.g. ~/sandbox/<name>/.env)
+-e KEY=VAL         inject a single env var (repeatable)
+--memory V         memory limit (default 2g)
+--cpus V           CPU limit (default 2)
+```
+
+**Multi-shell:** open N Mac-tmux panes and run `sandbox <name>` in each —
+they all `docker exec` into the same persistent container.
+
+**Per-project runtimes:** the image bakes `node` (lts) and `go` (latest)
+alongside the dotfiles tool set, but a project that pins a *specific* runtime
+version in its own `.mise.toml` needs `mise install` to fetch it — the baked
+`latest`/`lts` won't satisfy an exact pin. Inside a sandbox, clone a repo and
+let its `.mise.toml` drive the toolchain:
+
+```fish
+git clone <repo> && cd <repo>
+mise trust && mise install   # fetches the version this project pins
+make                         # that version is now on $PATH
+```
+
+If a freshly installed tool isn't found yet (e.g. `make: go: No such file or
+directory` because the project pins a version other than the baked one),
+`cd .` re-fires mise's dir hook to load it.
+
+**Secret injection:** use `--env-file ~/sandbox/<name>/.env` (or `-e KEY=VAL`)
+to pass secrets at runtime. Never baked into the image.
+
+**Named-volume config-snapshot caveat:** a persistent sandbox keeps the config
+snapshot from when it was created. To pick up a rebuilt image:
+`sandbox rm <name> && sandbox <name>`.
+
+**Building the image:** `sandbox build` (or auto-triggered by `sandbox <name>`
+when sources change). The build fetches pre-built binaries from GitHub releases,
+so it needs a token to dodge the API rate limit — but it auto-uses
+`gh auth token` when `GITHUB_TOKEN` isn't already set, so a `gh auth login` is
+all you need. (`sandbox machine create` pulls the token from `gh` the same way.)
+
+Smoke test: `scripts/test-sandbox.sh`.
+
 ## Keymaps quick-ref
 
 - tmux prefix: `C-a`
