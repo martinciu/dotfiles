@@ -733,6 +733,15 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   named-theme tools (bat, delta, glow, vivid, lnav, nvim, starship) on every
   container entry, tracking the host's current theme with no rebuild (#273);
   only an in-container theme *switcher* is out.
+  The sandbox starship prompt is the one theme tool whose config is **generated**,
+  not symlinked: `stage_theme` injects a container-gated penguin glyph
+  (`[container]`, self-gates on `/.dockerenv`) and native
+  `[git_branch]`/`[git_status]` into a copy of the active `starship-<theme>.toml`,
+  so the in-sandbox prompt surfaces container + git context (branch +
+  dirty/ahead-behind) while the Mac's shared tomls stay git-less and unchanged.
+  Injected modules use ANSI color names (auto-adapt per theme); the directory
+  chip keeps each theme's `pastel_rose`. `scripts/test-sandbox.sh` guards both
+  the no-leak invariant and the exact lines the generator rewrites (#280).
 
 ## Where things live
 

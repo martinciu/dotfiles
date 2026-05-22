@@ -17,6 +17,29 @@ fish -n .config/fish/completions/sandbox.fish || fail "completions parse"
 fish -n .config/fish/conf.d/00-env.fish || fail "00-env parse"
 pass "fish parse"
 
+# Guard A — Mac-unchanged: the shared per-theme tomls must NOT carry git or
+# container modules. Those live only in the generated sandbox config; a leak
+# here would change the Mac prompt.
+for f in .config/starship-*.toml; do
+  # shellcheck disable=SC2016
+  ! grep -qE '^\[(container|git_branch|git_status)\]|\$container|\$git_branch' "$f" \
+    || fail "Mac leak: $f carries a sandbox-only module"
+done
+pass "Mac starship tomls carry no git/container modules"
+
+# Guard B — transform-target drift: generate_starship's sed targets exact lines
+# shared by all 10 tomls. If a theme's format/right_format drifts, injection
+# would silently no-op. Fail loudly instead.
+for f in .config/starship-*.toml; do
+  # shellcheck disable=SC2016
+  grep -q '^format = """\$directory' "$f" \
+    || fail "transform drift: $f format line changed"
+  # shellcheck disable=SC2016
+  grep -q '^right_format = "\$status\$cmd_duration"$' "$f" \
+    || fail "transform drift: $f right_format line changed"
+done
+pass "all starship tomls share the transform-target lines"
+
 # Theme flip logic (no docker) — Solarized floor + guarded overlay + delta wiring.
 theme_flip_test() {
   local tmp; tmp="$(mktemp -d)"
@@ -28,8 +51,25 @@ theme_flip_test() {
 
   # Full-coverage theme: every tool overlays off the floor.
   HOME="$tmp" bash sandbox/install-linux.sh theme nord
-  [ "$(readlink "$tmp/.config/starship.toml")" = "starship-nord.toml" ] \
-    || { echo "❌ nord starship: $(readlink "$tmp/.config/starship.toml")"; rm -rf "$tmp"; exit 1; }
+  ! [ -L "$tmp/.config/starship.toml" ] \
+    || { echo "❌ nord starship should be a generated real file, not a symlink"; rm -rf "$tmp"; exit 1; }
+  grep -q '^palette = "nord"' "$tmp/.config/starship.toml" \
+    || { echo "❌ nord starship palette"; rm -rf "$tmp"; exit 1; }
+  # shellcheck disable=SC2016
+  grep -q '^format = """\$container\$directory' "$tmp/.config/starship.toml" \
+    || { echo "❌ nord starship: \$container not in format"; rm -rf "$tmp"; exit 1; }
+  # shellcheck disable=SC2016
+  grep -q '^right_format = "\$git_branch\$git_status\$status\$cmd_duration"$' "$tmp/.config/starship.toml" \
+    || { echo "❌ nord starship right_format"; rm -rf "$tmp"; exit 1; }
+  for blk in container git_branch git_status; do
+    grep -q "^\[$blk\]" "$tmp/.config/starship.toml" \
+      || { echo "❌ nord starship missing [$blk]"; rm -rf "$tmp"; exit 1; }
+  done
+  # The penguin (U+F17C, UTF-8 EF 85 BC) must survive into [container].symbol.
+  # printf'd bytes keep this source ASCII-only — a raw glyph here risks the same
+  # silent stripping the generated symbol once suffered.
+  grep -qF "symbol = \"$(printf '\357\205\274')\"" "$tmp/.config/starship.toml" \
+    || { echo "❌ nord starship missing penguin glyph (U+F17C) in [container].symbol"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/current.tmux")" = "nord.tmux" ] \
     || { echo "❌ nord current.tmux"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-nord.gitconfig" ] \
@@ -47,8 +87,10 @@ theme_flip_test() {
 
   # Partial-coverage theme (Latte): starship overlays, delta/glow hold the floor.
   HOME="$tmp" bash sandbox/install-linux.sh theme latte
-  [ "$(readlink "$tmp/.config/starship.toml")" = "starship-latte.toml" ] \
-    || { echo "❌ latte starship overlay"; rm -rf "$tmp"; exit 1; }
+  grep -q '^palette = "catppuccin_latte"' "$tmp/.config/starship.toml" \
+    || { echo "❌ latte starship palette"; rm -rf "$tmp"; exit 1; }
+  grep -q '^\[git_branch\]' "$tmp/.config/starship.toml" \
+    || { echo "❌ latte starship git_branch"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/glow/glamour.json")" = "glamour-solarized.json" ] \
     || { echo "❌ latte glow floor"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-solarized.gitconfig" ] \
@@ -81,27 +123,34 @@ pass "nvim"
 
 # Theme apply in the built image: floor default, full-coverage overlay, and
 # Latte partial-coverage degradation.
-out="$(docker run --rm sandbox:test bash -lc 'readlink ~/.config/starship.toml')"
-[[ "$out" == "starship-solarized.toml" ]] || fail "theme floor default: $out"
-pass "theme floor default"
+out="$(docker run --rm sandbox:test bash -lc 'cat ~/.config/starship.toml')"
+[[ "$out" == *'palette = "solarized_dark"'* ]] || fail "theme floor palette: $out"
+[[ "$out" == *'[container]'* ]] || fail "theme floor missing [container]"
+[[ "$out" == *'[git_branch]'* ]] || fail "theme floor missing [git_branch]"
+# Penguin (U+F17C, UTF-8 EF 85 BC) must reach the in-image generated symbol —
+# module-name checks above pass even when the glyph is stripped, so assert the byte.
+[[ "$out" == *"symbol = \"$(printf '\357\205\274')\""* ]] || fail "theme floor missing penguin glyph (U+F17C)"
+pass "theme floor default (generated)"
 
 out="$(docker run --rm sandbox:test bash -lc '
   bash ~/.sandbox/install-linux.sh theme nord >/dev/null 2>&1
-  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "palette=$(grep -m1 "^palette = " ~/.config/starship.toml)"
+  echo "gitbranch=$(grep -c "^\[git_branch\]" ~/.config/starship.toml)"
   echo "bat=$(fish -c "echo \$BAT_THEME" 2>/dev/null)"
   echo "git=$(grep -c "pager = delta" ~/.gitconfig)"')"
-[[ "$out" == *"starship=starship-nord.toml"* ]] || fail "theme nord starship: $out"
+[[ "$out" == *'palette = "nord"'* ]] || fail "theme nord starship palette: $out"
+[[ "$out" == *"gitbranch=1"* ]] || fail "theme nord starship git_branch: $out"
 [[ "$out" == *"bat=Nord"* ]] || fail "theme nord bat: $out"
 [[ "$out" == *"git=1"* ]] || fail "theme nord delta gitconfig: $out"
-pass "theme apply (nord)"
+pass "theme apply (nord, generated)"
 
 out="$(docker run --rm sandbox:test bash -lc '
   bash ~/.sandbox/install-linux.sh theme latte >/dev/null 2>&1
-  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "palette=$(grep -m1 "^palette = " ~/.config/starship.toml)"
   echo "glow=$(readlink ~/.config/glow/glamour.json)"')"
-[[ "$out" == *"starship=starship-latte.toml"* ]] || fail "theme latte overlay: $out"
+[[ "$out" == *'palette = "catppuccin_latte"'* ]] || fail "theme latte starship palette: $out"
 [[ "$out" == *"glow=glamour-solarized.json"* ]] || fail "theme latte glow floor: $out"
-pass "theme degrade (latte)"
+pass "theme degrade (latte, generated)"
 
 # 6. Isolation: a default container has NO host bind-mount.
 cid="$(docker run -d --rm --cap-drop ALL --security-opt no-new-privileges \
