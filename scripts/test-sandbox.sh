@@ -121,6 +121,23 @@ docker run --rm sandbox:test bash -lc '$HOME/.local/bin/mise exec -- nvim --head
   || fail "nvim headless"
 pass "nvim"
 
+# 5b. nvimpager: on PATH, $PAGER resolves to it, init.lua present, cat-mode
+# echoes piped content, and cat-mode emits the active theme's 24-bit palette
+# (38;2;) — the color proxy proves nvimpager's init.lua reached the baked nvim
+# lazy dir (snacks/theme reuse, the headline risk of this change). Run via fish
+# so mise is active (nvim on PATH) and COLORTERM=truecolor is backfilled; the
+# floor (solarized) theme is already applied from the build.
+out="$(docker run --rm sandbox:test fish -c '
+  type -q nvimpager; and echo ONPATH
+  test "$PAGER" = nvimpager; and echo PAGER
+  test -f ~/.config/nvimpager/init.lua; and echo INIT
+  printf "# hello\n" | nvimpager -c | string match -q "*hello*"; and echo CAT
+  printf "local x = 1\n" | nvimpager -c | string match -q "*38;2;*"; and echo COLOR')"
+for tok in ONPATH PAGER INIT CAT COLOR; do
+  [[ "$out" == *"$tok"* ]] || fail "nvimpager: missing $tok (got: $out)"
+done
+pass "nvimpager (on PATH, \$PAGER, init.lua, cat-mode, color proxy)"
+
 # Theme apply in the built image: floor default, full-coverage overlay, and
 # Latte partial-coverage degradation.
 out="$(docker run --rm sandbox:test bash -lc 'cat ~/.config/starship.toml')"
