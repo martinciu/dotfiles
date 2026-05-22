@@ -240,8 +240,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   symlinked): `stage_theme` injects a container-gated penguin glyph + native
   git branch/status into a copy of the active `starship-<theme>.toml`, so the
   in-sandbox prompt shows container + git context while the Mac's shared tomls
-  stay git-less (#280). Smoke: `scripts/test-sandbox.sh` (also run in CI:
-  `.github/workflows/sandbox.yml`, arm64, on sandbox-path PRs + nightly).
+  stay git-less (#280). **nvimpager** is the sole non-mise sandbox tool —
+  `stage_nvimpager` clones it + `make install-no-man` (no prebuilt release
+  assets), config copied like nvim's (#283). Smoke: `scripts/test-sandbox.sh`
+  (also run in CI: `.github/workflows/sandbox.yml`, arm64, on sandbox-path PRs +
+  nightly).
 
 ## Where things live
 
