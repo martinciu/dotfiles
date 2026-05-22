@@ -80,6 +80,30 @@ docker run --rm sandbox:test bash -lc '$HOME/.local/bin/mise exec -- nvim --head
   || fail "nvim headless"
 pass "nvim"
 
+# Theme apply in the built image: floor default, full-coverage overlay, and
+# Latte partial-coverage degradation.
+out="$(docker run --rm sandbox:test bash -lc 'readlink ~/.config/starship.toml')"
+[[ "$out" == "starship-solarized.toml" ]] || fail "theme floor default: $out"
+pass "theme floor default"
+
+out="$(docker run --rm sandbox:test bash -lc '
+  bash ~/.sandbox/install-linux.sh theme nord >/dev/null 2>&1
+  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "bat=$(fish -c "echo \$BAT_THEME" 2>/dev/null)"
+  echo "git=$(grep -c "pager = delta" ~/.gitconfig)"')"
+[[ "$out" == *"starship=starship-nord.toml"* ]] || fail "theme nord starship: $out"
+[[ "$out" == *"bat=Nord"* ]] || fail "theme nord bat: $out"
+[[ "$out" == *"git=1"* ]] || fail "theme nord delta gitconfig: $out"
+pass "theme apply (nord)"
+
+out="$(docker run --rm sandbox:test bash -lc '
+  bash ~/.sandbox/install-linux.sh theme latte >/dev/null 2>&1
+  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "glow=$(readlink ~/.config/glow/glamour.json)"')"
+[[ "$out" == *"starship=starship-latte.toml"* ]] || fail "theme latte overlay: $out"
+[[ "$out" == *"glow=glamour-solarized.json"* ]] || fail "theme latte glow floor: $out"
+pass "theme degrade (latte)"
+
 # 6. Isolation: a default container has NO host bind-mount.
 cid="$(docker run -d --rm --cap-drop ALL --security-opt no-new-privileges \
   -v sandbox-selftest:/home/dev sandbox:test)"
