@@ -31,6 +31,14 @@ if command -q bat
     set -gx MANROFFOPT -c
 end
 
+# nvimpager as the general $PAGER — smooth, colored paging (e.g. glow's
+# markdown ANSI). man (MANPAGER=bat above) and git (core.pager=delta) win for
+# their own output. Guarded so non-Mac shells (the Linux sandbox, where
+# nvimpager isn't installed) stay clean.
+if command -q nvimpager
+    set -gx PAGER nvimpager
+end
+
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
 # Ghostty exports COLORTERM=truecolor on the Mac, but `docker exec` forwards
