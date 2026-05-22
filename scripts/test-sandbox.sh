@@ -69,12 +69,14 @@ out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox "$rname" -p "$rport" true 2>&1 || 
 pass "ignored-flags warning"
 
 # 10. help is a real subcommand: prints usage, exits 0, creates nothing.
+docker rm -f sandbox-help >/dev/null 2>&1 || true   # remove any leftover from a prior run
 rc=0; out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox help 2>&1)" || rc=$?
 [[ "$rc" -eq 0 && "$out" == *Usage* ]] || fail "help: rc=$rc out=$out"
 docker container inspect sandbox-help >/dev/null 2>&1 && fail "help created a container"
 pass "help prints usage, creates nothing"
 
 # 11. A bogus subcommand errors non-zero and creates nothing.
+docker rm -f sandbox-lst >/dev/null 2>&1 || true   # remove any leftover from a prior run
 rc=0; out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox lst 2>&1)" || rc=$?
 [[ "$rc" -ne 0 && "$out" == *"no such sandbox"* ]] || fail "bogus token: rc=$rc out=$out"
 docker container inspect sandbox-lst >/dev/null 2>&1 && fail "bogus token created a container"
