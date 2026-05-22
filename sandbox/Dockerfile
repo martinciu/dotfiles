@@ -9,7 +9,7 @@ ARG UID=1000
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl sudo \
  && rm -rf /var/lib/apt/lists/* \
- && useradd -m -u ${UID} -s /bin/bash ${USER} \
+ && useradd -lm -u ${UID} -s /bin/bash ${USER} \
  && echo "${USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER} \
  && chmod 0440 /etc/sudoers.d/${USER}
 
