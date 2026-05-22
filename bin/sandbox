@@ -4,7 +4,8 @@
 # .superpowers/specs/2026-05-21-containerized-sandbox.md for design rationale.
 set -euo pipefail
 
-IMAGE="sandbox:latest"
+# Default image; overridable (e.g. tests pin a throwaway tag, power users pin a build).
+IMAGE="${SANDBOX_IMAGE:-sandbox:latest}"
 
 # Resolve the repo root by following this script's symlink (~/.local/bin/sandbox
 # -> repo/bin/sandbox), so the build context is the repo that owns this script.
@@ -21,6 +22,7 @@ DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
 MEMORY="2g"; CPUS="2"; PIDS="512"
 PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0
 declare -a EXTRA_ENV=()
+declare -a FLAGS_PASSED=()   # creation-time flags as typed, for the "use reup" hint
 
 die() { echo "sandbox: $*" >&2; exit 1; }
 
@@ -28,6 +30,7 @@ usage() {
   cat <<'EOF' >&2
 Usage:
   sandbox <name> [cmd...]        create/reattach a named sandbox, drop into fish (or run cmd)
+  sandbox reup <name> [flags]    recreate the container with new flags (keeps volume/state)
   sandbox build                  (re)build the image
   sandbox ls                     list sandboxes
   sandbox stop <name>            stop a sandbox (keeps its volume/state)
@@ -35,7 +38,7 @@ Usage:
   sandbox machine <create|ssh|rm> <name>   OrbStack machine (TRUSTED CODE ONLY)
   sandbox machine ls                       list OrbStack machines
 
-Flags (for `sandbox <name>`):
+Flags (for `sandbox <name>` and `sandbox reup <name>`):
   --rm                 ephemeral throwaway (no named volume)
   -p PORT              publish PORT to 127.0.0.1 only (LAN off)
   --mount DIR          bind-mount ONE dir at /home/dev/mnt
@@ -85,6 +88,24 @@ assemble_run_args() {
   local kv; for kv in "${EXTRA_ENV[@]}"; do RUN_ARGS+=(-e "$kv"); done
 }
 
+# Create the persistent container with the assembled RUN_ARGS and the named
+# state volume. Shared by cmd_run (first create) and cmd_reup (recreate).
+create_container() {
+  local cname="$1" name="$2"
+  docker run -d --name "$cname" --label sandbox=1 \
+    "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
+}
+
+# Drop into fish inside the container, or run a one-shot command, then exec
+# (replaces this process) — always the last thing a run/reup does.
+exec_into() {
+  local cname="$1"; shift
+  if [ "$#" -gt 0 ]; then
+    exec docker exec -it "$cname" fish -c "$*"
+  fi
+  exec docker exec -it "$cname" fish
+}
+
 cmd_run() {
   local name="$1"; shift || true
   [ -n "$name" ] || usage
@@ -99,15 +120,37 @@ cmd_run() {
   fi
   local cname="sandbox-$name"
   if ! docker container inspect "$cname" >/dev/null 2>&1; then
-    docker run -d --name "$cname" --label sandbox=1 \
-      "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
-  elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
-    docker start "$cname" >/dev/null
+    create_container "$cname" "$name"
+  else
+    # Container already exists: -p/--mount/-e/etc. are baked in at creation and
+    # cannot be applied now. Point the user at reup instead of silently dropping.
+    if [ "${#FLAGS_PASSED[@]}" -gt 0 ]; then
+      echo "sandbox: flags ignored (container exists): ${FLAGS_PASSED[*]} — run: sandbox reup $name ${FLAGS_PASSED[*]@Q}" >&2
+    fi
+    if [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
+      docker start "$cname" >/dev/null
+    fi
   fi
-  if [ "$#" -gt 0 ]; then
-    exec docker exec -it "$cname" fish -c "$*"
-  fi
-  exec docker exec -it "$cname" fish
+  exec_into "$cname" "$@"
+}
+
+# Recreate an existing sandbox's container with new run-time flags, keeping its
+# /home/dev volume. Requires a live (running or stopped) container — the volume
+# alone is not enough. See .superpowers/specs/2026-05-22-sandbox-reup.md.
+cmd_reup() {
+  local name="$1"; shift || true
+  [ -n "$name" ] || usage
+  name="${name#sandbox-}"
+  [ "$EPHEMERAL" -eq 0 ] || die "reup does not support --rm"
+  local cname="sandbox-$name"
+  docker container inspect "$cname" >/dev/null 2>&1 \
+    || die "no such sandbox '$name' (try: sandbox ls)"
+  ensure_image
+  assemble_run_args
+  echo "sandbox: recreating container $cname (volume preserved)" >&2
+  docker rm -f "$cname" >/dev/null
+  create_container "$cname" "$name"
+  exec_into "$cname" "$@"
 }
 
 cmd_build() { build_image; }
@@ -173,6 +216,7 @@ cmd_machine() {
       # mise walks up and merges the Mac's global ~/.config/mise/config.toml over
       # the home mount, pulling in non-sandbox tools (ruby, npm:*). Running from
       # the machine home keeps mise to the copied sandbox config only.
+      # shellcheck disable=SC2016  # intentional: single-quotes inside are verbatim orb bash literal
       orb -m "$name" bash -lc '
         export GITHUB_TOKEN="'"${GITHUB_TOKEN:-}"'"
         cd "$HOME"
@@ -205,12 +249,14 @@ cmd_machine() {
 
 # --- arg parsing -------------------------------------------------------------
 [ "$#" -ge 1 ] || usage
+MODE=run
 case "$1" in
   build) cmd_build; exit 0 ;;
   ls)    cmd_ls; exit 0 ;;
   stop)  shift; cmd_stop "${1:-}"; exit 0 ;;
   rm)    shift; cmd_rm "${1:-}"; exit 0 ;;
   machine) shift; cmd_machine "$@"; exit 0 ;;
+  reup)  MODE=reup; shift ;;   # fall through to the parser, then cmd_reup
   -h|--help) usage ;;
 esac
 
@@ -219,12 +265,12 @@ declare -a REST=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --rm) EPHEMERAL=1; shift ;;
-    -p) PORT="${2:?-p needs a PORT}"; shift 2 ;;
-    --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; shift 2 ;;
-    --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; shift 2 ;;
-    -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); shift 2 ;;
-    --memory) MEMORY="${2:?}"; shift 2 ;;
-    --cpus) CPUS="${2:?}"; shift 2 ;;
+    -p) PORT="${2:?-p needs a PORT}"; FLAGS_PASSED+=(-p "$2"); shift 2 ;;
+    --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; FLAGS_PASSED+=(--mount "$2"); shift 2 ;;
+    --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; FLAGS_PASSED+=(--env-file "$2"); shift 2 ;;
+    -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); FLAGS_PASSED+=(-e "$2"); shift 2 ;;
+    --memory) MEMORY="${2:?}"; FLAGS_PASSED+=(--memory "$2"); shift 2 ;;
+    --cpus) CPUS="${2:?}"; FLAGS_PASSED+=(--cpus "$2"); shift 2 ;;
     --) shift; REST+=("$@"); break ;;
     -*)
       # Once NAME is set, trailing flags/args are the command — pass them through.
@@ -233,4 +279,8 @@ while [ "$#" -gt 0 ]; do
     *) if [ -z "$NAME" ]; then NAME="$1"; else REST+=("$1"); fi; shift ;;
   esac
 done
-cmd_run "$NAME" "${REST[@]}"
+if [ "$MODE" = reup ]; then
+  cmd_reup "$NAME" "${REST[@]}"
+else
+  cmd_run "$NAME" "${REST[@]}"
+fi
