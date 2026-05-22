@@ -159,6 +159,11 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
+# --- nvimpager (neovim as $PAGER; smooth + colored paging for glow)
+# ~/.config/nvimpager/ holds only the tracked init.lua; nvimpager's runtime
+# state lives under ~/.local/share/nvimpager/, so a whole-dir symlink is safe.
+link ".config/nvimpager" "$HOME/.config/nvimpager"
+
 link ".config/atuin"   "$HOME/.config/atuin"
 
 # --- gh-dash (TUI for PRs/issues/notifications; switchable theme)
