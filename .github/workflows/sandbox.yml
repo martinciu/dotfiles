@@ -37,6 +37,14 @@ jobs:
       - name: Lint Dockerfile (hadolint)
         run: docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint hadolint sandbox/Dockerfile
 
+      # The bash scripts hardcode `#!/opt/homebrew/bin/bash` (Apple-Silicon
+      # convention). test-sandbox.sh calls `bin/sandbox` by its shebang, so the
+      # runner needs bash 5 at that path — Linux's system bash already is 5.x.
+      - name: Provide bash at the Homebrew shebang path
+        run: |
+          sudo mkdir -p /opt/homebrew/bin
+          sudo ln -sf "$(command -v bash)" /opt/homebrew/bin/bash
+
       - name: Sandbox smoke (build + runtime asserts)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
