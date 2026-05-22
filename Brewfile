@@ -40,6 +40,7 @@ brew "bat"                      # syntax-highlighted cat / man pager backend
 brew "git-delta"                # git diff/log/blame pager
 brew "difftastic"               # syntactic diff for ad-hoc compares (non-git)
 brew "glow"                     # render markdown to ANSI
+brew "nvimpager"                # neovim as $PAGER: smooth, colored paging (glow)
 brew "tailspin"                 # syntax-highlighted log viewer (tspin)
 brew "vivid"                    # generates LS_COLORS palettes
 brew "starship"                 # cross-shell prompt engine (Rust); replaces powerlevel10k
