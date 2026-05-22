@@ -50,7 +50,14 @@ command -v docker >/dev/null 2>&1 || die "docker not found (is OrbStack installe
 
 sources_hash() {
   ( cd "$DOTFILES" \
-    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml -type f -print0 2>/dev/null \
+    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml \
+            .config/themes .config/glow .config/lnav/configs/installed \
+            .config/starship-solarized.toml .config/starship-mocha.toml \
+            .config/starship-frappe.toml .config/starship-dracula.toml \
+            .config/starship-gruvbox.toml .config/starship-tokyo-night.toml \
+            .config/starship-nord.toml .config/starship-latte.toml \
+            .config/starship-rose-pine.toml .config/starship-rose-pine-moon.toml \
+            -type f -print0 2>/dev/null \
        | sort -z | xargs -0 shasum | shasum | awk '{print $1}' )
 }
 image_hash() { docker image inspect "$IMAGE" --format '{{ index .Config.Labels "sandbox.srchash" }}' 2>/dev/null || true; }
@@ -68,6 +75,26 @@ build_image() {
     --label "sandbox.srchash=$h" -t "$IMAGE" "$DOTFILES"
 }
 ensure_image() { ! image_stale || build_image; }
+
+# Resolve the host's active theme from the canonical signal (the same symlink
+# theme.lua reads). No theme-set ever run → default solarized.
+detect_host_theme() {
+  local link
+  link="$(readlink "$HOME/.config/themes/current.tmux" 2>/dev/null || true)"
+  if [ -n "$link" ]; then basename "$link" .tmux; else echo "solarized"; fi
+}
+
+# Apply the host theme inside a running container. Refresh the flip logic on the
+# volume first so an existing sandbox never runs stale logic. Best-effort:
+# theming must never block dropping into a shell.
+apply_theme() {
+  local cname="$1" theme
+  theme="$(detect_host_theme)"
+  docker cp "$DOTFILES/sandbox/install-linux.sh" \
+    "$cname:/home/dev/.sandbox/install-linux.sh" >/dev/null 2>&1 || true
+  docker exec "$cname" bash /home/dev/.sandbox/install-linux.sh theme "$theme" \
+    >/dev/null 2>&1 || true
+}
 
 # Assemble the common docker run flags into a global array RUN_ARGS.
 assemble_run_args() {
@@ -91,23 +118,29 @@ cmd_run() {
   name="${name#sandbox-}"   # tolerate the docker name shown by `sandbox ls`
   ensure_image
   assemble_run_args
+  local cname rc=0
   if [ "$EPHEMERAL" -eq 1 ]; then
-    if [ "$#" -gt 0 ]; then
-      exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish -c "$*"
+    # Throwaway: run detached so we can apply the theme before attaching, then
+    # remove on exit. The image's default CMD (sleep infinity) keeps it up.
+    cname="sandbox-eph-$$"
+    docker run -d --rm --name "$cname" "${RUN_ARGS[@]}" "$IMAGE" >/dev/null
+  else
+    cname="sandbox-$name"
+    if ! docker container inspect "$cname" >/dev/null 2>&1; then
+      docker run -d --name "$cname" --label sandbox=1 \
+        "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
+    elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
+      docker start "$cname" >/dev/null
     fi
-    exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish
   fi
-  local cname="sandbox-$name"
-  if ! docker container inspect "$cname" >/dev/null 2>&1; then
-    docker run -d --name "$cname" --label sandbox=1 \
-      "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
-  elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
-    docker start "$cname" >/dev/null
-  fi
+  apply_theme "$cname"
   if [ "$#" -gt 0 ]; then
-    exec docker exec -it "$cname" fish -c "$*"
+    docker exec -it "$cname" fish -c "$*" || rc=$?
+  else
+    docker exec -it "$cname" fish || rc=$?
   fi
-  exec docker exec -it "$cname" fish
+  [ "$EPHEMERAL" -eq 1 ] && docker rm -f "$cname" >/dev/null 2>&1
+  exit "$rc"
 }
 
 cmd_build() { build_image; }
