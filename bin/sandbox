@@ -29,6 +29,7 @@ usage() {
   cat <<'EOF' >&2
 Usage:
   sandbox <name> [cmd...]        create/reattach a named sandbox, drop into fish (or run cmd)
+  sandbox reup <name> [flags]    recreate the container with new flags (keeps volume/state)
   sandbox build                  (re)build the image
   sandbox ls                     list sandboxes
   sandbox stop <name>            stop a sandbox (keeps its volume/state)
@@ -122,6 +123,26 @@ cmd_run() {
   elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
     docker start "$cname" >/dev/null
   fi
+  exec_into "$cname" "$@"
+}
+
+
+# Recreate an existing sandbox's container with new run-time flags, keeping its
+# /home/dev volume. Requires a live (running or stopped) container — the volume
+# alone is not enough. See .superpowers/specs/2026-05-22-sandbox-reup.md.
+cmd_reup() {
+  local name="$1"; shift || true
+  [ -n "$name" ] || usage
+  name="${name#sandbox-}"
+  [ "$EPHEMERAL" -eq 0 ] || die "reup does not support --rm"
+  local cname="sandbox-$name"
+  docker container inspect "$cname" >/dev/null 2>&1 \
+    || die "no such sandbox '$name' (try: sandbox ls)"
+  ensure_image
+  assemble_run_args
+  echo "sandbox: recreating container $cname (volume preserved)" >&2
+  docker rm -f "$cname" >/dev/null
+  create_container "$cname" "$name"
   exec_into "$cname" "$@"
 }
 
@@ -220,12 +241,14 @@ cmd_machine() {
 
 # --- arg parsing -------------------------------------------------------------
 [ "$#" -ge 1 ] || usage
+MODE=run
 case "$1" in
   build) cmd_build; exit 0 ;;
   ls)    cmd_ls; exit 0 ;;
   stop)  shift; cmd_stop "${1:-}"; exit 0 ;;
   rm)    shift; cmd_rm "${1:-}"; exit 0 ;;
   machine) shift; cmd_machine "$@"; exit 0 ;;
+  reup)  MODE=reup; shift ;;   # fall through to the parser, then cmd_reup
   -h|--help) usage ;;
 esac
 
@@ -248,4 +271,8 @@ while [ "$#" -gt 0 ]; do
     *) if [ -z "$NAME" ]; then NAME="$1"; else REST+=("$1"); fi; shift ;;
   esac
 done
-cmd_run "$NAME" "${REST[@]}"
+if [ "$MODE" = reup ]; then
+  cmd_reup "$NAME" "${REST[@]}"
+else
+  cmd_run "$NAME" "${REST[@]}"
+fi
