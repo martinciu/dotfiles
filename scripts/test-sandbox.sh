@@ -50,7 +50,7 @@ theme_flip_test() {
   cp .config/starship-*.toml "$tmp/.config/"
 
   # Full-coverage theme: every tool overlays off the floor.
-  HOME="$tmp" bash sandbox/install-linux.sh theme nord
+  HOME="$tmp" XDG_CONFIG_HOME="$tmp/.config" bash sandbox/install-linux.sh theme nord
   ! [ -L "$tmp/.config/starship.toml" ] \
     || { echo "❌ nord starship should be a generated real file, not a symlink"; rm -rf "$tmp"; exit 1; }
   grep -q '^palette = "nord"' "$tmp/.config/starship.toml" \
@@ -86,7 +86,7 @@ theme_flip_test() {
     || { echo "❌ nord BAT_THEME"; rm -rf "$tmp"; exit 1; }
 
   # Partial-coverage theme (Latte): starship overlays, delta/glow hold the floor.
-  HOME="$tmp" bash sandbox/install-linux.sh theme latte
+  HOME="$tmp" XDG_CONFIG_HOME="$tmp/.config" bash sandbox/install-linux.sh theme latte
   grep -q '^palette = "catppuccin_latte"' "$tmp/.config/starship.toml" \
     || { echo "❌ latte starship palette"; rm -rf "$tmp"; exit 1; }
   grep -q '^\[git_branch\]' "$tmp/.config/starship.toml" \

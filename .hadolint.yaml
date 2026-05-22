@@ -1,0 +1,2 @@
+ignored:
+  - DL3008  # don't pin apt versions in a sandbox that tracks current packages
