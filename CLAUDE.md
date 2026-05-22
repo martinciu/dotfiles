@@ -696,6 +696,10 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Two modes: **container** (no host mounts — safe for untrusted code;
   named volume holds state; image rebuilds on a content-hash mismatch) and
   **machine** (OrbStack VM mounts the Mac home — **trusted code only**).
+  `sandbox reup <name> [flags]` recreates a sandbox's container with new
+  run-time flags (`-p`/`--mount`/`-e`/etc.) while preserving its `/home/dev`
+  volume; the bare `sandbox <name>` path warns (pointing at `reup`) when
+  creation-time flags hit an already-existing container.
   Secrets are never baked in (templates seed empty files inside; inject at
   runtime via `--env-file`/`-e`). Build requires `GITHUB_TOKEN` (aqua/github
   backends hit the GitHub releases API). Out of scope: tmux, sesh, s, gh,
