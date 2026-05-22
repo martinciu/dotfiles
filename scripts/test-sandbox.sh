@@ -17,6 +17,51 @@ fish -n .config/fish/completions/sandbox.fish || fail "completions parse"
 fish -n .config/fish/conf.d/00-env.fish || fail "00-env parse"
 pass "fish parse"
 
+# Theme flip logic (no docker) — Solarized floor + guarded overlay + delta wiring.
+theme_flip_test() {
+  local tmp; tmp="$(mktemp -d)"
+  mkdir -p "$tmp/.config/lnav/configs"
+  cp -R .config/themes "$tmp/.config/themes"
+  cp -R .config/glow "$tmp/.config/glow"
+  cp -R .config/lnav/configs/installed "$tmp/.config/lnav/configs/installed"
+  cp .config/starship-*.toml "$tmp/.config/"
+
+  # Full-coverage theme: every tool overlays off the floor.
+  HOME="$tmp" bash sandbox/install-linux.sh theme nord
+  [ "$(readlink "$tmp/.config/starship.toml")" = "starship-nord.toml" ] \
+    || { echo "❌ nord starship: $(readlink "$tmp/.config/starship.toml")"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/themes/current.tmux")" = "nord.tmux" ] \
+    || { echo "❌ nord current.tmux"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-nord.gitconfig" ] \
+    || { echo "❌ nord delta"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/glow/glamour.json")" = "glamour-nord.json" ] \
+    || { echo "❌ nord glow"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/lnav/configs/installed/theme.json")" = "theme-nord.json" ] \
+    || { echo "❌ nord lnav"; rm -rf "$tmp"; exit 1; }
+  grep -q 'pager = delta' "$tmp/.gitconfig" \
+    || { echo "❌ nord gitconfig missing delta"; rm -rf "$tmp"; exit 1; }
+  # fish 4.x universals are written to ~/.config/fish/fish_variables; reading
+  # via `fish -c` hits the running daemon instead, so grep the file directly.
+  grep -q 'BAT_THEME:Nord' "$tmp/.config/fish/fish_variables" 2>/dev/null \
+    || { echo "❌ nord BAT_THEME"; rm -rf "$tmp"; exit 1; }
+
+  # Partial-coverage theme (Latte): starship overlays, delta/glow hold the floor.
+  HOME="$tmp" bash sandbox/install-linux.sh theme latte
+  [ "$(readlink "$tmp/.config/starship.toml")" = "starship-latte.toml" ] \
+    || { echo "❌ latte starship overlay"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/glow/glamour.json")" = "glamour-solarized.json" ] \
+    || { echo "❌ latte glow floor"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-solarized.gitconfig" ] \
+    || { echo "❌ latte delta floor"; rm -rf "$tmp"; exit 1; }
+  # Latte's bat name has a space; fish 4.x encodes spaces as \x20 in the file.
+  grep -q 'BAT_THEME:Catppuccin' "$tmp/.config/fish/fish_variables" 2>/dev/null \
+    || { echo "❌ latte BAT_THEME"; rm -rf "$tmp"; exit 1; }
+
+  rm -rf "$tmp"
+}
+theme_flip_test
+pass "theme flip logic (floor + overlay + delta + env)"
+
 command -v docker >/dev/null 2>&1 || { echo "⏭️  docker absent — skipping build/runtime asserts"; exit 0; }
 
 # 3. Build via the wrapper so the image carries the sandbox.srchash label —
@@ -33,6 +78,30 @@ pass "fish + tools"
 docker run --rm sandbox:test bash -lc '$HOME/.local/bin/mise exec -- nvim --headless +qa' \
   || fail "nvim headless"
 pass "nvim"
+
+# Theme apply in the built image: floor default, full-coverage overlay, and
+# Latte partial-coverage degradation.
+out="$(docker run --rm sandbox:test bash -lc 'readlink ~/.config/starship.toml')"
+[[ "$out" == "starship-solarized.toml" ]] || fail "theme floor default: $out"
+pass "theme floor default"
+
+out="$(docker run --rm sandbox:test bash -lc '
+  bash ~/.sandbox/install-linux.sh theme nord >/dev/null 2>&1
+  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "bat=$(fish -c "echo \$BAT_THEME" 2>/dev/null)"
+  echo "git=$(grep -c "pager = delta" ~/.gitconfig)"')"
+[[ "$out" == *"starship=starship-nord.toml"* ]] || fail "theme nord starship: $out"
+[[ "$out" == *"bat=Nord"* ]] || fail "theme nord bat: $out"
+[[ "$out" == *"git=1"* ]] || fail "theme nord delta gitconfig: $out"
+pass "theme apply (nord)"
+
+out="$(docker run --rm sandbox:test bash -lc '
+  bash ~/.sandbox/install-linux.sh theme latte >/dev/null 2>&1
+  echo "starship=$(readlink ~/.config/starship.toml)"
+  echo "glow=$(readlink ~/.config/glow/glamour.json)"')"
+[[ "$out" == *"starship=starship-latte.toml"* ]] || fail "theme latte overlay: $out"
+[[ "$out" == *"glow=glamour-solarized.json"* ]] || fail "theme latte glow floor: $out"
+pass "theme degrade (latte)"
 
 # 6. Isolation: a default container has NO host bind-mount.
 cid="$(docker run -d --rm --cap-drop ALL --security-opt no-new-privileges \

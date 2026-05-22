@@ -1,5 +1,6 @@
 # Tool set baked into the sandbox image (full interactive parity from the
-# Brewfile MINUS tmux, PLUS wt). Themes/fonts excluded (text boundary).
+# Brewfile MINUS tmux, PLUS wt). Fonts excluded (text boundary); the active Mac
+# theme is baked + applied at container entry (#273).
 # Installed by `install-linux.sh mise` at build time. "latest" is acceptable
 # for v1; a committed lockfile for reproducibility is a follow-up.
 [tools]

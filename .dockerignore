@@ -6,6 +6,19 @@
 !.config/fish
 !.config/nvim
 !.config/worktrunk
+!.config/themes
+!.config/glow
+!.config/lnav
+!.config/starship-solarized.toml
+!.config/starship-mocha.toml
+!.config/starship-frappe.toml
+!.config/starship-dracula.toml
+!.config/starship-gruvbox.toml
+!.config/starship-tokyo-night.toml
+!.config/starship-nord.toml
+!.config/starship-latte.toml
+!.config/starship-rose-pine.toml
+!.config/starship-rose-pine-moon.toml
 # Never ship machine-local fish files (belt-and-suspenders — these are not in the
 # repo working tree anyway, only their .template companions are).
 .config/fish/conf.d/15-local.fish

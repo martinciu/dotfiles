@@ -55,7 +55,14 @@ command -v docker >/dev/null 2>&1 || die "docker not found (is OrbStack installe
 
 sources_hash() {
   ( cd "$DOTFILES" \
-    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml -type f -print0 2>/dev/null \
+    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml \
+            .config/themes .config/glow .config/lnav/configs/installed \
+            .config/starship-solarized.toml .config/starship-mocha.toml \
+            .config/starship-frappe.toml .config/starship-dracula.toml \
+            .config/starship-gruvbox.toml .config/starship-tokyo-night.toml \
+            .config/starship-nord.toml .config/starship-latte.toml \
+            .config/starship-rose-pine.toml .config/starship-rose-pine-moon.toml \
+            -type f -print0 2>/dev/null \
        | sort -z | xargs -0 shasum | shasum | awk '{print $1}' )
 }
 image_hash() { docker image inspect "$IMAGE" --format '{{ index .Config.Labels "sandbox.srchash" }}' 2>/dev/null || true; }
@@ -73,6 +80,26 @@ build_image() {
     --label "sandbox.srchash=$h" -t "$IMAGE" "$DOTFILES"
 }
 ensure_image() { ! image_stale || build_image; }
+
+# Resolve the host's active theme from the canonical signal (the same symlink
+# theme.lua reads). No theme-set ever run → default solarized.
+detect_host_theme() {
+  local link
+  link="$(readlink "$HOME/.config/themes/current.tmux" 2>/dev/null || true)"
+  if [ -n "$link" ]; then basename "$link" .tmux; else echo "solarized"; fi
+}
+
+# Apply the host theme inside a running container. Refresh the flip logic on the
+# volume first so an existing sandbox never runs stale logic. Best-effort:
+# theming must never block dropping into a shell.
+apply_theme() {
+  local cname="$1" theme
+  theme="$(detect_host_theme)"
+  docker cp "$DOTFILES/sandbox/install-linux.sh" \
+    "$cname:/home/dev/.sandbox/install-linux.sh" >/dev/null 2>&1 || true
+  docker exec "$cname" bash /home/dev/.sandbox/install-linux.sh theme "$theme" \
+    >/dev/null 2>&1 || true
+}
 
 # Assemble the common docker run flags into a global array RUN_ARGS.
 assemble_run_args() {
@@ -127,12 +154,22 @@ cmd_run() {
 
   ensure_image
   assemble_run_args
-
   if [ "$EPHEMERAL" -eq 1 ]; then
+    # Throwaway: run detached so we can apply the host theme before attaching,
+    # then remove on exit (including SIGHUP/SIGTERM — the trap covers every path;
+    # exec would discard it). The default CMD (sleep infinity) keeps it up until
+    # we rm it.
+    local rc=0
+    cname="sandbox-eph-$$"
+    docker run -d --rm --name "$cname" "${RUN_ARGS[@]}" "$IMAGE" >/dev/null
+    trap 'docker rm -f "$cname" >/dev/null 2>&1' EXIT INT TERM HUP
+    apply_theme "$cname"
     if [ "$#" -gt 0 ]; then
-      exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish -c "$*"
+      docker exec -it "$cname" fish -c "$*" || rc=$?
+    else
+      docker exec -it "$cname" fish || rc=$?
     fi
-    exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish
+    exit "$rc"
   fi
 
   if [ "$exists" -eq 0 ]; then
@@ -147,6 +184,7 @@ cmd_run() {
       docker start "$cname" >/dev/null
     fi
   fi
+  apply_theme "$cname"
   exec_into "$cname" "$@"
 }
 
@@ -166,6 +204,7 @@ cmd_reup() {
   echo "sandbox: recreating container $cname (volume preserved)" >&2
   docker rm -f "$cname" >/dev/null
   create_container "$cname" "$name"
+  apply_theme "$cname"
   exec_into "$cname" "$@"
 }
 
@@ -225,6 +264,7 @@ cmd_machine() {
       # equivalent).
       [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
         && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+      local theme; theme="$(detect_host_theme)"
       orb create debian "$name"
       # Provision: copy the portable config in, then run the shared setup.
       # No `--` before the command: orb's `run` rejects it (Error: unknown flag --).
@@ -242,12 +282,19 @@ cmd_machine() {
         cp '"$DOTFILES"'/.config/worktrunk/config.toml ~/.config/worktrunk/config.toml
         cp '"$DOTFILES"'/sandbox/mise.toml ~/.config/mise/config.toml
         cp '"$DOTFILES"'/sandbox/install-linux.sh ~/.sandbox/install-linux.sh
+        cp -r '"$DOTFILES"'/.config/themes ~/.config/themes
+        cp -r '"$DOTFILES"'/.config/glow ~/.config/glow
+        mkdir -p ~/.config/lnav/configs
+        cp -r '"$DOTFILES"'/.config/lnav/configs/installed ~/.config/lnav/configs/installed
+        cp '"$DOTFILES"'/.config/starship-*.toml ~/.config/
         bash ~/.sandbox/install-linux.sh all
+        bash ~/.sandbox/install-linux.sh theme '"$theme"'
       '
       echo "sandbox: machine '$name' ready — sandbox machine ssh $name" >&2
       ;;
     ssh)
       [ -n "$name" ] || die "usage: sandbox machine ssh <name>"
+      orb -m "$name" bash -lc 'bash ~/.sandbox/install-linux.sh theme '"$(detect_host_theme)"' >/dev/null 2>&1 || true'
       exec orb -m "$name" fish
       ;;
     rm)
