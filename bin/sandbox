@@ -38,7 +38,7 @@ Usage:
   sandbox machine <create|ssh|rm> <name>   OrbStack machine (TRUSTED CODE ONLY)
   sandbox machine ls                       list OrbStack machines
 
-Flags (for `sandbox <name>`):
+Flags (for `sandbox <name>` and `sandbox reup <name>`):
   --rm                 ephemeral throwaway (no named volume)
   -p PORT              publish PORT to 127.0.0.1 only (LAN off)
   --mount DIR          bind-mount ONE dir at /home/dev/mnt
@@ -125,7 +125,7 @@ cmd_run() {
     # Container already exists: -p/--mount/-e/etc. are baked in at creation and
     # cannot be applied now. Point the user at reup instead of silently dropping.
     if [ "${#FLAGS_PASSED[@]}" -gt 0 ]; then
-      echo "sandbox: flags ignored (container exists): ${FLAGS_PASSED[*]} — run: sandbox reup $name ${FLAGS_PASSED[*]}" >&2
+      echo "sandbox: flags ignored (container exists): ${FLAGS_PASSED[*]} — run: sandbox reup $name ${FLAGS_PASSED[*]@Q}" >&2
     fi
     if [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
       docker start "$cname" >/dev/null
@@ -133,7 +133,6 @@ cmd_run() {
   fi
   exec_into "$cname" "$@"
 }
-
 
 # Recreate an existing sandbox's container with new run-time flags, keeping its
 # /home/dev volume. Requires a live (running or stopped) container — the volume
