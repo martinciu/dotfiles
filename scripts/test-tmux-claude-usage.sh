@@ -148,12 +148,21 @@ unset -f format_reset
 fire_glyph=$'\xef\x81\xad'
 arrow_glyph=$'\xe2\x86\x92'
 
-assert_eq "$(format_overreach_suffix true 120)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120)"
-assert_eq "$(format_overreach_suffix true 252)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252)"
-assert_eq "$(format_overreach_suffix true '')"   " ${fire_glyph}"                     "format_overreach_suffix(true, '') — null projected_pct"
-assert_eq "$(format_overreach_suffix false 120)" ""                                    "format_overreach_suffix(false, 120)"
-assert_eq "$(format_overreach_suffix '' 120)"    ""                                    "format_overreach_suffix('', 120)"
-assert_eq "$(format_overreach_suffix false '')"  ""                                    "format_overreach_suffix(false, '')"
+# Existing show-path calls now pass an explicit confidence (3rd arg). Required:
+# the harness runs under `set -u`, so once the function references $3 a missing
+# arg would abort with "unbound variable".
+assert_eq "$(format_overreach_suffix true 120 ok)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120, ok)"
+assert_eq "$(format_overreach_suffix true 252 ok)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252, ok)"
+assert_eq "$(format_overreach_suffix true '' ok)"   " ${fire_glyph}"                     "format_overreach_suffix(true, '', ok) — null projected_pct"
+assert_eq "$(format_overreach_suffix false 120 ok)" ""                                    "format_overreach_suffix(false, 120, ok)"
+assert_eq "$(format_overreach_suffix '' 120 ok)"    ""                                    "format_overreach_suffix('', 120, ok)"
+assert_eq "$(format_overreach_suffix false '' ok)"  ""                                    "format_overreach_suffix(false, '', ok)"
+
+# Confidence gate (issue #252): explicit "low" suppresses; empty/"ok" show.
+assert_eq "$(format_overreach_suffix true 187 low)" ""                                    "gate: low confidence suppresses suffix"
+assert_eq "$(format_overreach_suffix true 187 ok)"  " ${fire_glyph} ${arrow_glyph} 187%" "gate: ok confidence shows suffix"
+assert_eq "$(format_overreach_suffix true 187 '')"  " ${fire_glyph} ${arrow_glyph} 187%" "gate: empty confidence defaults to show (old ccpulse)"
+assert_eq "$(format_overreach_suffix true '' low)"  ""                                    "gate: low confidence suppresses even with null pct"
 unset -f format_overreach_suffix
 unset fire_glyph arrow_glyph
 

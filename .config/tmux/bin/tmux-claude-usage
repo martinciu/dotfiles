@@ -42,16 +42,21 @@ fire=$(printf '\xef\x81\xad')      # U+F06D nf-fa-fire
 
 # Returns the overreach decoration to insert after a chip's percentage.
 # Output is meant to be appended directly to a chip body (leading space
-# included). Returns empty string when the chip is not overreaching.
+# included). Returns empty string when the chip is not overreaching OR when
+# ccpulse reports the projection as low-confidence (issue #252) — an early-
+# window slope extrapolated from a tiny sample produces noisy false alarms.
 #
 #   args: $1 = will_overreach ("true" | "false" | "")
 #         $2 = projected_pct_at_reset (integer string, or "")
-#   stdout: " <fire> → N%"  when $1 == "true" and $2 non-empty
-#           " <fire>"        when $1 == "true" and $2 empty
+#         $3 = confidence ("ok" | "low" | "") — only an explicit "low"
+#              suppresses; empty/absent (older ccpulse) defaults to show.
+#   stdout: " <fire> → N%"  when $1 == "true", $3 != "low", and $2 non-empty
+#           " <fire>"        when $1 == "true", $3 != "low", and $2 empty
 #           ""                otherwise
 format_overreach_suffix() {
-  local will=$1 pct=$2
+  local will=$1 pct=$2 conf=$3
   [ "$will" = "true" ] || { printf ''; return 0; }
+  [ "$conf" = "low" ]  && { printf ''; return 0; }
   if [ -n "$pct" ]; then
     printf ' %s \xe2\x86\x92 %s%%' "$fire" "$pct"
   else
