@@ -55,7 +55,7 @@ command -v docker >/dev/null 2>&1 || die "docker not found (is OrbStack installe
 
 sources_hash() {
   ( cd "$DOTFILES" \
-    && find sandbox .config/fish .config/nvim .config/worktrunk/config.toml \
+    && find sandbox .config/fish .config/nvim .config/nvimpager .config/worktrunk/config.toml \
             .config/themes .config/glow .config/lnav/configs/installed \
             .config/starship-solarized.toml .config/starship-mocha.toml \
             .config/starship-frappe.toml .config/starship-dracula.toml \
@@ -283,6 +283,7 @@ cmd_machine() {
         mkdir -p ~/.config/mise ~/.config/fish ~/.config/worktrunk ~/.sandbox
         cp -r '"$DOTFILES"'/.config/fish/. ~/.config/fish/
         cp -r '"$DOTFILES"'/.config/nvim ~/.config/nvim
+        cp -r '"$DOTFILES"'/.config/nvimpager ~/.config/nvimpager
         cp '"$DOTFILES"'/.config/worktrunk/config.toml ~/.config/worktrunk/config.toml
         cp '"$DOTFILES"'/sandbox/mise.toml ~/.config/mise/config.toml
         cp '"$DOTFILES"'/sandbox/install-linux.sh ~/.sandbox/install-linux.sh
