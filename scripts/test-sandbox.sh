@@ -65,6 +65,11 @@ theme_flip_test() {
     grep -q "^\[$blk\]" "$tmp/.config/starship.toml" \
       || { echo "❌ nord starship missing [$blk]"; rm -rf "$tmp"; exit 1; }
   done
+  # The penguin (U+F17C, UTF-8 EF 85 BC) must survive into [container].symbol.
+  # printf'd bytes keep this source ASCII-only — a raw glyph here risks the same
+  # silent stripping the generated symbol once suffered.
+  grep -qF "symbol = \"$(printf '\357\205\274')\"" "$tmp/.config/starship.toml" \
+    || { echo "❌ nord starship missing penguin glyph (U+F17C) in [container].symbol"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/current.tmux")" = "nord.tmux" ] \
     || { echo "❌ nord current.tmux"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-nord.gitconfig" ] \
@@ -122,6 +127,9 @@ out="$(docker run --rm sandbox:test bash -lc 'cat ~/.config/starship.toml')"
 [[ "$out" == *'palette = "solarized_dark"'* ]] || fail "theme floor palette: $out"
 [[ "$out" == *'[container]'* ]] || fail "theme floor missing [container]"
 [[ "$out" == *'[git_branch]'* ]] || fail "theme floor missing [git_branch]"
+# Penguin (U+F17C, UTF-8 EF 85 BC) must reach the in-image generated symbol —
+# module-name checks above pass even when the glyph is stripped, so assert the byte.
+[[ "$out" == *"symbol = \"$(printf '\357\205\274')\""* ]] || fail "theme floor missing penguin glyph (U+F17C)"
 pass "theme floor default (generated)"
 
 out="$(docker run --rm sandbox:test bash -lc '

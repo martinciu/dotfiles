@@ -76,7 +76,7 @@ generate_starship() {
 
 [container]
 format = "[$symbol ]($style)"
-symbol = ""
+symbol = ""
 style  = "bold yellow"
 
 [git_branch]
