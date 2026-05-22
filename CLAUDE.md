@@ -235,8 +235,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   (errors if absent); `sandbox reup <name> [flags]` recreates with new flags,
   keeping the volume. Secrets injected at runtime (never baked). Build needs
   `GITHUB_TOKEN`. Active Mac theme is baked + re-applied on entry; in-container
-  theme *switcher*, tmux, sesh, gh, bd, font-set, vhs out of scope. Smoke:
-  `scripts/test-sandbox.sh`.
+  theme *switcher*, tmux, sesh, gh, bd, font-set, vhs out of scope. The sandbox
+  starship prompt is the one theme tool whose config is **generated** (not
+  symlinked): `stage_theme` injects a container-gated penguin glyph + native
+  git branch/status into a copy of the active `starship-<theme>.toml`, so the
+  in-sandbox prompt shows container + git context while the Mac's shared tomls
+  stay git-less (#280). Smoke: `scripts/test-sandbox.sh`.
 
 ## Where things live
 

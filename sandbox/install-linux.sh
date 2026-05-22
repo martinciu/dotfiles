@@ -51,6 +51,47 @@ stage_config() {
   fi
 }
 
+# Generate (not symlink) the sandbox starship config from the active theme.
+# The Mac prompt deliberately omits git and any container glyph; those additions
+# live ONLY here, injected into a copy of the read-only starship-<name>.toml, so
+# the shared per-theme tomls (used directly by the Mac) never gain them. This is
+# the starship analog of the gh-dash generate-by-concatenation pattern. Portable
+# across BSD sed (macOS smoke test) and GNU sed (container).
+generate_starship() {
+  local cfg="$1" name="$2"
+  local src="$cfg/starship-$name.toml"
+  [ -f "$src" ] || src="$cfg/starship-solarized.toml"
+  local tmp; tmp="$(mktemp)"
+  # Prepend $container to the directory line; fold git into right_format.
+  # SC2016: single-quote guards are intentional — these are starship token
+  # references, not shell variables; we don't want expansion.
+  # shellcheck disable=SC2016
+  sed -e 's/^format = """\$directory/format = """$container$directory/' \
+      -e 's/^right_format = "\$status\$cmd_duration"$/right_format = "$git_branch$git_status$status$cmd_duration"/' \
+      "$src" > "$tmp"
+  # Sandbox-only modules. [container] self-gates on /.dockerenv (empty on Mac).
+  # ANSI color names resolve to each theme's palette key when defined, ANSI
+  # fallback otherwise — auto-adapts across themes, no per-theme color authoring.
+  cat >> "$tmp" <<'STARSHIP_EOF'
+
+[container]
+format = "[$symbol ]($style)"
+symbol = ""
+style  = "bold yellow"
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style  = "bold purple"
+
+[git_status]
+style = "bold red"
+STARSHIP_EOF
+  # Atomic replace. Never `>` directly onto starship.toml: at build time / on a
+  # re-applied volume it may still be a symlink to the pristine in-image source,
+  # and `>` would follow it and corrupt that source.
+  mv -f "$tmp" "$cfg/starship.toml"
+}
+
 stage_theme() {
   # Bash port of theme-set.fish, scoped to the sandbox toolset (no tmux,
   # ghostty, gh-dash, or fonts). Solarized floor + existence-guarded overlay,
@@ -75,7 +116,6 @@ stage_theme() {
   # Solarized floor (relative targets resolve within each link's dir).
   ln -sfn solarized.tmux            "$cfg/themes/current.tmux"
   ln -sfn delta-solarized.gitconfig "$cfg/themes/delta-current.gitconfig"
-  ln -sfn starship-solarized.toml   "$cfg/starship.toml"
   ln -sfn glamour-solarized.json    "$cfg/glow/glamour.json"
   ln -sfn theme-solarized.json      "$cfg/lnav/configs/installed/theme.json"
 
@@ -84,8 +124,7 @@ stage_theme() {
     && ln -sfn "$name.tmux" "$cfg/themes/current.tmux"
   [ -f "$cfg/themes/delta-$name.gitconfig" ] \
     && ln -sfn "delta-$name.gitconfig" "$cfg/themes/delta-current.gitconfig"
-  [ -f "$cfg/starship-$name.toml" ] \
-    && ln -sfn "starship-$name.toml" "$cfg/starship.toml"
+  generate_starship "$cfg" "$name"
   [ -f "$cfg/glow/glamour-$name.json" ] \
     && ln -sfn "glamour-$name.json" "$cfg/glow/glamour.json"
   [ -f "$cfg/lnav/configs/installed/theme-$name.json" ] \
