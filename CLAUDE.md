@@ -1,773 +1,264 @@
 # dotfiles — Claude Code instructions
 
-Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-set` swaps between 10 themes (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte / Rose Pine / Rose Pine Moon) and `font-set` between 17 Nerd Fonts; both switch live. Solarized Dark and JetBrains Mono are the bootstrap defaults. See "Switchable themes" and "Switchable Ghostty fonts" below.
+Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish.
+`theme-set` swaps 10 themes (Solarized Dark / Catppuccin Mocha·Frappé·Latte /
+Dracula / Gruvbox / Tokyo Night Storm / Nord / Rose Pine·Moon); `font-set`
+swaps 17 Nerd Fonts. Both switch live. Solarized Dark + JetBrains Mono are the
+bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 
 ## Conventions — don't drift from these
 
-- **Manual symlinks via `bootstrap.sh`.** No `stow`/`chezmoi`/etc. Tools
-  whose `~/.config/<tool>/` dir contains nothing but tracked content get
-  whole-dir symlinks (`link "<rel>" "$HOME/..."`). Tools whose dir mixes
-  tracked content with machine-local or runtime state (fish, nvim,
-  worktrunk, lnav, sesh) use the **mixed-dir pattern** instead: real
-  `~/.config/<tool>/` dir, per-file symlinks for tracked entries, real
-  files for the rest. Helpers `prepare_real_dir` + `rescue_in_repo` +
-  `link_tracked_entries` + `seed_local` implement the pattern;
-  `link_tracked_entries` skips `*.template` files. Migration from a
-  legacy whole-dir symlink is automatic on next `bootstrap.sh` run.
-- **Bash scripts target bash 5.** Shebang `#!/opt/homebrew/bin/bash`; may
-  use `mapfile`, `declare -A`, `wait -n`. Apple Silicon only — `brew
-  bundle` runs before `bootstrap.sh`. Don't reintroduce bash-3 shims.
-- **Fish module layout.** Fish is the primary interactive shell. Config
-  in `.config/fish/`. `~/.config/fish/` is a real dir (mixed-dir pattern):
-  `config.fish` and `functions/` are symlinked from the repo. `conf.d/`
-  is itself a real dir with per-file symlinks for the tracked `*.fish`
-  modules and **real files** for `15-local.fish` + `99-secrets.fish`
-  (seeded from `.template` companions on first bootstrap, untouched
-  after). `completions/` is also a real dir: tracked `s.fish` and
-  `wt.fish` are symlinked from the repo, and machine-specific
-  completions (fish's man-page auto-generation, OrbStack's `kubectl`/
-  `orbctl`, etc.) live as real files alongside, never entering the
-  repo. `fish_variables`, `fish_history`, `generated_completions/` are
-  real and stay outside the repo.
-  `config.fish` is empty; concerns in `conf.d/<NN>-<concern>.fish`,
-  numeric prefix pins load order:
-  `00-env`, `10-colors`, `15-local` (per-machine, untracked), `20-mise`,
-  `25-prompt` (starship), `30-aliases`,
-  `35-abbreviations` (git-flow mnemonic abbrs — `gst`, `gco`, `gp`, …),
-  `40-plugins` (fzf, zoxide, wt),
-  `45-atuin` (atuin Ctrl-R + Up; rebinds after fzf),
-  `99-secrets` (untracked). The two untracked files are copied from
-  `.template` companions by `bootstrap.sh`. `functions/less.fish`
-  is a bat-backed `less` wrapper; `completions/wt.fish` adds wt
-  tab-completion. Smoke test: `scripts/test-fish-loads.sh`.
-- **`atuin` owns Ctrl-R only** (`~/.config/atuin/config.toml`,
-  wired by `.config/fish/conf.d/45-atuin.fish` via
-  `atuin init fish --disable-up-arrow | source`, loaded after fzf so
-  atuin's Ctrl-R rebind wins). `--disable-up-arrow` leaves the Up key
-  on fish's native history-search (previous command) — atuin's
-  session-scoped mini-picker on Up felt redundant against fish's
-  built-in. Sqlite history at `~/.local/share/atuin/history.db`
-  (machine-global, outside the repo — worktrunk's copy-ignored never
-  touches it). fish's own `~/.local/share/fish/fish_history` keeps
-  recording in parallel (cheap revert: delete `45-atuin.fish`).
-  Picker UX locked in: `filter_mode = "global"` (wide first; every
-  command is in reach without cycling) with Ctrl-R cycling
-  `global → session → workspace` inside the picker.
-  `workspaces = true` enables the `workspace` scope (current git
-  repo); skipped silently when cwd is outside any repo.
-  `enter_accept = false`
-  so Enter pastes to the commandline and Tab runs immediately (fzf
-  parity); `inline_height = 20` keeps the tmux statusbar visible above
-  the popup, with picker chrome stripped (`show_help`, `show_tabs`,
-  `show_preview` all `false`) so every row goes to the result list;
-  `columns = ["datetime", "exit", "command"]` puts the timestamp on
-  the left and the raw exit-code integer in a fixed-position column
-  just before the command (atuin's `command()` renderer ignores its
-  allocated width and draws to the row edge — a trailing column
-  after `command` would get clipped or rendered mid-row, so `exit`
-  sits before; the value is colour-coded green/red, not a glyph);
-  `exit_mode = "return-query"` keeps the typed query at the prompt
-  on Esc (Ctrl+C / Ctrl+D still discard). Theming:
-  `[theme] name = "default"` uses ANSI
-  palette refs (same trick as `FZF_DEFAULT_OPTS`), auto-adapts across
-  all 7 themes via Ghostty's 16-color palette — no per-theme files,
-  no `theme-set` coupling. Failed commands are **shown with ✗**, not
-  hidden — visual filter, not behavioural. fzf's other widgets
-  (Ctrl-T file, Ctrl-V variable, Ctrl-S process) are unaffected.
-  First-time only: `atuin import fish` to backfill `fish_history` into
-  the sqlite store.
-- **`Brewfile` is installed by bootstrap.** `bootstrap.sh` runs
-  `brew bundle --file=$DOTFILES/Brewfile` unconditionally at the top,
-  before any symlinks. Aborts on failure (`set -euo pipefail`).
-- **Global gitignore is symlinked from `.gitignore_global`.**
-  `bootstrap.sh` links it to `~/.gitignore_global` (the path
-  `core.excludesfile` already points to). Lists the cross-repo
-  never-commit set: Claude Code state (`settings.local.json`,
-  `todos.json`, `worktrees/`, `logs/`, `.credentials.json`), planning
-  artefacts (`.superpowers/`, `.autonomo/`). Don't add language patterns
-  (e.g. `node_modules/`) — those belong in per-language `.gitignore`.
-- **tmux status bar is hand-rolled** in `.config/tmux/tmux.conf` with
-  Solarized base16. No theme plugins (catppuccin, tmux-powerline, etc.).
-  Each status-bar **pin** uses a unique Solarized accent. Currently:
-  blue (session chip, left), green (active window pin, center), violet
-  (main-checkout git chip on the right + 7d Claude-usage chip on the
-  left), yellow (worktree git chip on the right + 5h Claude-usage chip
-  on the left), orange (PR pin, left of git chip). When adding a pin,
-  pick from unused accents (red, magenta, cyan); reconsider if all are
-  taken. **Palette reuse across the left and right clusters is
-  permitted** — the usage cluster's violet and yellow slots are
-  positional, not paired with anything on the right. Two violets or
-  two yellows visible simultaneously is the by-design behavior, not a
-  clash. Mode-style, message-style, pane-borders, and inline text
-  colors (e.g. ins/del markers in `tmux-git-status`) are not pins.
-- **SSH indicator on the session chip** via
-  `#(~/.config/tmux/bin/tmux-ssh-indicator)`. Walks each attached
-  client's parent-process chain via `ps -p <pid> -o ppid=,ucomm=`,
-  emits Nerd Font globe (U+F0AC) when an ancestor is `sshd`/`sshd-session`.
-  **Use `ucomm`, not `comm`** — `ps -o comm=` for sshd's privsep
-  children renders the argv string and never basename-matches.
-  Server-wide; refresh piggybacks on the 5 s `status-interval`. Mosh
-  not detected (add `mosh-server` to match if needed). `$SSH_CONNECTION`
-  intentionally unused (set in the SSH-spawned shell, not the tmux server).
-- **tmux PR pin** wired into `status-right` via
-  `#(~/.config/tmux/bin/tmux-status-right #{pane_current_path})`. Calls
-  `tmux-pr-detect` (stale-while-revalidate cache around `gh pr view`,
-  TTL 60 s, at `${XDG_CACHE_HOME:-$HOME/.cache}/tmux-pr-pin/<repo>-<branch>`).
-  When a PR exists (OPEN or DRAFT — single visual), an orange chip
-  (`#cb4b16`) renders ` #<num>` (U+F407); `tmux-git-status` is called
-  with `prev_bg=#cb4b16` so its `tri_l` becomes the yellow-on-orange
-  separator. `<prefix> P` opens via `gh pr view --web`. Cache key uses
-  `git-common-dir` so worktrees share per-branch entries. First call
-  after branch switch shows nothing; next 5 s tick renders — accepted
-  to never block on a slow `gh`.
-- **tmux Claude usage cluster** wired into `status-left` via
-  `#(~/.config/tmux/bin/tmux-claude-usage)`. Parses
-  `ccpulse status --json` on each 5 s tick (~33 ms; no bash-level
-  cache) and emits two fused chips: violet 7d weekly
-  (`<robot> <calendar> <pct>%`, auto-expands to
-  `<robot> <calendar> <pct>% • <reset>` when `pct >= 80`) and yellow
-  5h block (`<hourglass> <pct>% • <reset>`, always full). Glyphs:
-  `<robot>` is U+1F916 emoji (chosen over the Nerd Font `nf-fa-robot`
-  U+F544 for portability), `nf-fa-hourglass-half` (U+F252),
-  `nf-oct-calendar` (U+F455), and `nf-fa-fire` (U+F06D — overreach
-  decoration). Arrow caps: left-rounded on the violet chip's left
-  edge against `bar_bg`, all others forward-facing. **Overreach
-  decoration:** when `projection.<window>.will_overreach == true`,
-  the affected chip inserts ` <fire> → <projected_pct>%` after its
-  `<pct>%`, before any bullet+reset suffix. The 7d chip auto-expands
-  on overreach even when `pct < 80` (showing `<pct>% <fire> →
-  <projected>%` with no reset). Each chip evaluates its window
-  independently; one can warn while the other stays normal. No
-  confidence gating — `will_overreach` is trusted directly.
-  Graceful degradation: missing `projection` field (older ccpulse) or
-  null `projected_pct_at_reset` does not hide the cluster — the chip
-  renders without the decoration (or with the fire glyph alone, when
-  `will_overreach=true` but `projected_pct_at_reset=null`). Atomic
-  hide still applies to the four core fields (`percent`,
-  `minutes_to_reset`, `quota.seven_day.utilization`,
-  `quota.seven_day.resets_at`) — when any of those is missing, the
-  whole cluster hides. `status-left-length` bumped 80 → 120 to fit.
-  The cluster's violet/yellow palette is positional and independent
-  of the right-side git chips' palette — see the palette-reuse note
-  in the unique-accent rule.
-- **tmux prefix is `C-a`** (`C-Space` conflicts with macOS input-source
-  switching). Pane nav: `<prefix> h/j/k/l` — by choice, not necessity.
-  `bind -n M-*` is safe with Ghostty's `macos-option-as-alt = left`
-  (only left-Option fires M-*; right-Option still types Polish
-  diacritics), but no root Alt bindings are wired here. Splits: `|`
-  and `-`.
-  **Cycling pairs are single-canonical** — exactly one keystroke combo
-  per motion, no duplicates: window cycling on `,` / `.` only (defaults
-  `n`/`p` and `tmux-sensible`'s `C-p`/`C-n` are unbound — the `C-p`/`C-n`
-  unbinds must sit *after* `run '~/.config/tmux/plugins/tpm/tpm'` since
-  the plugin re-applies them otherwise); session cycling on `Tab` /
-  `S-Tab` / `Space` only (defaults `(`/`)`/`L` unbound). Window reorder
-  on `<` / `>`: `swap-window -d -t ±1` — `-d` keeps focus on the moved
-  window (its index changes with the swap; without `-d` focus would
-  jump to the displaced neighbour instead). All four are `-r` so a
-  single prefix press lets you keep nudging until placed.
-- **tmux-fingers gives one-keystroke copy of visible matches.**
-  TPM plugin `Morantron/tmux-fingers`. Bindings: `<prefix> F` enters
-  copy-mode (hint letter → match copied to clipboard via `pbcopy`),
-  `<prefix> J` enters jump-mode (hint letter → cursor at match inside
-  copy-mode). Default per-modifier actions in hint mode: `Ctrl+letter`
-  = open (URL → browser, path → Finder), `Shift+letter` = paste into
-  pane, `Tab` = multi-select. **No `bind -n M-*` recipes** from the
-  README adopted — `<prefix> F` / `<prefix> J` are the canonical
-  bindings; root M-* would be safe with the Option split but the
-  prefix path is the established muscle memory.
-  Hint colors use ANSI palette refs (`colour9`/`colour10`/`colour13`/
-  `colour14`) so they auto-adapt across all seven themes via Ghostty's
-  16-color palette — no per-theme variant files, same trick as
-  `FZF_DEFAULT_OPTS`. Custom patterns added on top of the built-ins:
-  `worktree-[a-z0-9._/-]+` (worktree branch names) and `#\d+` (PR/issue
-  refs). Built-ins kept on: `ip`, `uuid`, `sha`, `digit`, `url`, `path`,
-  `hex`, `kubernetes`, `git-status`, `git-status-branch`, `diff`.
-  **Fresh-machine setup:** after `prefix + I`, the first-run wizard
-  appears — pick "Build from source". `crystal` is declared in
-  `Brewfile` so it's already on `$PATH` after `brew bundle`. Why no
-  `brew "tmux-fingers"` in Brewfile: the morantron tap also compiles
-  from source, so the wizard fires either way — declaring it gains
-  nothing.
+- **Manual symlinks via `bootstrap.sh`.** No `stow`/`chezmoi`. Tools whose
+  `~/.config/<tool>/` holds only tracked content get whole-dir symlinks
+  (`link`); tools mixing tracked + machine-local/runtime state (fish, nvim,
+  worktrunk, lnav, sesh) use the **mixed-dir pattern**: real dir, per-file
+  symlinks for tracked entries, real files for the rest. Helpers:
+  `prepare_real_dir` + `rescue_in_repo` + `link_tracked_entries` (skips
+  `*.template`) + `seed_local`. Legacy whole-dir symlinks migrate
+  automatically on next run.
+- **Bash scripts target bash 5.** Shebang `#!/opt/homebrew/bin/bash`; Apple
+  Silicon only (`brew bundle` runs first). `mapfile`/`declare -A`/`wait -n`
+  OK. No bash-3 shims.
+- **Fish is the primary shell**, config in `.config/fish/` (mixed-dir):
+  `config.fish` + `functions/` symlinked, `conf.d/` and `completions/` are
+  real dirs with per-file symlinks. `config.fish` is empty; concerns split
+  into ordered `conf.d/<NN>-<concern>.fish`: `00-env`, `10-colors`, `15-local`
+  (untracked), `20-mise`, `25-prompt` (starship), `30-aliases`,
+  `35-abbreviations` (git-flow abbrs), `40-plugins` (fzf/zoxide/wt),
+  `45-atuin`, `99-secrets` (untracked). `15-local`/`99-secrets` are real files
+  seeded from `.template` companions. `completions/`: `s.fish`/`wt.fish`
+  tracked, machine completions real. Smoke: `scripts/test-fish-loads.sh`.
+- **`atuin` owns Ctrl-R only** (`45-atuin.fish`, loaded after fzf so its
+  rebind wins). `--disable-up-arrow` keeps Up on fish's native history. Sqlite
+  at `~/.local/share/atuin/history.db` (machine-global). Picker:
+  `filter_mode=global`, `enter_accept=false` (Enter pastes, Tab runs), ANSI-
+  palette theme (auto-adapts, no `theme-set` coupling). Failed commands shown,
+  not hidden. Revert: delete the file. First run: `atuin import fish`.
+- **`Brewfile` installed by bootstrap** unconditionally before symlinks;
+  aborts on failure.
+- **Global gitignore symlinked from `.gitignore_global`** → `~/.gitignore_global`.
+  Cross-repo never-commit set (Claude state, `.superpowers/`, `.autonomo/`).
+  Don't add language patterns — those belong in per-language `.gitignore`.
+- **tmux status bar hand-rolled** (`.config/tmux/tmux.conf`, Solarized base16,
+  no theme plugins). Each **pin** uses a unique Solarized accent (session=blue,
+  active window=green, git chips=violet/yellow, PR=orange); new pins pick an
+  unused accent (red/magenta/cyan). Palette reuse across left (usage cluster)
+  and right (git chips) clusters is by design — positional, not paired.
+  Mode/message/border/inline colors aren't pins.
+- **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
+  client's parent chain via `ps -o ppid=,ucomm=`, shows a globe glyph when an
+  ancestor is `sshd`. **Use `ucomm`, not `comm`** (comm renders sshd's argv and
+  never basename-matches). Mosh not detected.
+- **tmux PR pin** in `status-right` (`tmux-status-right` → `tmux-pr-detect`,
+  stale-while-revalidate cache around `gh pr view`, TTL 60s). Orange chip
+  ` #<num>` when a PR exists (OPEN or DRAFT); `<prefix> P` opens it on web.
+  Cache key uses `git-common-dir` so worktrees share entries. First call after
+  a branch switch shows nothing; next 5s tick renders (never blocks on `gh`).
+- **tmux Claude usage cluster** in `status-left` (`tmux-claude-usage`, parses
+  `ccpulse status --json` each 5s tick). Two chips: violet 7d weekly + yellow
+  5h block, each showing `<pct>%` + reset. Overreach decoration (fire +
+  projected %) when `projection.<window>.will_overreach`; 7d chip auto-expands
+  at pct≥80 or on overreach. Graceful degradation: missing `projection` keeps
+  the cluster (drops the decoration); missing any of the 4 core fields hides it
+  atomically.
+- **tmux prefix `C-a`** (`C-Space` clashes with macOS input-source switch).
+  Pane nav `<prefix> h/j/k/l`; splits `|` `-`. **Cycling pairs are
+  single-canonical** (one combo per motion): windows `,`/`.`, sessions
+  `Tab`/`S-Tab`/`Space`, reorder `<`/`>` (`swap-window -d`). Defaults
+  `n`/`p`/`(`/`)`/`L` unbound; the `C-p`/`C-n` unbinds must run *after* tpm
+  (the plugin re-applies them). All `-r` for repeat.
+- **tmux-fingers** (`Morantron/tmux-fingers`, TPM): `<prefix> F` copy-mode,
+  `<prefix> J` jump-mode. Hint mode: `Ctrl+letter`=open, `Shift+letter`=paste,
+  `Tab`=multi-select. Hint colors use ANSI palette refs (auto-adapt). Custom
+  patterns: `worktree-…` branches, `#\d+` refs. Fresh machine: after
+  `prefix+I` pick "Build from source" (`crystal` is in Brewfile).
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
-  `tmux-resurrect`, `tmux-continuum` (`@continuum-restore 'on'`),
-  `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled, behavior
-  plugins aren't — don't remove TPM.
-- **OSC 8 hyperlinks pass through tmux.** Two `terminal-features`
-  entries (`xterm-ghostty:hyperlinks`, `xterm-256color:hyperlinks`).
-  Without them, tmux strips OSC 8 and Claude Code's file-ref links don't
-  render. `file://` click routing: macOS file-type defaults — no `duti`,
-  no Ghostty `link` rule.
-- **Option key is split: left = Alt, right = Polish.**
-  `macos-option-as-alt = left` in `.config/ghostty/config.ghostty`
-  routes left-Option to ESC-prefixed byte sequences (the "Alt+key"
-  encoding atuin / fish-readline / vim-nvim / tmux all read); right-
-  Option keeps producing Polish diacritics (ą ć ę ł ń ó ś ź ż) via the
-  OS layout. The two physical keys split cleanly. Why not `right_cmd`:
-  Ghostty 1.3 keybinds reject sided modifiers (`error.InvalidFormat`),
-  and `key-remap = right_cmd=alt` rewrites keybind matching but not
-  byte emission, so the modifier was silently dropped and apps only
-  saw the bare key. Two companion settings make the split useful:
-  `set -g extended-keys on` in `tmux.conf` so modifier+arrow CSI
-  sequences (`ESC [1;3A`) reach inner apps (without it, `<prefix>
-  M-Left/Right` pane resize is silent); `keybind = alt+arrow_left/
-  right=unbind` in Ghostty so its default readline word-jump
-  translation (`alt+arrow_left → esc:b`) doesn't shadow tmux's
-  pane-resize bindings. Trade-off: left-Option no longer types Polish
-  *inside Ghostty*, and Alt+arrow at the shell prompt no longer
-  triggers readline word-jump — use Alt+b / Alt+f instead (always
-  worked, now reliably via left Option). Consumers in this repo:
-  atuin row-N picker shortcuts (`Alt+1`..`9`,`0`), fish/readline
-  word-jump (Alt+f / Alt+b / Alt+d), fzf Alt-C cd-widget, LazyVim
-  `<A-j>` / `<A-k>` line-move, tmux `<prefix> M-Up/Down/Left/Right`
-  pane resize + `<prefix> M-1`..`7` layout select. Smoke test:
+  `tmux-resurrect`, `tmux-continuum` (restore on), `tmux-sessionx`,
+  `tmux-fingers`. Status bar is hand-rolled; don't remove TPM.
+- **OSC 8 hyperlinks pass through tmux** via two `terminal-features`
+  `:hyperlinks` entries — without them Claude Code's file-ref links don't
+  render. `file://` routing uses macOS defaults (no `duti`).
+- **Option key split: left = Alt, right = Polish.** `macos-option-as-alt = left`
+  routes left-Option to ESC-prefixed "Alt+key" sequences (atuin / readline /
+  nvim / tmux read these); right-Option still types Polish diacritics. Not
+  `right_cmd` (Ghostty rejects sided modifiers; `key-remap` drops the byte).
+  Companions: `set -g extended-keys on` (tmux, so modifier+arrow CSI reaches
+  inner apps) and `keybind = alt+arrow_left/right=unbind` (Ghostty, so its
+  word-jump doesn't shadow tmux pane-resize). Trade-off: no Polish in Ghostty
+  via left-Option; use Alt+b / Alt+f for word-jump. Smoke:
   `scripts/test-ghostty-config.sh`.
-- **Sesh config is split: shared + machine-local.** Repo tracks
-  `.config/sesh/sesh.toml` (a `Home 🏠` session for `~` plus
-  `import = ["~/.config/sesh/sesh.local.toml"]`). Machine-local sessions
-  go in the local file (untracked, copied from template by
-  `bootstrap.sh`). Don't add machine-specific entries to the shared
-  file; don't drop the `import` line — sesh hard-errors on missing
-  imports. Sesh is no longer the picker (only `bin/s`'s registry);
-  picker is `tmux-sessionx`.
-- **tmux-sessionx is the session picker** (`<prefix> t`; default
-  clock-mode moved to `<prefix> T`). Loaded via TPM (`omerxx/tmux-sessionx`);
-  binding claimed by `@sessionx-bind 't'`. Geometry pinned `70% × 70%`.
-  Sources: tmux + tmuxinator (`@sessionx-tmuxinator-mode 'on'`); zoxide
-  off (`@sessionx-zoxide-mode 'off'`, set explicitly so the rule is
-  visible). `@sessionx-filter-current 'true'`. Preview is sessionx
-  default (`tmux capture-pane -ep`); `preview.sh` hardcoded inside the
-  plugin, no override hook. Zoxide still loaded for `z`-cd;
-  `_ZO_EXCLUDE_DIRS` blocks `~/`, `~/Downloads/*`, `~/.config/*`,
-  `~/Library/*`.
+- **Sesh config split: shared + machine-local.** Repo tracks
+  `.config/sesh/sesh.toml` (`Home` session + `import` of `sesh.local.toml`).
+  Machine sessions go in the untracked local file (seeded from template). Don't
+  drop the `import` line (sesh hard-errors on missing imports). Sesh isn't the
+  picker — `tmux-sessionx` is.
+- **tmux-sessionx is the session picker** (`<prefix> t`; clock-mode →
+  `<prefix> T`; TPM `omerxx/tmux-sessionx`). 70%×70%, sources tmux +
+  tmuxinator, zoxide off, filter-current on. Zoxide still loaded for `z`-cd
+  (`_ZO_EXCLUDE_DIRS` blocks `~`, Downloads, .config, Library).
 - **`s` is the worktree+session command** (`bin/s` → `~/.local/bin/s`).
-  Surface: `s [<project>] [<name>]`. Inside tmux, single arg = worktree
-  name (project inferred from cwd's main worktree); outside tmux,
-  single arg = project name. Two args = `<project> <name>`. Session
-  naming uses `/` (tmux disallows `:`/`.`). Branch name is verbatim —
-  `s` does **not** apply `worktree-`; that's reserved for `EnterWorktree`.
-  Project list from `sesh list -c -j`. Fish completions live in
-  `.config/fish/completions/s.fish`: pos 1 (outside tmux) suggests
-  sesh project names, pos 1 (inside tmux) and pos 2 suggest existing
-  *secondary* worktree branches via `git worktree list --porcelain`
-  (the primary checkout's branch is filtered out by path comparison).
-  Completions are non-exclusive — typing a fresh name still creates
-  a new worktree.
-- **`vim`/`vimdiff` are fish aliases to nvim**; **`vi` is `command vim`**
-  (legacy minimal vim). All guarded on `command -v nvim`. Minimal vim
-  (`.vimrc` ~30 lines, `.vim/colors/solarized8.vim`) is reachable via
-  `vi`/`command vim`/`\vim`. Don't add vim-plug or LSP to it.
-- **nvim is built on LazyVim**, themed Solarized, configured at
-  `.config/nvim/`. Don't replace LazyVim. `~/.config/nvim/` is a real
-  dir (mixed-dir pattern): `init.lua`, `mason-lock.json`, `lua/` are
-  symlinked from the repo; `lazy/`, `mason/`, `site/`, `lazyvim.json`,
-  `lazy-lock.json` are real and stay outside the repo.
-- **LazyVim Alt-keymaps kept as default.** `<A-j>/<A-k>` (move-line)
-  ship in LazyVim and stay. Safe here because Ghostty splits the
-  Option key: `macos-option-as-alt = left` makes **left Option** emit
-  ESC+key (the byte sequence nvim reads as `<A-x>`), while **right
-  Option** still produces Polish diacritics via the OS layout. So
-  left-Option-j/k drives line-move; right-Option types ą/ć/ę/ł/ń/ó/ś/ź/ż.
-  Don't reinstate the `pcall(del, …, "<A-j>")` block in
-  `lua/config/keymaps.lua` — it was the pre-split workaround.
-- **LSPs off by default in nvim.** `lua/plugins/lsp-disable-all.lua`
-  sets `enabled = false, mason = false` on every LazyVim-core/extra
-  server (`lua_ls`, `jsonls`, `marksman`, `vtsls`, `ts_ls`,
-  `tailwindcss`, `yamlls`, `eslint`, `ruby_lsp`, `rubocop`). Mason
-  packages stay installed for instant opt-in. Per-session:
-  `:LspOn <name>` (user command, wraps `vim.lsp.enable`). Per-project:
-  drop a `.nvim.lua` with `vim.lsp.enable({...})` — requires
-  `vim.o.exrc = true` (not set). Why off: first-attach blocks the UI
-  3-6 s+; dotfiles editing rarely needs gd/hover/rename. The
-  `VimLeavePre` autocmd in `lua/config/autocmds.lua` force-stops LSP
-  clients on exit so libuv handles drain — without it opt-in projects
-  leak handles and leave stale swap files. New LazyVim servers:
-  append to the list.
-- **No schemastore catalog injection for jsonls/yamlls.**
-  `lua/plugins/lsp-no-schema-fetch.lua` overrides LazyVim's
-  `before_init` with a no-op so the ~700-entry catalog is never written
-  to `settings.{json,yaml}.schemas`. Each pattern match would trigger
-  an HTTP fetch — freeze risk on flaky networks. Inline `$schema` URLs
-  still resolve. Keep separate from `lsp-disable-all.lua` (different
-  concern).
-- **Mason-managed LSPs are pinned** via `mason-lock.json` (committed).
-  `:MasonLock` snapshots; `:MasonLockUpdate` upgrades then snapshots.
-  Only `mason-lock.json` is tracked; `lazy-lock.json` is gitignored
-  — Lazy auto-updates churn it on every plugin update and the diffs
-  were noise, not signal. Run `:Lazy restore` against the working
-  tree's own lockfile when you need reproducibility on a single
-  machine.
-- **Switchable themes — Solarized Dark ↔ Catppuccin Mocha ↔ Catppuccin Frappé ↔ Dracula ↔ Gruvbox ↔ Tokyo Night Storm ↔ Nord ↔ Catppuccin Latte.**
-  Solarized Dark is the canonical default. Catppuccin Latte is the **first
-  and only light theme** and ships with **partial tier-1 coverage**: only
-  Ghostty, tmux, and starship have Latte variants — delta, glow, gh-dash,
-  lnav, and nvim keep their previous (dark) theme during a Latte session
-  by design. This is enforced by existence-guarded `test -f` checks inside
-  `theme-set.fish` rather than a bespoke `case latte` branch — future
-  tier-1 extensions are purely additive (drop a variant file in, the guard
-  auto-engages, no `theme-set` changes). Issue #215 tracks the
-  full-coverage follow-up. `theme-set <name>` (fish function in
-  `.config/fish/functions/`) flips active-theme symlinks across the
-  hot-path + file-viewer tools. Palette files live in `.config/themes/`
-  (mixed-dir: tracked `*.tmux` palettes + tracked `delta-*.gitconfig`;
-  machine-local `current.tmux` and `delta-current.gitconfig` symlinks).
-  Per-tool variant files use the naming convention `*-solarized.<ext>`
-  / `*-mocha.<ext>` / `*-dracula.<ext>` / `*-gruvbox.<ext>` /
-  `*-tokyo-night.<ext>` / `*-nord.<ext>` / `*-latte.<ext>` (where present — Latte is
-  partial-coverage, see above) and live alongside their tool's config —
-  `.config/ghostty/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,nord,latte}.ghostty`,
-  `.config/glow/glamour-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.json`,
-  `.config/gh-dash/theme-colors-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.yml`
-  (alongside the shared `.config/gh-dash/config-base.yml`),
-  `.config/lnav/configs/installed/theme-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.json`,
-  `.config/starship-{solarized,mocha,dracula,gruvbox,tokyo-night,nord,latte}.toml`. The active
-  variant is picked via a machine-local symlink at the tool's normal
-  config path. gh-dash is the one exception: its live `config.yml` is a
-  generated real file (`cat config-base.yml theme-colors-<name>.yml > config.yml`)
-  because gh-dash doesn't support YAML includes or anchor-merging — see
-  the dedicated `gh dash` bullet below. tmux uses `@color_*` user options (set in the palette
-  file, sourced by `tmux.conf` via
-  `source-file -F '#{HOME}/.config/themes/current.tmux'`) read by both
-  `tmux.conf` (`#{@color_*}` interpolation) and helper scripts
-  (`tmux show-option -gv`, with Solarized hex fallback for the test
-  harness path). Bat uses `$BAT_THEME` and vivid (`LS_COLORS` for
-  `ls`/`eza` file-type colors) uses `$VIVID_THEME`, both set as fish
-  universal vars by `theme-set`. bat 0.26+ ships Catppuccin Mocha,
-  Dracula, and `gruvbox-dark` built-in (no vendoring) — but does
-  NOT ship a Tokyo Night syntax theme, so `theme-set tokyo-night`
-  falls back to `Catppuccin Mocha` for `$BAT_THEME` (closest
-  pastel-on-dark in bat's catalogue; no `bat cache --build`
-  bootstrap step needed). vivid 0.11+ ships all five
-  (`solarized-dark`, `catppuccin-mocha`, `dracula`, `gruvbox-dark`,
-  `tokyonight-storm`). `.config/fish/conf.d/10-colors.fish` reads
-  `$VIVID_THEME` at fish startup to regenerate LS_COLORS. fzf colors
-  (Ctrl-R history, Ctrl-T file picker) use ANSI palette refs (0–15,
-  `-1` = terminal default) in `FZF_DEFAULT_OPTS` — auto-adapt to
-  whatever Ghostty's 16-color palette is, no per-theme switch
-  needed. Frappé sits between Mocha and Latte on the Catppuccin spectrum (base
-  `#303446`, lifted vs Mocha's `#1e1e2e`). Uses dark-on-pastel chip text
-  like Mocha (`@color_light_fg = "#232634"` = Frappé crust). Starship
-  `pastel_rose` is **mauve `#ca9ee6`** (deliberate divergence from Mocha's
-  pink — Catppuccin's headline accent gives Frappé its own visual
-  identity). bat 0.26+ ships `Catppuccin Frappé` built-in; vivid 0.11+
-  ships `catppuccin-frappe`; Ghostty 1.0+ ships the preset; the vendored
-  `lnav/configs/installed/catppuccin.json` already defines
-  `catppuccin-frappe` (no extra vendoring). The `catppuccin/nvim` plugin
-  (already installed for Mocha) provides the `catppuccin-frappe`
-  colorscheme.
-  Dracula uses dark-on-pastel chip text too
-  (`@color_light_fg = "#282a36"`), matching Mocha's inversion rather
-  than Solarized's light-on-saturated. Dracula has no pure blue
-  accent: `@color_accent_blue` reuses the comment hex `#6272a4`,
-  intentionally colliding with `@color_muted_fg` — Dracula-faithful,
-  and no current tmux pin uses `accent_blue`. Gruvbox Dark Medium
-  uses dark-on-accent chip text too (`@color_light_fg = "#282828"` =
-  Gruvbox bg0). Gruvbox has one canonical purple, so
-  `@color_accent_magenta` and `@color_accent_violet` resolve to the
-  same hex (`#b16286`) — faithful to the palette; no current tmux
-  pin distinguishes the two roles. Tokyo Night Storm uses
-  dark-on-accent chip text too (`@color_light_fg = "#24283b"` =
-  Storm bg), matching the Gruvbox/Mocha/Dracula inversion. Tokyo
-  Night has one canonical purple, so `@color_accent_magenta` and
-  `@color_accent_violet` resolve to the same hex (`#bb9af7`) —
-  palette-faithful; no current tmux pin distinguishes the two
-  roles. **lnav 0.14 does not ship
-  gruvbox**, so `.config/lnav/configs/installed/gruvbox.json` is a
-  vendored theme-defs (modelled on the Catppuccin vendor, hex codes
-  from `morhetz/gruvbox` MIT). Hard / Soft contrast and Light
-  variants are out of v1. **lnav 0.14 also does not ship Tokyo
-  Night**, so `.config/lnav/configs/installed/tokyo-night.json` is a
-  second vendored theme-defs (same shape as `gruvbox.json`, hex from
-  `folke/tokyonight.nvim` MIT). Night / Moon / Day variants of Tokyo
-  Night are out of v1. Nord (Sven Greb's 16-color palette) is the
-  **first theme to break the dark-on-accent chip-text pattern** since
-  Solarized — `@color_light_fg = "#eceff4"` (nord6) is light, matching
-  Solarized's light-on-saturated and diverging from Mocha/Dracula/
-  Gruvbox/Tokyo-Night. Reason: Nord's Frost-blue session chip
-  (`#5e81ac`) reads flat with dark text. Nord also breaks the
-  cross-theme `pastel_rose` role: starship uses `#8fbcbb` (nord7
-  Frost teal) instead of a rose-adjacent hex, embracing Nord's
-  arctic identity in the most prominent prompt slot. Within Nord,
-  starship `base3 = "#2e3440"` (dark) **does not align** with tmux
-  `@color_light_fg` (light) — the divergence is contained to the
-  starship/tmux file pair and commented on both sides. Nord has one
-  canonical purple (`#b48ead` nord15), so `@color_accent_magenta`
-  and `@color_accent_violet` resolve to the same hex — palette-
-  faithful; no current tmux pin distinguishes the two roles.
-  **lnav 0.14 does not ship Nord**, so
-  `.config/lnav/configs/installed/nord.json` is a third vendored
-  theme-defs (same shape as `gruvbox.json` / `tokyo-night.json`,
-  hex from `nordtheme.com` MIT). Single canonical variant; Hard /
-  Soft / Light branches out of scope.
-  **Catppuccin Latte is the first light theme**
-  and inverts a few assumptions baked into the dark-only collection:
-  bar bg is mantle `#e6e9ef` (not a dark surface), and tmux chips
-  use **light-on-saturated** chip text (`@color_light_fg = "#eff1f5"`)
-  while starship uses **dark-on-pastel**
-  (`base3 = "#4c4f69"`) — different chip-bg palettes drive different
-  inversion choices. Latte ships only ghostty/tmux/starship + bat/vivid
-  env vars; delta/glow/gh-dash/lnav/nvim stay on the previous
-  (dark) theme during a Latte session. bat 0.26+ ships
-  `Catppuccin Latte` built-in; vivid 0.11+ ships
-  `catppuccin-latte`; Ghostty 1.0+ ships the preset.
-  **Rose Pine (Main + Moon)** ships as the 9th and 10th selectable themes.
-  Two dark variants — Main (`base #191724`) is the canonical default;
-  Moon (`base #232136`) is the accessibility-tuned 2.5-contrast variant.
-  Rose Pine has **no canonical green** and **no canonical orange** — its
-  six-accent palette deliberately omits both roles. The role mapping
-  collapses those gaps onto the closest palette neighbours:
-  `accent_orange` and `accent_red` both resolve to love (`#eb6f92`);
-  `accent_green` and `accent_cyan` both resolve to foam (`#9ccfd8`). The
-  two intra-palette collisions are faithful to Rose Pine's spec — no
-  current tmux pin uses both halves of either pair simultaneously, so
-  the visible-chip uniqueness rule holds. `@color_light_fg = "#e0def4"`
-  (text) — light-on-accent inversion, matching Nord. Reason: pine
-  `#31748f` (Main) at L≈37% is too dark for legible dark-on-accent text;
-  Moon's brighter pine `#3e8fb0` is borderline. Light text resolves both.
-  Starship `pastel_rose = "#ebbcba"` (Main) / `#ea9a97` (Moon) — Rose
-  Pine's literal namesake colour finally lands on a prominent UI surface;
-  tmux chips use love/iris/foam/gold/pine. Rose is reserved for prompt
-  only. **bat 0.26+ does not ship Rose Pine** — both variants fall back
-  to `Catppuccin Mocha` for `$BAT_THEME` (Tokyo Night precedent). vivid
-  0.11+ ships `rose-pine` and `rose-pine-moon`; Ghostty 1.0+ ships
-  `Rose Pine` / `Rose Pine Moon` / `Rose Pine Dawn` presets. **lnav 0.14
-  does not ship Rose Pine**, so
-  `.config/lnav/configs/installed/rose-pine.json` is a vendored theme-defs
-  file (catppuccin precedent — both variants in a single file). The
-  `rose-pine/neovim` plugin provides `rose-pine` and `rose-pine-moon`
-  colorschemes. **Dawn (light variant) is out of scope in v1** —
-  Latte is the only light theme today; Dawn would require either
-  Latte-style partial coverage or scaffolding full coverage for one extra
-  variant. Defer.
-  Delta is included from `~/.gitconfig` via
-  `[include] path = ~/.config/themes/delta-current.gitconfig` (one-time
-  setup, see README). nvim picks its colorscheme at startup via the
-  resolver in `lua/config/theme.lua` (reads `readlink` of
-  `current.tmux`); the `catppuccin/nvim`, `Mofiqul/dracula.nvim`,
-  `ellisonleao/gruvbox.nvim`, `folke/tokyonight.nvim`,
-  `gbprod/nord.nvim`, and `rose-pine/neovim` plugins
-  are installed alongside `maxmx03/solarized.nvim`. Bootstrap's
-  "don't clobber" guards preserve any prior `theme-set mocha`,
-  `theme-set dracula`, `theme-set gruvbox`, `theme-set
-  tokyo-night`, `theme-set nord`, `theme-set rose-pine`, or
-  `theme-set rose-pine-moon` pick across re-runs. Out of v1:
-  `btop`/`procs`/`tailspin`/`xh`/`ccstatusline`, cheatsheet
-  HTML toggle, screenshot regeneration, live nvim retheme.
-- **Switchable Ghostty fonts — 17 Nerd Fonts, optional weight + size.**
-  JetBrains Mono is the default. Six with ligatures: `jetbrains`,
-  `fira`, `cascadia` (ships as `CaskaydiaCove`), `monaspace` (Neon
-  variant, ships as `Monaspice`), `iosevka`, `0xproto`. Five
-  classics, no ligatures: `hack`, `meslo` (MesloLGS, Powerlevel10k's
-  default), `sauce` (Source Code Pro, ships as `SauceCodePro`),
-  `ubuntu` (UbuntuMono), `inconsolata`. Six retro / specialty, no
-  ligatures: `departure` (DepartureMono, 2024 pixel display),
-  `bigblue` (BigBlueTermPlus, IBM CP437 pixel bitmap), `3270` (IBM
-  3270 mainframe terminal; Cond/SemCond width variants ship but
-  aren't wired up — flip by hand if needed), `hurmit` (Hermit,
-  Nerd Fonts rename), `monofur` (hand-drawn curves), `dyslexic`
-  (OpenDyslexicM — weighted-bottom glyphs for dyslexic readers; the
-  cask also ships an "Alt" family with more weights, only Mono is
-  wired up). `font-set <name> [<weight>] [<size>]`
-  (fish function) flips a machine-local symlink
-  `~/.config/ghostty/font.ghostty` → one of the per-font include files
-  (each a one-liner `font-family = ...`). When `<weight>` is given
-  (must match a style the font actually advertises — see
-  `__font_set_weights_for` for the per-font list), it rewrites
-  `~/.config/ghostty/font-weight.ghostty` with `font-style = <weight>`.
-  When `<size>` is given (positive int or decimal, e.g. `14`, `13.5`),
-  it rewrites the machine-local real file
-  `~/.config/ghostty/font-size.ghostty` with `font-size = <size>`.
-  Omit either to keep the current value. Weight comes before size
-  because it changes more often than size in practice.
-  `config.ghostty` pulls family + size + weight via three `config-file
-  = ...` directives; `font-thicken` stays there (shared across fonts).
-  `ghostty +reload` fires live. All seventeen casks are pinned in `Brewfile`.
-  Bootstrap seeds `font-size.ghostty` at `font-size = 14` and
-  `font-weight.ghostty` as a comment-only file (so Ghostty falls back
-  to each font's own Regular) on first run; "don't clobber" guards
-  preserve any prior `font-set` pick across re-runs. Per-font weight
-  lists live in the fish helper `__font_set_weights_for.fish` (sourced
-  by both validation and 3rd-arg completion), populated from
-  `ghostty +list-fonts` — FiraCode is the odd one out, advertising
-  abbreviated style names (`Reg`, `Med`, `SemBd`, `Ret`); the four
-  single-weight fonts (`departure`, `bigblue`, `3270`, `dyslexic`)
-  advertise `Regular` only, so the weight arg is effectively cosmetic
-  for them. Add a new font: drop a new `font-<short>.ghostty` next to
-  the others, append the cask to `Brewfile`, extend the `switch` in
-  `font-set.fish` + its 1st-arg completion + `__font_set_weights_for`.
-  No nvim/tmux/bat coupling — font is a Ghostty-only concern.
-- **Starship pastel accent — per theme.** Solarized keeps the
-  `#DA627D` rose; Mocha uses `#f5c2e7` (pink, Catppuccin's canonical
-  "personal" accent); Dracula uses `#ff79c6` (Dracula pink). Defined
-  in each starship config's
-  `[palettes.<name>]` block as `pastel_rose`. Chip is flush-left, ends
-  with U+E0B4 rounded right cap; prompt char drops to line 2. Single
-  chip because starship silently drops `bg:` when both `fg:` and `bg:`
-  reference custom palette names in the top-level format. Don't extend
-  pastel to other tools; don't add `(fg:custom_a bg:custom_b)` chips.
-
-  Fish opts into Starship's transient prompt: after Enter, the active
-  chip is replaced with a bold `❯`; `cmd_duration`/`status` stay intact.
-  Wired via `enable_transience` from `.config/fish/conf.d/25-prompt.fish`.
-  Starship 1.25.x has no `[transient_prompt]` section — don't add one
-  (silently ignored, trips `[WARN]`).
-- **wt user config is symlinked from `.config/worktrunk/config.toml`.**
-  `~/.config/worktrunk/` is a real dir (mixed-dir pattern): `config.toml`
-  is the only symlink; per-project `approvals.toml` is a real file there,
-  outside the repo working tree.
-- **Gitignored content flows between primary and worktrees in two
-  stages**, both using `wt step copy-ignored`. `[post-start] copy`
-  reflinks primary's ignored content into a new worktree at creation;
-  `[pre-remove] save-shared` reflinks back just before `wt remove`.
-  Default no-`--force` on both — destination files are never
-  overwritten. Auto-discovers any new gitignored top-level dir.
-  Caveat: `step.copy-ignored.exclude` is shared across directions, so
-  derived-state dirs (`node_modules/`, `target/`) carried in also flow
-  back if mutated. Don't reintroduce per-path symlink hooks (the old
-  `share-tmp` design).
-- **Worktree status segment** uses `git rev-parse --git-dir` vs
-  `--git-common-dir` for detection. Don't replace with
-  `git worktree list` parsing.
-- **Bells silenced at every layer:** Ghostty `bell-features =`, vim
-  `belloff=all`, tmux `bell-action/visual-bell/monitor-bell off`. Fish
-  has no BEEP option; any `\a` is consumed at Ghostty/tmux. Don't
-  re-enable.
-- **Terminal tools default to Solarized Dark; some follow `theme-set`.**
-  Follow `theme-set`: `bat` (via `$BAT_THEME`), `git-delta` (via
-  `delta-current.gitconfig` include), `glow` / `md` (via `glamour.json`
-  symlink), `vivid` / `LS_COLORS` (via `$VIVID_THEME`, read by
-  `.config/fish/conf.d/10-colors.fish`), fzf (palette-symbolic refs in
-  `FZF_DEFAULT_OPTS`, auto-adapts via Ghostty's 16-color palette),
-  atuin (`[theme] name = "default"`, same ANSI-palette trick).
-  Stay Solarized-only: `procs` (`ps`), `tailspin` (`tspin`), `xh`. Pins:
-  `bat --theme="Solarized (dark)"` is the fallback when `$BAT_THEME` is
-  unset; `procs` reads `.config/procs/procs.toml`, `md` passes
-  `--style .config/glow/glamour.json`, `tspin` reads
-  `.config/tailspin/theme.toml` (ANSI names; severity keywords
-  `error`/`warn`/`info`/`debug` as `[[keywords]]`). No `tail` alias —
-  `tspin file.log` / `cmd | tspin -p` stay explicit. Don't introduce
-  alternatives (`exa`, `lsd`, `diff-so-fancy`, `mdcat`).
-
-  First-time `git config` for delta is in README → "Setup".
-- **`ps` aliased to `procs`.** Two configs in `.config/procs/`:
-  `procs.toml` (default, PID asc) read by bare `procs`/`ps`;
-  `procs-heavy.toml` (UsageCpu desc, trimmed columns) loaded by `psh`
-  via `--load-config`. Both duplicate `[style.*]` blocks because
-  `--load-config` replaces the entire config (no inheritance). Aliases
-  guarded on `command -v procs`. Escape: `command ps`, `\ps`,
-  `/bin/ps`. macOS shows only the current user's processes; for all,
-  `\ps -ax`. No `psx` alias — legacy `ps` already serves it.
-- **Interactive `less` is a `bat` wrapper** (in
-  `.config/fish/functions/less.fish`). Files get bat decoration; piped
-  input uses `--plain` (so stdin doesn't get bat's `STDIN` header).
-  `command less` reaches real `less` for `+F`/`-R`/etc. Don't
-  `alias less='bat …'` and don't set `$PAGER=bat` globally.
-- **`md` renders markdown via `glow`**, style at
-  `.config/glow/glamour.json`. **`mdp` is `md -p`** — same render
-  through `$PAGER` (= `nvimpager`; see the nvimpager bullet below). glow
-  spawns the pager as a subprocess, so the fish `less` wrapper doesn't
-  apply. Alias passes `--style` directly
-  because glow on macOS reads its yml from
-  `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to
-  `mdcat`/`frogmouth` (`mdcat` archived 2025-01-10).
-- **`nvimpager` is the global `$PAGER`** (`set -gx PAGER nvimpager` in
-  `.config/fish/conf.d/00-env.fish`, guarded on `command -q nvimpager`),
-  giving smooth, colored paging for glow output (`md` / `mdp` / bare
-  `glow` all route through it via glow's `pager: true`). It loads its
-  **own** `~/.config/nvimpager/init.lua` — *not* the nvim config — which
-  reuses nvim's lazy-installed `snacks.nvim` (runtimepath append +
-  `require('snacks').setup({ scroll = { enabled = true } })`) so paging
-  animates with the same `snacks.scroll` feel as nvim. **Graceful no-op
-  gotcha:** the snacks reuse is guarded by an existence check on
-  `~/.local/share/nvim/lazy/snacks.nvim`; on a fresh machine before
-  nvim's first launch the animation is absent but paging still works.
-  The path is hardcoded (not `stdpath('data')`) because nvimpager
-  rewrites neovim's `stdpath()`. Content color comes from glow's ANSI
-  decoded against Ghostty's palette — no colorscheme, no `theme-set`
-  coupling (auto-adapts like fzf/atuin). `man` (`MANPAGER=bat`) and
-  `git` (`core.pager=delta`) are unaffected. Whole-dir symlink (only
-  tracked `init.lua`; runtime state under `~/.local/share/nvimpager/`).
-  Smoke test: `scripts/test-nvimpager.sh`.
-- **`top` aliased to `btop`** (guarded). Theme `solarized_dark` via
-  `.config/btop/btop.conf` (only `color_theme`, `theme_background = False`,
-  `vim_keys = True` pinned). macOS `top` reachable via `command top`.
-  `solarized_dark` is built-in; don't vendor a custom theme.
-- **`lnav` is the TUI log navigator** (raw command, no alias).
-  `~/.config/lnav/` is a real dir. `formats/installed/` stays
-  whole-dir-symlinked to the repo (no machine-local entries needed
-  there — `inngest.json` is the one tracked format, for `inngest-cli
-  dev` JSON-per-line stdout). `configs/installed/` is **mixed-dir**:
-  tracked theme machinery (`catppuccin.json` — vendored Catppuccin
-  theme-defs from `ninetailedtori/catppuccin-lnav`, MIT — plus
-  `theme-{solarized,mocha}.json` selectors that set `ui.theme`) is
-  per-file symlinked; the active `theme.json` is a machine-local
-  symlink swapped by `theme-set`. Side effect: `lnav -i` writes into
-  the real machine-local `configs/installed/` dir, not the repo — `cp`
-  new tracked entries into the repo explicitly. lnav owns the rest of
-  `~/.config/lnav/` (samples, `crash/`, `staging/`, `log_metadata.db`,
-  `view-info-*.json`, `config.json`). Don't re-introduce a whole-dir
-  symlink on the top-level dir (issue #64).
-- **`gh dash` is the GitHub TUI** (raw command; `ghd` abbr in
-  `35-abbreviations.fish`). Mixed-dir layout under `.config/gh-dash/`:
-  `config-base.yml` holds the shared schema (sections, defaults, layout,
-  pager, etc., **no `theme:` key**), and `theme-colors-{solarized,mocha,
-  dracula,gruvbox,tokyo-night,nord}.yml` each hold *only* the top-level `theme:`
-  block (both `colors` and the small `ui` block — `ui` duplicates 5× and
-  that's accepted, since YAML can't merge two `theme:` keys after
-  concatenation). PR section is a single `Open` view (`is:open`); issues
-  has `Open` (`is:open`) + `v0.1.0` (`is:open milestone:"v0.1.0"`); don't
-  re-fragment by author/reviewer/assignee. The active
-  `~/.config/gh-dash/config.yml` is a **generated real file**, not a
-  symlink — `theme-set <name>` writes it via
-  `cat config-base.yml theme-colors-<name>.yml > config.yml`. Plain
-  `cat` works because the base has no `theme:` key; **don't add `yq` or
-  a merge engine**. Don't introduce a top-level `theme:` into
-  `config-base.yml`; the smoke test (`scripts/test-theme-switch.sh`)
-  catches that by asserting exactly one `^theme:` line in the generated
-  file. `bootstrap.sh` seeds the live `config.yml` on first run only
-  (Solarized default; subsequent runs preserve a prior `theme-set`
-  pick) and removes legacy `config-<name>.yml` symlinks from the
-  pre-dedup shape. Bootstrap auto-installs the extension idempotently
-  (`gh extension list | grep -q '^gh dash'` guard); install failure
-  prints a warning, doesn't abort. No `gh auth` required — `gh extension
-  install` clones a public repo. Color mapping stays standard base16
-  (`text.primary` = base0, `background.selected` = base02, etc.).
-  If gh-dash ever starts writing cache/state inside
-  `~/.config/gh-dash/`, the mixed-dir pattern already accommodates it
-  (`link_tracked_entries` only touches tracked files).
-- **`bd` is the beads issue tracker** (raw command, no alias). Distributed
-  graph issue tracker for AI agents, Dolt-backed. Installed via `Brewfile`
-  (`brew "beads"`). This repo is initialised in **stealth mode**
-  (`bd init --stealth`): `.beads/` and `.claude/settings.local.json` are
-  added to `.git/info/exclude` — local-only state, never tracked or
-  committed, invisible to collaborators. `.beads/config.yaml` carries
-  `no-git-ops: true`. The embedded Dolt DB name (`bd_198_nord` here) is
-  auto-derived from the branch active at init time and is just a local
-  label. Re-init **only** via `bd init --stealth`; a non-stealth re-init
-  would expose `.beads/` to git and contradict the stealth posture.
-  **Don't use bd's memory layer** — no `bd remember`, no `bd memories`,
-  no `bd forget`. Memory lives in
-  `~/.claude/projects/-Users-martinciu-code-dotfiles/memory/` (indexed
-  by `MEMORY.md`); that's the only memory system to read or write here.
-  **Don't install the `bd prime` SessionStart / PreCompact hooks** that
-  `bd setup claude --global` wires up. `bd prime` injects ~1–2k tokens
-  of context per session (mandatory beads-for-all-task-tracking,
-  "🚨 SESSION CLOSE PROTOCOL 🚨", a ban on TodoWrite/TaskCreate, etc.)
-  that contradicts this repo's actual conventions (TodoWrite/TaskCreate
-  task tracking, auto-memory, PR-based workflow). If a prior install
-  left those hooks in `~/.claude/settings.json`, remove them. The
-  `bd setup claude --global` step is **not** part of fresh-machine setup
-  — strike it from the README's "Manual extras" if still present.
-- **`diff` aliased to `difft`** (guarded). For ad-hoc, non-git
-  comparisons. Git diffs unaffected (still `delta`); `vimdiff`
-  unaffected (separate alias). Escape: `command diff`, `\diff`,
-  `/usr/bin/diff`. Don't pin flags.
-- **`xh` is the interactive HTTP client** (HTTPie-compatible). `xh`
-  (HTTP-default), `xhs` (HTTPS-default). Theme pinned via
-  `.config/xh/config.json` (`{"default_options": ["--style=solarized"]}`).
-  **Don't alias `curl` to `xh`** — `curl` stays for scripts/CI. No
-  `http`/`https` alias either ("no synonyms").
-- **`hyperfine` is the benchmark tool, additive to `time`** (raw, no
-  alias). `time` for one-shot wall-clock; `hyperfine` for warmups,
-  multiple runs, A/B. Don't alias or wrap.
-- **`duf` is a modern `df` companion** (raw, no alias). Grouped output by
-  device class (local/network/special/fuse), color-coded usage bars, theme-
-  aware (auto-detects dark; `--theme dark` pins it). `df` stays for scripts
-  and POSIX habit; `duf` for interactive disk-free checks. Don't alias or
-  wrap.
-- **`dust` is a modern `du` companion** (raw, no alias). Tree-style output
-  sorted largest-first, colored bar graphs per node, depth-aware (`-d N`
-  to limit). Read-only inspection — fast parallel scan, zero side effects.
-  `du` stays for scripts and POSIX habit; `dust` for "where did my disk
-  go?" at-a-glance. Don't alias or wrap.
-- **`dua` is a fast `du` aggregate with an interactive TUI deleter** (raw,
-  no alias). Plain `dua [path]` walks the tree in parallel and prints
-  aggregate sizes; `dua i [path]` opens a TUI for navigating, marking, and
-  *deleting* directories. `du` stays for scripts and POSIX habit; `dua`
-  for fast aggregates and interactive disk reclaim. Don't alias or wrap.
-- **`mmdc` renders Mermaid diagrams** (`@mermaid-js/mermaid-cli`), installed
-  via mise as a global npm tool (`mise.global.toml`). `.mmd` source files
-  live co-located with the docs that reference them; rendered `.svg` files
-  sit alongside (same directory, same basename). Both are committed.
-  Build all: `scripts/build-diagrams.sh`. Single file:
-  `mmdc -i file.mmd -o file.svg`. Don't install via brew (parallel node
-  stack) or `npm install -g` (not declarative, lost on node upgrade).
-- **`vhs` renders terminal tapes** (`charmbracelet/vhs`), installed via
-  Brewfile. The capability ships wired-up with **no tapes committed
-  yet** — when you author a tape, its sources live at
-  `docs/tapes/<name>.tape` and the rendered `.gif` + `.webm` sit
-  alongside (same dir, same basename); commit all three together. Build
-  all: `scripts/build-tapes.sh` (stat-based
-  skip, re-runs only when the tape is newer than its outputs). Single
-  tape: `vhs docs/tapes/<name>.tape`. Recording environment is locked at
-  top-of-tape (`Set Shell fish`, `Set Theme "Builtin Solarized Dark"`,
-  `Set FontFamily "JetBrainsMono Nerd Font"`, `Set Width/Height/FontSize`)
-  — vhs spawns ttyd, not Ghostty, so `theme-set` and `font-set` do not
-  affect the recorder palette mid-tape (statusbar chips, starship accent,
-  and bat output still repaint via in-shell config swaps). No CI
-  auto-regen — local-only, run on touch.
-- **`sandbox` runs untrusted CLI/TUI in an isolated Linux container.**
-  Built on a debian-slim image; bakes the portable dotfiles subset (full
-  interactive parity from the Brewfile MINUS tmux, ruby, procs, PLUS wt)
-  via `sandbox/{Dockerfile,mise.toml,install-linux.sh}`. Config is
-  single-source from the repo with one `00-env.fish` `/opt/homebrew` guard.
-  `bin/sandbox` is Mac-side only (drives docker/orb; not installed inside).
-  Two modes: **container** (no host mounts — safe for untrusted code;
-  named volume holds state; image rebuilds on a content-hash mismatch) and
-  **machine** (OrbStack VM mounts the Mac home — **trusted code only**).
-  `sandbox reup <name> [flags]` recreates a sandbox's container with new
-  run-time flags (`-p`/`--mount`/`-e`/etc.) while preserving its `/home/dev`
-  volume; the bare `sandbox <name>` path warns (pointing at `reup`) when
-  creation-time flags hit an already-existing container.
-  `sandbox create <name>` is the only path that provisions a sandbox; bare
-  `sandbox <name>` only **attaches** to an existing one and errors (creating
-  nothing) when it doesn't exist, so subcommand typos (`sandbox help`,
-  `sandbox lst`) can't leak junk containers. `create` is create-**or**-attach
-  (a subcommand-colliding name like `create build` is reachable only via
-  `create` re-run). `help` is a real subcommand (exits 0).
-  Secrets are never baked in (templates seed empty files inside; inject at
-  runtime via `--env-file`/`-e`). Build requires `GITHUB_TOKEN` (aqua/github
-  backends hit the GitHub releases API). Out of scope: tmux, sesh, s, gh,
-  bd, font-set, vhs, and live theme-set switching inside the sandbox. The
-  active Mac theme IS baked into the image (all variants) and re-applied to the
-  named-theme tools (bat, delta, glow, vivid, lnav, nvim, starship) on every
-  container entry, tracking the host's current theme with no rebuild (#273);
-  only an in-container theme *switcher* is out.
+  `s [<project>] [<name>]`: inside tmux single arg = worktree name (project
+  from cwd); outside = project name; two args = `<project> <name>`. Session
+  names use `/`. Branch name verbatim — `s` does **not** apply `worktree-`
+  (reserved for `EnterWorktree`). Completions in `completions/s.fish`
+  (non-exclusive — fresh names still create).
+- **`vim`/`vimdiff` alias to nvim; `vi` is `command vim`** (legacy minimal vim,
+  `.vimrc` + `solarized8`). All guarded on `command -v nvim`. Don't add
+  vim-plug / LSP to minimal vim.
+- **nvim is LazyVim**, Solarized, at `.config/nvim/` (mixed-dir: `init.lua`,
+  `mason-lock.json`, `lua/` tracked; `lazy/`/`mason/`/`site/`/lockfiles real).
+  Don't replace LazyVim.
+- **LazyVim Alt-keymaps kept** (`<A-j>`/`<A-k>` move-line) — safe because the
+  Option split makes left-Option emit `<A-x>`. Don't reinstate the
+  `pcall(del, …, "<A-j>")` block in `lua/config/keymaps.lua` (pre-split
+  workaround).
+- **LSPs off by default in nvim** (`lua/plugins/lsp-disable-all.lua`:
+  `enabled=false, mason=false` on every LazyVim server; Mason packages stay for
+  instant opt-in). Enable per-session `:LspOn <name>` or per-project `.nvim.lua`
+  + `vim.lsp.enable`. The `VimLeavePre` autocmd force-stops LSP clients on exit
+  (else handle leaks + stale swaps). New servers: append to the list.
+- **No schemastore catalog injection** (`lua/plugins/lsp-no-schema-fetch.lua`
+  no-ops LazyVim's `before_init`) — the ~700-entry catalog would each trigger
+  an HTTP fetch (freeze risk). Inline `$schema` URLs still resolve.
+- **Mason LSPs pinned** via `mason-lock.json` (tracked; `:MasonLock` /
+  `:MasonLockUpdate`). `lazy-lock.json` is gitignored (churn noise; use
+  `:Lazy restore` for single-machine reproducibility).
+- **Switchable themes (10).** `theme-set <name>` (fish function) flips
+  machine-local active-theme symlinks across hot-path + file-viewer tools.
+  Palette files in `.config/themes/` (mixed-dir: tracked `*.tmux` +
+  `delta-*.gitconfig`; machine-local `current.tmux` / `delta-current.gitconfig`
+  symlinks). Per-tool variants follow `*-<theme>.<ext>` next to each tool's
+  config (ghostty/glow/gh-dash/lnav + `starship-<theme>.toml`); active picked
+  via a machine-local symlink. tmux reads `@color_*` user options from the
+  sourced palette; bat (`$BAT_THEME`) and vivid (`$VIVID_THEME`) are fish
+  universal vars set by `theme-set`; fzf/atuin auto-adapt via ANSI palette refs
+  (no per-theme files). **gh-dash is the exception** — its `config.yml` is
+  generated (`cat config-base.yml theme-colors-<name>.yml`) since it has no YAML
+  includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
+  in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
+  coverage is fine; Latte is the only light theme and ships ghostty/tmux/
+  starship only, #215) **and** add the `starship-<theme>.toml` `link` line in
+  `bootstrap.sh` (the one tool not covered by `link_tracked_entries`).
+  Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
+  Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
+  `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
+  at startup from `readlink` of `current.tmux` (`lua/config/theme.lua`).
+  Bootstrap "don't clobber" guards preserve a prior pick. Out of v1:
+  procs/tailspin/xh/ccstatusline retheme, cheatsheet/screenshot toggle, live
+  nvim retheme. Smoke: `scripts/test-theme-switch.sh`.
+- **Switchable Ghostty fonts (17 Nerd Fonts).** `font-set <name> [<weight>]
+  [<size>]` (fish function) flips a machine-local symlink
+  `~/.config/ghostty/font.ghostty` → a per-font one-liner include; weight
+  rewrites `font-weight.ghostty`, size rewrites `font-size.ghostty`. Omit either
+  to keep current. `config.ghostty` pulls family+size+weight via three
+  `config-file` directives; `ghostty +reload` is live. Per-font advertised
+  weights live in `__font_set_weights_for.fish` (validation + completion source
+  of truth). **Add a font:** drop `font-<short>.ghostty`, append the cask to
+  `Brewfile`, extend the `switch` in `font-set.fish` + 1st-arg completion +
+  `__font_set_weights_for`. No nvim/tmux/bat coupling.
+- **Starship pastel accent — per theme** (`pastel_rose` in each config's
+  `[palettes]`). Single flush-left chip ending in a powerline cap; prompt char
+  on line 2. Single chip because starship drops `bg:` when both fg+bg are custom
+  palette names. Don't extend pastel to other tools. Fish opts into transient
+  prompt (`enable_transience` in `25-prompt.fish`) — after Enter the chip
+  becomes a bold `❯`. Starship 1.25.x has no `[transient_prompt]` section; don't
+  add one.
+- **wt config symlinked** from `.config/worktrunk/config.toml` (mixed-dir;
+  per-project `approvals.toml` is real, outside the repo).
+- **Gitignored content flows between primary and worktrees** in two stages,
+  both `wt step copy-ignored`: `[post-start] copy` in at creation,
+  `[pre-remove] save-shared` back before removal. No `--force` (never
+  overwrites). Auto-discovers new gitignored top-level dirs; `exclude` is shared
+  across directions. Don't reintroduce per-path symlink hooks.
+- **Worktree status segment** detects via `git rev-parse --git-dir` vs
+  `--git-common-dir`. Don't replace with `git worktree list` parsing.
+- **Bells silenced at every layer** (Ghostty `bell-features=`, vim `belloff=all`,
+  tmux bell/visual/monitor off). Don't re-enable.
+- **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
+  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, fzf, atuin. Stay
+  Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
+  (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
+  (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
+- **`ps` → `procs`** (`.config/procs/procs.toml`; `psh` loads
+  `procs-heavy.toml` via `--load-config`, which replaces the whole config so
+  style blocks duplicate). Escape: `command ps`/`\ps`. macOS shows only the
+  current user; `\ps -ax` for all.
+- **Interactive `less` is a `bat` wrapper** (`functions/less.fish`); piped input
+  uses `--plain`. `command less` for `+F`/`-R`. Don't `alias less=bat` or set
+  `$PAGER=bat`.
+- **`md` renders markdown via `glow`** (`--style .config/glow/glamour.json`,
+  because glow reads from `~/Library/Preferences/glow/` on macOS). **`mdp` =
+  `md -p`** through `$PAGER`. Don't swap to `mdcat`/`frogmouth`.
+- **`nvimpager` is the global `$PAGER`** (`00-env.fish`, guarded). Loads its own
+  `~/.config/nvimpager/init.lua` (not the nvim config), reusing nvim's lazy
+  `snacks.nvim` for scroll (existence-guarded — fresh machine works without
+  animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
+  `scripts/test-nvimpager.sh`.
+- **`top` → `btop`** (`solarized_dark`, `vim_keys`). `command top` for macOS.
+- **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
+  symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
+  active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
+  new tracked entries into the repo. Don't whole-dir symlink the top dir (#64).
+- **`gh dash` (raw; `ghd` abbr).** Mixed-dir `.config/gh-dash/`:
+  `config-base.yml` (no `theme:` key) + `theme-colors-<name>.yml` (only the
+  `theme:` block). Live `config.yml` is generated by `theme-set` via plain
+  `cat` — **don't add `yq`** or a top-level `theme:` to the base (smoke test
+  asserts one `^theme:` line). Bootstrap auto-installs the extension. Don't
+  re-fragment sections.
+- **`bd` is beads (raw), stealth mode** (`bd init --stealth`): `.beads/` +
+  `.claude/settings.local.json` in `.git/info/exclude`, `no-git-ops: true`.
+  Re-init only via `--stealth`. **Don't use bd's memory layer** — memory is
+  `~/.claude/projects/-Users-martinciu-code-dotfiles/memory/` only. **Don't
+  install the `bd prime` SessionStart/PreCompact hooks** (they inject ~1-2k
+  tokens contradicting this repo's TodoWrite/auto-memory/PR conventions);
+  remove if a prior install left them. Skip `bd setup claude --global`.
+- **`diff` → `difft`** (guarded; ad-hoc non-git only — git/vimdiff unaffected).
+  Escape `command diff`. Don't pin flags.
+- **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
+  `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
+- **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
+- **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
+  alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
+- **`mmdc` renders Mermaid** (mise global npm tool). `.mmd` + `.svg` co-located,
+  both committed. Build: `scripts/build-diagrams.sh`. Don't install via
+  brew/`npm -g`.
+- **`vhs` renders terminal tapes** (Brewfile; no tapes committed yet). Sources
+  `docs/tapes/<name>.tape`, outputs `.gif`+`.webm` alongside, all committed.
+  Build: `scripts/build-tapes.sh`. Recording env locked top-of-tape (vhs spawns
+  ttyd, not Ghostty).
+- **`sandbox` runs untrusted CLI/TUI in an isolated Linux container**
+  (`bin/sandbox`, Mac-side; `sandbox/{Dockerfile,mise.toml,install-linux.sh}`).
+  Bakes the portable dotfiles subset (Brewfile minus tmux/ruby/procs, plus wt).
+  Two modes: **container** (no host mounts — untrusted-safe; rebuilds on
+  content-hash mismatch) and **machine** (OrbStack mounts Mac home — trusted
+  only). `sandbox create <name>` provisions; bare `sandbox <name>` only attaches
+  (errors if absent); `sandbox reup <name> [flags]` recreates with new flags,
+  keeping the volume. Secrets injected at runtime (never baked). Build needs
+  `GITHUB_TOKEN`. Active Mac theme is baked + re-applied on entry; in-container
+  theme *switcher*, tmux, sesh, gh, bd, font-set, vhs out of scope. Smoke:
+  `scripts/test-sandbox.sh`.
 
 ## Where things live
 
-- Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir per tool:
-  `btop`, `ccstatusline`, `procs`, `tailspin`, `tmux`, `xh`; mixed-dir
-  per tool: `fish`, `gh-dash`, `ghostty`, `glow`, `nvim`, `worktrunk`;
-  themes dir: `themes/` (palette files + delta snippets); plus
-  `starship-{solarized,mocha,dracula,gruvbox,tokyo-night,nord}.toml`, partial links for `sesh/sesh.toml`
-  and `lnav/configs/installed` (mixed-dir) +
-  `lnav/formats/installed` (whole-dir)),
-  `.vimrc`, `.vim/colors`, `.gitignore_global`, `.claude/CLAUDE.md`.
-  `bin/` files symlink to `~/.local/bin/`.
-- The repo's `.claude/CLAUDE.md` IS the user-global Claude config
-  (symlinked to `~/.claude/CLAUDE.md`). Edits apply machine-wide.
+- Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir: btop,
+  ccstatusline, procs, tailspin, tmux, xh; mixed-dir: fish, gh-dash, ghostty,
+  glow, nvim, worktrunk; `themes/` palettes; `starship-*.toml`; partial links
+  for sesh + lnav), `.vimrc`, `.vim/colors`, `.gitignore_global`,
+  `.claude/CLAUDE.md`. `bin/` files symlink to `~/.local/bin/`.
+- The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to
+  `~/.claude/CLAUDE.md`). Edits apply machine-wide.
 - Helpers: `.config/tmux/bin/{tmux-git-status,tmux-ssh-indicator,tmux-pr-detect,tmux-status-right}`.
 
 ## Cheatsheets (`docs/`)
 
-Three Solarized HTML reference pages, hand-generated:
-`nvim-cheatsheet.html`, `terminal-cheatsheet.html`, `tmux-cheatsheet.html`.
-
-**Update the relevant sheet whenever config drifts.** Each footer is
-dated; refresh on touch. Open with `open docs/<name>.html`. Shared
-styles in `docs/style.css`; prefer adding there over re-inlining.
-Landing page `docs/index.html` is served at
-`https://martinciu.github.io/dotfiles/` via GitHub Pages (source `main`,
-folder `/docs`, `docs/.nojekyll`).
-
-Sheets and README embed screenshots. Sources:
-`docs/images/example_<tool>.png` (3176×1920, hand-captured). Derivatives
-— `-hero.png` (1600px), `-thumb.png` (800px) — produced by
-`scripts/build-screenshots.sh` (macOS `sips`). All three sizes committed;
-re-run after swapping a source; never hand-edit derivatives. `<tool>`
-is `tmux | vim | terminal` (note `example_vim.png` even though the sheet
-is `nvim-cheatsheet.html`).
+Three hand-generated Solarized HTML pages
+(`nvim-`/`terminal-`/`tmux-cheatsheet.html`). **Update the relevant sheet
+whenever config drifts** (footers are dated). Shared styles in `docs/style.css`.
+Landing `docs/index.html` serves at https://martinciu.github.io/dotfiles/
+(Pages: `main`/`docs`, `.nojekyll`). Screenshots: source
+`docs/images/example_<tool>.png` (`tmux|vim|terminal`); derivatives
+`-hero`/`-thumb` via `scripts/build-screenshots.sh` — never hand-edit
+derivatives, re-run after swapping a source.
 
 ## Verify changes
 
