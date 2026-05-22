@@ -564,11 +564,30 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   `alias less='bat …'` and don't set `$PAGER=bat` globally.
 - **`md` renders markdown via `glow`**, style at
   `.config/glow/glamour.json`. **`mdp` is `md -p`** — same render
-  through real `less` (glow spawns the pager as a subprocess; the
-  `less` wrapper doesn't apply). Alias passes `--style` directly
+  through `$PAGER` (= `nvimpager`; see the nvimpager bullet below). glow
+  spawns the pager as a subprocess, so the fish `less` wrapper doesn't
+  apply. Alias passes `--style` directly
   because glow on macOS reads its yml from
   `~/Library/Preferences/glow/`, not `~/.config/glow/`. Don't swap to
   `mdcat`/`frogmouth` (`mdcat` archived 2025-01-10).
+- **`nvimpager` is the global `$PAGER`** (`set -gx PAGER nvimpager` in
+  `.config/fish/conf.d/00-env.fish`, guarded on `command -q nvimpager`),
+  giving smooth, colored paging for glow output (`md` / `mdp` / bare
+  `glow` all route through it via glow's `pager: true`). It loads its
+  **own** `~/.config/nvimpager/init.lua` — *not* the nvim config — which
+  reuses nvim's lazy-installed `snacks.nvim` (runtimepath append +
+  `require('snacks').setup({ scroll = { enabled = true } })`) so paging
+  animates with the same `snacks.scroll` feel as nvim. **Graceful no-op
+  gotcha:** the snacks reuse is guarded by an existence check on
+  `~/.local/share/nvim/lazy/snacks.nvim`; on a fresh machine before
+  nvim's first launch the animation is absent but paging still works.
+  The path is hardcoded (not `stdpath('data')`) because nvimpager
+  rewrites neovim's `stdpath()`. Content color comes from glow's ANSI
+  decoded against Ghostty's palette — no colorscheme, no `theme-set`
+  coupling (auto-adapts like fzf/atuin). `man` (`MANPAGER=bat`) and
+  `git` (`core.pager=delta`) are unaffected. Whole-dir symlink (only
+  tracked `init.lua`; runtime state under `~/.local/share/nvimpager/`).
+  Smoke test: `scripts/test-nvimpager.sh`.
 - **`top` aliased to `btop`** (guarded). Theme `solarized_dark` via
   `.config/btop/btop.conf` (only `color_theme`, `theme_background = False`,
   `vim_keys = True` pinned). macOS `top` reachable via `command top`.
@@ -764,6 +783,7 @@ is `nvim-cheatsheet.html`).
 - nvim plugin smoke: `scripts/test-nvim.sh`
 - Theme switch smoke: `scripts/test-theme-switch.sh`
 - Sandbox smoke: `scripts/test-sandbox.sh`
+- nvimpager smoke: `scripts/test-nvimpager.sh`
 
 ## First-time setup on a new machine
 
