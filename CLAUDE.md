@@ -699,7 +699,11 @@ Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish. `theme-s
   Secrets are never baked in (templates seed empty files inside; inject at
   runtime via `--env-file`/`-e`). Build requires `GITHUB_TOKEN` (aqua/github
   backends hit the GitHub releases API). Out of scope: tmux, sesh, s, gh,
-  bd, theme-set, font-set, vhs inside the sandbox.
+  bd, font-set, vhs, and live theme-set switching inside the sandbox. The
+  active Mac theme IS baked into the image (all variants) and re-applied to the
+  named-theme tools (bat, delta, glow, vivid, lnav, nvim, starship) on every
+  container entry, tracking the host's current theme with no rebuild (#273);
+  only an in-container theme *switcher* is out.
 
 ## Where things live
 

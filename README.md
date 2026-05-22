@@ -167,6 +167,10 @@ sandbox --rm fish       # throwaway ephemeral shell
 | 🔒 Container (safe) | `sandbox <name>` | No host mounts. Named volume holds state. |
 | ⚠️  Machine (trusted) | `sandbox machine create <name>` | Mounts your Mac home. **TRUSTED CODE ONLY.** |
 
+🎨 The sandbox inherits your **current Mac theme** at entry — the named-theme
+tools (bat, delta, glow, vivid, lnav, nvim, starship) match the host; switch
+with `theme-set` on the Mac and re-enter, no rebuild needed.
+
 **Lifecycle verbs:**
 
 ```fish
