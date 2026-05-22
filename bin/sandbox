@@ -121,9 +121,11 @@ cmd_run() {
   local cname rc=0
   if [ "$EPHEMERAL" -eq 1 ]; then
     # Throwaway: run detached so we can apply the theme before attaching, then
-    # remove on exit. The image's default CMD (sleep infinity) keeps it up.
+    # remove on exit (including SIGHUP/SIGTERM — trap handles all paths).
+    # The image's default CMD (sleep infinity) keeps it up until we rm it.
     cname="sandbox-eph-$$"
     docker run -d --rm --name "$cname" "${RUN_ARGS[@]}" "$IMAGE" >/dev/null
+    trap 'docker rm -f "$cname" >/dev/null 2>&1' EXIT INT TERM HUP
   else
     cname="sandbox-$name"
     if ! docker container inspect "$cname" >/dev/null 2>&1; then
@@ -139,7 +141,6 @@ cmd_run() {
   else
     docker exec -it "$cname" fish || rc=$?
   fi
-  [ "$EPHEMERAL" -eq 1 ] && docker rm -f "$cname" >/dev/null 2>&1
   exit "$rc"
 }
 
