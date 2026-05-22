@@ -38,6 +38,16 @@ COPY --chown=${USER}:${USER} .config/fish /home/${USER}/.config/fish
 COPY --chown=${USER}:${USER} .config/worktrunk/config.toml /home/${USER}/.config/worktrunk/config.toml
 RUN bash /home/${USER}/.sandbox/install-linux.sh config
 
+# --- theme assets (all variants) + Solarized floor. Cheap layer; busts only
+# when a theme asset file changes. The active theme is applied at container
+# entry by bin/sandbox (runtime), not frozen here — the floor is just the safe
+# default for a raw `docker run` that bypasses the wrapper.
+COPY --chown=${USER}:${USER} .config/themes /home/${USER}/.config/themes
+COPY --chown=${USER}:${USER} .config/glow /home/${USER}/.config/glow
+COPY --chown=${USER}:${USER} .config/lnav/configs/installed /home/${USER}/.config/lnav/configs/installed
+COPY --chown=${USER}:${USER} .config/starship-*.toml /home/${USER}/.config/
+RUN bash /home/${USER}/.sandbox/install-linux.sh theme solarized
+
 # Persistent idle PID 1 so the container stays up for multiple `docker exec`
 # shells; tini reaps zombies from whatever runs inside.
 ENTRYPOINT ["/usr/bin/tini", "--"]
