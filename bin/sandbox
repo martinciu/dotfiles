@@ -217,6 +217,7 @@ cmd_machine() {
       # mise walks up and merges the Mac's global ~/.config/mise/config.toml over
       # the home mount, pulling in non-sandbox tools (ruby, npm:*). Running from
       # the machine home keeps mise to the copied sandbox config only.
+      # shellcheck disable=SC2016  # intentional: single-quotes inside are verbatim orb bash literal
       orb -m "$name" bash -lc '
         export GITHUB_TOKEN="'"${GITHUB_TOKEN:-}"'"
         cd "$HOME"

@@ -19,10 +19,9 @@ pass "fish parse"
 
 command -v docker >/dev/null 2>&1 || { echo "⏭️  docker absent — skipping build/runtime asserts"; exit 0; }
 
-# 3. Build.
-local_args=()
-[ -n "${GITHUB_TOKEN:-}" ] && local_args=(--secret "id=github_token,env=GITHUB_TOKEN")
-docker build -f sandbox/Dockerfile "${local_args[@]}" -t sandbox:test . >/dev/null || fail "build"
+# 3. Build via the wrapper so the image carries the sandbox.srchash label —
+# the reup/run wrapper tests below then reuse it without ensure_image rebuilding.
+SANDBOX_IMAGE=sandbox:test bin/sandbox build >/dev/null || fail "build"
 pass "image build"
 
 # 4. fish + tools present.
@@ -42,5 +41,31 @@ trap 'docker rm -f "$cid" >/dev/null 2>&1 || true; docker volume rm sandbox-self
 binds="$(docker inspect "$cid" --format '{{range .Mounts}}{{.Type}} {{end}}')"
 [[ "$binds" != *bind* ]] || fail "unexpected host bind-mount: $binds"
 pass "no host bind-mount by default"
+
+# 7. reup: recreate the container with new flags, keeping the /home/dev volume.
+rname="reuptest"; rcont="sandbox-$rname"; rport=58080
+# Combined cleanup: also clears the step-6 isolation resources ($cid, sandbox-selftest).
+trap 'docker rm -f "$cid" "$rcont" >/dev/null 2>&1 || true; docker volume rm sandbox-selftest "$rcont" >/dev/null 2>&1 || true' EXIT
+docker rm -f "$rcont" >/dev/null 2>&1 || true
+docker volume rm "$rcont" >/dev/null 2>&1 || true
+docker run -d --name "$rcont" --label sandbox=1 -v "${rcont}:/home/dev" sandbox:test >/dev/null
+docker exec "$rcont" sh -c 'echo survived > /home/dev/sentinel'
+SANDBOX_IMAGE=sandbox:test bin/sandbox reup "$rname" -p "$rport" true >/dev/null 2>&1 || true
+got="$(docker exec "$rcont" cat /home/dev/sentinel 2>/dev/null || true)"
+[[ "$got" == survived ]] || fail "reup lost /home/dev state: '$got'"
+pass "reup keeps volume state"
+binds="$(docker inspect "$rcont" --format '{{json .HostConfig.PortBindings}}' 2>/dev/null || true)"
+[[ "$binds" == *127.0.0.1* && "$binds" == *"$rport"* ]] || fail "reup did not publish port: $binds"
+pass "reup applies new -p flag"
+
+# 8. reup on a nonexistent sandbox errors clearly with a non-zero exit.
+rc=0; out="$(bin/sandbox reup "nope-$$" 2>&1)" || rc=$?
+[[ "$rc" -ne 0 && "$out" == *"no such sandbox"* ]] || fail "reup nonexistent: rc=$rc out=$out"
+pass "reup nonexistent errors"
+
+# 9. Bare `sandbox <name>` warns when creation-time flags hit an existing container.
+out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox "$rname" -p "$rport" true 2>&1 || true)"
+[[ "$out" == *"flags ignored"* && "$out" == *"sandbox reup"* ]] || fail "missing ignored-flags warning: $out"
+pass "ignored-flags warning"
 
 echo "✅ all sandbox smoke checks passed"
