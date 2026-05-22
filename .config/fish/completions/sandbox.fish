@@ -17,11 +17,14 @@ complete -c sandbox -n __sandbox_needs_command -f -a ls -d 'List sandboxes'
 complete -c sandbox -n __sandbox_needs_command -f -a stop -d 'Stop a sandbox (keep volume)'
 complete -c sandbox -n __sandbox_needs_command -f -a rm -d 'Remove a sandbox + volume'
 complete -c sandbox -n __sandbox_needs_command -f -a machine -d 'OrbStack machine (trusted only)'
+complete -c sandbox -n __sandbox_needs_command -f -a reup -d 'Recreate a container with new flags (keep volume)'
+complete -c sandbox -n __sandbox_needs_command -f -a create -d 'Provision a new sandbox'
+complete -c sandbox -n __sandbox_needs_command -f -a help -d 'Show help'
 # Existing sandbox names are also valid first args (reattach).
 complete -c sandbox -n __sandbox_needs_command -f -a '(__sandbox_names)' -d 'sandbox'
 
-# Name args for stop/rm.
-complete -c sandbox -n '__fish_seen_subcommand_from stop rm' -f -a '(__sandbox_names)'
+# Name args for stop/rm/reup/create.
+complete -c sandbox -n '__fish_seen_subcommand_from stop rm reup create' -f -a '(__sandbox_names)'
 
 # machine subcommands.
 complete -c sandbox -n '__fish_seen_subcommand_from machine' -f -a 'create ssh rm'

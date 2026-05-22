@@ -178,6 +178,7 @@ sandbox build           # (re)build the image
 sandbox ls              # list all sandboxes
 sandbox stop <name>     # stop (keep volume/state)
 sandbox rm <name>       # remove container + volume
+sandbox reup <name>     # recreate container with new flags (keep volume/state)
 sandbox machine create <name>   # OrbStack machine — Mac home mounted
 sandbox machine ssh <name>      # SSH into machine (fish shell)
 sandbox machine ls              # list OrbStack machines
@@ -185,9 +186,9 @@ sandbox machine rm <name>       # delete machine
 ```
 
 Container names round-trip: `sandbox ls` shows the bare `<name>`, which is what
-`stop`/`rm`/reattach take (a pasted `sandbox-<name>` is accepted too).
+`stop`/`rm`/`reup` take (a pasted `sandbox-<name>` is accepted too).
 
-**Flags** (for `sandbox <name>`):
+**Flags** (for `sandbox <name>` and `sandbox reup <name>`):
 
 ```
 --rm               ephemeral throwaway (no named volume)
@@ -198,6 +199,13 @@ Container names round-trip: `sandbox ls` shows the bare `<name>`, which is what
 --memory V         memory limit (default 2g)
 --cpus V           CPU limit (default 2)
 ```
+
+Flags only take effect when a container is **created**. To change them on an
+existing sandbox without losing `/home/dev` state, use `sandbox reup <name>
+<flags>` — it `docker rm -f`s the container only, then recreates it re-attached
+to the same volume. Passing flags to a bare `sandbox <name>` whose container
+already exists prints a warning pointing you at `reup` (the flags are otherwise
+silently ignored).
 
 **Multi-shell:** open N Mac-tmux panes and run `sandbox <name>` in each —
 they all `docker exec` into the same persistent container.
