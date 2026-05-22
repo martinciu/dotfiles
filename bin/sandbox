@@ -22,6 +22,7 @@ DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
 MEMORY="2g"; CPUS="2"; PIDS="512"
 PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0
 declare -a EXTRA_ENV=()
+declare -a FLAGS_PASSED=()   # creation-time flags as typed, for the "use reup" hint
 
 die() { echo "sandbox: $*" >&2; exit 1; }
 
@@ -120,8 +121,15 @@ cmd_run() {
   local cname="sandbox-$name"
   if ! docker container inspect "$cname" >/dev/null 2>&1; then
     create_container "$cname" "$name"
-  elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
-    docker start "$cname" >/dev/null
+  else
+    # Container already exists: -p/--mount/-e/etc. are baked in at creation and
+    # cannot be applied now. Point the user at reup instead of silently dropping.
+    if [ "${#FLAGS_PASSED[@]}" -gt 0 ]; then
+      echo "sandbox: flags ignored (container exists): ${FLAGS_PASSED[*]} — run: sandbox reup $name ${FLAGS_PASSED[*]}" >&2
+    fi
+    if [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
+      docker start "$cname" >/dev/null
+    fi
   fi
   exec_into "$cname" "$@"
 }
@@ -257,12 +265,12 @@ declare -a REST=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --rm) EPHEMERAL=1; shift ;;
-    -p) PORT="${2:?-p needs a PORT}"; shift 2 ;;
-    --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; shift 2 ;;
-    --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; shift 2 ;;
-    -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); shift 2 ;;
-    --memory) MEMORY="${2:?}"; shift 2 ;;
-    --cpus) CPUS="${2:?}"; shift 2 ;;
+    -p) PORT="${2:?-p needs a PORT}"; FLAGS_PASSED+=(-p "$2"); shift 2 ;;
+    --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; FLAGS_PASSED+=(--mount "$2"); shift 2 ;;
+    --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; FLAGS_PASSED+=(--env-file "$2"); shift 2 ;;
+    -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); FLAGS_PASSED+=(-e "$2"); shift 2 ;;
+    --memory) MEMORY="${2:?}"; FLAGS_PASSED+=(--memory "$2"); shift 2 ;;
+    --cpus) CPUS="${2:?}"; FLAGS_PASSED+=(--cpus "$2"); shift 2 ;;
     --) shift; REST+=("$@"); break ;;
     -*)
       # Once NAME is set, trailing flags/args are the command — pass them through.
