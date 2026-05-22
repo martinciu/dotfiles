@@ -4,7 +4,8 @@
 # .superpowers/specs/2026-05-21-containerized-sandbox.md for design rationale.
 set -euo pipefail
 
-IMAGE="sandbox:latest"
+# Default image; overridable (e.g. tests pin a throwaway tag, power users pin a build).
+IMAGE="${SANDBOX_IMAGE:-sandbox:latest}"
 
 # Resolve the repo root by following this script's symlink (~/.local/bin/sandbox
 # -> repo/bin/sandbox), so the build context is the repo that owns this script.
@@ -85,6 +86,24 @@ assemble_run_args() {
   local kv; for kv in "${EXTRA_ENV[@]}"; do RUN_ARGS+=(-e "$kv"); done
 }
 
+# Create the persistent container with the assembled RUN_ARGS and the named
+# state volume. Shared by cmd_run (first create) and cmd_reup (recreate).
+create_container() {
+  local cname="$1" name="$2"
+  docker run -d --name "$cname" --label sandbox=1 \
+    "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
+}
+
+# Drop into fish inside the container, or run a one-shot command, then exec
+# (replaces this process) — always the last thing a run/reup does.
+exec_into() {
+  local cname="$1"; shift
+  if [ "$#" -gt 0 ]; then
+    exec docker exec -it "$cname" fish -c "$*"
+  fi
+  exec docker exec -it "$cname" fish
+}
+
 cmd_run() {
   local name="$1"; shift || true
   [ -n "$name" ] || usage
@@ -99,15 +118,11 @@ cmd_run() {
   fi
   local cname="sandbox-$name"
   if ! docker container inspect "$cname" >/dev/null 2>&1; then
-    docker run -d --name "$cname" --label sandbox=1 \
-      "${RUN_ARGS[@]}" -v "sandbox-${name}:/home/dev" "$IMAGE" >/dev/null
+    create_container "$cname" "$name"
   elif [ -z "$(docker ps -q -f "name=^${cname}$")" ]; then
     docker start "$cname" >/dev/null
   fi
-  if [ "$#" -gt 0 ]; then
-    exec docker exec -it "$cname" fish -c "$*"
-  fi
-  exec docker exec -it "$cname" fish
+  exec_into "$cname" "$@"
 }
 
 cmd_build() { build_image; }
