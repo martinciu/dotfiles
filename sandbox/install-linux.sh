@@ -69,15 +69,18 @@ generate_starship() {
   sed -e 's/^format = """\$directory/format = """$container$directory/' \
       -e 's/^right_format = "\$status\$cmd_duration"$/right_format = "$git_branch$git_status$status$cmd_duration"/' \
       "$src" > "$tmp"
-  # Sandbox-only modules. [container] self-gates on /.dockerenv (empty on Mac).
-  # ANSI color names resolve to each theme's palette key when defined, ANSI
-  # fallback otherwise — auto-adapts across themes, no per-theme color authoring.
+  # Sandbox-only modules. [container] self-gates on /.dockerenv (empty on Mac);
+  # it reuses the directory chip's palette keys (fg:base3 bg:pastel_rose, defined
+  # in every theme) so the penguin sits *inside* the flush-left prompt chip rather
+  # than floating on the terminal's default bg. git_branch/git_status use ANSI
+  # color names, which resolve to each theme's palette key when defined and fall
+  # back to ANSI otherwise — auto-adapting across themes, no per-theme authoring.
   cat >> "$tmp" <<'STARSHIP_EOF'
 
 [container]
-format = "[$symbol ]($style)"
+format = "[ $symbol]($style)"
 symbol = ""
-style  = "bold yellow"
+style  = "fg:base3 bg:pastel_rose"
 
 [git_branch]
 format = "[$symbol$branch]($style) "
