@@ -199,6 +199,7 @@ cmd_machine() {
       # equivalent).
       [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1 \
         && GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+      local theme; theme="$(detect_host_theme)"
       orb create debian "$name"
       # Provision: copy the portable config in, then run the shared setup.
       # No `--` before the command: orb's `run` rejects it (Error: unknown flag --).
@@ -216,12 +217,19 @@ cmd_machine() {
         cp '"$DOTFILES"'/.config/worktrunk/config.toml ~/.config/worktrunk/config.toml
         cp '"$DOTFILES"'/sandbox/mise.toml ~/.config/mise/config.toml
         cp '"$DOTFILES"'/sandbox/install-linux.sh ~/.sandbox/install-linux.sh
+        cp -r '"$DOTFILES"'/.config/themes ~/.config/themes
+        cp -r '"$DOTFILES"'/.config/glow ~/.config/glow
+        mkdir -p ~/.config/lnav/configs
+        cp -r '"$DOTFILES"'/.config/lnav/configs/installed ~/.config/lnav/configs/installed
+        cp '"$DOTFILES"'/.config/starship-*.toml ~/.config/
         bash ~/.sandbox/install-linux.sh all
+        bash ~/.sandbox/install-linux.sh theme '"$theme"'
       '
       echo "sandbox: machine '$name' ready — sandbox machine ssh $name" >&2
       ;;
     ssh)
       [ -n "$name" ] || die "usage: sandbox machine ssh <name>"
+      orb -m "$name" bash -lc 'bash ~/.sandbox/install-linux.sh theme '"$(detect_host_theme)"' >/dev/null 2>&1 || true'
       exec orb -m "$name" fish
       ;;
     rm)
