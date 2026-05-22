@@ -40,8 +40,9 @@ theme_flip_test() {
     || { echo "❌ nord lnav"; rm -rf "$tmp"; exit 1; }
   grep -q 'pager = delta' "$tmp/.gitconfig" \
     || { echo "❌ nord gitconfig missing delta"; rm -rf "$tmp"; exit 1; }
-  # shellcheck disable=SC2016
-  [ "$(HOME="$tmp" fish -c 'echo $BAT_THEME' 2>/dev/null)" = "Nord" ] \
+  # fish 4.x universals are written to ~/.config/fish/fish_variables; reading
+  # via `fish -c` hits the running daemon instead, so grep the file directly.
+  grep -q 'BAT_THEME:Nord' "$tmp/.config/fish/fish_variables" 2>/dev/null \
     || { echo "❌ nord BAT_THEME"; rm -rf "$tmp"; exit 1; }
 
   # Partial-coverage theme (Latte): starship overlays, delta/glow hold the floor.
@@ -52,8 +53,8 @@ theme_flip_test() {
     || { echo "❌ latte glow floor"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-solarized.gitconfig" ] \
     || { echo "❌ latte delta floor"; rm -rf "$tmp"; exit 1; }
-  # shellcheck disable=SC2016
-  [ "$(HOME="$tmp" fish -c 'echo $BAT_THEME' 2>/dev/null)" = "Catppuccin Latte" ] \
+  # Latte's bat name has a space; fish 4.x encodes spaces as \x20 in the file.
+  grep -q 'BAT_THEME:Catppuccin' "$tmp/.config/fish/fish_variables" 2>/dev/null \
     || { echo "❌ latte BAT_THEME"; rm -rf "$tmp"; exit 1; }
 
   rm -rf "$tmp"
