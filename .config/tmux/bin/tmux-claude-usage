@@ -96,7 +96,9 @@ mapfile -t _fields < <(printf '%s' "$json" | jq -r '
     (.projection.five_hour.will_overreach            // ""),
     (.projection.five_hour.projected_pct_at_reset    // ""),
     (.projection.seven_day.will_overreach            // ""),
-    (.projection.seven_day.projected_pct_at_reset    // "")
+    (.projection.seven_day.projected_pct_at_reset    // ""),
+    (.projection.five_hour.confidence                // ""),
+    (.projection.seven_day.confidence                // "")
   ] | .[]
 ') || exit 0
 pct_5h=${_fields[0]}
@@ -107,6 +109,8 @@ over_5h=${_fields[4]}
 proj_5h=${_fields[5]}
 over_7d=${_fields[6]}
 proj_7d=${_fields[7]}
+conf_5h=${_fields[8]}
+conf_7d=${_fields[9]}
 
 [ -z "${pct_5h:-}" ]    && exit 0
 [ -z "${mins_5h:-}" ]   && exit 0
@@ -154,13 +158,13 @@ threshold=80
 # 5h body: always full (rendered in the yellow chip).
 body_5h=$(printf '%s %d%%%s • %s' \
   "$hourglass" "$pct_5h" \
-  "$(format_overreach_suffix "$over_5h" "$proj_5h")" \
+  "$(format_overreach_suffix "$over_5h" "$proj_5h" "$conf_5h")" \
   "$reset_5h")
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
 # pre-merge); calendar remains the 7d-window anchor.
-over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d")
+over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d" "$conf_7d")
 if [ "$pct_7d" -ge "$threshold" ]; then
   # Expanded body: pct + (optional overreach decoration) + • <reset>.
   body_7d=$(printf '%s %s %d%%%s • %s' \
