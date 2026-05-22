@@ -42,16 +42,21 @@ fire=$(printf '\xef\x81\xad')      # U+F06D nf-fa-fire
 
 # Returns the overreach decoration to insert after a chip's percentage.
 # Output is meant to be appended directly to a chip body (leading space
-# included). Returns empty string when the chip is not overreaching.
+# included). Returns empty string when the chip is not overreaching OR when
+# ccpulse reports the projection as low-confidence (issue #252) — an early-
+# window slope extrapolated from a tiny sample produces noisy false alarms.
 #
 #   args: $1 = will_overreach ("true" | "false" | "")
 #         $2 = projected_pct_at_reset (integer string, or "")
-#   stdout: " <fire> → N%"  when $1 == "true" and $2 non-empty
-#           " <fire>"        when $1 == "true" and $2 empty
+#         $3 = confidence ("ok" | "low" | "") — only an explicit "low"
+#              suppresses; empty/absent (older ccpulse) defaults to show.
+#   stdout: " <fire> → N%"  when $1 == "true", $3 != "low", and $2 non-empty
+#           " <fire>"        when $1 == "true", $3 != "low", and $2 empty
 #           ""                otherwise
 format_overreach_suffix() {
-  local will=$1 pct=$2
+  local will=$1 pct=$2 conf=$3
   [ "$will" = "true" ] || { printf ''; return 0; }
+  [ "$conf" = "low" ]  && { printf ''; return 0; }
   if [ -n "$pct" ]; then
     printf ' %s \xe2\x86\x92 %s%%' "$fire" "$pct"
   else
@@ -91,7 +96,9 @@ mapfile -t _fields < <(printf '%s' "$json" | jq -r '
     (.projection.five_hour.will_overreach            // ""),
     (.projection.five_hour.projected_pct_at_reset    // ""),
     (.projection.seven_day.will_overreach            // ""),
-    (.projection.seven_day.projected_pct_at_reset    // "")
+    (.projection.seven_day.projected_pct_at_reset    // ""),
+    (.projection.five_hour.confidence                // ""),
+    (.projection.seven_day.confidence                // "")
   ] | .[]
 ') || exit 0
 pct_5h=${_fields[0]}
@@ -102,6 +109,8 @@ over_5h=${_fields[4]}
 proj_5h=${_fields[5]}
 over_7d=${_fields[6]}
 proj_7d=${_fields[7]}
+conf_5h=${_fields[8]}
+conf_7d=${_fields[9]}
 
 [ -z "${pct_5h:-}" ]    && exit 0
 [ -z "${mins_5h:-}" ]   && exit 0
@@ -149,13 +158,13 @@ threshold=80
 # 5h body: always full (rendered in the yellow chip).
 body_5h=$(printf '%s %d%%%s • %s' \
   "$hourglass" "$pct_5h" \
-  "$(format_overreach_suffix "$over_5h" "$proj_5h")" \
+  "$(format_overreach_suffix "$over_5h" "$proj_5h" "$conf_5h")" \
   "$reset_5h")
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
 # pre-merge); calendar remains the 7d-window anchor.
-over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d")
+over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d" "$conf_7d")
 if [ "$pct_7d" -ge "$threshold" ]; then
   # Expanded body: pct + (optional overreach decoration) + • <reset>.
   body_7d=$(printf '%s %s %d%%%s • %s' \

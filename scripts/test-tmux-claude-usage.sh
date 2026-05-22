@@ -148,12 +148,21 @@ unset -f format_reset
 fire_glyph=$'\xef\x81\xad'
 arrow_glyph=$'\xe2\x86\x92'
 
-assert_eq "$(format_overreach_suffix true 120)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120)"
-assert_eq "$(format_overreach_suffix true 252)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252)"
-assert_eq "$(format_overreach_suffix true '')"   " ${fire_glyph}"                     "format_overreach_suffix(true, '') — null projected_pct"
-assert_eq "$(format_overreach_suffix false 120)" ""                                    "format_overreach_suffix(false, 120)"
-assert_eq "$(format_overreach_suffix '' 120)"    ""                                    "format_overreach_suffix('', 120)"
-assert_eq "$(format_overreach_suffix false '')"  ""                                    "format_overreach_suffix(false, '')"
+# Existing show-path calls now pass an explicit confidence (3rd arg). Required:
+# the harness runs under `set -u`, so once the function references $3 a missing
+# arg would abort with "unbound variable".
+assert_eq "$(format_overreach_suffix true 120 ok)"  " ${fire_glyph} ${arrow_glyph} 120%" "format_overreach_suffix(true, 120, ok)"
+assert_eq "$(format_overreach_suffix true 252 ok)"  " ${fire_glyph} ${arrow_glyph} 252%" "format_overreach_suffix(true, 252, ok)"
+assert_eq "$(format_overreach_suffix true '' ok)"   " ${fire_glyph}"                     "format_overreach_suffix(true, '', ok) — null projected_pct"
+assert_eq "$(format_overreach_suffix false 120 ok)" ""                                    "format_overreach_suffix(false, 120, ok)"
+assert_eq "$(format_overreach_suffix '' 120 ok)"    ""                                    "format_overreach_suffix('', 120, ok)"
+assert_eq "$(format_overreach_suffix false '' ok)"  ""                                    "format_overreach_suffix(false, '', ok)"
+
+# Confidence gate (issue #252): explicit "low" suppresses; empty/"ok" show.
+assert_eq "$(format_overreach_suffix true 187 low)" ""                                    "gate: low confidence suppresses suffix"
+assert_eq "$(format_overreach_suffix true 187 ok)"  " ${fire_glyph} ${arrow_glyph} 187%" "gate: ok confidence shows suffix"
+assert_eq "$(format_overreach_suffix true 187 '')"  " ${fire_glyph} ${arrow_glyph} 187%" "gate: empty confidence defaults to show (old ccpulse)"
+assert_eq "$(format_overreach_suffix true '' low)"  ""                                    "gate: low confidence suppresses even with null pct"
 unset -f format_overreach_suffix
 unset fire_glyph arrow_glyph
 
@@ -389,6 +398,67 @@ chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
 assert_contains     "$got" "21% "$'\xef\x81\xad' "null projected_pct + overreach: '21% 🔥' present"
 assert_not_contains "$got" $'\xe2\x86\x92'        "null projected_pct + overreach: no arrow glyph"
+teardown_sandbox
+
+# ─── Confidence gating (issue #252) ──────────
+# Case: 7d overreach but confidence "low" (53-min-in 187% scenario). Expect the
+# decoration fully suppressed: no fire glyph, and the chip stays COMPACT (pct<80
+# so no auto-expand from a now-empty suffix). pct still renders.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34,"confidence":"ok"},"seven_day":{"will_overreach":true,"projected_pct_at_reset":187,"confidence":"low"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "21%"            "7d low-confidence overreach: pct still visible"
+assert_not_contains "$got" $'\xef\x81\xad'  "7d low-confidence overreach: fire glyph suppressed"
+assert_not_contains "$got" "21% • "         "7d low-confidence overreach: no auto-expand (stays compact)"
+teardown_sandbox
+
+# Case: same 7d overreach but confidence "ok" — regression guard that trusted
+# projections still render the decoration.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34,"confidence":"ok"},"seven_day":{"will_overreach":true,"projected_pct_at_reset":187,"confidence":"ok"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "21% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 187%" "7d ok-confidence overreach: '21% 🔥 → 187%' shown"
+teardown_sandbox
+
+# Case: 5h overreach with confidence "low" (7d not overreaching) — 5h gate works,
+# no fire glyph anywhere.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120,"confidence":"low"},"seven_day":{"will_overreach":false,"projected_pct_at_reset":34,"confidence":"ok"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" "8%"             "5h low-confidence overreach: pct still visible"
+assert_not_contains "$got" $'\xef\x81\xad'  "5h low-confidence overreach: fire glyph suppressed"
+teardown_sandbox
+
+# Case: 7d overreach with NO confidence key at all (older ccpulse). Default-to-ok
+# means the decoration still shows — explicit graceful-degradation coverage.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":false,"projected_pct_at_reset":34},"seven_day":{"will_overreach":true,"projected_pct_at_reset":187}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" "21% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 187%" "missing confidence key: decoration still shown (default-to-ok)"
 teardown_sandbox
 
 # Case: both chips overreach simultaneously. Assert two distinct
