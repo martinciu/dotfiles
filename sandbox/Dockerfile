@@ -29,9 +29,19 @@ RUN --mount=type=secret,id=github_token,mode=0444 \
     GITHUB_TOKEN="$(cat /run/secrets/github_token 2>/dev/null || true)" \
     bash /home/${USER}/.sandbox/install-linux.sh mise
 
+# --- nvimpager binary. Not a mise/aqua tool (no prebuilt release assets) —
+# clone + make install-no-man into ~/.local. Needs only base's git/make +
+# network; independent of nvim config. Frozen at this layer's first build like
+# the mise "latest" tools (re-clones only when the layer cache busts).
+RUN bash /home/${USER}/.sandbox/install-linux.sh nvimpager
+
 # --- nvim config + build-time plugin bake. Busts only when nvim config changes.
 COPY --chown=${USER}:${USER} .config/nvim /home/${USER}/.config/nvim
 RUN bash /home/${USER}/.sandbox/install-linux.sh nvim
+
+# --- nvimpager config (its own init.lua, NOT nvim's). Reuses the baked nvim
+# lazy dir at runtime for snacks scroll + theme. Cheap layer.
+COPY --chown=${USER}:${USER} .config/nvimpager /home/${USER}/.config/nvimpager
 
 # --- fish + worktrunk config last (cheapest to rebuild) + seed/shell wiring.
 COPY --chown=${USER}:${USER} .config/fish /home/${USER}/.config/fish

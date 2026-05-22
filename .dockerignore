@@ -5,6 +5,7 @@
 .config/*
 !.config/fish
 !.config/nvim
+!.config/nvimpager
 !.config/worktrunk
 !.config/themes
 !.config/glow

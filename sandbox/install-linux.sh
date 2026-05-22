@@ -26,6 +26,21 @@ stage_mise() {
   "$MISE" reshim
 }
 
+stage_nvimpager() {
+  # nvimpager isn't a mise/aqua tool and ships no prebuilt binaries — it's a
+  # bash script + lua runtime installed via the upstream makefile. Clone the
+  # default branch (tracks latest, matching mise.toml's "latest everywhere"),
+  # then `make install-no-man` (skips the scdoc man-page dep) into
+  # PREFIX=$HOME/.local so the binary lands on PATH (fish_add_path in
+  # 00-env.fish) without sudo. Needs only git + make (base stage) + network;
+  # nvim is NOT required at build time (`nvimpager -v` doesn't invoke nvim).
+  local tmp
+  tmp="$(mktemp -d)"
+  git clone --depth 1 https://github.com/lucc/nvimpager "$tmp/nvimpager"
+  make -C "$tmp/nvimpager" install-no-man PREFIX="$HOME/.local"
+  rm -rf "$tmp"
+}
+
 stage_nvim() {
   # Build-time plugin bake so nvim opens instantly/offline in every container.
   # theme.lua falls back to solarized when ~/.config/themes/current.tmux is
@@ -163,9 +178,10 @@ GITEOF
 case "${1:-all}" in
   base) stage_base ;;
   mise) stage_mise ;;
+  nvimpager) stage_nvimpager ;;
   nvim) stage_nvim ;;
   config) stage_config ;;
   theme) stage_theme "$@" ;;
-  all) stage_base; stage_mise; stage_nvim; stage_config; stage_theme ;;
-  *) echo "usage: install-linux.sh [base|mise|nvim|config|theme|all]" >&2; exit 1 ;;
+  all) stage_base; stage_mise; stage_nvimpager; stage_nvim; stage_config; stage_theme ;;
+  *) echo "usage: install-linux.sh [base|mise|nvimpager|nvim|config|theme|all]" >&2; exit 1 ;;
 esac

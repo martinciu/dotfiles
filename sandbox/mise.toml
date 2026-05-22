@@ -3,6 +3,9 @@
 # theme is baked + applied at container entry (#273).
 # Installed by `install-linux.sh mise` at build time. "latest" is acceptable
 # for v1; a committed lockfile for reproducibility is a follow-up.
+# NOTE: nvimpager is the one Brewfile-parity tool NOT installed here — it ships
+# no prebuilt release assets, so install-linux.sh's stage_nvimpager clones it +
+# `make install-no-man` instead (#283).
 [tools]
 node = "lts"
 go = "latest"
