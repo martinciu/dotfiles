@@ -68,4 +68,35 @@ out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox "$rname" -p "$rport" true 2>&1 || 
 [[ "$out" == *"flags ignored"* && "$out" == *"sandbox reup"* ]] || fail "missing ignored-flags warning: $out"
 pass "ignored-flags warning"
 
+# 10. help is a real subcommand: prints usage, exits 0, creates nothing.
+docker rm -f sandbox-help >/dev/null 2>&1 || true   # remove any leftover from a prior run
+rc=0; out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox help 2>&1)" || rc=$?
+[[ "$rc" -eq 0 && "$out" == *Usage* ]] || fail "help: rc=$rc out=$out"
+docker container inspect sandbox-help >/dev/null 2>&1 && fail "help created a container"
+pass "help prints usage, creates nothing"
+
+# 11. A bogus subcommand errors non-zero and creates nothing.
+docker rm -f sandbox-lst >/dev/null 2>&1 || true   # remove any leftover from a prior run
+rc=0; out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox lst 2>&1)" || rc=$?
+[[ "$rc" -ne 0 && "$out" == *"no such sandbox"* ]] || fail "bogus token: rc=$rc out=$out"
+docker container inspect sandbox-lst >/dev/null 2>&1 && fail "bogus token created a container"
+pass "bogus subcommand errors, creates nothing"
+
+# 12. create provisions; bare attach re-enters; bare on an absent name errors + creates nothing.
+ctname="createtest"; ctcont="sandbox-$ctname"
+# Extend cleanup to also clear the create-test container + volume (keeps step 6/7 resources too).
+trap 'docker rm -f "$cid" "$rcont" "$ctcont" >/dev/null 2>&1 || true; docker volume rm sandbox-selftest "$rcont" "$ctcont" >/dev/null 2>&1 || true' EXIT
+docker rm -f "$ctcont" >/dev/null 2>&1 || true
+docker volume rm "$ctcont" >/dev/null 2>&1 || true
+SANDBOX_IMAGE=sandbox:test bin/sandbox create "$ctname" true >/dev/null 2>&1 || true
+docker container inspect "$ctcont" >/dev/null 2>&1 || fail "create did not provision $ctcont"
+pass "create provisions a sandbox"
+out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox "$ctname" true 2>&1 || true)"
+[[ "$out" != *"no such sandbox"* ]] || fail "bare attach errored on existing: $out"
+pass "bare attach re-enters existing sandbox"
+rc=0; out="$(SANDBOX_IMAGE=sandbox:test bin/sandbox "nope-$$" 2>&1)" || rc=$?
+[[ "$rc" -ne 0 && "$out" == *"no such sandbox"* ]] || fail "bare absent: rc=$rc out=$out"
+docker container inspect "sandbox-nope-$$" >/dev/null 2>&1 && fail "bare absent created a container"
+pass "bare attach on absent errors, creates nothing"
+
 echo "✅ all sandbox smoke checks passed"

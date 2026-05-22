@@ -20,7 +20,7 @@ DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Defaults (overridable by flags).
 MEMORY="2g"; CPUS="2"; PIDS="512"
-PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0
+PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0; ALLOW_CREATE=0
 declare -a EXTRA_ENV=()
 declare -a FLAGS_PASSED=()   # creation-time flags as typed, for the "use reup" hint
 
@@ -29,7 +29,8 @@ die() { echo "sandbox: $*" >&2; exit 1; }
 usage() {
   cat <<'EOF' >&2
 Usage:
-  sandbox <name> [cmd...]        create/reattach a named sandbox, drop into fish (or run cmd)
+  sandbox create <name> [cmd...] provision a new named sandbox, drop into fish (or run cmd)
+  sandbox <name> [cmd...]        attach to an existing sandbox (errors if it doesn't exist)
   sandbox reup <name> [flags]    recreate the container with new flags (keeps volume/state)
   sandbox build                  (re)build the image
   sandbox ls                     list sandboxes
@@ -37,6 +38,7 @@ Usage:
   sandbox rm <name>              remove a sandbox AND its volume
   sandbox machine <create|ssh|rm> <name>   OrbStack machine (TRUSTED CODE ONLY)
   sandbox machine ls                       list OrbStack machines
+  sandbox help                   show this help
 
 Flags (for `sandbox <name>` and `sandbox reup <name>`):
   --rm                 ephemeral throwaway (no named volume)
@@ -46,7 +48,7 @@ Flags (for `sandbox <name>` and `sandbox reup <name>`):
   -e KEY=VAL           pass a single env var (repeatable)
   --memory V --cpus V  resource limits (default 2g / 2)
 EOF
-  exit 1
+  exit "${1:-1}"
 }
 
 command -v docker >/dev/null 2>&1 || die "docker not found (is OrbStack installed/running?)"
@@ -110,16 +112,30 @@ cmd_run() {
   local name="$1"; shift || true
   [ -n "$name" ] || usage
   name="${name#sandbox-}"   # tolerate the docker name shown by `sandbox ls`
+
+  # Resolve existence first, before any image build, so a typo'd name never
+  # triggers a multi-minute rebuild just to error. The ephemeral path has no
+  # named container and is exempt from the create gate.
+  local cname="" exists=0
+  if [ "$EPHEMERAL" -eq 0 ]; then
+    cname="sandbox-$name"
+    docker container inspect "$cname" >/dev/null 2>&1 && exists=1
+    if [ "$exists" -eq 0 ] && [ "$ALLOW_CREATE" -eq 0 ]; then
+      die "no such sandbox '$name' — run 'sandbox create $name' to make it, or 'sandbox --help' for commands"
+    fi
+  fi
+
   ensure_image
   assemble_run_args
+
   if [ "$EPHEMERAL" -eq 1 ]; then
     if [ "$#" -gt 0 ]; then
       exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish -c "$*"
     fi
     exec docker run -it --rm "${RUN_ARGS[@]}" "$IMAGE" fish
   fi
-  local cname="sandbox-$name"
-  if ! docker container inspect "$cname" >/dev/null 2>&1; then
+
+  if [ "$exists" -eq 0 ]; then
     create_container "$cname" "$name"
   else
     # Container already exists: -p/--mount/-e/etc. are baked in at creation and
@@ -257,7 +273,8 @@ case "$1" in
   rm)    shift; cmd_rm "${1:-}"; exit 0 ;;
   machine) shift; cmd_machine "$@"; exit 0 ;;
   reup)  MODE=reup; shift ;;   # fall through to the parser, then cmd_reup
-  -h|--help) usage ;;
+  create) ALLOW_CREATE=1; shift ;;   # explicit create-or-attach; fall through to the parser
+  help|-h|--help) usage 0 ;;
 esac
 
 NAME=""
