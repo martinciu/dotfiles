@@ -1,0 +1,43 @@
+name: sandbox
+
+on:
+  pull_request:
+    paths:
+      - 'sandbox/**'
+      - 'bin/sandbox'
+      - 'scripts/test-sandbox.sh'
+      - '.config/nvim/**'
+      - '.config/fish/**'
+      - '.config/themes/**'
+      - '.config/glow/**'
+      - '.config/lnav/configs/installed/**'
+      - '.config/worktrunk/config.toml'
+      - '.config/starship-*.toml'
+      - '.hadolint.yaml'
+      - '.github/workflows/sandbox.yml'
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sandbox:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install fish
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fish
+
+      - name: Lint Dockerfile (hadolint)
+        run: docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint hadolint sandbox/Dockerfile
+
+      - name: Sandbox smoke (build + runtime asserts)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/test-sandbox.sh
