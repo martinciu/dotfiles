@@ -53,9 +53,9 @@
     <h3>Stack at a glance</h3>
     <table>
       <tr><td class="key">Distro</td><td class="desc">LazyVim core (<code>~/.config/nvim/</code>)</td></tr>
-      <tr><td class="key">Plugin manager</td><td class="desc"><code>lazy.nvim</code> — pinned in <code>lazy-lock.json</code></td></tr>
+      <tr><td class="key">Plugin manager</td><td class="desc"><code>lazy.nvim</code> — <code>lazy-lock.json</code> is <em>gitignored</em> (<code>:Lazy restore</code> for single-machine repro)</td></tr>
       <tr><td class="key">LSP installer</td><td class="desc"><code>mason.nvim</code> — pinned in <code>mason-lock.json</code></td></tr>
-      <tr><td class="key">Theme</td><td class="desc"><code>maxmx03/solarized.nvim</code> (dark)</td></tr>
+      <tr><td class="key">Theme</td><td class="desc">follows <code>theme-set</code> — colorscheme chosen at startup from the active palette (<code>maxmx03/solarized.nvim</code> = Solarized Dark default)</td></tr>
       <tr><td class="key">Completion</td><td class="desc"><code>blink.cmp</code></td></tr>
       <tr><td class="key">Picker / UI</td><td class="desc"><code>snacks.nvim</code> (replaces Telescope) + <code>noice</code></td></tr>
       <tr><td class="key">Tests</td><td class="desc"><code>neotest</code> + rspec, vitest, jest</td></tr>
@@ -91,8 +91,9 @@
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
       <li><strong>Alt mappings via left Option.</strong> Ghostty's <code>macos-option-as-alt = left</code> routes left-Option to Alt; right-Option still produces Polish diacritics via the OS layout. LazyVim's <code>&lt;A-j&gt;</code> / <code>&lt;A-k&gt;</code> (move-line) are kept.</li>
-      <li><strong>Solarized + JetBrainsMono Nerd Font</strong> only.</li>
-      <li><strong>Lockfiles committed:</strong> <code>lazy-lock.json</code>, <code>mason-lock.json</code>.</li>
+      <li><strong>Theme follows <code>theme-set</code></strong> (Solarized Dark default); font is Ghostty-level via <code>font-set</code> (JetBrains Mono default).</li>
+      <li><strong>Lockfile committed:</strong> <code>mason-lock.json</code> only — <code>lazy-lock.json</code> is gitignored (<code>:Lazy restore</code> for single-machine reproducibility).</li>
+      <li><strong>nvimpager ≠ this config.</strong> The shell's global <code>$PAGER</code> is <code>nvimpager</code>, which loads its own <code>~/.config/nvimpager/</code> (reusing only <code>snacks.nvim</code> for scroll). CLI <code>git</code> still pages via delta.</li>
       <li>Mason: <code>:MasonLock</code> snapshots, <code>:MasonLockUpdate</code> upgrades + snapshots.</li>
       <li><strong><code>.claude/worktrees/</code> is hidden from pickers and built-in completion.</strong>
         Snacks excludes it from <code>files</code>, <code>grep</code>, <code>explorer</code>, and <code>recent</code> (see <code>lua/plugins/snacks.lua</code>);
@@ -520,7 +521,7 @@
       <tr><td class="key"><code>:Lazy restore</code></td><td class="desc">match <code>lazy-lock.json</code></td></tr>
       <tr><td class="key"><code>:Lazy profile</code></td><td class="desc">startup profiling</td></tr>
     </table>
-    <p class="note">Update workflow: <code>:Lazy update</code> → test → if good, commit the new <code>lazy-lock.json</code>.</p>
+    <p class="note">Update workflow: <code>:Lazy update</code> → test. <code>lazy-lock.json</code> is gitignored (not committed); use <code>:Lazy restore</code> to pin back to the last-known-good state on this machine.</p>
   </div>
 
   <div class="card">
@@ -578,7 +579,7 @@
 
 <span class="c">-- Color</span>
 <span class="cmd">termguicolors</span>    <span class="arg">true</span>
-<span class="cmd">background</span>       <span class="arg">dark</span>          <span class="c">-- Solarized Dark</span></pre>
+<span class="cmd">background</span>       <span class="arg">dark</span>          <span class="c">-- follows active theme (dark for Solarized Dark default)</span></pre>
 
 <h3>Removed defaults</h3>
 <ul class="compact">
@@ -586,7 +587,7 @@
 </ul>
 
 <footer>
-  Built from <code>~/.config/nvim/</code> on 2026-05-17. Refresh after meaningful config changes.
+  Built from <code>~/.config/nvim/</code> on 2026-05-23. Refresh after meaningful config changes.
   <br>
   Cheat-skill: when in doubt, press <span class="k leader">␣</span> and read which-key.
 </footer>
