@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark, end-to-end &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf
+      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf · nvimpager · sandbox · vhs
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -43,6 +43,10 @@
   <a href="#xh">xh</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
+  <a href="#themes">themes / fonts</a>
+  <a href="#nvimpager">nvimpager</a>
+  <a href="#sandbox">sandbox</a>
+  <a href="#vhs">vhs</a>
   <a href="#bootstrap">Bootstrap a new machine</a>
 </nav>
 
@@ -76,9 +80,9 @@
   <div class="card">
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
-      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
-      <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
-      <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
+      <li><strong>Solarized Dark is the default theme</strong> — switchable live via <code>theme-set &lt;name&gt;</code> (10 themes; see <a href="#themes">Themes &amp; fonts</a>). Don't introduce <em>tool</em> alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
+      <li><strong>Solarized-default palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code> (each theme ships its own pins).</li>
+      <li><strong>JetBrains Mono is the default font</strong> — switchable via <code>font-set</code> (17 Nerd Fonts). Any Nerd Font satisfies <code>eza --icons</code>.</li>
     </ul>
   </div>
 
@@ -349,7 +353,7 @@
 
   <div class="card">
     <h3>Why no theme pin</h3>
-    <p>Difftastic uses ANSI 16-color directly; Ghostty's terminal palette is already Solarized Dark, so it inherits on-palette colors with no extra config. The default <code>--background dark</code> matches; nothing to wire.</p>
+    <p>Difftastic uses ANSI 16-color directly; it inherits the active terminal palette (Solarized Dark by default), so it auto-adapts with <code>theme-set</code> — nothing to wire.</p>
     <p class="note">Don't introduce <code>delta</code>, <code>diff-so-fancy</code>, or another diff renderer for non-git — they're line-based, not syntactic, and would duplicate what delta already does for git.</p>
   </div>
 </div>
@@ -557,7 +561,7 @@
       <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">atuin history picker — full screen-aware popup with scope cycling</td></tr>
       <tr><td class="key"><span class="k">Up</span></td><td class="desc">fish native history-search (atuin's up-arrow binding disabled via <code>--disable-up-arrow</code>)</td></tr>
     </table>
-    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>session → workspace → global</code>. Default scope is <code>session</code>; <code>workspace</code> is the current git repo (skipped outside a repo).</p>
+    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>global → session → workspace</code>. Default scope is <code>global</code> (every command in reach without cycling); <code>workspace</code> is the current git repo (skipped outside a repo).</p>
   </div>
 
   <div class="card">
@@ -565,7 +569,7 @@
     <table>
       <tr><td class="key"><span class="k">Enter</span></td><td class="desc">paste selected command to commandline (does not run)</td></tr>
       <tr><td class="key"><span class="k">Tab</span></td><td class="desc">run selected command immediately</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (session → workspace → global)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (global → session → workspace)</td></tr>
       <tr><td class="key"><span class="k">Ctrl-S</span></td><td class="desc">toggle exact / fuzzy match</td></tr>
       <tr><td class="key"><span class="k">Ctrl-N</span> / <span class="k">Ctrl-P</span></td><td class="desc">next / prev match (arrows work too)</td></tr>
       <tr><td class="key"><span class="k">Esc</span></td><td class="desc">return typed query to the prompt (<code>exit_mode = "return-query"</code>); Ctrl+C / Ctrl+D discard</td></tr>
@@ -626,6 +630,155 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="themes">Themes &amp; fonts <span class="tool-tag">theme-set / font-set</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Switch the theme</h3>
+    <p>
+      <code>theme-set &lt;name&gt;</code> (fish function) flips a machine-local
+      active-theme symlink and re-themes every hot-path + file-viewer tool live.
+      Solarized Dark is the bootstrap default.
+    </p>
+    <table>
+      <tr><td class="key"><code>theme-set solarized</code></td><td class="desc">Solarized Dark (default)</td></tr>
+      <tr><td class="key"><code>theme-set mocha</code> / <code>frappe</code> / <code>latte</code></td><td class="desc">Catppuccin Mocha / Frappé / Latte <span class="muted">(Latte = only light theme)</span></td></tr>
+      <tr><td class="key"><code>theme-set dracula</code></td><td class="desc">Dracula</td></tr>
+      <tr><td class="key"><code>theme-set gruvbox</code></td><td class="desc">Gruvbox</td></tr>
+      <tr><td class="key"><code>theme-set tokyo-night</code></td><td class="desc">Tokyo Night Storm</td></tr>
+      <tr><td class="key"><code>theme-set nord</code></td><td class="desc">Nord</td></tr>
+      <tr><td class="key"><code>theme-set rose-pine</code> / <code>rose-pine-moon</code></td><td class="desc">Rosé Pine / Moon</td></tr>
+    </table>
+    <p class="note">10 themes total. The switch is live — open terminals, tmux, and nvim follow on next prompt / reload.</p>
+  </div>
+
+  <div class="card">
+    <h3>Switch the font</h3>
+    <p>
+      <code>font-set &lt;name&gt; [&lt;weight&gt;] [&lt;size&gt;]</code> flips a machine-local
+      Ghostty font include; <code>ghostty +reload</code> applies it live. JetBrains
+      Mono is the bootstrap default.
+    </p>
+    <table>
+      <tr><td class="key"><code>font-set jetbrains</code></td><td class="desc">default family</td></tr>
+      <tr><td class="key"><code>font-set &lt;name&gt; bold</code></td><td class="desc">also set weight (per-font advertised weights)</td></tr>
+      <tr><td class="key"><code>font-set &lt;name&gt; "" 15</code></td><td class="desc">keep weight, set size 15</td></tr>
+      <tr><td class="key"><code>font-set &lt;Tab&gt;</code></td><td class="desc">completion lists all 17 Nerd Fonts</td></tr>
+    </table>
+    <p class="note">17 switchable Nerd Fonts. Omit weight/size to keep the current value. No tmux/nvim/bat coupling — font is Ghostty-only.</p>
+  </div>
+
+  <div class="card">
+    <h3>What follows the theme</h3>
+    <p><strong>Follow <code>theme-set</code>:</strong> bat, git-delta, difftastic, glow/<code>md</code>, vivid/<code>LS_COLORS</code>, fzf, atuin, Ghostty, starship, lnav, gh-dash, tmux, nvim.</p>
+    <p><strong>Stay Solarized Dark:</strong> procs, tailspin (<code>tspin</code>), xh, btop.</p>
+    <p class="note">fzf + atuin + difftastic auto-adapt via ANSI palette refs (no per-theme file). tmux sources the active palette; nvim reads it at startup. See CLAUDE.md → "Switchable themes".</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="nvimpager">nvimpager <span class="tool-tag">global $PAGER</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Where it kicks in</h3>
+    <p>
+      <code>nvimpager</code> is the global <code>$PAGER</code> (set in
+      <code>.config/fish/conf.d/00-env.fish</code>, guarded on
+      <code>command -q nvimpager</code>). Anything that paginates through
+      <code>$PAGER</code> gets smooth, colored, theme-following paging — e.g.
+      <code>glow</code>'s markdown ANSI or <code>--help</code> piped to a pager.
+    </p>
+    <p class="note"><code>man</code> (<code>$MANPAGER</code> = bat) and <code>git</code> (<code>core.pager</code> = delta) keep their own pagers — nvimpager only owns the generic <code>$PAGER</code> slot.</p>
+  </div>
+
+  <div class="card">
+    <h3>Config &amp; scroll</h3>
+    <p>
+      nvimpager loads its <strong>own</strong> <code>~/.config/nvimpager/init.lua</code>
+      — <em>not</em> the full nvim config. It reuses nvim's lazy
+      <code>snacks.nvim</code> for smooth scroll (existence-guarded, so a fresh
+      machine still pages without animation) and applies the active
+      <code>theme-set</code> colorscheme.
+    </p>
+    <table>
+      <tr><td class="key"><code>cmd | nvimpager</code></td><td class="desc">page any stdin (colored)</td></tr>
+      <tr><td class="key"><span class="k">q</span></td><td class="desc">quit (nvim normal-mode keys inside)</td></tr>
+      <tr><td class="key"><span class="k">/</span><i>pat</i> / <span class="k">n</span></td><td class="desc">search / next match</td></tr>
+    </table>
+    <p class="note">Smoke: <code>scripts/test-nvimpager.sh</code>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="sandbox">sandbox <span class="tool-tag">isolated Linux container</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What it is</h3>
+    <p>
+      <code>sandbox</code> (<code>bin/sandbox</code>, Mac-side) runs untrusted
+      CLI/TUI inside an isolated Linux container that bakes the portable
+      dotfiles subset. Use it to try a sketchy tool, an <code>npx</code> one-off,
+      or an AI agent without exposing the Mac home.
+    </p>
+    <table>
+      <tr><td class="key"><code>sandbox create &lt;name&gt;</code></td><td class="desc">provision a new sandbox</td></tr>
+      <tr><td class="key"><code>sandbox &lt;name&gt;</code></td><td class="desc">attach to an existing one <span class="muted">(errors if absent)</span></td></tr>
+      <tr><td class="key"><code>sandbox reup &lt;name&gt; [flags]</code></td><td class="desc">recreate with new flags, keep the volume</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Two modes</h3>
+    <table>
+      <tr><td class="key">container</td><td class="desc">no host mounts — untrusted-safe; rebuilds on content-hash mismatch</td></tr>
+      <tr><td class="key">machine</td><td class="desc">OrbStack mounts the Mac home — <strong>trusted only</strong></td></tr>
+    </table>
+    <p class="note">Active Mac theme is baked in and re-applied on entry. Secrets are injected at runtime, never baked. The build needs <code>GITHUB_TOKEN</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Scope &amp; verify</h3>
+    <p>
+      Bakes the Brewfile minus tmux/ruby/procs, plus wt. In-container theme
+      <em>switcher</em>, tmux, sesh, gh, bd, font-set, vhs are out of scope.
+      nvimpager is the one non-mise tool (built from source on Linux).
+    </p>
+    <p class="note">Smoke: <code>scripts/test-sandbox.sh</code> (also CI: <code>.github/workflows/sandbox.yml</code>, arm64).</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="vhs">vhs <span class="tool-tag">terminal recorder</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>What it is</h3>
+    <p>
+      <code>vhs</code> (Brewfile) renders a <em>scripted</em> terminal session to
+      GIF/WebM from a <code>.tape</code> file — deterministic terminal demos
+      without screen-recording by hand.
+    </p>
+    <table>
+      <tr><td class="key"><code>vhs demo.tape</code></td><td class="desc">render a tape to its output files</td></tr>
+      <tr><td class="key"><code>vhs new demo.tape</code></td><td class="desc">scaffold a starter tape</td></tr>
+      <tr><td class="key"><code>vhs record &gt; demo.tape</code></td><td class="desc">capture keystrokes into a tape</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>In this repo</h3>
+    <p>
+      Tape sources live in <code>docs/tapes/&lt;name&gt;.tape</code>; outputs
+      (<code>.gif</code> + <code>.webm</code>) are written alongside and committed.
+      Build all via <code>scripts/build-tapes.sh</code>.
+    </p>
+    <p class="note">Recording env (theme/font/size) is locked at the top of each tape — vhs spawns its own <code>ttyd</code>, not Ghostty, so it doesn't inherit your live <code>theme-set</code> / <code>font-set</code> choice.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="bootstrap">Bootstrap a new machine</h2>
 
 <p class="note">Full new-machine setup is in <a href="../README.md"><code>README.md</code></a> &rarr; "Setup (new machine)". The steps below are the terminal-relevant subset.</p>
@@ -649,7 +802,7 @@
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
 <footer>
-  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-17.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-23.
   Refresh after meaningful color-tooling changes.
 </footer>
 

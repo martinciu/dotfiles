@@ -24,7 +24,7 @@
   <div class="hero-inner">
     <h1>tmux <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Prefix = <code>C-a</code> &middot; Solarized hand-rolled status bar &middot; vim-style pane nav
+      Prefix = <code>C-a</code> &middot; hand-rolled status bar (Solarized default, theme-aware) &middot; vim-style pane nav
     </div>
   </div>
   <a class="hero-cta" href="images/example_tmux.png">view full screenshot</a>
@@ -304,7 +304,7 @@
   </div>
 
   <div class="card">
-    <h3>Solarized palette in use</h3>
+    <h3>Default palette <span class="muted">(Solarized Dark — follows <code>theme-set</code>)</span></h3>
     <div class="swatch-row">
       <span class="swatch"><i style="background:#002b36"></i> base03</span>
       <span class="swatch"><i style="background:#073642"></i> base02</span>
@@ -322,6 +322,7 @@
       <span class="swatch"><i style="background:#2aa198"></i> cyan (selection)</span>
       <span class="swatch"><i style="background:#dc322f"></i> red</span>
     </div>
+    <p class="note">These are the <strong>Solarized Dark default</strong> values. The bar sources the active palette (<code>~/.config/themes/current.tmux</code> → <code>@color_*</code>), so colors <strong>follow <code>theme-set</code></strong>; the accent <em>roles</em> (session=blue, active window=green, worktree=yellow, main=violet, PR=orange, selection=cyan) map per-theme.</p>
     <p class="note">Selection / message style uses cyan-on-base03; pane border switches base01 → blue when active.</p>
   </div>
 
@@ -400,7 +401,7 @@
 </table>
 
 <footer>
-  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-17. Refresh after meaningful config changes.
+  Built from <code>~/.config/tmux/tmux.conf</code> on 2026-05-23. Refresh after meaningful config changes.
   <br>
   When in doubt: <span class="k prefix">C-a</span> <span class="k">?</span> for the live keymap list.
 </footer>
