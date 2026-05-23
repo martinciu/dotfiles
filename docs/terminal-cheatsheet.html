@@ -80,9 +80,9 @@
   <div class="card">
     <h3>House rules (per CLAUDE.md)</h3>
     <ul class="compact">
-      <li><strong>Solarized Dark, end-to-end.</strong> Don't swap themes or introduce alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
-      <li><strong>Palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code>.</li>
-      <li><strong>JetBrainsMono Nerd Font.</strong> Required for <code>eza --icons</code>.</li>
+      <li><strong>Solarized Dark is the default theme</strong> — switchable live via <code>theme-set &lt;name&gt;</code> (10 themes; see <a href="#themes">Themes &amp; fonts</a>). Don't introduce <em>tool</em> alternatives (<code>exa</code>, <code>lsd</code>, <code>diff-so-fancy</code>, <code>delta</code> for non-git, …) without asking.</li>
+      <li><strong>Solarized-default palette pins:</strong> <code>vivid generate solarized-dark</code>, <code>bat --theme="Solarized (dark)"</code>, <code>delta.syntax-theme = "Solarized (dark)"</code> (each theme ships its own pins).</li>
+      <li><strong>JetBrains Mono is the default font</strong> — switchable via <code>font-set</code> (17 Nerd Fonts). Any Nerd Font satisfies <code>eza --icons</code>.</li>
     </ul>
   </div>
 
@@ -561,7 +561,7 @@
       <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">atuin history picker — full screen-aware popup with scope cycling</td></tr>
       <tr><td class="key"><span class="k">Up</span></td><td class="desc">fish native history-search (atuin's up-arrow binding disabled via <code>--disable-up-arrow</code>)</td></tr>
     </table>
-    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>session → workspace → global</code>. Default scope is <code>session</code>; <code>workspace</code> is the current git repo (skipped outside a repo).</p>
+    <p class="note">Cycle scope inside the picker with <span class="k">Ctrl-R</span>: <code>global → session → workspace</code>. Default scope is <code>global</code> (every command in reach without cycling); <code>workspace</code> is the current git repo (skipped outside a repo).</p>
   </div>
 
   <div class="card">
@@ -569,7 +569,7 @@
     <table>
       <tr><td class="key"><span class="k">Enter</span></td><td class="desc">paste selected command to commandline (does not run)</td></tr>
       <tr><td class="key"><span class="k">Tab</span></td><td class="desc">run selected command immediately</td></tr>
-      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (session → workspace → global)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl-R</span></td><td class="desc">cycle scope (global → session → workspace)</td></tr>
       <tr><td class="key"><span class="k">Ctrl-S</span></td><td class="desc">toggle exact / fuzzy match</td></tr>
       <tr><td class="key"><span class="k">Ctrl-N</span> / <span class="k">Ctrl-P</span></td><td class="desc">next / prev match (arrows work too)</td></tr>
       <tr><td class="key"><span class="k">Esc</span></td><td class="desc">return typed query to the prompt (<code>exit_mode = "return-query"</code>); Ctrl+C / Ctrl+D discard</td></tr>
