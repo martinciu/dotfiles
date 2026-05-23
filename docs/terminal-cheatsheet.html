@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark default (switchable) &middot; eza · bat · git-delta · glow · vivid · procs · lnav · xh · fzf · nvimpager · sandbox · vhs
+      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf · nvimpager · sandbox · vhs
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -353,7 +353,7 @@
 
   <div class="card">
     <h3>Why no theme pin</h3>
-    <p>Difftastic uses ANSI 16-color directly; Ghostty's terminal palette is already Solarized Dark, so it inherits on-palette colors with no extra config. The default <code>--background dark</code> matches; nothing to wire.</p>
+    <p>Difftastic uses ANSI 16-color directly; it inherits the active terminal palette (Solarized Dark by default), so it auto-adapts with <code>theme-set</code> — nothing to wire.</p>
     <p class="note">Don't introduce <code>delta</code>, <code>diff-so-fancy</code>, or another diff renderer for non-git — they're line-based, not syntactic, and would duplicate what delta already does for git.</p>
   </div>
 </div>
@@ -660,7 +660,7 @@
       Mono is the bootstrap default.
     </p>
     <table>
-      <tr><td class="key"><code>font-set jetbrains-mono</code></td><td class="desc">default family</td></tr>
+      <tr><td class="key"><code>font-set jetbrains</code></td><td class="desc">default family</td></tr>
       <tr><td class="key"><code>font-set &lt;name&gt; bold</code></td><td class="desc">also set weight (per-font advertised weights)</td></tr>
       <tr><td class="key"><code>font-set &lt;name&gt; "" 15</code></td><td class="desc">keep weight, set size 15</td></tr>
       <tr><td class="key"><code>font-set &lt;Tab&gt;</code></td><td class="desc">completion lists all 17 Nerd Fonts</td></tr>
@@ -670,9 +670,9 @@
 
   <div class="card">
     <h3>What follows the theme</h3>
-    <p><strong>Follow <code>theme-set</code>:</strong> bat, git-delta, glow/<code>md</code>, vivid/<code>LS_COLORS</code>, fzf, atuin, Ghostty, starship, lnav, gh-dash, tmux, nvim.</p>
+    <p><strong>Follow <code>theme-set</code>:</strong> bat, git-delta, difftastic, glow/<code>md</code>, vivid/<code>LS_COLORS</code>, fzf, atuin, Ghostty, starship, lnav, gh-dash, tmux, nvim.</p>
     <p><strong>Stay Solarized Dark:</strong> procs, tailspin (<code>tspin</code>), xh, btop.</p>
-    <p class="note">fzf + atuin auto-adapt via ANSI palette refs (no per-theme file). tmux sources the active palette; nvim reads it at startup. See CLAUDE.md → "Switchable themes".</p>
+    <p class="note">fzf + atuin + difftastic auto-adapt via ANSI palette refs (no per-theme file). tmux sources the active palette; nvim reads it at startup. See CLAUDE.md → "Switchable themes".</p>
   </div>
 </div>
 
