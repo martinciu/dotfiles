@@ -64,12 +64,13 @@ resolve_project_name() {
     | head -n1
 }
 
-# Lay out a brand-new worktree session: window 1 runs claude, window 2
-# is a blank shell. -d on new-window keeps the active window unchanged,
-# so the user sees no flicker when the session attaches.
+# Lay out a brand-new worktree session: window 1 runs the launch command
+# (${S_CLAUDE_CMD:-claude} — `i` overrides it to seed `/mc:brainstorm`),
+# window 2 is a blank shell. -d on new-window keeps the active window
+# unchanged, so the user sees no flicker when the session attaches.
 bootstrap_worktree_windows() {
   local session="$1" target_path="$2"
-  tmux send-keys -t "$session" 'claude' Enter
+  tmux send-keys -t "$session" "${S_CLAUDE_CMD:-claude}" Enter
   tmux new-window -d -t "$session" -c "$target_path"
 }
 

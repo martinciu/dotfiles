@@ -1,0 +1,81 @@
+#!/opt/homebrew/bin/bash
+# i — issue-driven worktree session (an `s` wrapper).
+#
+#   i <issue> [slug]
+#
+# From inside a project repo:
+#   1. pulls GitHub issue <issue> into beads — PULL-ONLY, never `bd github sync`
+#      (a bare sync would push your local/stealth beads to GitHub).
+#   2. shapes the bead for the /mc:* workflow: type=feature + a `branch:<name>`
+#      label, set in the MAIN .beads/ *before* the worktree is made so
+#      worktrunk's post-start copy-ignored carries the labelled bead in.
+#   3. hands off to `s`, which makes the worktree + tmux session and launches
+#      claude seeded with `/mc:brainstorm` (no issue number — it loads the
+#      issue from the branch's feature bead).
+#
+# One-time per repo:  bd config set github.repository <owner/repo>
+# (GITHUB_TOKEN is auto-sourced from `gh auth token` below — no manual token.)
+# Requires: bd, wt, sesh, tmux, jq, gh, `s` on PATH (claude for the slug).
+#
+# Branch slug: from the issue title via `claude -p` (Haiku), <=20 chars. Falls
+# back to just the issue number if claude is unavailable. Override: `i <n> <slug>`.
+#
+# CONFIRM ON FIRST RUN (couldn't verify without GitHub creds + network):
+#   • `bd github pull "$n"` arg form — if a bare number isn't recognised as a
+#     GitHub ref, try `github:$n` or the issue URL (the github tracker matches
+#     /issues/<n> and a github:<n> shorthand).
+#   • `claude "/mc:brainstorm"` — confirm this starts an INTERACTIVE session
+#     seeded with that command (vs `-p`, which is headless).
+set -euo pipefail
+
+n="${1:?usage: i <issue-number> [slug]}"
+[[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
+
+# Branch slug from the issue title via `claude -p` (Haiku): lowercase, 1-3
+# words, <=20 chars. Sanitised to a safe branch ref; prints nothing if claude
+# is missing or returns blank (caller then uses just the issue number).
+claude_slug() {
+  command -v claude >/dev/null 2>&1 || return 0
+  printf 'Make a git branch slug for this issue title: lowercase, 1-3 words, hyphen-separated, max 20 chars, capturing the essence. Output ONLY the slug.\n\nTitle: %s\n' "$1" \
+    | claude -p --model haiku 2>/dev/null | head -n1 \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' | cut -c1-20 | sed -E 's/-+$//'
+}
+
+# Main checkout path (works from inside a secondary worktree too — mirrors bin/s).
+common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+  echo "i: not in a git repo" >&2; exit 1; }
+main=$(cd "$(dirname "$common")" && pwd -P)
+
+bd -C "$main" status >/dev/null 2>&1 || {
+  echo "i: beads not initialised in $main (run 'bd init' + set github.repository once)" >&2; exit 1; }
+
+# GitHub token for the bd github bridge — sourced fresh from gh, never stored.
+export GITHUB_TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null)}"
+
+# 1. PULL-ONLY ingest.
+echo "i: pulling issue #$n into beads…" >&2
+bd -C "$main" github pull "$n" >/dev/null
+
+# Resolve the pulled bead by its GitHub external_ref (issue URL, or github:<n>
+# shorthand fallback). bd --json output is an array.
+id=$(bd -C "$main" list --json 2>/dev/null \
+  | jq -r --arg n "$n" '[.[] | select((.external_ref // "") | test("(/issues/|github:)" + $n + "$"))][0].id // empty')
+[[ -n "$id" ]] || { echo "i: couldn't find the pulled bead for issue #$n (check github config / pull arg form)" >&2; exit 1; }
+
+# 2. Branch name + shape the bead for /mc:* — in MAIN, before the worktree snapshot.
+title=$(bd -C "$main" show "$id" --json 2>/dev/null | jq -r '.[0].title // ""')
+slug="${2:-$(claude_slug "$title")}"   # explicit arg wins; else claude
+branch="$n${slug:+-$slug}"             # <n>-<slug>, or just <n> if no slug
+
+bd -C "$main" update "$id" --type feature >/dev/null
+bd -C "$main" label add "$id" "branch:$branch" >/dev/null
+
+# 3. Hand off to `s` (worktree + tmux + seeded claude). `s` runs
+#    ${S_CLAUDE_CMD:-claude} in window 1; we seed Phase 1 (Opus, max effort).
+project=$(sesh list -c -j 2>/dev/null | jq -r --arg p "$main" '.[] | select(.Path == $p) | .Name' | head -n1)
+[[ -n "$project" ]] || { echo "i: $main is not in your sesh config" >&2; exit 1; }
+
+echo "i: issue #$n → bead $id → branch $branch" >&2
+S_CLAUDE_CMD='CLAUDE_CODE_EFFORT_LEVEL=max claude --model opus "/mc:brainstorm"' \
+  exec s "$project" "$branch"
