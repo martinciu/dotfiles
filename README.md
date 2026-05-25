@@ -59,9 +59,11 @@ hot-swap an existing pane).
 on first run. Edit it to add machine-local project sessions; the shared
 `sesh.toml` is the wrong place for them.
 
-**3. Wire delta into git** (one-time, global). The include line picks up
-delta's theme + chip tweaks from the active theme (see "Switching themes"
-below — `theme-set` flips the included file).
+**3. Wire delta + shared aliases into git** (one-time, global). The delta
+include picks up theme + chip tweaks from the active theme (see "Switching
+themes" below — `theme-set` flips the included file). The aliases include
+pulls in the tracked, portable `[alias]` block (e.g. `git lo`); `bootstrap.sh`
+symlinks the file into `~/.config/git/`, and this line wires it into git.
 
 ```sh
 git config --global core.pager delta
@@ -69,6 +71,7 @@ git config --global interactive.diffFilter "delta --color-only"
 git config --global delta.navigate true
 git config --global delta.line-numbers true
 git config --global include.path "~/.config/themes/delta-current.gitconfig"
+git config --global --add include.path "~/.config/git/aliases.gitconfig"
 ```
 
 **4. `atuin import fish`** — one-time backfill of existing fish history
