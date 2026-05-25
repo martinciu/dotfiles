@@ -71,6 +71,25 @@ assert_eq "$(fishrun '__theme_font_ago 259200')" "3d ago"    "ago top unit days"
 assert_eq "$(fishrun '__theme_font_ago 18000')"  "5h ago"    "ago top unit hours"
 assert_eq "$(fishrun '__theme_font_ago 30')"     "just now"  "ago under a minute"
 
+echo "── history parser ──"
+fixture="$(mktemp)"
+cat >"$fixture" <<'EOF'
+- cmd: theme-set frappe
+  when: 1778000000
+- cmd: theme-set catpuccin
+  when: 1778000100
+- cmd: ls
+  when: 1778000200
+- cmd: theme-set solarized
+  when: 1778000300
+- cmd: theme-set rose-pine-moon
+  when: 1778000400
+EOF
+hist_out="$(FISH_HISTORY_FILE="$fixture" fishrun '__theme_font_history theme-set (__theme_set_names)')"
+want_hist="$(printf '1778000000\tfrappe\n1778000300\tsolarized\n1778000400\trose-pine-moon')"
+assert_eq "$hist_out" "$want_hist" "history parser: drops typos, keeps valid, sorted asc"
+rm -f "$fixture"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
