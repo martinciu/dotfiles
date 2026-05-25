@@ -288,6 +288,7 @@ derivatives, re-run after swapping a source.
 - Brew deps (installed by bootstrap): `brew bundle check --file=$PROJECTS_HOME/dotfiles/Brewfile --verbose`
 - nvim plugin smoke: `scripts/test-nvim.sh`
 - Theme switch smoke: `scripts/test-theme-switch.sh`
+- Theme/font stats: `scripts/test-theme-font-stats.sh`
 - Sandbox smoke: `scripts/test-sandbox.sh`
 - nvimpager smoke: `scripts/test-nvimpager.sh`
 
