@@ -1,19 +1,38 @@
-function font-set --description 'Switch Ghostty font (and optionally weight, size)'
+function font-set --description 'Switch Ghostty font; bare = show current, --stats = usage report'
+    set -l usage "Usage: font-set <name> [<weight>] [<size>]
+  name:   jetbrains|fira|cascadia|monaspace|iosevka|hack|meslo|sauce|ubuntu|inconsolata
+          departure|bigblue|0xproto|3270|hurmit|monofur|dyslexic
+  weight: per-font style name (Tab to discover); omit to keep current weight
+  size:   positive number; omit to keep current size
+  font-set                     show current font + when set
+  font-set --stats [--all]     per-font usage report"
+
+    if contains -- -h $argv; or contains -- --help $argv
+        echo $usage
+        return 0
+    end
+
+    if contains -- --stats $argv
+        set -l all 0
+        contains -- --all $argv; and set all 1
+        set -l cur (__font_set_current)
+        __theme_font_history font-set (__font_set_names) \
+            | __theme_font_stats_report FONT "$cur" $all (__font_set_names)
+        return 0
+    end
+
     set -l name $argv[1]
     set -l weight $argv[2]
     set -l size $argv[3]
-    switch $name
-        case jetbrains fira cascadia monaspace iosevka \
-             hack meslo sauce ubuntu inconsolata \
-             departure bigblue 0xproto 3270 hurmit monofur dyslexic
-            # OK
-        case '*'
-            echo "Usage: font-set <name> [<weight>] [<size>]" >&2
-            echo "  name:   jetbrains|fira|cascadia|monaspace|iosevka|hack|meslo|sauce|ubuntu|inconsolata" >&2
-            echo "          departure|bigblue|0xproto|3270|hurmit|monofur|dyslexic" >&2
-            echo "  weight: per-font style name (Tab to discover); omit to keep current weight" >&2
-            echo "  size:   positive number; omit to keep current size" >&2
-            return 1
+
+    if test -z "$name"
+        __font_set_readout
+        return 0
+    end
+
+    if not contains -- $name (__font_set_names)
+        echo $usage >&2
+        return 1
     end
 
     # Optional weight: must be one of the styles the picked font advertises.

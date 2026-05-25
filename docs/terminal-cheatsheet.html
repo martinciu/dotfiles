@@ -648,6 +648,8 @@
       <tr><td class="key"><code>theme-set tokyo-night</code></td><td class="desc">Tokyo Night Storm</td></tr>
       <tr><td class="key"><code>theme-set nord</code></td><td class="desc">Nord</td></tr>
       <tr><td class="key"><code>theme-set rose-pine</code> / <code>rose-pine-moon</code></td><td class="desc">Rosé Pine / Moon</td></tr>
+      <tr><td class="key"><code>theme-set</code></td><td class="desc">show current theme + when it was set</td></tr>
+      <tr><td class="key"><code>theme-set --stats</code> <span class="muted">[--all]</span></td><td class="desc">per-theme usage report (active time, %, switch count, last set)</td></tr>
     </table>
     <p class="note">10 themes total. The switch is live — open terminals, tmux, and nvim follow on next prompt / reload.</p>
   </div>
@@ -664,6 +666,8 @@
       <tr><td class="key"><code>font-set &lt;name&gt; bold</code></td><td class="desc">also set weight (per-font advertised weights)</td></tr>
       <tr><td class="key"><code>font-set &lt;name&gt; "" 15</code></td><td class="desc">keep weight, set size 15</td></tr>
       <tr><td class="key"><code>font-set &lt;Tab&gt;</code></td><td class="desc">completion lists all 17 Nerd Fonts</td></tr>
+      <tr><td class="key"><code>font-set</code></td><td class="desc">show current font (family + weight + size) + when set</td></tr>
+      <tr><td class="key"><code>font-set --stats</code> <span class="muted">[--all]</span></td><td class="desc">per-font usage report</td></tr>
     </table>
     <p class="note">17 switchable Nerd Fonts. Omit weight/size to keep the current value. No tmux/nvim/bat coupling — font is Ghostty-only.</p>
   </div>
@@ -802,7 +806,7 @@
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
 <footer>
-  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-23.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-05-25.
   Refresh after meaningful color-tooling changes.
 </footer>
 
