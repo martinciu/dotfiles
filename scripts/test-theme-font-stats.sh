@@ -164,6 +164,14 @@ fhelp="$(fishrun 'font-set --help' 2>&1)"
 assert_contains "$fhelp" "Usage:" "font-set --help shows usage"
 rm -f "$ffix"
 
+echo "── completions ──"
+tc="$(fish -c "set -p fish_complete_path '$FISH_DIR/completions'; set -p fish_function_path '$FISH_DIR/functions'; complete -C 'theme-set --'")"
+assert_contains "$tc" "--stats" "theme-set completes --stats"
+assert_contains "$tc" "--all" "theme-set completes --all"
+fc="$(fish -c "set -p fish_complete_path '$FISH_DIR/completions'; set -p fish_function_path '$FISH_DIR/functions'; complete -C 'font-set --'")"
+assert_contains "$fc" "--stats" "font-set completes --stats"
+assert_contains "$fc" "--all" "font-set completes --all"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo

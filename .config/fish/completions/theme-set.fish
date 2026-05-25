@@ -7,3 +7,8 @@ complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a nord     
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a latte       -d 'Catppuccin Latte (light)'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine   -d 'Rose Pine Main'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine-moon -d 'Rose Pine Moon (2.5 contrast)'
+
+# Flags (no positional name yet, or alongside).
+complete -c theme-set -l stats -d 'Per-theme usage report'
+complete -c theme-set -l all   -d 'Include sub-minute selections in --stats'
+complete -c theme-set -s h -l help -d 'Show usage'

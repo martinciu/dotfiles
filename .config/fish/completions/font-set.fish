@@ -23,3 +23,8 @@ complete -c font-set -f -n 'test (count (commandline -opc)) -eq 2' \
 
 # 3rd positional: size — common values; any positive number works.
 complete -c font-set -f -n 'test (count (commandline -opc)) -eq 3' -a '10 11 12 13 13.5 14 15 16 18 20 22 24'
+
+# Flags.
+complete -c font-set -l stats -d 'Per-font usage report'
+complete -c font-set -l all   -d 'Include sub-minute selections in --stats'
+complete -c font-set -s h -l help -d 'Show usage'
