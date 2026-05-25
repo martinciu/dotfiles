@@ -28,12 +28,18 @@ set -euo pipefail
 n="${1:?usage: i <issue-number> [slug]}"
 [[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
 
-# Compact slugify: lowercase, non-alnum -> hyphen, trim, cap 40 chars.
+# Short branch slug: lowercase, drop noise words, keep the first few meaningful
+# words. The issue number already makes the branch unique, so this is just a
+# hint. Tune length with I_SLUG_WORDS (default 3); 32-char backstop.
 slugify() {
-  printf '%s' "$1" \
+  printf '%s\n' "$1" \
     | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
-    | cut -c1-40 | sed -E 's/-+$//'
+    | tr -c 'a-z0-9' '\n' \
+    | grep -vxE 'a|an|the|to|of|for|in|on|at|by|and|or|but|with|from|into|is|are|be|as|that|this' \
+    | grep -v '^$' \
+    | head -n "${I_SLUG_WORDS:-3}" \
+    | paste -sd- - \
+    | cut -c1-32 | sed -E 's/-+$//'
 }
 
 # Main checkout path (works from inside a secondary worktree too — mirrors bin/s).
