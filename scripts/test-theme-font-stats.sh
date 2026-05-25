@@ -172,6 +172,43 @@ fc="$(fish -c "set -p fish_complete_path '$FISH_DIR/completions'; set -p fish_fu
 assert_contains "$fc" "--stats" "font-set completes --stats"
 assert_contains "$fc" "--all" "font-set completes --all"
 
+echo "── bare readout ──"
+rofix="$(mktemp)"
+cat >"$rofix" <<'EOF'
+- cmd: theme-set frappe
+  when: 1778000000
+- cmd: theme-set rose-pine-moon
+  when: 1778108000
+EOF
+# Stub __theme_set_current / __font_set_current so the readout doesn't depend on
+# live symlinks. now is 1d (86400s) after the last switch.
+tro="$(FISH_HISTORY_FILE="$rofix" THEME_FONT_STATS_NOW=1778194400 \
+  fishrun 'function __theme_set_current; echo rose-pine-moon; end; theme-set' 2>&1)"
+assert_contains "$tro" "theme → rose-pine-moon" "theme readout: shows current theme"
+assert_contains "$tro" "1d ago" "theme readout: shows 'set ... (1d ago)'"
+assert_not_contains "$tro" "math: Error" "theme readout: no math errors"
+assert_not_contains "$tro" "1970-01-01" "theme readout: timestamp not epoch-zero"
+
+fro="$(FISH_HISTORY_FILE="$rofix" THEME_FONT_STATS_NOW=1778194400 \
+  fishrun 'function __font_set_current; echo monaspace; end; font-set' 2>&1)"
+# monaspace has no history rows here → 'before history', not a math error.
+assert_contains "$fro" "font → monaspace" "font readout: shows current font"
+assert_not_contains "$fro" "math: Error" "font readout: no math errors"
+
+# A font that IS in history extracts its timestamp cleanly.
+fro2fix="$(mktemp)"
+cat >"$fro2fix" <<'EOF'
+- cmd: font-set jetbrains
+  when: 1778000000
+- cmd: font-set monaspace Bold 14
+  when: 1778108000
+EOF
+fro2="$(FISH_HISTORY_FILE="$fro2fix" THEME_FONT_STATS_NOW=1778194400 \
+  fishrun 'function __font_set_current; echo monaspace; end; font-set' 2>&1)"
+assert_contains "$fro2" "1d ago" "font readout: extracts last-set timestamp"
+assert_not_contains "$fro2" "1970-01-01" "font readout: timestamp not epoch-zero"
+rm -f "$rofix" "$fro2fix"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo

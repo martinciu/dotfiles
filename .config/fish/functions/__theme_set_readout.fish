@@ -5,7 +5,7 @@ function __theme_set_readout --description 'Print current theme + when it was se
         return 0
     end
     echo "theme → $cur"
-    set -l row (__theme_font_history theme-set (__theme_set_names) | string match -r "\t$cur\$" | tail -1)
+    set -l row (__theme_font_history theme-set (__theme_set_names) | string match -r "^.+\t$cur\$" | tail -1)
     if test -z "$row"
         echo "set: unknown (before history)"
         return 0

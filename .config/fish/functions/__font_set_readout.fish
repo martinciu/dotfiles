@@ -20,7 +20,7 @@ function __font_set_readout --description 'Print current font family + weight + 
     else
         echo "font → $cur"
     end
-    set -l row (__theme_font_history font-set (__font_set_names) | string match -r "\t$cur\$" | tail -1)
+    set -l row (__theme_font_history font-set (__font_set_names) | string match -r "^.+\t$cur\$" | tail -1)
     if test -z "$row"
         echo "set: unknown (before history)"
         return 0
