@@ -62,6 +62,15 @@ font_count="$(fishrun '__font_set_names | count')"
 assert_eq "$font_count" "17" "__font_set_names emits 17 fonts"
 assert_contains "$(fishrun '__font_set_names')" "jetbrains" "font list includes jetbrains"
 
+echo "── duration formatters ──"
+assert_eq "$(fishrun '__theme_font_dur 293040')" "3d 9h 24m" "dur multi-day drops seconds"
+assert_eq "$(fishrun '__theme_font_dur 3900')"   "1h 5m"     "dur hours"
+assert_eq "$(fishrun '__theme_font_dur 72')"     "1m 12s"    "dur minutes+seconds"
+assert_eq "$(fishrun '__theme_font_dur 42')"     "42s"       "dur seconds only"
+assert_eq "$(fishrun '__theme_font_ago 259200')" "3d ago"    "ago top unit days"
+assert_eq "$(fishrun '__theme_font_ago 18000')"  "5h ago"    "ago top unit hours"
+assert_eq "$(fishrun '__theme_font_ago 30')"     "just now"  "ago under a minute"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
