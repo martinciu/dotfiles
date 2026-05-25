@@ -15,11 +15,10 @@
 #
 # One-time per repo:  bd config set github.repository <owner/repo>
 # (GITHUB_TOKEN is auto-sourced from `gh auth token` below — no manual token.)
-# Requires: bd, wt, sesh, tmux, jq, gh, `s` on PATH (claude optional, for slugs).
+# Requires: bd, wt, sesh, tmux, jq, gh, `s` on PATH (claude for the slug).
 #
-# Branch slug: a smart <=20-char slug via `claude -p` (Haiku) by default; set
-# I_SLUG_LLM=0 for the fast deterministic slug. Either way it falls back to the
-# deterministic slug if the model call fails or returns junk.
+# Branch slug: from the issue title via `claude -p` (Haiku), <=20 chars. Falls
+# back to just the issue number if claude is unavailable. Override: `i <n> <slug>`.
 #
 # CONFIRM ON FIRST RUN (couldn't verify without GitHub creds + network):
 #   • `bd github pull "$n"` arg form — if a bare number isn't recognised as a
@@ -32,32 +31,15 @@ set -euo pipefail
 n="${1:?usage: i <issue-number> [slug]}"
 [[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
 
-# Short branch slug: lowercase, drop noise words, keep the first few meaningful
-# words. The issue number already makes the branch unique, so this is just a
-# hint. Tune length with I_SLUG_WORDS (default 3); 32-char backstop.
-slugify() {
-  printf '%s\n' "$1" \
+# Branch slug from the issue title via `claude -p` (Haiku): lowercase, 1-3
+# words, <=20 chars. Sanitised to a safe branch ref; prints nothing if claude
+# is missing or returns blank (caller then uses just the issue number).
+claude_slug() {
+  command -v claude >/dev/null 2>&1 || return 0
+  printf 'Make a git branch slug for this issue title: lowercase, 1-3 words, hyphen-separated, max 20 chars, capturing the essence. Output ONLY the slug.\n\nTitle: %s\n' "$1" \
+    | claude -p --model haiku 2>/dev/null | head -n1 \
     | tr '[:upper:]' '[:lower:]' \
-    | tr -c 'a-z0-9' '\n' \
-    | grep -vxE 'a|an|the|to|of|for|in|on|at|by|and|or|but|with|from|into|is|are|be|as|that|this' \
-    | grep -v '^$' \
-    | head -n "${I_SLUG_WORDS:-3}" \
-    | paste -sd- - \
-    | cut -c1-32 | sed -E 's/-+$//'
-}
-
-# Smart slug via `claude -p` (Haiku): a <=20-char, 1-3 word slug capturing the
-# essence. Hard-sanitised and validated; prints nothing (caller falls back) on
-# failure or non-compliant output. NB: `claude -p` loads your Claude config, so
-# it's a couple of seconds, not instant.
-slugify_llm() {
-  command -v claude >/dev/null 2>&1 || return 1
-  local raw cand
-  raw=$(printf 'Generate a git branch slug for this issue title. Output ONLY the slug: lowercase, 1-3 words joined by single hyphens, max 20 characters, capturing the essence. No quotes, no explanation.\n\nTitle: %s\n' "$1" \
-        | claude -p --model haiku 2>/dev/null | head -n1) || return 1
-  cand=$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]' \
-        | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' | cut -c1-20 | sed -E 's/-+$//')
-  [[ "$cand" =~ ^[a-z0-9]+(-[a-z0-9]+){0,3}$ ]] && printf '%s' "$cand"
+    | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' | cut -c1-20 | sed -E 's/-+$//'
 }
 
 # Main checkout path (works from inside a secondary worktree too — mirrors bin/s).
@@ -83,15 +65,8 @@ id=$(bd -C "$main" list --json 2>/dev/null \
 
 # 2. Branch name + shape the bead for /mc:* — in MAIN, before the worktree snapshot.
 title=$(bd -C "$main" show "$id" --json 2>/dev/null | jq -r '.[0].title // ""')
-if [[ -n "${2:-}" ]]; then
-  slug="$2"                                                      # explicit slug wins
-else
-  slug=""
-  [[ "${I_SLUG_LLM:-1}" = 1 ]] && slug=$(slugify_llm "$title")   # smart, <=20 chars
-  [[ -n "$slug" ]] || slug=$(slugify "$title")                   # deterministic fallback
-fi
-[[ -n "$slug" ]] || slug="work"
-branch="$n-$slug"
+slug="${2:-$(claude_slug "$title")}"   # explicit arg wins; else claude
+branch="$n${slug:+-$slug}"             # <n>-<slug>, or just <n> if no slug
 
 bd -C "$main" update "$id" --type feature >/dev/null
 bd -C "$main" label add "$id" "branch:$branch" >/dev/null
