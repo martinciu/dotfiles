@@ -148,10 +148,11 @@ stage_theme() {
   [ -f "$cfg/lnav/configs/installed/theme-$name.json" ] \
     && ln -sfn "theme-$name.json" "$cfg/lnav/configs/installed/theme.json"
 
-  # delta git wiring — write a minimal ~/.gitconfig only if absent (the sandbox
-  # ships the delta binary but never wires it as git's pager; mirrors README
-  # step 3). A missing include target is silently ignored by git, so the Latte
-  # floor (delta-solarized.gitconfig) is always present and safe.
+  # git wiring — write a minimal ~/.gitconfig only if absent (the sandbox ships
+  # the delta binary but never wires it as git's pager; mirrors README step 3).
+  # It includes both the theme-dependent delta config and the theme-independent
+  # shared aliases (git lo). A missing include target is silently ignored by git,
+  # so the Latte floor (delta-solarized.gitconfig) is always present and safe.
   if [ ! -f "$HOME/.gitconfig" ]; then
     cat > "$HOME/.gitconfig" <<'GITEOF'
 [core]
@@ -163,6 +164,7 @@ stage_theme() {
 	line-numbers = true
 [include]
 	path = ~/.config/themes/delta-current.gitconfig
+	path = ~/.config/git/aliases.gitconfig
 GITEOF
   fi
 
