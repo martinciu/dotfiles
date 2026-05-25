@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · fzf · nvimpager · sandbox · vhs
+      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · slm · fzf · nvimpager · sandbox · vhs
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -41,6 +41,7 @@
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
   <a href="#xh">xh</a>
+  <a href="#slm">slm</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
   <a href="#themes">themes / fonts</a>
@@ -484,6 +485,33 @@
       <code>curl</code> verbatim. <code>xh</code>/<code>xhs</code> are the interactive surface only.
     </p>
     <p class="note">Don't alias <code>curl</code> to <code>xh</code>, and don't introduce an <code>http</code>/<code>https</code> alias either — the binary's own name is the only entry point.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="slm">slm <span class="tool-tag">local LLM prompt</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Usage</h3>
+    <table>
+      <tr><td class="key"><code>slm &lt;prompt words&gt;</code></td><td class="desc">one-off completion from args</td></tr>
+      <tr><td class="key"><code>cat file | slm</code></td><td class="desc">prompt from stdin</td></tr>
+      <tr><td class="key"><code>cat err.log | slm explain this</code></td><td class="desc">args = instruction, stdin = material (joined)</td></tr>
+      <tr><td class="key"><code>slm -m &lt;id&gt; …</code></td><td class="desc">override model for this call</td></tr>
+      <tr><td class="key"><code>slm -s "translate to French" …</code></td><td class="desc">set the system prompt</td></tr>
+      <tr><td class="key"><code>slm -h</code></td><td class="desc">help</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Env &amp; notes</h3>
+    <table>
+      <tr><td class="key"><code>SLM_URL</code></td><td class="desc">base URL (default <code>http://localhost:1234/v1</code>)</td></tr>
+      <tr><td class="key"><code>SLM_MODEL</code></td><td class="desc">default model (<code>lfm2.5-1.2b-instruct</code>); persist via <code>set -Ux</code></td></tr>
+      <tr><td class="key"><code>SLM_SYSTEM</code></td><td class="desc">default system prompt (terse built-in otherwise)</td></tr>
+    </table>
+    <p class="note">Talks to LM Studio's OpenAI-compatible endpoint via <code>curl</code>. Server isn't always-on — start it with <code>lms server start</code>. It's a 1.2B model: quick &amp; free, not authoritative.</p>
   </div>
 </div>
 
