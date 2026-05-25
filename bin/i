@@ -13,8 +13,9 @@
 #      claude seeded with `/mc:brainstorm` (no issue number — it loads the
 #      issue from the branch's feature bead).
 #
-# One-time per repo:  bd config set github.repository <owner/repo>  + GITHUB_TOKEN
-# Requires: bd, wt, sesh, tmux, jq, and `s` on PATH.
+# One-time per repo:  bd config set github.repository <owner/repo>
+# (GITHUB_TOKEN is auto-sourced from `gh auth token` below — no manual token.)
+# Requires: bd, wt, sesh, tmux, jq, gh, and `s` on PATH.
 #
 # CONFIRM ON FIRST RUN (couldn't verify without GitHub creds + network):
 #   • `bd github pull "$n"` arg form — if a bare number isn't recognised as a
@@ -42,6 +43,9 @@ main=$(cd "$(dirname "$common")" && pwd -P)
 
 bd -C "$main" status >/dev/null 2>&1 || {
   echo "i: beads not initialised in $main (run 'bd init' + set github.repository once)" >&2; exit 1; }
+
+# GitHub token for the bd github bridge — sourced fresh from gh, never stored.
+export GITHUB_TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null)}"
 
 # 1. PULL-ONLY ingest.
 echo "i: pulling issue #$n into beads…" >&2
