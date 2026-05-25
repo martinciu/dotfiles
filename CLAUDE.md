@@ -219,6 +219,17 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Escape `command diff`. Don't pin flags.
 - **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
   `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
+- **`slm` pipes any prompt to the local LM Studio model** (fish function
+  `.config/fish/functions/slm.fish`; LM-Studio-only, Mac-only). One-shot,
+  buffered: args and/or stdin → one `curl` POST to `$SLM_URL/chat/completions`
+  (default `:1234/v1`) with `$SLM_MODEL` (default `lfm2.5-1.2b-instruct`) →
+  prints `.choices[0].message.content`. Uses **`curl`, not `xh`** — raw JSON
+  body via `jq`, the documented exception. Flags `-m`/`-s`/`-h`; env
+  `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM` (precedence flag > env > built-in). Server
+  not always-on → friendly `lms server start` error on connection refusal, no
+  auto-start. 1.2B model: quick/cheap, not authoritative. **Out of sandbox
+  scope** (LM Studio is a Mac desktop app; in-container `localhost` isn't the
+  host). Smoke: `scripts/test-slm.sh`.
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
@@ -292,6 +303,7 @@ derivatives, re-run after swapping a source.
 - Theme/font stats: `scripts/test-theme-font-stats.sh`
 - Sandbox smoke: `scripts/test-sandbox.sh`
 - nvimpager smoke: `scripts/test-nvimpager.sh`
+- slm smoke: `scripts/test-slm.sh`
 
 ## First-time setup on a new machine
 
