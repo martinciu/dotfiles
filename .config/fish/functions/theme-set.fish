@@ -1,11 +1,35 @@
-function theme-set --description 'Switch colour scheme between solarized, mocha, frappe, dracula, gruvbox, tokyo-night, nord, latte, rose-pine, and rose-pine-moon'
+function theme-set --description 'Switch colour scheme; bare = show current, --stats = usage report'
+    set -l usage "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon>
+       theme-set            show current theme + when set
+       theme-set --stats [--all]   per-theme usage report"
+
+    # --help / -h
+    if contains -- -h $argv; or contains -- --help $argv
+        echo $usage
+        return 0
+    end
+
+    # --stats [--all]
+    if contains -- --stats $argv
+        set -l all 0
+        contains -- --all $argv; and set all 1
+        set -l cur (__theme_set_current)
+        __theme_font_history theme-set (__theme_set_names) \
+            | __theme_font_stats_report THEME "$cur" $all (__theme_set_names)
+        return 0
+    end
+
     set -l name $argv[1]
-    switch $name
-        case solarized mocha frappe dracula gruvbox tokyo-night nord latte rose-pine rose-pine-moon
-            # OK
-        case '*'
-            echo "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon>" >&2
-            return 1
+
+    # Bare invocation → current selection readout.
+    if test -z "$name"
+        __theme_set_readout
+        return 0
+    end
+
+    if not contains -- $name (__theme_set_names)
+        echo $usage >&2
+        return 1
     end
 
     set -l bat_theme

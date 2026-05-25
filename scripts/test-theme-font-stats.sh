@@ -124,6 +124,27 @@ out_all="$(printf '%s' "$rows2" | THEME_FONT_STATS_NOW=1778194400 \
   fishrun '__theme_font_stats_report THEME rose-pine-moon 1 (__theme_set_names)')"
 assert_contains "$out_all" "gruvbox" "render --all: sub-minute gruvbox shown"
 
+echo "── theme-set dispatcher ──"
+tfix="$(mktemp)"
+cat >"$tfix" <<'EOF'
+- cmd: theme-set frappe
+  when: 1778000000
+- cmd: theme-set rose-pine-moon
+  when: 1778108000
+EOF
+# --stats: no name arg → should print a report, not the usage error.
+stats_out="$(FISH_HISTORY_FILE="$tfix" THEME_FONT_STATS_NOW=1778194400 \
+  fishrun 'theme-set --stats')"
+assert_contains "$stats_out" "frappe" "theme-set --stats prints report"
+assert_not_contains "$stats_out" "Usage:" "theme-set --stats is not the usage error"
+# --help still shows usage.
+help_out="$(fishrun 'theme-set --help')"
+assert_contains "$help_out" "Usage:" "theme-set --help shows usage"
+# Invalid name still errors (stderr captured).
+inv_out="$(fishrun 'theme-set bogus' 2>&1)"
+assert_contains "$inv_out" "Usage:" "theme-set <invalid> still errors"
+rm -f "$tfix"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
