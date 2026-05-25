@@ -139,6 +139,13 @@ rescue_in_repo "$DOTFILES/.config/worktrunk/approvals.toml" \
                "$HOME/.config/worktrunk/approvals.toml"
 link_tracked_entries ".config/worktrunk" "$HOME/.config/worktrunk"
 
+# --- git
+# ~/.config/git/ is a real dir (often holds a machine-local `ignore`); the
+# tracked aliases.gitconfig is individually symlinked. Pulled into git via an
+# include.path line in ~/.gitconfig (see README → Setup), mirroring delta.
+prepare_real_dir "$HOME/.config/git"
+link_tracked_entries ".config/git" "$HOME/.config/git"
+
 # --- glow
 # ~/.config/glow/ is a real dir; tracked entries (glamour-{solarized,mocha}.json)
 # are individually symlinked. Active glamour.json is a machine-local symlink.

@@ -1,0 +1,6 @@
+# Shared git aliases — tracked, portable across machines.
+# Pulled in via an `include.path` line in each machine's ~/.gitconfig
+# (see README → Setup), mirroring how the delta theme config is wired.
+# Machine identity (user/email) stays in ~/.gitconfig and overrides on collision.
+[alias]
+	lo = log --oneline

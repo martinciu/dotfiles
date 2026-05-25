@@ -253,7 +253,8 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir: btop,
   ccstatusline, procs, tailspin, tmux, xh; mixed-dir: fish, gh-dash, ghostty,
-  glow, nvim, worktrunk; `themes/` palettes; `starship-*.toml`; partial links
+  git (aliases.gitconfig; `include.path` in ~/.gitconfig), glow, nvim,
+  worktrunk; `themes/` palettes; `starship-*.toml`; partial links
   for sesh + lnav), `.vimrc`, `.vim/colors`, `.gitignore_global`,
   `.claude/CLAUDE.md`. `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to
