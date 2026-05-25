@@ -48,6 +48,7 @@ theme_flip_test() {
   cp -R .config/glow "$tmp/.config/glow"
   cp -R .config/lnav/configs/installed "$tmp/.config/lnav/configs/installed"
   cp .config/starship-*.toml "$tmp/.config/"
+  cp -R .config/git "$tmp/.config/git"
 
   # Full-coverage theme: every tool overlays off the floor.
   HOME="$tmp" XDG_CONFIG_HOME="$tmp/.config" bash sandbox/install-linux.sh theme nord
@@ -80,6 +81,10 @@ theme_flip_test() {
     || { echo "❌ nord lnav"; rm -rf "$tmp"; exit 1; }
   grep -q 'pager = delta' "$tmp/.gitconfig" \
     || { echo "❌ nord gitconfig missing delta"; rm -rf "$tmp"; exit 1; }
+  grep -q 'path = ~/.config/git/aliases.gitconfig' "$tmp/.gitconfig" \
+    || { echo "❌ nord gitconfig missing shared aliases include"; rm -rf "$tmp"; exit 1; }
+  [ "$(HOME="$tmp" git -C "$tmp" config --get alias.lo)" = "log --oneline" ] \
+    || { echo "❌ nord git alias 'lo' not resolved via include"; rm -rf "$tmp"; exit 1; }
   # fish 4.x universals are written to ~/.config/fish/fish_variables; reading
   # via `fish -c` hits the running daemon instead, so grep the file directly.
   grep -q 'BAT_THEME:Nord' "$tmp/.config/fish/fish_variables" 2>/dev/null \
