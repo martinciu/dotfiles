@@ -56,6 +56,9 @@ COPY --chown=${USER}:${USER} .config/themes /home/${USER}/.config/themes
 COPY --chown=${USER}:${USER} .config/glow /home/${USER}/.config/glow
 COPY --chown=${USER}:${USER} .config/lnav/configs/installed /home/${USER}/.config/lnav/configs/installed
 COPY --chown=${USER}:${USER} .config/starship-*.toml /home/${USER}/.config/
+# --- shared git aliases (theme-independent static file; the include is wired
+# into the generated ~/.gitconfig by stage_theme below).
+COPY --chown=${USER}:${USER} .config/git /home/${USER}/.config/git
 RUN bash /home/${USER}/.sandbox/install-linux.sh theme solarized
 
 # Persistent idle PID 1 so the container stays up for multiple `docker exec`

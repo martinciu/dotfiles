@@ -154,6 +154,13 @@ out="$(docker run --rm sandbox:test bash -lc 'cat ~/.config/starship.toml')"
 [[ "$out" == *"symbol = \"$(printf '\357\205\274')\""* ]] || fail "theme floor missing penguin glyph (U+F17C)"
 pass "theme floor default (generated)"
 
+# git aliases: the shared aliases.gitconfig is baked (Dockerfile COPY + .dockerignore
+# allowlist) and included by the generated ~/.gitconfig, so `git lo` resolves. The only
+# tier that proves the COPY + allowlist worked (the no-docker check cannot).
+out="$(docker run --rm sandbox:test bash -lc 'git config --get alias.lo')"
+[[ "$out" == "log --oneline" ]] || fail "git lo alias not resolved in image: $out"
+pass "git lo alias (shared aliases.gitconfig baked + included)"
+
 out="$(docker run --rm sandbox:test bash -lc '
   bash ~/.sandbox/install-linux.sh theme nord >/dev/null 2>&1
   echo "palette=$(grep -m1 "^palette = " ~/.config/starship.toml)"
