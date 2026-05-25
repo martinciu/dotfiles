@@ -72,5 +72,45 @@ function __theme_font_stats_report --description 'Aggregate theme/font history r
         return 0
     end
 
-    # Human rendering added in Task 5.
+    set -l c_dim ''; set -l c_cur ''; set -l c_reset ''
+    if isatty stdout
+        set c_dim (set_color brblack)
+        set c_cur (set_color --bold cyan)
+        set c_reset (set_color normal)
+    end
+
+    printf '%s%-16s %10s %6s %3s  %s%s\n' \
+        $c_dim $label total % sw 'last set' $c_reset
+
+    set -l hidden 0
+    for l in $sorted
+        set -l f (string split \t -- $l)
+        set -l total $f[1]; set -l last $f[2]; set -l name $f[3]; set -l sw $f[4]
+        if test "$all" != 1; and test "$total" -lt 60
+            set hidden (math $hidden + 1)
+            continue
+        end
+        set -l pct (math -- "round($total * 1000 / $span) / 10")
+        set -l when (date -r $last '+%Y-%m-%d %H:%M')
+        set -l ago (__theme_font_ago (math -- "$now - $last"))
+        set -l mark ''; set -l col ''; set -l colr ''
+        if test "$name" = "$current"
+            set mark ' ← current'; set col $c_cur; set colr $c_reset
+        end
+        printf '%s%-16s %10s %5s%% %3s  %s (%s)%s%s\n' \
+            $col $name (__theme_font_dur $total) $pct $sw $when $ago $mark $colr
+    end
+
+    test "$hidden" -gt 0; and test "$all" != 1; and \
+        printf '(%d short selections hidden — use --all)\n' $hidden
+
+    for name in $valid
+        if not contains -- $name $agg_names
+            printf '%-16s %10s %6s %3s  %s\n' $name — — 0 '— never'
+        end
+    end
+
+    set -l span_human (__theme_font_dur $span)
+    printf '\n%stracked window: %s → now (%s). Bootstrap defaults before the first switch are not counted. Durations are wall-clock between switches (include sleep/off time).%s\n' \
+        $c_dim (date -r $window_start '+%Y-%m-%d') $span_human $c_reset
 end

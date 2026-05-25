@@ -105,6 +105,25 @@ assert_contains "$agg" $'rose-pine-moon\t86400\t1\t1778108000' "agg: rpm total 1
 first_line="$(printf '%s' "$agg" | head -1 | cut -f1)"
 assert_eq "$first_line" "rose-pine-moon" "agg: ties broken by most-recent last-set (rpm first)"
 
+echo "── report rendering ──"
+# Add a sub-minute taste of gruvbox between solarized and rpm.
+rows2="$(printf '1778000000\tfrappe\n1778086400\tsolarized\n1778107970\tgruvbox\n1778108000\trose-pine-moon')"
+# gruvbox active 1778107970→1778108000 = 30s (sub-minute → hidden by default).
+out_default="$(printf '%s' "$rows2" | THEME_FONT_STATS_NOW=1778194400 \
+  fishrun '__theme_font_stats_report THEME rose-pine-moon 0 (__theme_set_names)')"
+assert_contains "$out_default" "← current" "render: current row marked"
+assert_contains "$out_default" "rose-pine-moon" "render: current name present"
+assert_not_contains "$out_default" "gruvbox  " "render: sub-minute gruvbox hidden by default"
+assert_contains "$out_default" "short selections hidden" "render: hidden-count line shown"
+assert_contains "$out_default" "— never" "render: never-used names listed"
+assert_contains "$out_default" "tracked window" "render: footer present"
+# Piped output must be plain (no ANSI escape introducer).
+assert_not_contains "$out_default" $'\e[' "render: no ANSI escapes when piped"
+
+out_all="$(printf '%s' "$rows2" | THEME_FONT_STATS_NOW=1778194400 \
+  fishrun '__theme_font_stats_report THEME rose-pine-moon 1 (__theme_set_names)')"
+assert_contains "$out_all" "gruvbox" "render --all: sub-minute gruvbox shown"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
