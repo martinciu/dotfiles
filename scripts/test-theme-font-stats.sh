@@ -145,6 +145,25 @@ inv_out="$(fishrun 'theme-set bogus' 2>&1)"
 assert_contains "$inv_out" "Usage:" "theme-set <invalid> still errors"
 rm -f "$tfix"
 
+echo "── font-set dispatcher ──"
+ffix="$(mktemp)"
+cat >"$ffix" <<'EOF'
+- cmd: font-set jetbrains
+  when: 1778000000
+- cmd: font-set monaspace Bold 14
+  when: 1778108000
+EOF
+fstats="$(FISH_HISTORY_FILE="$ffix" THEME_FONT_STATS_NOW=1778194400 \
+  fishrun 'font-set --stats')"
+assert_contains "$fstats" "monaspace" "font-set --stats prints report"
+assert_not_contains "$fstats" "Usage:" "font-set --stats is not the usage error"
+# weight/size-only re-run merges into family: jetbrains appears once, monaspace once.
+mono_rows="$(printf '%s' "$fstats" | grep -c 'monaspace')"
+assert_eq "$mono_rows" "1" "font-set --stats: monaspace merged to one row"
+fhelp="$(fishrun 'font-set --help' 2>&1)"
+assert_contains "$fhelp" "Usage:" "font-set --help shows usage"
+rm -f "$ffix"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
