@@ -90,6 +90,21 @@ want_hist="$(printf '1778000000\tfrappe\n1778000300\tsolarized\n1778000400\trose
 assert_eq "$hist_out" "$want_hist" "history parser: drops typos, keeps valid, sorted asc"
 rm -f "$fixture"
 
+echo "── report aggregation ──"
+# Three selections; now is 1d after the last switch.
+# frappe: 1778000000→1778086400 = 86400s (1d)
+# solarized: 1778086400→1778108000 = 21600s (6h)
+# rose-pine-moon: 1778108000→now(1778194400) = 86400s (1d), current
+rows="$(printf '1778000000\tfrappe\n1778086400\tsolarized\n1778108000\trose-pine-moon')"
+agg="$(printf '%s' "$rows" | THEME_FONT_STATS_NOW=1778194400 \
+      fishrun '__theme_font_stats_report --raw THEME rose-pine-moon 0 (__theme_set_names)')"
+# Expect rose-pine-moon and frappe tied at 86400 (rpm first by name? define: stable, ties broken by last-set desc → rpm before frappe), solarized last.
+assert_contains "$agg" $'frappe\t86400\t1\t1778000000' "agg: frappe total 1d, sw 1"
+assert_contains "$agg" $'solarized\t21600\t1\t1778086400' "agg: solarized total 6h"
+assert_contains "$agg" $'rose-pine-moon\t86400\t1\t1778108000' "agg: rpm total 1d, current"
+first_line="$(printf '%s' "$agg" | head -1 | cut -f1)"
+assert_eq "$first_line" "rose-pine-moon" "agg: ties broken by most-recent last-set (rpm first)"
+
 # ── (later tasks append sections above this summary block) ──
 
 echo
