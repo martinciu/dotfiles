@@ -18,9 +18,13 @@
 # Requires: bd, wt, sesh, tmux, jq, gh, fish, `s` on PATH (claude for the seeded
 # session, `slm` for the slug).
 #
-# Branch slug: from the issue title via the local `slm` model (LM Studio),
-# word-boundary-trimmed to <=20 chars. Falls back to just the issue number if
-# fish/slm is unavailable or the model is unreachable. Override: `i <n> <slug>`.
+# Branch slug: from the issue title + description via the local `slm` model
+# (LM Studio), word-boundary-trimmed to <=20 chars. Description is capped at
+# 1500 chars to keep latency sane on the 1.2B model — empirically enough
+# context to disambiguate generic titles (#302 "generate" → "slug",
+# #336 "simplify" → "tui-render") without slowing the call by an order of
+# magnitude. Falls back to just the issue number if fish/slm is unavailable
+# or the model is unreachable. Override: `i <n> <slug>`.
 #
 # CONFIRM ON FIRST RUN (couldn't verify without GitHub creds + network):
 #   • `bd github pull "$n"` arg form — if a bare number isn't recognised as a
@@ -33,23 +37,29 @@ set -euo pipefail
 n="${1:?usage: i <issue-number> [slug]}"
 [[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
 
-# Branch slug from the issue title via the local `slm` model (LM Studio): 2-3
-# meaningful keywords, hyphen-separated, word-boundary-trimmed to <=20 chars,
-# sanitised to a safe branch ref. Prints nothing if fish/slm is unavailable or
-# the model is unreachable (caller then uses just the issue number).
-SLUG_SYS='Generate a git branch slug from the issue title. Rules: lowercase;
-2-3 meaningful keywords; hyphen-separated; pick whole words; drop filler like
-"add"/"the", file paths, and tool flags. Output ONLY the slug.'
+# Branch slug from the issue title + description via the local `slm` model
+# (LM Studio): 2-3 meaningful keywords, hyphen-separated, word-boundary-
+# trimmed to <=20 chars, sanitised to a safe branch ref. The description is
+# capped at 1500 chars before being passed in. Prints nothing if fish/slm is
+# unavailable or the model is unreachable (caller then uses just the issue
+# number).
+SLUG_SYS='Generate a git branch slug from the issue title and description.
+Rules: lowercase; 2-3 meaningful keywords; hyphen-separated; pick whole words;
+drop filler like "add"/"the", file paths, and tool flags. Use the description
+to disambiguate when the title is generic. Output ONLY the slug.'
 
-local_slug() {                       # $1 = issue title
+local_slug() {                       # $1 = title, $2 = description (optional)
   command -v fish >/dev/null 2>&1 || return 0
   local slm_fn="${XDG_CONFIG_HOME:-$HOME/.config}/fish/functions/slm.fish"
   [[ -f "$slm_fn" ]] || return 0
+  # Cap description to keep latency sane on the 1.2B model.
+  local desc="${2:-}"
+  desc="${desc:0:1500}"
   # `|| true`: under `set -euo pipefail` a non-zero anywhere in this pipeline —
   # slm failing (LM Studio down) or `head -n1` closing the pipe early on a
   # multi-line reply — would otherwise abort `i`. Swallow it so empty output
   # falls through to the bare issue number.
-  printf '%s' "$1" \
+  printf 'Title: %s\n\nDescription: %s' "$1" "$desc" \
     | SLM_SYSTEM="$SLUG_SYS" fish --no-config -c "source '$slm_fn'; slm" 2>/dev/null \
     | head -n1 \
     | tr '[:upper:]' '[:lower:]' \
@@ -80,8 +90,10 @@ id=$(bd -C "$main" list --json 2>/dev/null \
 [[ -n "$id" ]] || { echo "i: couldn't find the pulled bead for issue #$n (check github config / pull arg form)" >&2; exit 1; }
 
 # 2. Branch name + shape the bead for /mc:* — in MAIN, before the worktree snapshot.
-title=$(bd -C "$main" show "$id" --json 2>/dev/null | jq -r '.[0].title // ""')
-slug="${2:-$(local_slug "$title")}"   # explicit arg wins; else local slm model
+bead_json=$(bd -C "$main" show "$id" --json 2>/dev/null)
+title=$(jq -r '.[0].title // ""'       <<<"$bead_json")
+desc=$( jq -r '.[0].description // ""' <<<"$bead_json")
+slug="${2:-$(local_slug "$title" "$desc")}"   # explicit arg wins; else local slm model
 branch="$n${slug:+-$slug}"             # <n>-<slug>, or just <n> if no slug
 
 bd -C "$main" update "$id" --type feature >/dev/null
