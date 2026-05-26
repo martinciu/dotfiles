@@ -5,6 +5,7 @@ ruby = "3.4.8"
 # puppeteer postinstall to fetch Chromium, so opt this one tool back in.
 "npm:@mermaid-js/mermaid-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
 "npm:ccstatusline" = "latest"
+go = "1.25.10"
 
 [settings]
 legacy_version_file = true
