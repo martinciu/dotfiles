@@ -65,6 +65,28 @@ err=$(SLM_URL=http://localhost:1/v1 fish --no-config -c "source '$SLM_FN'; slm h
 assert_eq "$rc" "1" "server-down exits 1"
 assert_contains "$err" "lms server start" "server-down suggests 'lms server start'"
 
+# 4. Multi-line stdin where lines begin with `-` must not be misread as flags
+#    to the internal `string join` calls. Regression for a bug where
+#    `(string join \n $lines)` re-split on newlines through command
+#    substitution, leaking `- bullet` fragments to the next join as flags.
+#    Server-down is fine — we only assert the friendly-error path is reached
+#    (not a `string join: -…: unknown option` fish crash).
+err=$(SLM_URL=http://localhost:1/v1 fish --no-config -c "source '$SLM_FN'; slm" <<'EOF' 2>&1 >/dev/null
+Title: foo
+
+Description:
+- bullet one
+- bullet two
+EOF
+); rc=$?
+assert_eq "$rc" "1" "leading-dash stdin doesn't crash slm"
+assert_contains "$err" "lms server start" "leading-dash stdin still reaches friendly server-down error"
+if printf '%s' "$err" | grep -q "string join:.*unknown option"; then
+  fail=$((fail+1)); fail_msgs+=("FAIL  leading-dash stdin leaked to string join as a flag"); echo "  FAIL  leading-dash stdin no string-join flag leak"
+else
+  pass=$((pass+1)); echo "  PASS  leading-dash stdin no string-join flag leak"
+fi
+
 # 4. Live happy-path — only if LM Studio is reachable.
 SLM_URL_DEFAULT="${SLM_URL:-http://localhost:1234/v1}"
 if curl -sf -o /dev/null --max-time 2 "$SLM_URL_DEFAULT/models" 2>/dev/null; then

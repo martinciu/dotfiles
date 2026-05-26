@@ -49,13 +49,18 @@ Env:
     # Read stdin only when it is not a TTY (mirrors less.fish). NOTE: in a
     # non-TTY context (script/cron/background) an arg-only call still reads
     # stdin, so callers there must redirect (e.g. `slm foo </dev/null`).
-    # Capture via `(cat)` + `string join` — NOT `string collect` (fish 4.7.1
-    # no longer reads stdin from a bare `string collect`).
+    # Capture via `(cat)` + `string join … | string collect` — NOT a bare
+    # `(string collect)` (fish 4.7.1 no longer reads stdin from one). The
+    # `| string collect` is what keeps the joined output as a single argument
+    # — without it, command substitution re-splits on newlines, which both
+    # collapses the body into space-joined fragments and exposes any line
+    # starting with `-` to the next `string join` as a stray flag. `--` is
+    # belt-and-braces in case a fragment ever starts with `-` after collect.
     set -l instruction (string join ' ' -- $argv)
     set -l piped ""
     if not isatty stdin
         set -l lines (cat)
-        set piped (string join \n $lines)
+        set piped (string join -- \n $lines | string collect)
     end
 
     set -l parts
@@ -65,7 +70,7 @@ Env:
         echo $usage >&2
         return 2
     end
-    set -l content (string join \n\n $parts)
+    set -l content (string join -- \n\n $parts | string collect)
 
     # Build the request body with jq (safe escaping); omit the system message
     # when its content is empty (e.g. `-s ""`). Pipe straight to curl so the
