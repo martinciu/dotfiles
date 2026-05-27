@@ -31,7 +31,7 @@ complete -c sandbox -n '__fish_seen_subcommand_from machine' -f -a 'create ssh r
 
 # Flags (available after a name is given).
 complete -c sandbox -l rm -d 'Ephemeral throwaway'
-complete -c sandbox -s p -d 'Publish PORT to 127.0.0.1' -x
+complete -c sandbox -s p -d 'Publish PORT[:CONTAINER_PORT] to 127.0.0.1 (repeatable)' -x
 complete -c sandbox -l mount -d 'Bind-mount ONE dir' -r
 complete -c sandbox -l env-file -d 'Pass an env file' -r
 complete -c sandbox -s e -d 'Pass KEY=VAL' -x
