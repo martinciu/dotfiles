@@ -20,9 +20,10 @@ DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Defaults (overridable by flags).
 MEMORY="2g"; CPUS="2"; PIDS="512"
-PORT=""; MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0; ALLOW_CREATE=0
+MOUNT_DIR=""; ENV_FILE=""; EPHEMERAL=0; ALLOW_CREATE=0
 declare -a EXTRA_ENV=()
 declare -a FLAGS_PASSED=()   # creation-time flags as typed, for the "use reup" hint
+declare -a PORTS=()
 
 die() { echo "sandbox: $*" >&2; exit 1; }
 
@@ -42,7 +43,7 @@ Usage:
 
 Flags (for `sandbox <name>` and `sandbox reup <name>`):
   --rm                 ephemeral throwaway (no named volume)
-  -p PORT              publish PORT to 127.0.0.1 only (LAN off)
+  -p PORT[:CONTAINER_PORT]  publish to 127.0.0.1 only (LAN off; repeatable)
   --mount DIR          bind-mount ONE dir at /home/dev/mnt
   --env-file FILE      pass an env file (e.g. ~/sandbox/<name>/.env) into the container
   -e KEY=VAL           pass a single env var (repeatable)
@@ -112,7 +113,13 @@ assemble_run_args() {
     --security-opt no-new-privileges
     --memory "$MEMORY" --cpus "$CPUS" --pids-limit "$PIDS"
   )
-  [ -n "$PORT" ] && RUN_ARGS+=(-p "127.0.0.1:${PORT}:${PORT}")
+  local p
+  for p in "${PORTS[@]}"; do
+    case "$p" in
+      *:*) RUN_ARGS+=(-p "127.0.0.1:${p}") ;;
+      *)   RUN_ARGS+=(-p "127.0.0.1:${p}:${p}") ;;
+    esac
+  done
   if [ -n "$MOUNT_DIR" ]; then
     mkdir -p "$MOUNT_DIR"
     RUN_ARGS+=(-v "${MOUNT_DIR}:/home/dev/mnt")
@@ -334,7 +341,7 @@ declare -a REST=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --rm) EPHEMERAL=1; shift ;;
-    -p) PORT="${2:?-p needs a PORT}"; FLAGS_PASSED+=(-p "$2"); shift 2 ;;
+    -p) PORTS+=("${2:?-p needs a PORT}"); FLAGS_PASSED+=(-p "$2"); shift 2 ;;
     --mount) MOUNT_DIR="${2:?--mount needs a DIR}"; FLAGS_PASSED+=(--mount "$2"); shift 2 ;;
     --env-file) ENV_FILE="${2:?--env-file needs a FILE}"; FLAGS_PASSED+=(--env-file "$2"); shift 2 ;;
     -e) EXTRA_ENV+=("${2:?-e needs KEY=VAL}"); FLAGS_PASSED+=(-e "$2"); shift 2 ;;

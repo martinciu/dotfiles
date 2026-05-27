@@ -205,6 +205,17 @@ binds="$(docker inspect "$rcont" --format '{{json .HostConfig.PortBindings}}' 2>
 [[ "$binds" == *127.0.0.1* && "$binds" == *"$rport"* ]] || fail "reup did not publish port: $binds"
 pass "reup applies new -p flag"
 
+# 7b. reup with two -p flags (one bare, one remap) publishes BOTH on 127.0.0.1.
+rport2_bare=58081; rport2_host=58082; rport2_ctn=82
+SANDBOX_IMAGE=sandbox:test bin/sandbox reup "$rname" -p "$rport2_bare" -p "${rport2_host}:${rport2_ctn}" true >/dev/null 2>&1 || true
+binds="$(docker inspect "$rcont" --format '{{json .HostConfig.PortBindings}}' 2>/dev/null || true)"
+[[ "$binds" == *"\"${rport2_bare}/tcp\""* && "$binds" == *"\"HostPort\":\"${rport2_bare}\""* ]] \
+  || fail "reup multi-port: bare ${rport2_bare} not published: $binds"
+[[ "$binds" == *"\"${rport2_ctn}/tcp\""* && "$binds" == *"\"HostPort\":\"${rport2_host}\""* ]] \
+  || fail "reup multi-port: remap ${rport2_host}:${rport2_ctn} not published: $binds"
+[[ "$binds" == *"\"HostIp\":\"127.0.0.1\""* ]] || fail "reup multi-port: not 127.0.0.1-bound: $binds"
+pass "reup applies multiple -p flags (bare + remap)"
+
 # 8. reup on a nonexistent sandbox errors clearly with a non-zero exit.
 rc=0; out="$(bin/sandbox reup "nope-$$" 2>&1)" || rc=$?
 [[ "$rc" -ne 0 && "$out" == *"no such sandbox"* ]] || fail "reup nonexistent: rc=$rc out=$out"
