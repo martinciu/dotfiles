@@ -100,7 +100,7 @@ Up stays on fish's native history-search.
 | [glow](https://github.com/charmbracelet/glow) | `.config/glow/` | `~/.config/glow` |
 | [tailspin](https://github.com/bensadeh/tailspin) | `.config/tailspin/` | `~/.config/tailspin` |
 | [lnav](https://lnav.org/) | `.config/lnav/{configs,formats}/installed/` | `~/.config/lnav/{configs,formats}/installed` |
-| [btop](https://github.com/aristocratos/btop) | `.config/btop/` | `~/.config/btop`    |
+| [btop](https://github.com/aristocratos/btop) | `.config/btop/btop.conf.template` | `~/.config/btop/btop.conf` (seeded) |
 | [procs](https://github.com/dalance/procs) | `.config/procs/` | `~/.config/procs`   |
 | [xh](https://github.com/ducaale/xh) | `.config/xh/` | `~/.config/xh` |
 | [ccstatusline](https://github.com/sirmalloc/ccstatusline) | `.config/ccstatusline/` | `~/.config/ccstatusline` |

@@ -158,7 +158,11 @@ link_tracked_entries ".config/glow" "$HOME/.config/glow"
 link ".config/tailspin" "$HOME/.config/tailspin"
 
 # --- btop
-link ".config/btop"    "$HOME/.config/btop"
+# ~/.config/btop/ is a real dir; btop rewrites btop.conf on exit (sort
+# order, UI toggles), so the live config is machine-local — seeded once
+# from the tracked template. Runtime fiddling never dirties the repo.
+prepare_real_dir "$HOME/.config/btop"
+seed_local ".config/btop/btop.conf.template" "$HOME/.config/btop/btop.conf"
 
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
