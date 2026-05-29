@@ -40,5 +40,15 @@ if ! HOME="$fixture" fish -c 'functions -q cat; and functions -q ls; and functio
   fail=1
 fi
 
+# 3. EZA_CONFIG_DIR must be exported as $HOME/.config/eza. eza 0.23 only reads
+#    theme.yml from $EZA_CONFIG_DIR (the documented ~/.config/eza default does
+#    NOT work), so without this export `ls`/`ll` silently ignore theme-set's
+#    flip — the whole eza-follows-theme-set feature is dead.
+eza_dir=$(HOME="$fixture" fish -c 'echo $EZA_CONFIG_DIR' 2>/dev/null)
+if [ "$eza_dir" != "$fixture/.config/eza" ]; then
+  echo "❌ EZA_CONFIG_DIR not exported as \$HOME/.config/eza (got: '$eza_dir')"
+  fail=1
+fi
+
 [ $fail -eq 0 ] && echo "✅ fish config loads clean"
 exit $fail

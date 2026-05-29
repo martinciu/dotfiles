@@ -131,7 +131,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Palette files in `.config/themes/` (mixed-dir: tracked `*.tmux` +
   `delta-*.gitconfig`; machine-local `current.tmux` / `delta-current.gitconfig`
   symlinks). Per-tool variants follow `*-<theme>.<ext>` next to each tool's
-  config (ghostty/glow/gh-dash/lnav + `starship-<theme>.toml`); active picked
+  config (ghostty/glow/gh-dash/lnav/eza + `starship-<theme>.toml`); active picked
   via a machine-local symlink. tmux reads `@color_*` user options from the
   sourced palette; bat (`$BAT_THEME`) and vivid (`$VIVID_THEME`) are fish
   universal vars set by `theme-set`; fzf/atuin auto-adapt via ANSI palette refs
@@ -140,7 +140,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
   in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
   coverage is fine; Latte is the only light theme and ships ghostty/tmux/
-  starship only, #215) **and** add the `starship-<theme>.toml` `link` line in
+  starship/eza/btop only, #215) **and** add the `starship-<theme>.toml` `link` line in
   `bootstrap.sh` (the one tool not covered by `link_tracked_entries`) **and**
   add a `case` in `theme-set.fish`'s `switch $name` block setting `btop_theme`
   (btop names differ: e.g. `tokyo-night`→`tokyo-storm`, `gruvbox`→`gruvbox_dark`;
@@ -182,7 +182,13 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Bells silenced at every layer** (Ghostty `bell-features=`, vim `belloff=all`,
   tmux bell/visual/monitor off). Don't re-enable.
 - **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
-  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, fzf, atuin, `btop`. Stay
+  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, `eza` (`ll`/`ls` —
+  per-theme `~/.config/eza/theme.yml` themes git/perms/icons/headers beyond
+  `LS_COLORS`; 10/10, nord hand-mapped; re-read per invocation so the next
+  `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
+  `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
+  only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
+  via `stage_theme`), fzf, atuin, `btop`. Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -212,6 +218,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `btop.conf.template` (mixed-dir, seed-only), so runtime sort/UI toggles
   don't dirty the repo. Edit the template to change the baked default;
   `current.theme` defaults to `solarized_dark.theme`.
+- **`ctop` is the container-metrics TUI** (`bcicen/ctop`; raw, no `theme-set`,
+  no alias). Live per-container CPU/mem/net/IO; `enter` expands one container.
+  Needs a running Docker daemon — OrbStack on this machine; empty table
+  otherwise (not a bug). **Out of sandbox scope** (no Docker socket inside the
+  container). No config shipped; `S` saves one locally if wanted.
 - **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
   symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
   active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
@@ -247,6 +258,13 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
+- **`lazydocker` (raw).** Container-management TUI (lazygit's Docker sibling).
+  Needs a running Docker daemon — **OrbStack** here; inert without one (not
+  broken on a fresh machine). No alias; launch by name. Config untracked (runs
+  built-in defaults from `~/Library/Application Support/jesseduffield/lazydocker/`);
+  `theme-set` theming deferred to the #317 lazygit pattern — redirect to an XDG
+  path via the `CONFIG_DIR` env var when it lands. **Out of sandbox scope** (the
+  sandbox is itself a container — no Docker socket).
 - **`mmdc` renders Mermaid** (mise global npm tool). `.mmd` + `.svg` co-located,
   both committed. Build: `scripts/build-diagrams.sh`. Don't install via
   brew/`npm -g`.
@@ -278,7 +296,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir:
   ccstatusline, procs, tailspin, tmux, xh; mixed-dir: btop (live conf
-  seeded from template), fish, gh-dash, ghostty, git (aliases.gitconfig;
+  seeded from template), eza, fish, gh-dash, ghostty, git (aliases.gitconfig;
   `include.path` in ~/.gitconfig), glow, nvim, worktrunk; `themes/`
   palettes; `starship-*.toml`; partial links for sesh + lnav), `.vimrc`,
   `.vim/colors`, `.gitignore_global`,
