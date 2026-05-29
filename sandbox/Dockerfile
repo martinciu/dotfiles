@@ -54,6 +54,7 @@ RUN bash /home/${USER}/.sandbox/install-linux.sh config
 # default for a raw `docker run` that bypasses the wrapper.
 COPY --chown=${USER}:${USER} .config/themes /home/${USER}/.config/themes
 COPY --chown=${USER}:${USER} .config/glow /home/${USER}/.config/glow
+COPY --chown=${USER}:${USER} .config/eza /home/${USER}/.config/eza
 COPY --chown=${USER}:${USER} .config/lnav/configs/installed /home/${USER}/.config/lnav/configs/installed
 COPY --chown=${USER}:${USER} .config/lazygit /home/${USER}/.config/lazygit
 COPY --chown=${USER}:${USER} .config/starship-*.toml /home/${USER}/.config/

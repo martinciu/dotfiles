@@ -47,6 +47,7 @@ theme_flip_test() {
   cp -R .config/themes "$tmp/.config/themes"
   cp -R .config/glow "$tmp/.config/glow"
   cp -R .config/lnav/configs/installed "$tmp/.config/lnav/configs/installed"
+  cp -R .config/eza "$tmp/.config/eza"
   cp .config/starship-*.toml "$tmp/.config/"
   cp -R .config/git "$tmp/.config/git"
 
@@ -79,6 +80,8 @@ theme_flip_test() {
     || { echo "❌ nord glow"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/lnav/configs/installed/theme.json")" = "theme-nord.json" ] \
     || { echo "❌ nord lnav"; rm -rf "$tmp"; exit 1; }
+  [ "$(readlink "$tmp/.config/eza/theme.yml")" = "eza-nord.yml" ] \
+    || { echo "❌ nord eza"; rm -rf "$tmp"; exit 1; }
   grep -q 'pager = delta' "$tmp/.gitconfig" \
     || { echo "❌ nord gitconfig missing delta"; rm -rf "$tmp"; exit 1; }
   grep -q 'path = ~/.config/git/aliases.gitconfig' "$tmp/.gitconfig" \
@@ -98,6 +101,9 @@ theme_flip_test() {
     || { echo "❌ latte starship git_branch"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/glow/glamour.json")" = "glamour-solarized.json" ] \
     || { echo "❌ latte glow floor"; rm -rf "$tmp"; exit 1; }
+  # eza ships a latte variant → overlays (does NOT hold the solarized floor, unlike glow/delta).
+  [ "$(readlink "$tmp/.config/eza/theme.yml")" = "eza-latte.yml" ] \
+    || { echo "❌ latte eza overlay"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-solarized.gitconfig" ] \
     || { echo "❌ latte delta floor"; rm -rf "$tmp"; exit 1; }
   # Latte's bat name has a space; fish 4.x encodes spaces as \x20 in the file.

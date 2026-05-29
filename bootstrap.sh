@@ -154,6 +154,14 @@ link_tracked_entries ".config/glow" "$HOME/.config/glow"
 [ -L "$HOME/.config/glow/glamour.json" ] \
     || ln -sfn glamour-solarized.json "$HOME/.config/glow/glamour.json"
 
+# --- eza (ls/ll replacement; theme.yml follows theme-set beyond LS_COLORS)
+# ~/.config/eza/ is a real dir; tracked entries (eza-<name>.yml) are
+# individually symlinked. Active theme.yml is a machine-local symlink.
+prepare_real_dir "$HOME/.config/eza"
+link_tracked_entries ".config/eza" "$HOME/.config/eza"
+[ -L "$HOME/.config/eza/theme.yml" ] \
+    || ln -sfn eza-solarized.yml "$HOME/.config/eza/theme.yml"
+
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
 
@@ -163,6 +171,32 @@ link ".config/tailspin" "$HOME/.config/tailspin"
 # from the tracked template. Runtime fiddling never dirties the repo.
 prepare_real_dir "$HOME/.config/btop"
 seed_local ".config/btop/btop.conf.template" "$HOME/.config/btop/btop.conf"
+
+# Migration (#316): the live btop.conf is seeded once and never re-seeded, so a
+# machine that seeded before the color_theme="current" indirection keeps its old
+# baked theme name and silently ignores theme-set. Force the single color_theme
+# line to the indirection value; btop preserves it across save_config_on_exit.
+# Idempotent (grep-guarded) and portable (no in-place sed flag).
+btop_conf="$HOME/.config/btop/btop.conf"
+if [ -f "$btop_conf" ] && ! grep -q '^color_theme = "current"' "$btop_conf"; then
+    btop_tmp="$(mktemp)"
+    sed 's/^color_theme = .*/color_theme = "current"/' "$btop_conf" > "$btop_tmp" \
+        && mv "$btop_tmp" "$btop_conf"
+    echo "🎨  $btop_conf (color_theme → current; #316 migration)"
+fi
+
+# btop themes follow theme-set. ~/.config/btop/themes/ is a real dir holding
+# 10 per-file symlinks: 5 vendored (→ repo) + 5 bundled (→ brew share). The
+# active current.theme symlink is machine-local — created only if missing so
+# a prior theme-set pick survives re-running bootstrap.
+prepare_real_dir "$HOME/.config/btop/themes"
+link_tracked_entries ".config/btop/themes" "$HOME/.config/btop/themes"
+for t in solarized_dark dracula gruvbox_dark nord tokyo-storm; do
+    src="/opt/homebrew/share/btop/themes/$t.theme"
+    [ -f "$src" ] && ln -sfn "$src" "$HOME/.config/btop/themes/$t.theme"
+done
+[ -L "$HOME/.config/btop/themes/current.theme" ] \
+    || ln -sfn solarized_dark.theme "$HOME/.config/btop/themes/current.theme"
 
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"

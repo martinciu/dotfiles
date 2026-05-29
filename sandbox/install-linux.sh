@@ -136,6 +136,7 @@ stage_theme() {
   ln -sfn delta-solarized.gitconfig "$cfg/themes/delta-current.gitconfig"
   ln -sfn glamour-solarized.json    "$cfg/glow/glamour.json"
   ln -sfn theme-solarized.json      "$cfg/lnav/configs/installed/theme.json"
+  ln -sfn eza-solarized.yml         "$cfg/eza/theme.yml"
 
   # Active theme overlay where its assets exist (Latte degrades to the floor).
   [ -f "$cfg/themes/$name.tmux" ] \
@@ -147,6 +148,8 @@ stage_theme() {
     && ln -sfn "glamour-$name.json" "$cfg/glow/glamour.json"
   [ -f "$cfg/lnav/configs/installed/theme-$name.json" ] \
     && ln -sfn "theme-$name.json" "$cfg/lnav/configs/installed/theme.json"
+  [ -f "$cfg/eza/eza-$name.yml" ] \
+    && ln -sfn "eza-$name.yml" "$cfg/eza/theme.yml"
 
   # lazygit: generated real config.yml (cat base + theme-colors), same contract
   # as gh-dash on the host. lazygit is in the sandbox toolset (mise.toml), so it

@@ -31,6 +31,14 @@ if command -q bat
     set -gx MANROFFOPT -c
 end
 
+# eza loads theme.yml only from $EZA_CONFIG_DIR. Despite the man page claiming a
+# ~/.config/eza default, eza 0.23 does NOT read theme.yml from that fallback —
+# the var must be set explicitly or `ls`/`ll` silently ignore theme-set's flip.
+# Unconditional (not `command -q eza`-guarded): in the sandbox eza is a mise shim
+# not yet on PATH when 00-env runs (mise activates in 20-mise.fish), and the
+# export is a harmless no-op when eza is absent.
+set -gx EZA_CONFIG_DIR $HOME/.config/eza
+
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
 # nvimpager as the general $PAGER — smooth, colored paging (e.g. glow's
@@ -62,8 +70,20 @@ if test (uname) = Linux; and test -d /Users
     set -gx MISE_IGNORED_CONFIG_PATHS /Users
 end
 
-# Force Claude Code truecolor inside tmux. Single env line; the only tmux
-# integration that survives B-scope.
+# Tweaks that only apply inside tmux (no-ops elsewhere, incl. the sandbox where
+# $TMUX is unset).
 if test -n "$TMUX"
+    # Force Claude Code truecolor — the only tmux integration that survives
+    # B-scope.
     set -gx CLAUDE_CODE_TMUX_TRUECOLOR 1
+
+    # TERM is tmux-256color here, but Ghostty still exports TERMINFO pointing at
+    # its app bundle (which ships only ghostty/xterm-ghostty). nsf/termbox-go —
+    # ctop and other legacy TUIs — treats TERMINFO as exclusive ("no other
+    # directory should be searched"), so it can't find tmux-256color and panics
+    # with "termbox: unsupported terminal". Clearing it lets termbox fall back to
+    # /usr/share/terminfo, where tmux-256color lives. Safe: ncurses tools already
+    # fall back there, and Ghostty's own entries are mirrored in ~/.terminfo (and
+    # never used inside tmux anyway).
+    set -e TERMINFO
 end
