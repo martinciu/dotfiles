@@ -55,6 +55,7 @@ RUN bash /home/${USER}/.sandbox/install-linux.sh config
 COPY --chown=${USER}:${USER} .config/themes /home/${USER}/.config/themes
 COPY --chown=${USER}:${USER} .config/glow /home/${USER}/.config/glow
 COPY --chown=${USER}:${USER} .config/lnav/configs/installed /home/${USER}/.config/lnav/configs/installed
+COPY --chown=${USER}:${USER} .config/lazygit /home/${USER}/.config/lazygit
 COPY --chown=${USER}:${USER} .config/starship-*.toml /home/${USER}/.config/
 # --- shared git aliases (theme-independent static file; the include is wired
 # into the generated ~/.gitconfig by stage_theme below).
