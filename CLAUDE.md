@@ -140,8 +140,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
   in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
   coverage is fine; Latte is the only light theme and ships ghostty/tmux/
-  starship/eza only, #215) **and** add the `starship-<theme>.toml` `link` line in
-  `bootstrap.sh` (the one tool not covered by `link_tracked_entries`).
+  starship/eza/btop only, #215) **and** add the `starship-<theme>.toml` `link` line in
+  `bootstrap.sh` (the one tool not covered by `link_tracked_entries`) **and**
+  add a `case` in `theme-set.fish`'s `switch $name` block setting `btop_theme`
+  (btop names differ: e.g. `tokyo-night`→`tokyo-storm`, `gruvbox`→`gruvbox_dark`;
+  brew-bundled themes also need a loop entry in `bootstrap.sh`, vendored ones
+  auto-link via `link_tracked_entries`).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
   Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
   `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
@@ -184,7 +188,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
   `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
   only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
-  via `stage_theme`), fzf, atuin. Stay
+  via `stage_theme`), fzf, atuin, `btop`. Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -203,10 +207,17 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `snacks.nvim` for scroll (existence-guarded — fresh machine works without
   animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
   `scripts/test-nvimpager.sh`.
-- **`top` → `btop`** (`solarized_dark`, `vim_keys`). `command top` for macOS.
-  Live `btop.conf` is machine-local — seeded once from `btop.conf.template`
-  (mixed-dir, seed-only), so runtime sort/UI toggles don't dirty the repo.
-  Edit the template to change the baked default.
+- **`top` → `btop`** (`vim_keys`; follows `theme-set` across all 10 themes).
+  `command top` for macOS. `btop.conf` sets `color_theme = "current"` (existing
+  machines converged by a guarded `bootstrap.sh` migration that rewrites that
+  line); `~/.config/btop/themes/current.theme` is a machine-local symlink
+  flipped by `theme-set` (restart tier — btop has no live reload). Themes dir
+  holds 10 per-file symlinks: 5 vendored (Catppuccin ×3, Rosé Pine ×2,
+  pinned-SHA MIT ports) + 5 shimmed from brew's
+  `/opt/homebrew/share/btop/themes/`. `btop.conf` is seeded once from
+  `btop.conf.template` (mixed-dir, seed-only), so runtime sort/UI toggles
+  don't dirty the repo. Edit the template to change the baked default;
+  `current.theme` defaults to `solarized_dark.theme`.
 - **`ctop` is the container-metrics TUI** (`bcicen/ctop`; raw, no `theme-set`,
   no alias). Live per-container CPU/mem/net/IO; `enter` expands one container.
   Needs a running Docker daemon — OrbStack on this machine; empty table
