@@ -149,6 +149,7 @@ assert_lazygit_config "#89b4fa" "lazygit config.yml ← base + theme-colors-moch
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-mocha.json"         "lnav theme.json → theme-mocha.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_mocha.theme" "btop current.theme → catppuccin_mocha.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-mocha.yml"            "eza theme.yml → eza-mocha.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-mocha.toml"        "tealdeer config.toml → config-mocha.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (mocha)"
 assert_env_var "DFT_SYNTAX_HIGHLIGHT" "on" "DFT_SYNTAX_HIGHLIGHT=on (uniform)"
 
@@ -164,6 +165,7 @@ assert_lazygit_config "#8caaee" "lazygit config.yml ← base + theme-colors-frap
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-frappe.json"          "lnav theme.json → theme-frappe.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_frappe.theme" "btop current.theme → catppuccin_frappe.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-frappe.yml"           "eza theme.yml → eza-frappe.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-frappe.toml"       "tealdeer config.toml → config-frappe.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (frappe)"
 
 # Forward: frappe → dracula
@@ -178,6 +180,7 @@ assert_lazygit_config "#bd93f9" "lazygit config.yml ← base + theme-colors-drac
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-dracula.json"         "lnav theme.json → theme-dracula.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "dracula.theme" "btop current.theme → dracula.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-dracula.yml"          "eza theme.yml → eza-dracula.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-dracula.toml"      "tealdeer config.toml → config-dracula.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (dracula)"
 
 # Forward: dracula → gruvbox
@@ -192,6 +195,7 @@ assert_lazygit_config "#458588" "lazygit config.yml ← base + theme-colors-gruv
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-gruvbox.json"         "lnav theme.json → theme-gruvbox.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "gruvbox_dark.theme" "btop current.theme → gruvbox_dark.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-gruvbox.yml"          "eza theme.yml → eza-gruvbox.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-gruvbox.toml"      "tealdeer config.toml → config-gruvbox.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (gruvbox)"
 
 # Forward: gruvbox → tokyo-night
@@ -206,6 +210,7 @@ assert_lazygit_config "#7aa2f7" "lazygit config.yml ← base + theme-colors-toky
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "tokyo-storm.theme" "btop current.theme → tokyo-storm.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-tokyo-night.yml"      "eza theme.yml → eza-tokyo-night.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-tokyo-night.toml"  "tealdeer config.toml → config-tokyo-night.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (tokyo-night)"
 
 # Forward: tokyo-night → nord
@@ -220,6 +225,7 @@ assert_lazygit_config "#5e81ac" "lazygit config.yml ← base + theme-colors-nord
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav theme.json → theme-nord.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "nord.theme" "btop current.theme → nord.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-nord.yml"             "eza theme.yml → eza-nord.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-nord.toml"         "tealdeer config.toml → config-nord.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (nord)"
 
 # Forward: nord → rose-pine
@@ -234,6 +240,7 @@ assert_lazygit_config "#31748f" "lazygit config.yml ← base + theme-colors-rose
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine.json"         "lnav theme.json → theme-rose-pine.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine.theme" "btop current.theme → rose-pine.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine.yml"        "eza theme.yml → eza-rose-pine.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-rose-pine.toml"    "tealdeer config.toml → config-rose-pine.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (rose-pine)"
 
 # Forward: rose-pine → rose-pine-moon
@@ -248,6 +255,7 @@ assert_lazygit_config "#3e8fb0" "lazygit config.yml ← base + theme-colors-rose
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav theme.json → theme-rose-pine-moon.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine-moon.theme" "btop current.theme → rose-pine-moon.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine-moon.yml"   "eza theme.yml → eza-rose-pine-moon.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-rose-pine-moon.toml" "tealdeer config.toml → config-rose-pine-moon.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (rose-pine-moon)"
 
 # Forward: rose-pine-moon → latte (partial-coverage theme — only ghostty/tmux/starship
@@ -259,6 +267,7 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-latte.ghost
 assert_link "$HOME/.config/starship.toml"                     "starship-latte.toml"      "starship.toml → starship-latte.toml"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_latte.theme" "btop current.theme → catppuccin_latte.theme (full coverage incl. Latte)"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-latte.yml"            "eza theme.yml → eza-latte.yml (latte ships eza)"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-latte.toml"        "tealdeer config.toml → config-latte.toml (full coverage incl. Latte)"
 assert_env_var "DFT_BACKGROUND" "light" "DFT_BACKGROUND=light (latte)"
 assert_lazygit_config "#1e66f5" "lazygit config.yml ← base + theme-colors-latte (flips; has a Latte variant)"
 # Negative contract — what does NOT flip (partial coverage stays on previous theme = rose-pine-moon):

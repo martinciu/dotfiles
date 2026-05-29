@@ -162,6 +162,16 @@ link_tracked_entries ".config/eza" "$HOME/.config/eza"
 [ -L "$HOME/.config/eza/theme.yml" ] \
     || ln -sfn eza-solarized.yml "$HOME/.config/eza/theme.yml"
 
+# --- tealdeer (tldr; config.toml follows theme-set)
+# ~/.config/tealdeer/ is a real dir; tracked config-<name>.toml are individually
+# symlinked. Active config.toml is a machine-local symlink. tldr finds the dir
+# via TEALDEER_CONFIG_DIR (set in 00-env.fish). link_tracked_entries covers the
+# per-theme files, so no per-theme link line is needed.
+prepare_real_dir "$HOME/.config/tealdeer"
+link_tracked_entries ".config/tealdeer" "$HOME/.config/tealdeer"
+[ -L "$HOME/.config/tealdeer/config.toml" ] \
+    || ln -sfn config-solarized.toml "$HOME/.config/tealdeer/config.toml"
+
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
 

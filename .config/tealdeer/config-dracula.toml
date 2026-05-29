@@ -1,0 +1,19 @@
+# .config/tealdeer/config-dracula.toml — Dracula palette for tldr.
+# Follows theme-set; flipped to config.toml by the theme-set function.
+# Roles: command_name = bold header accent, description = muted text,
+# example_code = the literal command, example_variable = highlighted + underlined.
+# example_text intentionally unset → inherits terminal default (neutral prose).
+
+[style.command_name]
+foreground = { rgb = { r = 189, g = 147, b = 249 } }
+bold = true
+
+[style.description]
+foreground = { rgb = { r = 98, g = 114, b = 164 } }
+
+[style.example_code]
+foreground = { rgb = { r = 80, g = 250, b = 123 } }
+
+[style.example_variable]
+foreground = { rgb = { r = 241, g = 250, b = 140 } }
+underline = true
