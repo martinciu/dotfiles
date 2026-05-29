@@ -131,7 +131,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Palette files in `.config/themes/` (mixed-dir: tracked `*.tmux` +
   `delta-*.gitconfig`; machine-local `current.tmux` / `delta-current.gitconfig`
   symlinks). Per-tool variants follow `*-<theme>.<ext>` next to each tool's
-  config (ghostty/glow/gh-dash/lnav + `starship-<theme>.toml`); active picked
+  config (ghostty/glow/gh-dash/lnav/eza + `starship-<theme>.toml`); active picked
   via a machine-local symlink. tmux reads `@color_*` user options from the
   sourced palette; bat (`$BAT_THEME`) and vivid (`$VIVID_THEME`) are fish
   universal vars set by `theme-set`; fzf/atuin auto-adapt via ANSI palette refs
@@ -140,7 +140,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
   in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
   coverage is fine; Latte is the only light theme and ships ghostty/tmux/
-  starship only, #215) **and** add the `starship-<theme>.toml` `link` line in
+  starship/eza only, #215) **and** add the `starship-<theme>.toml` `link` line in
   `bootstrap.sh` (the one tool not covered by `link_tracked_entries`).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
   Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
@@ -178,7 +178,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Bells silenced at every layer** (Ghostty `bell-features=`, vim `belloff=all`,
   tmux bell/visual/monitor off). Don't re-enable.
 - **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
-  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, fzf, atuin. Stay
+  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, `eza` (`ll`/`ls` —
+  per-theme `~/.config/eza/theme.yml` themes git/perms/icons/headers beyond
+  `LS_COLORS`; 10/10, nord hand-mapped; re-read per invocation so the next
+  `ll` is themed; sandbox themes it at creation via `stage_theme`), fzf,
+  atuin. Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -267,7 +271,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 
 - Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir:
   ccstatusline, procs, tailspin, tmux, xh; mixed-dir: btop (live conf
-  seeded from template), fish, gh-dash, ghostty, git (aliases.gitconfig;
+  seeded from template), eza, fish, gh-dash, ghostty, git (aliases.gitconfig;
   `include.path` in ~/.gitconfig), glow, nvim, worktrunk; `themes/`
   palettes; `starship-*.toml`; partial links for sesh + lnav), `.vimrc`,
   `.vim/colors`, `.gitignore_global`,
