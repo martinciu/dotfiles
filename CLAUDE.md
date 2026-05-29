@@ -141,7 +141,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
   coverage is fine; Latte is the only light theme and ships ghostty/tmux/
   starship only, #215) **and** add the `starship-<theme>.toml` `link` line in
-  `bootstrap.sh` (the one tool not covered by `link_tracked_entries`).
+  `bootstrap.sh` (the one tool not covered by `link_tracked_entries`) **and**
+  add a `case` in `theme-set.fish`'s `switch $name` block setting `btop_theme`
+  (btop names differ: e.g. `tokyo-night`→`tokyo-storm`, `gruvbox`→`gruvbox_dark`;
+  brew-bundled themes also need a loop entry in `bootstrap.sh`, vendored ones
+  auto-link via `link_tracked_entries`).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
   Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
   `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
@@ -198,15 +202,16 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
   `scripts/test-nvimpager.sh`.
 - **`top` → `btop`** (`vim_keys`; follows `theme-set` across all 10 themes).
-  `command top` for macOS. `btop.conf` sets `color_theme = "current"`; the
-  active `~/.config/btop/themes/current.theme` symlink is machine-local,
+  `command top` for macOS. `btop.conf` sets `color_theme = "current"` (existing
+  machines converged by a guarded `bootstrap.sh` migration that rewrites that
+  line); `~/.config/btop/themes/current.theme` is a machine-local symlink
   flipped by `theme-set` (restart tier — btop has no live reload). Themes dir
   holds 10 per-file symlinks: 5 vendored (Catppuccin ×3, Rosé Pine ×2,
   pinned-SHA MIT ports) + 5 shimmed from brew's
-  `/opt/homebrew/share/btop/themes/`. Live `btop.conf` is machine-local —
-  seeded once from `btop.conf.template` (mixed-dir, seed-only), so runtime
-  sort/UI toggles don't dirty the repo. Edit the template to change the baked
-  default; `current.theme` defaults to `solarized_dark.theme`.
+  `/opt/homebrew/share/btop/themes/`. `btop.conf` is seeded once from
+  `btop.conf.template` (mixed-dir, seed-only), so runtime sort/UI toggles
+  don't dirty the repo. Edit the template to change the baked default;
+  `current.theme` defaults to `solarized_dark.theme`.
 - **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
   symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
   active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
