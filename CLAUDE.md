@@ -145,7 +145,10 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   add a `case` in `theme-set.fish`'s `switch $name` block setting `btop_theme`
   (btop names differ: e.g. `tokyo-night`→`tokyo-storm`, `gruvbox`→`gruvbox_dark`;
   brew-bundled themes also need a loop entry in `bootstrap.sh`, vendored ones
-  auto-link via `link_tracked_entries`).
+  auto-link via `link_tracked_entries`) **and** register it in
+  `scripts/build-theme-colors.py` (`THEMES` + `BG` maps; `BG` = terminal bg/fg
+  read from Ghostty's bundled theme), then re-run it to refresh
+  `docs/theme-colors.html` (the per-theme color reference page).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
   Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
   `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
@@ -351,6 +354,7 @@ derivatives, re-run after swapping a source.
 - Regenerate screenshots: `scripts/build-screenshots.sh`
 - Render diagrams: `scripts/build-diagrams.sh`
 - Render tapes: `scripts/build-tapes.sh`
+- Regenerate theme color page: `scripts/build-theme-colors.py`
 - Pre-remove save-shared: `scripts/test-wt-pre-remove-save.sh`
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
