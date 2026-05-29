@@ -1,0 +1,22 @@
+#!/opt/homebrew/bin/bash
+# claude-session-title — emit a SessionStart hookSpecificOutput JSON that
+# sets Claude Code's session title to "<repo>/<branch>" when invoked from
+# inside a git working tree. Silent (no output) when not in a repo, which
+# leaves Claude Code's default title untouched.
+#
+# Wired from ~/.claude/settings.json as a SessionStart hook command,
+# matched on startup|resume|clear|compact so the title survives /clear,
+# session resume, and auto-compaction.
+set -euo pipefail
+
+common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+branch=$(git branch --show-current 2>/dev/null || true)
+
+[ -n "$common" ] && [ -n "$branch" ] || exit 0
+
+repo=$(basename "$(dirname "$common")")
+# Build JSON via jq so JSON-significant chars in $repo/$branch (legal in git
+# refs and macOS dir names) can't break out of sessionTitle and inject sibling
+# fields like additionalContext into Claude Code's hook payload.
+jq -cn --arg title "$repo/$branch" \
+  '{hookSpecificOutput:{hookEventName:"SessionStart",sessionTitle:$title}}'
