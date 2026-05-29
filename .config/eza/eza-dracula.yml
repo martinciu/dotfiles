@@ -1,5 +1,6 @@
 # Vendored from eza-community/eza-themes (MIT) — themes/dracula.yml
 # Renamed to the local theme-set name "dracula".
+# Local edit: size.major given a leading "#" (upstream typo "F1FA8C", invalid hex).
 
 colourful: true
 # yellow #F1FA8C
@@ -42,7 +43,7 @@ perms:
   attribute: {foreground: "#F8F8F2"}
 
 size:
-  major: {foreground: "F1FA8C"}
+  major: {foreground: "#F1FA8C"}
   minor: {foreground: "#BD93F9"}
   number_byte: {foreground: "#F8F8F2"}
   number_kilo: {foreground: "#F8F8F2"}
