@@ -242,6 +242,13 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
+- **`lazydocker` (raw).** Container-management TUI (lazygit's Docker sibling).
+  Needs a running Docker daemon — **OrbStack** here; inert without one (not
+  broken on a fresh machine). No alias; launch by name. Config untracked (runs
+  built-in defaults from `~/Library/Application Support/jesseduffield/lazydocker/`);
+  `theme-set` theming deferred to the #317 lazygit pattern — redirect to an XDG
+  path via the `CONFIG_DIR` env var when it lands. **Out of sandbox scope** (the
+  sandbox is itself a container — no Docker socket).
 - **`mmdc` renders Mermaid** (mise global npm tool). `.mmd` + `.svg` co-located,
   both committed. Build: `scripts/build-diagrams.sh`. Don't install via
   brew/`npm -g`.
