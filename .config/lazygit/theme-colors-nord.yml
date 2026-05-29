@@ -1,0 +1,32 @@
+# Derived from .config/themes/nord.* palette
+# Selection bgs intentionally swapped vs the other derived themes: nord0
+# (#2e3440 = bar_bg) ≈ main bg and reads invisible as a selection, so nord1
+# (#3b4252 = deep_bg) is used for the active selection instead.
+gui:
+  theme:
+    activeBorderColor:
+      - "#5e81ac"
+      - bold
+    inactiveBorderColor:
+      - "#4c566a"
+    searchingActiveBorderColor:
+      - "#ebcb8b"
+      - bold
+    optionsTextColor:
+      - "#88c0d0"
+    selectedLineBgColor:
+      - "#3b4252"
+    inactiveViewSelectedLineBgColor:
+      - "#2e3440"
+    cherryPickedCommitFgColor:
+      - "#2e3440"
+    cherryPickedCommitBgColor:
+      - "#b48ead"
+    markedBaseCommitFgColor:
+      - "#2e3440"
+    markedBaseCommitBgColor:
+      - "#ebcb8b"
+    unstagedChangesColor:
+      - "#bf616a"
+    defaultFgColor:
+      - "#d8dee9"

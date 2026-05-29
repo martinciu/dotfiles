@@ -1,0 +1,9 @@
+# lazygit config — managed by theme-set.
+# Edit THIS file (config-base.yml), never the generated config.yml.
+# theme-set writes config.yml = config-base.yml + theme-colors-<name>.yml.
+# Keep this file free of any `gui:` key — the theme block is appended from
+# theme-colors-<name>.yml, and a second top-level `gui:` would be invalid YAML.
+git:
+  paging:
+    colorArg: always
+    pager: delta --paging=never

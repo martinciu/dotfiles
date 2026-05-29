@@ -251,6 +251,28 @@ if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
     echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
 fi
 
+# --- lazygit (git TUI; <leader>gg in LazyVim + standalone; switchable theme)
+# ~/.config/lazygit/ is a real dir. Shared schema lives in config-base.yml
+# (delta paging, no gui.theme); per-theme gui.theme blocks live in
+# theme-colors-<name>.yml. The live config.yml is generated (cat base +
+# theme-colors-<name>) — never a symlink — so it stays machine-local and
+# theme-set can rewrite it. Mirrors the gh-dash pattern above.
+prepare_real_dir "$HOME/.config/lazygit"
+# Drop a legacy whole-dir/config.yml symlink if a prior setup left one.
+if [ -L "$HOME/.config/lazygit/config.yml" ]; then
+    rm "$HOME/.config/lazygit/config.yml"
+    echo "🗑️  $HOME/.config/lazygit/config.yml (legacy symlink)"
+fi
+link_tracked_entries ".config/lazygit" "$HOME/.config/lazygit"
+# Seed the generated config.yml once (solarized default). "Don't clobber":
+# never overwrite an existing pick, so a prior theme-set survives bootstrap.
+if [ ! -f "$HOME/.config/lazygit/config.yml" ]; then
+    cat "$HOME/.config/lazygit/config-base.yml" \
+        "$HOME/.config/lazygit/theme-colors-solarized.yml" \
+        > "$HOME/.config/lazygit/config.yml"
+    echo "✨  $HOME/.config/lazygit/config.yml (seeded from base + solarized)"
+fi
+
 # --- lnav (TUI log navigator)
 # ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
 # the repo. configs/installed/ is mixed-dir: tracked theme variants

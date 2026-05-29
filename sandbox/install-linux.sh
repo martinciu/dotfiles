@@ -151,6 +151,20 @@ stage_theme() {
   [ -f "$cfg/eza/eza-$name.yml" ] \
     && ln -sfn "eza-$name.yml" "$cfg/eza/theme.yml"
 
+  # lazygit: generated real config.yml (cat base + theme-colors), same contract
+  # as gh-dash on the host. lazygit is in the sandbox toolset (mise.toml), so it
+  # follows the active theme inside the container. Existence-guarded; the floor
+  # (solarized) always ships a theme-colors file so config.yml is never empty.
+  if [ -f "$cfg/lazygit/theme-colors-$name.yml" ]; then
+    cat "$cfg/lazygit/config-base.yml" \
+        "$cfg/lazygit/theme-colors-$name.yml" \
+        > "$cfg/lazygit/config.yml"
+  elif [ -f "$cfg/lazygit/theme-colors-solarized.yml" ]; then
+    cat "$cfg/lazygit/config-base.yml" \
+        "$cfg/lazygit/theme-colors-solarized.yml" \
+        > "$cfg/lazygit/config.yml"
+  fi
+
   # git wiring — write a minimal ~/.gitconfig only if absent (the sandbox ships
   # the delta binary but never wires it as git's pager; mirrors README step 3).
   # It includes both the theme-dependent delta config and the theme-independent
