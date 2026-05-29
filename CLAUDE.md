@@ -178,7 +178,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Bells silenced at every layer** (Ghostty `bell-features=`, vim `belloff=all`,
   tmux bell/visual/monitor off). Don't re-enable.
 - **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
-  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, fzf, atuin. Stay
+  `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, fzf, atuin, `btop`. Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -197,10 +197,16 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `snacks.nvim` for scroll (existence-guarded — fresh machine works without
   animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
   `scripts/test-nvimpager.sh`.
-- **`top` → `btop`** (`solarized_dark`, `vim_keys`). `command top` for macOS.
-  Live `btop.conf` is machine-local — seeded once from `btop.conf.template`
-  (mixed-dir, seed-only), so runtime sort/UI toggles don't dirty the repo.
-  Edit the template to change the baked default.
+- **`top` → `btop`** (`vim_keys`; follows `theme-set` across all 10 themes).
+  `command top` for macOS. `btop.conf` sets `color_theme = "current"`; the
+  active `~/.config/btop/themes/current.theme` symlink is machine-local,
+  flipped by `theme-set` (restart tier — btop has no live reload). Themes dir
+  holds 10 per-file symlinks: 5 vendored (Catppuccin ×3, Rosé Pine ×2,
+  pinned-SHA MIT ports) + 5 shimmed from brew's
+  `/opt/homebrew/share/btop/themes/`. Live `btop.conf` is machine-local —
+  seeded once from `btop.conf.template` (mixed-dir, seed-only), so runtime
+  sort/UI toggles don't dirty the repo. Edit the template to change the baked
+  default; `current.theme` defaults to `solarized_dark.theme`.
 - **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
   symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
   active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
