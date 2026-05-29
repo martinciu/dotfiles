@@ -39,6 +39,12 @@ end
 # export is a harmless no-op when eza is absent.
 set -gx EZA_CONFIG_DIR $HOME/.config/eza
 
+# tealdeer reads config.toml from ~/Library/Application Support/tealdeer on
+# macOS by default; redirect it into ~/.config/tealdeer so the theme-set
+# symlink lives with the other followers. Absolute path required (tealdeer
+# does no variable expansion). Harmless no-op when tealdeer is absent.
+set -gx TEALDEER_CONFIG_DIR $HOME/.config/tealdeer
+
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
 # nvimpager as the general $PAGER — smooth, colored paging (e.g. glow's
