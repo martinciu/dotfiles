@@ -1,0 +1,29 @@
+# Derived from .config/themes/tokyo-night.* palette (Storm)
+gui:
+  theme:
+    activeBorderColor:
+      - "#7aa2f7"
+      - bold
+    inactiveBorderColor:
+      - "#565f89"
+    searchingActiveBorderColor:
+      - "#e0af68"
+      - bold
+    optionsTextColor:
+      - "#7dcfff"
+    selectedLineBgColor:
+      - "#24283b"
+    inactiveViewSelectedLineBgColor:
+      - "#1a1b26"
+    cherryPickedCommitFgColor:
+      - "#1a1b26"
+    cherryPickedCommitBgColor:
+      - "#bb9af7"
+    markedBaseCommitFgColor:
+      - "#1a1b26"
+    markedBaseCommitBgColor:
+      - "#e0af68"
+    unstagedChangesColor:
+      - "#f7768e"
+    defaultFgColor:
+      - "#c0caf5"

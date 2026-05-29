@@ -22,6 +22,25 @@ assert_link() {
     fi
 }
 
+# Universal-var assertion: theme-set writes DFT_BACKGROUND / DFT_SYNTAX_HIGHLIGHT
+# via `set -Ux` (fish universal vars). Those are NOT visible mid-run inside the
+# run_theme_set subshell, so read them through a fresh `fish -c` — what a new
+# shell would see. Plain `fish -c` loads universal vars; do NOT add --no-config
+# (verified: --no-config skips universal-var loading).
+assert_env_var() {
+    local var="$1" want="$2" desc="$3"
+    local got
+    got="$(fish -c "echo \$$var" 2>/dev/null)"
+    if [ "$got" = "$want" ]; then
+        pass=$((pass+1))
+        echo "  PASS  $desc"
+    else
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        var:  \$$var"$'\n'"        got:  $got"$'\n'"        want: $want")
+        echo "  FAIL  $desc"
+    fi
+}
+
 # gh-dash's live config.yml is a generated real file (cat base + theme-colors)
 # rather than a symlink. Assert: (1) it is NOT a symlink, (2) it contains the
 # expected per-theme `text.primary` hex, (3) exactly one `theme:` key (catches
@@ -58,6 +77,44 @@ assert_gh_dash_config() {
     fi
 }
 
+# lazygit's live config.yml is a generated real file (cat base + theme-colors)
+# like gh-dash, but the theme lives under `gui: -> theme:` (indented), not a
+# top-level `theme:`. Assert: (1) not a symlink, (2) exists, (3) exactly one
+# top-level `gui:` key (catches a stray gui:/theme block leaking into
+# config-base.yml), (4) contains the theme's signature hex (quote-agnostic —
+# vendored blocks use ' or ", derived blocks may differ).
+assert_lazygit_config() {
+    local want_hex="$1" desc="$2"
+    local path="$HOME/.config/lazygit/config.yml"
+    if [ -L "$path" ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        is a symlink; expected a generated real file")
+        echo "  FAIL  $desc"
+        return
+    fi
+    if [ ! -f "$path" ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path missing")
+        echo "  FAIL  $desc"
+        return
+    fi
+    local gui_keys; gui_keys=$(grep -c "^gui:" "$path")
+    if [ "$gui_keys" -ne 1 ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        expected 1 top-level gui: key, got $gui_keys")
+        echo "  FAIL  $desc"
+        return
+    fi
+    if grep -q "$want_hex" "$path"; then
+        pass=$((pass+1))
+        echo "  PASS  $desc"
+    else
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        did not contain $want_hex")
+        echo "  FAIL  $desc"
+    fi
+}
+
 REPO="${REPO:-$PROJECTS_HOME/dotfiles}"
 THEME_SET_FN="$REPO/.config/fish/functions/theme-set.fish"
 
@@ -88,10 +145,13 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-mocha.ghost
 assert_link "$HOME/.config/starship.toml"                     "starship-mocha.toml"      "starship.toml → starship-mocha.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-mocha.json"       "glow glamour.json → glamour-mocha.json"
 assert_gh_dash_config "#cdd6f4" "gh-dash config.yml ← base + theme-colors-mocha"
+assert_lazygit_config "#89b4fa" "lazygit config.yml ← base + theme-colors-mocha"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-mocha.json"         "lnav theme.json → theme-mocha.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_mocha.theme" "btop current.theme → catppuccin_mocha.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-mocha.yml"            "eza theme.yml → eza-mocha.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-mocha.toml"        "tealdeer config.toml → config-mocha.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (mocha)"
+assert_env_var "DFT_SYNTAX_HIGHLIGHT" "on" "DFT_SYNTAX_HIGHLIGHT=on (uniform)"
 
 # Forward: mocha → frappe
 run_theme_set frappe
@@ -101,10 +161,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-frappe.ghos
 assert_link "$HOME/.config/starship.toml"                     "starship-frappe.toml"       "starship.toml → starship-frappe.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-frappe.json"        "glow glamour.json → glamour-frappe.json"
 assert_gh_dash_config "#c6d0f5" "gh-dash config.yml ← base + theme-colors-frappe"
+assert_lazygit_config "#8caaee" "lazygit config.yml ← base + theme-colors-frappe"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-frappe.json"          "lnav theme.json → theme-frappe.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_frappe.theme" "btop current.theme → catppuccin_frappe.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-frappe.yml"           "eza theme.yml → eza-frappe.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-frappe.toml"       "tealdeer config.toml → config-frappe.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (frappe)"
 
 # Forward: frappe → dracula
 run_theme_set dracula
@@ -114,10 +176,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-dracula.gho
 assert_link "$HOME/.config/starship.toml"                     "starship-dracula.toml"      "starship.toml → starship-dracula.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-dracula.json"       "glow glamour.json → glamour-dracula.json"
 assert_gh_dash_config "#f8f8f2" "gh-dash config.yml ← base + theme-colors-dracula"
+assert_lazygit_config "#bd93f9" "lazygit config.yml ← base + theme-colors-dracula"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-dracula.json"         "lnav theme.json → theme-dracula.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "dracula.theme" "btop current.theme → dracula.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-dracula.yml"          "eza theme.yml → eza-dracula.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-dracula.toml"      "tealdeer config.toml → config-dracula.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (dracula)"
 
 # Forward: dracula → gruvbox
 run_theme_set gruvbox
@@ -127,10 +191,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-gruvbox.gho
 assert_link "$HOME/.config/starship.toml"                     "starship-gruvbox.toml"      "starship.toml → starship-gruvbox.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-gruvbox.json"       "glow glamour.json → glamour-gruvbox.json"
 assert_gh_dash_config "#ebdbb2" "gh-dash config.yml ← base + theme-colors-gruvbox"
+assert_lazygit_config "#458588" "lazygit config.yml ← base + theme-colors-gruvbox"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-gruvbox.json"         "lnav theme.json → theme-gruvbox.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "gruvbox_dark.theme" "btop current.theme → gruvbox_dark.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-gruvbox.yml"          "eza theme.yml → eza-gruvbox.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-gruvbox.toml"      "tealdeer config.toml → config-gruvbox.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (gruvbox)"
 
 # Forward: gruvbox → tokyo-night
 run_theme_set tokyo-night
@@ -140,10 +206,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-tokyo-night
 assert_link "$HOME/.config/starship.toml"                     "starship-tokyo-night.toml"      "starship.toml → starship-tokyo-night.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-night.json"       "glow glamour.json → glamour-tokyo-night.json"
 assert_gh_dash_config "#c0caf5" "gh-dash config.yml ← base + theme-colors-tokyo-night"
+assert_lazygit_config "#7aa2f7" "lazygit config.yml ← base + theme-colors-tokyo-night"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "tokyo-storm.theme" "btop current.theme → tokyo-storm.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-tokyo-night.yml"      "eza theme.yml → eza-tokyo-night.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-tokyo-night.toml"  "tealdeer config.toml → config-tokyo-night.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (tokyo-night)"
 
 # Forward: tokyo-night → nord
 run_theme_set nord
@@ -153,10 +221,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-nord.ghostt
 assert_link "$HOME/.config/starship.toml"                     "starship-nord.toml"      "starship.toml → starship-nord.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json"       "glow glamour.json → glamour-nord.json"
 assert_gh_dash_config "#d8dee9" "gh-dash config.yml ← base + theme-colors-nord"
+assert_lazygit_config "#5e81ac" "lazygit config.yml ← base + theme-colors-nord"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav theme.json → theme-nord.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "nord.theme" "btop current.theme → nord.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-nord.yml"             "eza theme.yml → eza-nord.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-nord.toml"         "tealdeer config.toml → config-nord.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (nord)"
 
 # Forward: nord → rose-pine
 run_theme_set rose-pine
@@ -166,10 +236,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-rose-pine.g
 assert_link "$HOME/.config/starship.toml"                     "starship-rose-pine.toml"      "starship.toml → starship-rose-pine.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine.json"       "glow glamour.json → glamour-rose-pine.json"
 assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine"
+assert_lazygit_config "#31748f" "lazygit config.yml ← base + theme-colors-rose-pine"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine.json"         "lnav theme.json → theme-rose-pine.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine.theme" "btop current.theme → rose-pine.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine.yml"        "eza theme.yml → eza-rose-pine.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-rose-pine.toml"    "tealdeer config.toml → config-rose-pine.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (rose-pine)"
 
 # Forward: rose-pine → rose-pine-moon
 run_theme_set rose-pine-moon
@@ -179,10 +251,12 @@ assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-rose-pine-m
 assert_link "$HOME/.config/starship.toml"                     "starship-rose-pine-moon.toml"      "starship.toml → starship-rose-pine-moon.toml"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow glamour.json → glamour-rose-pine-moon.json"
 assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine-moon"
+assert_lazygit_config "#3e8fb0" "lazygit config.yml ← base + theme-colors-rose-pine-moon"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav theme.json → theme-rose-pine-moon.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine-moon.theme" "btop current.theme → rose-pine-moon.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine-moon.yml"   "eza theme.yml → eza-rose-pine-moon.yml"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-rose-pine-moon.toml" "tealdeer config.toml → config-rose-pine-moon.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (rose-pine-moon)"
 
 # Forward: rose-pine-moon → latte (partial-coverage theme — only ghostty/tmux/starship
 # flip; delta/glow/lnav/gh-dash stay on nord by design, see spec).
@@ -194,6 +268,8 @@ assert_link "$HOME/.config/starship.toml"                     "starship-latte.to
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_latte.theme" "btop current.theme → catppuccin_latte.theme (full coverage incl. Latte)"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-latte.yml"            "eza theme.yml → eza-latte.yml (latte ships eza)"
 assert_link "$HOME/.config/tealdeer/config.toml"             "config-latte.toml"        "tealdeer config.toml → config-latte.toml (full coverage incl. Latte)"
+assert_env_var "DFT_BACKGROUND" "light" "DFT_BACKGROUND=light (latte)"
+assert_lazygit_config "#1e66f5" "lazygit config.yml ← base + theme-colors-latte (flips; has a Latte variant)"
 # Negative contract — what does NOT flip (partial coverage stays on previous theme = rose-pine-moon):
 assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine-moon.gitconfig"    "delta stays on rose-pine-moon (no delta-latte.gitconfig)"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow stays on rose-pine-moon (no glamour-latte.json)"
@@ -206,6 +282,7 @@ assert_link "$HOME/.config/themes/current.tmux"               "solarized.tmux"  
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-solarized.ghostty"    "ghostty theme.ghostty → theme-solarized.ghostty (reverse)"
 assert_link "$HOME/.config/starship.toml"                     "starship-solarized.toml"    "starship.toml → starship-solarized.toml (reverse)"
 assert_link "$HOME/.config/btop/themes/current.theme" "solarized_dark.theme" "btop current.theme → solarized_dark.theme (reverse)"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (solarized, reverse)"
 
 # Restore starting state.
 run_theme_set "$start_theme"

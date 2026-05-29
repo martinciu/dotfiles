@@ -35,6 +35,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
     set -l bat_theme
     set -l vivid_theme
     set -l btop_theme
+    set -l dft_background dark   # difftastic light/dark hint; latte overrides below
     switch $name
         case mocha
             set bat_theme "Catppuccin Mocha"
@@ -67,6 +68,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             set bat_theme "Catppuccin Latte"
             set vivid_theme "catppuccin-latte"
             set btop_theme "catppuccin_latte"
+            set dft_background light   # the only light theme
         case rose-pine
             # bat 0.26 has no rose-pine syntax theme; fall back to
             # Catppuccin Mocha (closest pastel-on-dark; Tokyo Night
@@ -124,6 +126,17 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             > ~/.config/gh-dash/config.yml
     end
 
+    # lazygit live config is a generated real file, same contract as gh-dash:
+    # config-base.yml has no `gui:` key; theme-colors-$name.yml has only the
+    # `gui.theme` block — plain concatenation is valid YAML. lazygit reads its
+    # theme at launch (restart tier), so this repaints on the next launch.
+    if test -f ~/.config/lazygit/theme-colors-$name.yml
+        cat \
+            ~/.config/lazygit/config-base.yml \
+            ~/.config/lazygit/theme-colors-$name.yml \
+            > ~/.config/lazygit/config.yml
+    end
+
     # Persisted env vars; survive shell restarts. Open shells need new
     # session to pick up the values. BAT_THEME is read by bat at startup;
     # VIVID_THEME is read by .config/fish/conf.d/10-colors.fish at fish
@@ -132,6 +145,12 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
     # 16-color palette — no env var needed.
     set -Ux BAT_THEME $bat_theme
     set -Ux VIVID_THEME $vivid_theme
+    # difftastic (aliased to `diff`) has no named palettes — only a light/dark
+    # background hint + syntax-highlight on/off. Follow the light/dark axis;
+    # pin syntax-highlight on (matches difftastic's current default, guards
+    # against a future default flip). New shells pick these up (restart tier).
+    set -Ux DFT_BACKGROUND $dft_background
+    set -Ux DFT_SYNTAX_HIGHLIGHT on
 
     # tmux: re-source config + force status redraw (silent if no server).
     # Gated on FISH_DOTFILES_TEST so the test harness doesn't repaint the
@@ -144,7 +163,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
 
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer"
-    echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav, btop"
+    echo "  restart: bat + ls colors + difftastic (new shells for \$BAT_THEME / \$VIVID_THEME / \$DFT_BACKGROUND), nvim, gh-dash, lnav, btop, lazygit"
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
     # pick up the new palette. Existing windows keep their old theme until a

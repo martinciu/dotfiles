@@ -188,9 +188,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
   `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
   only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
-  via `stage_theme`), fzf, atuin, `btop`, `tealdeer` (`tldr`; live tier —
-  re-reads config each invocation; `TEALDEER_CONFIG_DIR` redirect mirrors eza's
-  `EZA_CONFIG_DIR`). Stay
+  via `stage_theme`), fzf, atuin, `btop`, `lazygit`, `tealdeer` (`tldr`; live
+  tier — re-reads config each invocation; `TEALDEER_CONFIG_DIR` redirect mirrors
+  eza's `EZA_CONFIG_DIR`). Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -246,6 +246,17 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `cat` — **don't add `yq`** or a top-level `theme:` to the base (smoke test
   asserts one `^theme:` line). Bootstrap auto-installs the extension. Don't
   re-fragment sections.
+- **`lazygit` (git TUI; `<leader>gg` + standalone).** Mixed-dir
+  `.config/lazygit/`: `config-base.yml` (delta paging, **no `gui:` key**) +
+  `theme-colors-<name>.yml` (only the `gui.theme` block). Live `config.yml`
+  is **generated** by `theme-set` via plain `cat base + theme-colors-<name>`
+  (gh-dash pattern) — machine-local, never a symlink, never add a `gui:` to
+  the base (smoke asserts exactly one `^gui:`). **Restart tier** — lazygit
+  reads the theme at launch; relaunch to repaint. **Full 10-theme coverage
+  incl. Latte** (catppuccin ships a Latte block), so unlike most followers
+  Latte flips rather than degrades. rose-pine/catppuccin vendored upstream
+  (MIT); solarized/dracula/gruvbox/tokyo-night/nord derived from
+  `.config/themes/<name>.*`. Bootstrap seeds solarized (don't-clobber).
 - **`bd` is beads (raw), stealth mode** (`bd init --stealth`): `.beads/` +
   `.claude/settings.local.json` in `.git/info/exclude`, `no-git-ops: true`.
   Re-init only via `--stealth`. **Don't use bd's memory layer** — memory is
@@ -254,7 +265,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   tokens contradicting this repo's TodoWrite/auto-memory/PR conventions);
   remove if a prior install left them. Skip `bd setup claude --global`.
 - **`diff` → `difft`** (guarded; ad-hoc non-git only — git/vimdiff unaffected).
-  Escape `command diff`. Don't pin flags.
+  Follows the light/dark axis via `DFT_BACKGROUND` (`light` on Latte, `dark`
+  elsewhere) + pins `DFT_SYNTAX_HIGHLIGHT=on` — coarse only, no named palette;
+  restart tier (new shells). Escape `command diff`. Don't pin flags.
 - **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
   `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
 - **`slm` pipes any prompt to the local LM Studio model** (fish function
@@ -295,11 +308,14 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   keeping the volume. Secrets injected at runtime (never baked). Build needs
   `GITHUB_TOKEN`. Active Mac theme is baked + re-applied on entry; in-container
   theme *switcher*, tmux, sesh, gh, bd, font-set, vhs out of scope. The sandbox
-  starship prompt is the one theme tool whose config is **generated** (not
-  symlinked): `stage_theme` injects a container-gated penguin glyph + native
-  git branch/status into a copy of the active `starship-<theme>.toml`, so the
-  in-sandbox prompt shows container + git context while the Mac's shared tomls
-  stay git-less (#280). **nvimpager** is the sole non-mise sandbox tool —
+  starship prompt is the one theme tool whose config is **transformed** when
+  generated (not symlinked): `stage_theme` injects a container-gated penguin
+  glyph + native git branch/status into a copy of the active
+  `starship-<theme>.toml`, so the in-sandbox prompt shows container + git
+  context while the Mac's shared tomls stay git-less (#280). `lazygit` also
+  follows in-sandbox — `stage_theme` regenerates its `config.yml` by plain
+  `cat` (host-identical, no transform). **nvimpager** is the sole non-mise
+  sandbox tool —
   `stage_nvimpager` clones it + `make install-no-man` (no prebuilt release
   assets), config copied like nvim's (#283). Smoke: `scripts/test-sandbox.sh`
   (also run in CI: `.github/workflows/sandbox.yml`, arm64, on sandbox-path PRs +

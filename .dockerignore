@@ -13,6 +13,7 @@
 !.config/tealdeer
 !.config/lnav
 !.config/git
+!.config/lazygit
 !.config/starship-solarized.toml
 !.config/starship-mocha.toml
 !.config/starship-frappe.toml
