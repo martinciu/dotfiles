@@ -207,6 +207,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Live `btop.conf` is machine-local — seeded once from `btop.conf.template`
   (mixed-dir, seed-only), so runtime sort/UI toggles don't dirty the repo.
   Edit the template to change the baked default.
+- **`ctop` is the container-metrics TUI** (`bcicen/ctop`; raw, no `theme-set`,
+  no alias). Live per-container CPU/mem/net/IO; `enter` expands one container.
+  Needs a running Docker daemon — OrbStack on this machine; empty table
+  otherwise (not a bug). **Out of sandbox scope** (no Docker socket inside the
+  container). No config shipped; `S` saves one locally if wanted.
 - **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
   symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
   active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
