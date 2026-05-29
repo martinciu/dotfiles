@@ -1,0 +1,111 @@
+# Nord palette (nordtheme.com, Sven Greb) — mapped to eza's role keys.
+# No upstream eza-nord exists in eza-community/eza-themes; hand-mapped from
+# Nord's 16-color set (polar night / snow storm / frost / aurora), mirroring
+# the key set of the upstream solarized-dark.yml. Hue mapping: blue→nord9
+# (#81a1c1, brighter frost than the tmux chip blue for listing legibility),
+# cyan→nord8, green→nord14, yellow→nord13, orange→nord12, red→nord11,
+# magenta/violet→nord15 (Nord's single purple). Matches nord.tmux /
+# delta-nord.gitconfig hues.
+
+colourful: true
+
+filekinds:
+  normal: {foreground: "#d8dee9"}
+  directory: {foreground: "#81a1c1", is_bold: true}
+  symlink: {foreground: "#88c0d0"}
+  pipe: {foreground: "#4c566a"}
+  block_device: {foreground: "#bf616a"}
+  char_device: {foreground: "#bf616a"}
+  socket: {foreground: "#b48ead"}
+  special: {foreground: "#b48ead"}
+  executable: {foreground: "#a3be8c", is_bold: true}
+  mount_point: {foreground: "#d08770"}
+
+perms:
+  user_read: {foreground: "#d8dee9"}
+  user_write: {foreground: "#ebcb8b"}
+  user_execute_file: {foreground: "#a3be8c"}
+  user_execute_other: {foreground: "#a3be8c"}
+  group_read: {foreground: "#d8dee9"}
+  group_write: {foreground: "#ebcb8b"}
+  group_execute: {foreground: "#a3be8c"}
+  other_read: {foreground: "#e5e9f0"}
+  other_write: {foreground: "#ebcb8b"}
+  other_execute: {foreground: "#a3be8c"}
+  special_user_file: {foreground: "#b48ead"}
+  special_other: {foreground: "#4c566a"}
+  attribute: {foreground: "#e5e9f0"}
+
+size:
+  major: {foreground: "#e5e9f0"}
+  minor: {foreground: "#88c0d0"}
+  number_byte: {foreground: "#d8dee9"}
+  number_kilo: {foreground: "#d8dee9"}
+  number_mega: {foreground: "#81a1c1"}
+  number_giga: {foreground: "#b48ead"}
+  number_huge: {foreground: "#bf616a"}
+  unit_byte: {foreground: "#e5e9f0"}
+  unit_kilo: {foreground: "#81a1c1"}
+  unit_mega: {foreground: "#b48ead"}
+  unit_giga: {foreground: "#b48ead"}
+  unit_huge: {foreground: "#bf616a"}
+
+users:
+  user_you: {foreground: "#d8dee9"}
+  user_root: {foreground: "#bf616a", is_bold: true}
+  user_other: {foreground: "#b48ead"}
+  group_yours: {foreground: "#d8dee9"}
+  group_other: {foreground: "#4c566a"}
+  group_root: {foreground: "#bf616a"}
+
+links:
+  normal: {foreground: "#88c0d0"}
+  multi_link_file: {foreground: "#d08770"}
+
+git:
+  new: {foreground: "#a3be8c"}
+  modified: {foreground: "#ebcb8b"}
+  deleted: {foreground: "#bf616a"}
+  renamed: {foreground: "#88c0d0"}
+  typechange: {foreground: "#b48ead"}
+  ignored: {foreground: "#4c566a"}
+  conflicted: {foreground: "#bf616a", is_bold: true}
+
+git_repo:
+  branch_main: {foreground: "#d8dee9"}
+  branch_other: {foreground: "#b48ead"}
+  git_clean: {foreground: "#a3be8c"}
+  git_dirty: {foreground: "#bf616a"}
+
+security_context:
+  colon: {foreground: "#4c566a"}
+  user: {foreground: "#d8dee9"}
+  role: {foreground: "#b48ead"}
+  typ: {foreground: "#434c5e"}
+  range: {foreground: "#b48ead"}
+
+file_type:
+  image: {foreground: "#b48ead"}
+  video: {foreground: "#bf616a"}
+  music: {foreground: "#a3be8c"}
+  lossless: {foreground: "#88c0d0"}
+  crypto: {foreground: "#b48ead"}
+  document: {foreground: "#81a1c1"}
+  compressed: {foreground: "#ebcb8b"}
+  temp: {foreground: "#bf616a"}
+  compiled: {foreground: "#81a1c1"}
+  build: {foreground: "#4c566a"}
+  source: {foreground: "#81a1c1"}
+
+punctuation: {foreground: "#4c566a"}
+date: {foreground: "#ebcb8b"}
+inode: {foreground: "#e5e9f0"}
+blocks: {foreground: "#e5e9f0"}
+header: {foreground: "#d8dee9"}
+octal: {foreground: "#88c0d0"}
+flags: {foreground: "#b48ead"}
+
+symlink_path: {foreground: "#88c0d0"}
+control_char: {foreground: "#81a1c1"}
+broken_symlink: {foreground: "#bf616a"}
+broken_path_overlay: {foreground: "#4c566a"}
