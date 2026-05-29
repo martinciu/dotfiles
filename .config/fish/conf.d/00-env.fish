@@ -70,8 +70,20 @@ if test (uname) = Linux; and test -d /Users
     set -gx MISE_IGNORED_CONFIG_PATHS /Users
 end
 
-# Force Claude Code truecolor inside tmux. Single env line; the only tmux
-# integration that survives B-scope.
+# Tweaks that only apply inside tmux (no-ops elsewhere, incl. the sandbox where
+# $TMUX is unset).
 if test -n "$TMUX"
+    # Force Claude Code truecolor — the only tmux integration that survives
+    # B-scope.
     set -gx CLAUDE_CODE_TMUX_TRUECOLOR 1
+
+    # TERM is tmux-256color here, but Ghostty still exports TERMINFO pointing at
+    # its app bundle (which ships only ghostty/xterm-ghostty). nsf/termbox-go —
+    # ctop and other legacy TUIs — treats TERMINFO as exclusive ("no other
+    # directory should be searched"), so it can't find tmux-256color and panics
+    # with "termbox: unsupported terminal". Clearing it lets termbox fall back to
+    # /usr/share/terminfo, where tmux-256color lives. Safe: ncurses tools already
+    # fall back there, and Ghostty's own entries are mirrored in ~/.terminfo (and
+    # never used inside tmux anyway).
+    set -e TERMINFO
 end
