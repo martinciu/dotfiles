@@ -252,7 +252,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   tokens contradicting this repo's TodoWrite/auto-memory/PR conventions);
   remove if a prior install left them. Skip `bd setup claude --global`.
 - **`diff` → `difft`** (guarded; ad-hoc non-git only — git/vimdiff unaffected).
-  Escape `command diff`. Don't pin flags.
+  Follows the light/dark axis via `DFT_BACKGROUND` (`light` on Latte, `dark`
+  elsewhere) + pins `DFT_SYNTAX_HIGHLIGHT=on` — coarse only, no named palette;
+  restart tier (new shells). Escape `command diff`. Don't pin flags.
 - **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
   `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
 - **`slm` pipes any prompt to the local LM Studio model** (fish function
