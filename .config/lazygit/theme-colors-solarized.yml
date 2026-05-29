@@ -1,0 +1,29 @@
+# Derived from .config/themes/solarized.* palette
+gui:
+  theme:
+    activeBorderColor:
+      - "#268bd2"
+      - bold
+    inactiveBorderColor:
+      - "#586e75"
+    searchingActiveBorderColor:
+      - "#b58900"
+      - bold
+    optionsTextColor:
+      - "#2aa198"
+    selectedLineBgColor:
+      - "#073642"
+    inactiveViewSelectedLineBgColor:
+      - "#002b36"
+    cherryPickedCommitFgColor:
+      - "#002b36"
+    cherryPickedCommitBgColor:
+      - "#d33682"
+    markedBaseCommitFgColor:
+      - "#002b36"
+    markedBaseCommitBgColor:
+      - "#b58900"
+    unstagedChangesColor:
+      - "#dc322f"
+    defaultFgColor:
+      - "#839496"

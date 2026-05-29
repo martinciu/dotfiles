@@ -1,0 +1,29 @@
+# Derived from .config/themes/gruvbox.* palette
+gui:
+  theme:
+    activeBorderColor:
+      - "#458588"
+      - bold
+    inactiveBorderColor:
+      - "#928374"
+    searchingActiveBorderColor:
+      - "#d79921"
+      - bold
+    optionsTextColor:
+      - "#689d6a"
+    selectedLineBgColor:
+      - "#3c3836"
+    inactiveViewSelectedLineBgColor:
+      - "#282828"
+    cherryPickedCommitFgColor:
+      - "#282828"
+    cherryPickedCommitBgColor:
+      - "#b16286"
+    markedBaseCommitFgColor:
+      - "#282828"
+    markedBaseCommitBgColor:
+      - "#d79921"
+    unstagedChangesColor:
+      - "#cc241d"
+    defaultFgColor:
+      - "#ebdbb2"

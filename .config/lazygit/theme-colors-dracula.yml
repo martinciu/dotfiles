@@ -1,0 +1,32 @@
+# Derived from .config/themes/dracula.* palette
+# activeBorderColor uses Dracula purple, not @color_accent_blue (which the
+# palette intentionally aliases to the comment grey #6272a4 = muted_fg, so it
+# would collide with inactiveBorderColor).
+gui:
+  theme:
+    activeBorderColor:
+      - "#bd93f9"
+      - bold
+    inactiveBorderColor:
+      - "#6272a4"
+    searchingActiveBorderColor:
+      - "#f1fa8c"
+      - bold
+    optionsTextColor:
+      - "#8be9fd"
+    selectedLineBgColor:
+      - "#282a36"
+    inactiveViewSelectedLineBgColor:
+      - "#21222c"
+    cherryPickedCommitFgColor:
+      - "#21222c"
+    cherryPickedCommitBgColor:
+      - "#ff79c6"
+    markedBaseCommitFgColor:
+      - "#21222c"
+    markedBaseCommitBgColor:
+      - "#f1fa8c"
+    unstagedChangesColor:
+      - "#ff5555"
+    defaultFgColor:
+      - "#f8f8f2"
