@@ -154,6 +154,14 @@ link_tracked_entries ".config/glow" "$HOME/.config/glow"
 [ -L "$HOME/.config/glow/glamour.json" ] \
     || ln -sfn glamour-solarized.json "$HOME/.config/glow/glamour.json"
 
+# --- eza (ls/ll replacement; theme.yml follows theme-set beyond LS_COLORS)
+# ~/.config/eza/ is a real dir; tracked entries (eza-<name>.yml) are
+# individually symlinked. Active theme.yml is a machine-local symlink.
+prepare_real_dir "$HOME/.config/eza"
+link_tracked_entries ".config/eza" "$HOME/.config/eza"
+[ -L "$HOME/.config/eza/theme.yml" ] \
+    || ln -sfn eza-solarized.yml "$HOME/.config/eza/theme.yml"
+
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
 
