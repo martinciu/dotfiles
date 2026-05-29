@@ -9,6 +9,7 @@
 !.config/worktrunk
 !.config/themes
 !.config/glow
+!.config/eza
 !.config/lnav
 !.config/git
 !.config/starship-solarized.toml
