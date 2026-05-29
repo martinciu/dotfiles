@@ -181,8 +181,10 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, `eza` (`ll`/`ls` —
   per-theme `~/.config/eza/theme.yml` themes git/perms/icons/headers beyond
   `LS_COLORS`; 10/10, nord hand-mapped; re-read per invocation so the next
-  `ll` is themed; sandbox themes it at creation via `stage_theme`), fzf,
-  atuin. Stay
+  `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
+  `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
+  only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
+  via `stage_theme`), fzf, atuin. Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
