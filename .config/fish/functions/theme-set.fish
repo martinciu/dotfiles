@@ -107,6 +107,17 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             > ~/.config/gh-dash/config.yml
     end
 
+    # lazygit live config is a generated real file, same contract as gh-dash:
+    # config-base.yml has no `gui:` key; theme-colors-$name.yml has only the
+    # `gui.theme` block — plain concatenation is valid YAML. lazygit reads its
+    # theme at launch (restart tier), so this repaints on the next launch.
+    if test -f ~/.config/lazygit/theme-colors-$name.yml
+        cat \
+            ~/.config/lazygit/config-base.yml \
+            ~/.config/lazygit/theme-colors-$name.yml \
+            > ~/.config/lazygit/config.yml
+    end
+
     # Persisted env vars; survive shell restarts. Open shells need new
     # session to pick up the values. BAT_THEME is read by bat at startup;
     # VIVID_THEME is read by .config/fish/conf.d/10-colors.fish at fish
@@ -127,7 +138,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
 
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
-    echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
+    echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav, lazygit"
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
     # pick up the new palette. Existing windows keep their old theme until a
