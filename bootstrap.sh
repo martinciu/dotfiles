@@ -164,6 +164,19 @@ link ".config/tailspin" "$HOME/.config/tailspin"
 prepare_real_dir "$HOME/.config/btop"
 seed_local ".config/btop/btop.conf.template" "$HOME/.config/btop/btop.conf"
 
+# btop themes follow theme-set. ~/.config/btop/themes/ is a real dir holding
+# 10 per-file symlinks: 5 vendored (→ repo) + 5 bundled (→ brew share). The
+# active current.theme symlink is machine-local — created only if missing so
+# a prior theme-set pick survives re-running bootstrap.
+prepare_real_dir "$HOME/.config/btop/themes"
+link_tracked_entries ".config/btop/themes" "$HOME/.config/btop/themes"
+for t in solarized_dark dracula gruvbox_dark nord tokyo-storm; do
+    src="/opt/homebrew/share/btop/themes/$t.theme"
+    [ -f "$src" ] && ln -sfn "$src" "$HOME/.config/btop/themes/$t.theme"
+done
+[ -L "$HOME/.config/btop/themes/current.theme" ] \
+    || ln -sfn solarized_dark.theme "$HOME/.config/btop/themes/current.theme"
+
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
 
