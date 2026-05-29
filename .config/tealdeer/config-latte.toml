@@ -1,0 +1,20 @@
+# .config/tealdeer/config-latte.toml — Catppuccin Latte palette for tldr.
+# Follows theme-set; flipped to config.toml by the theme-set function.
+# Only light theme — muted/description darkened for contrast on a light bg.
+# Roles: command_name = bold header accent, description = muted text,
+# example_code = the literal command, example_variable = highlighted + underlined.
+# example_text intentionally unset → inherits terminal default (neutral prose).
+
+[style.command_name]
+foreground = { rgb = { r = 136, g = 57, b = 239 } }
+bold = true
+
+[style.description]
+foreground = { rgb = { r = 108, g = 111, b = 133 } }
+
+[style.example_code]
+foreground = { rgb = { r = 64, g = 160, b = 43 } }
+
+[style.example_variable]
+foreground = { rgb = { r = 223, g = 142, b = 29 } }
+underline = true

@@ -1,0 +1,19 @@
+# .config/tealdeer/config-tokyo-night.toml — Tokyo Night Storm palette for tldr.
+# Follows theme-set; flipped to config.toml by the theme-set function.
+# Roles: command_name = bold header accent, description = muted text,
+# example_code = the literal command, example_variable = highlighted + underlined.
+# example_text intentionally unset → inherits terminal default (neutral prose).
+
+[style.command_name]
+foreground = { rgb = { r = 187, g = 154, b = 247 } }
+bold = true
+
+[style.description]
+foreground = { rgb = { r = 86, g = 95, b = 137 } }
+
+[style.example_code]
+foreground = { rgb = { r = 158, g = 206, b = 106 } }
+
+[style.example_variable]
+foreground = { rgb = { r = 224, g = 175, b = 104 } }
+underline = true
