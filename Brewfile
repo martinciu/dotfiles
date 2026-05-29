@@ -59,6 +59,7 @@ brew "shfmt"                    # POSIX/bash/mksh formatter (`-d` for diff, `-w`
 
 # System monitoring & benchmarking
 brew "btop"                     # modern top replacement (themed Solarized)
+brew "ctop"                     # top-like TUI for container metrics (needs Docker daemon: OrbStack)
 brew "lazydocker"               # container-management TUI (needs OrbStack/daemon)
 brew "dua-cli"                  # interactive disk-usage analyzer (TUI: `dua i`)
 brew "duf"                      # modern df replacement (grouped, color-coded)
