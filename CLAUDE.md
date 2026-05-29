@@ -198,6 +198,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
   `scripts/test-nvimpager.sh`.
 - **`top` → `btop`** (`solarized_dark`, `vim_keys`). `command top` for macOS.
+  Live `btop.conf` is machine-local — seeded once from `btop.conf.template`
+  (mixed-dir, seed-only), so runtime sort/UI toggles don't dirty the repo.
+  Edit the template to change the baked default.
 - **`lnav` (raw).** `~/.config/lnav/` real dir; `formats/installed/` whole-dir
   symlinked, `configs/installed/` mixed-dir (tracked theme machinery symlinked,
   active `theme.json` machine-local). `lnav -i` writes to the real dir — `cp`
@@ -262,11 +265,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 
 ## Where things live
 
-- Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir: btop,
-  ccstatusline, procs, tailspin, tmux, xh; mixed-dir: fish, gh-dash, ghostty,
-  git (aliases.gitconfig; `include.path` in ~/.gitconfig), glow, nvim,
-  worktrunk; `themes/` palettes; `starship-*.toml`; partial links
-  for sesh + lnav), `.vimrc`, `.vim/colors`, `.gitignore_global`,
+- Sources in `$PROJECTS_HOME/dotfiles/`: `.config/` (whole-dir:
+  ccstatusline, procs, tailspin, tmux, xh; mixed-dir: btop (live conf
+  seeded from template), fish, gh-dash, ghostty, git (aliases.gitconfig;
+  `include.path` in ~/.gitconfig), glow, nvim, worktrunk; `themes/`
+  palettes; `starship-*.toml`; partial links for sesh + lnav), `.vimrc`,
+  `.vim/colors`, `.gitignore_global`,
   `.claude/CLAUDE.md`. `bin/` files symlink to `~/.local/bin/`.
 - The repo's `.claude/CLAUDE.md` IS the user-global Claude config (symlinked to
   `~/.claude/CLAUDE.md`). Edits apply machine-wide.
