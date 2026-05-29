@@ -94,6 +94,8 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
         ; and ln -sfn glamour-$name.json ~/.config/glow/glamour.json
     test -f ~/.config/lnav/configs/installed/theme-$name.json \
         ; and ln -sfn theme-$name.json ~/.config/lnav/configs/installed/theme.json
+    test -f ~/.config/eza/eza-$name.yml \
+        ; and ln -sfn eza-$name.yml ~/.config/eza/theme.yml
 
     # gh-dash live config is a generated real file, not a symlink.
     # base.yml has no `theme:` key; theme-colors-$name.yml has only `theme:` —
@@ -126,7 +128,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
     end
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, starship (next prompt), glow, delta"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza"
     echo "  restart: bat + ls colors (new shells for \$BAT_THEME / \$VIVID_THEME), nvim, gh-dash, lnav"
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
