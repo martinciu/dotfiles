@@ -140,7 +140,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
   in (existence-guarded `test -f` in `theme-set.fish` auto-engages — partial
   coverage is fine; Latte is the only light theme and ships ghostty/tmux/
-  starship/eza/btop only, #215) **and** add the `starship-<theme>.toml` `link` line in
+  starship/eza/btop/tealdeer only, #215) **and** add the `starship-<theme>.toml` `link` line in
   `bootstrap.sh` (the one tool not covered by `link_tracked_entries`) **and**
   add a `case` in `theme-set.fish`'s `switch $name` block setting `btop_theme`
   (btop names differ: e.g. `tokyo-night`→`tokyo-storm`, `gruvbox`→`gruvbox_dark`;
@@ -188,7 +188,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
   `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
   only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
-  via `stage_theme`), fzf, atuin, `btop`. Stay
+  via `stage_theme`), fzf, atuin, `btop`, `tealdeer` (`tldr`; live tier —
+  re-reads config each invocation; `TEALDEER_CONFIG_DIR` redirect mirrors eza's
+  `EZA_CONFIG_DIR`). Stay
   Solarized-only: `procs`, `tailspin` (`tspin`), `xh`. `bat --theme="Solarized
   (dark)"` is the unset fallback. No `tail` alias. Don't introduce alternatives
   (`exa`/`lsd`/`diff-so-fancy`/`mdcat`). Delta git config: README → Setup.
@@ -218,6 +220,17 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `btop.conf.template` (mixed-dir, seed-only), so runtime sort/UI toggles
   don't dirty the repo. Edit the template to change the baked default;
   `current.theme` defaults to `solarized_dark.theme`.
+- **`tldr` → `tealdeer`** (follows `theme-set` across all 10 themes; live tier —
+  re-reads config each invocation, no reload). Mixed-dir `.config/tealdeer/`:
+  per-theme `config-<name>.toml` symlinked, active `config.toml` a machine-local
+  symlink flipped by `theme-set`. Four `[style.*]` blocks per theme
+  (`command_name` bold, `description`, `example_code`, `example_variable`
+  underlined); `example_text` left default. **Colors are `{ rgb = { r,g,b } }`
+  tables, not `"#hex"`** — tealdeer 1.8's `[style]` parser rejects hex strings.
+  macOS reads `~/Library/Application Support/tealdeer` by default, so
+  `00-env.fish` exports `TEALDEER_CONFIG_DIR=~/.config/tealdeer` (absolute;
+  eza-style). Sandbox parity via Dockerfile COPY + `.dockerignore` allowlist +
+  `stage_theme` floor/overlay. Smoke: `scripts/test-theme-switch.sh`.
 - **`ctop` is the container-metrics TUI** (`bcicen/ctop`; raw, no `theme-set`,
   no alias). Live per-container CPU/mem/net/IO; `enter` expands one container.
   Needs a running Docker daemon — OrbStack on this machine; empty table
