@@ -10,6 +10,7 @@
 !.config/themes
 !.config/glow
 !.config/eza
+!.config/tealdeer
 !.config/lnav
 !.config/git
 !.config/starship-solarized.toml
