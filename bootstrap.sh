@@ -5,11 +5,27 @@ set -euo pipefail
 
 DOTFILES="$PROJECTS_HOME/dotfiles"
 
-echo "🚀 dotfiles bootstrap"
+# Nerd Font glyphs (Font Awesome). ASCII-escaped via $'\uXXXX' so the source
+# stays portable and the PUA bytes can't be stripped in transit; bash expands
+# them at runtime. Single-width glyphs, so result lines keep the 2-space indent.
+G_ROCKET=$'\uf135' # header          (nf-fa-rocket)
+G_BREW=$'\uf0fc'   # brew bundle     (nf-fa-beer)
+G_OK=$'\uf00c'     # exists/success  (nf-fa-check)
+G_LINK=$'\uf0c1'   # newly symlinked (nf-fa-link)
+G_BACKUP=$'\uf187' # backed up       (nf-fa-archive)
+G_SKIP=$'\uf059'   # source missing  (nf-fa-question_circle)
+G_TRASH=$'\uf1f8'  # removed         (nf-fa-trash)
+G_MOVE=$'\uf0d1'   # moved/rescued   (nf-fa-truck)
+G_SEED=$'\uf0fe'   # seeded a file   (nf-fa-plus_square)
+G_PLUGIN=$'\uf12e' # gh extension    (nf-fa-puzzle_piece)
+G_WARN=$'\uf071'   # warning         (nf-fa-warning)
+G_CLONE=$'\uf019'  # git clone       (nf-fa-download)
+
+echo "$G_ROCKET dotfiles bootstrap"
 
 # --- brew (install missing formulae; abort on failure)
 echo
-echo "🍺 brew bundle install:"
+echo "$G_BREW brew bundle install:"
 brew bundle --file="$DOTFILES/Brewfile"
 
 # link <source-relative-to-DOTFILES> <target-absolute>
@@ -17,21 +33,21 @@ link() {
   local src="$DOTFILES/$1"
   local dst="$2"
   if [ ! -e "$src" ]; then
-    echo "❓  $src (skipping)"
+    echo "$G_SKIP  $src (skipping)"
     return 0
   fi
   if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-    echo "✅  $dst"
+    echo "$G_OK  $dst"
     return 0
   fi
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     local backup="$dst.bak.$(date +%s)"
-    echo "📦  $dst → $backup"
+    echo "$G_BACKUP  $dst → $backup"
     mv "$dst" "$backup"
   fi
   mkdir -p "$(dirname "$dst")"
   ln -sfn "$src" "$dst"
-  echo "🔗  $dst → $src"
+  echo "$G_LINK  $dst → $src"
 }
 
 # prepare_real_dir <target-abs-dir>
@@ -41,7 +57,7 @@ prepare_real_dir() {
   local dst="$1"
   if [ -L "$dst" ]; then
     rm "$dst"
-    echo "🗑️  $dst (legacy whole-dir symlink)"
+    echo "$G_TRASH  $dst (legacy whole-dir symlink)"
   fi
   mkdir -p "$dst"
 }
@@ -57,7 +73,7 @@ rescue_in_repo() {
   if [ -e "$in_repo" ] && [ ! -L "$in_repo" ] && [ ! -e "$new_home" ]; then
     mkdir -p "$(dirname "$new_home")"
     mv "$in_repo" "$new_home"
-    echo "🚚  $in_repo → $new_home"
+    echo "$G_MOVE  $in_repo → $new_home"
   fi
 }
 
@@ -92,7 +108,7 @@ seed_local() {
   if [ ! -f "$dst" ]; then
     mkdir -p "$(dirname "$dst")"
     cp "$tmpl" "$dst"
-    echo "✨  $dst (seeded from $(basename "$tmpl"))"
+    echo "$G_SEED  $dst (seeded from $(basename "$tmpl"))"
   fi
 }
 
@@ -175,38 +191,43 @@ link_tracked_entries ".config/tealdeer" "$HOME/.config/tealdeer"
 # --- tailspin (tspin) — Solarized theme.toml
 link ".config/tailspin" "$HOME/.config/tailspin"
 
-# --- btop
-# ~/.config/btop/ is a real dir; btop rewrites btop.conf on exit (sort
-# order, UI toggles), so the live config is machine-local — seeded once
-# from the tracked template. Runtime fiddling never dirties the repo.
-prepare_real_dir "$HOME/.config/btop"
-seed_local ".config/btop/btop.conf.template" "$HOME/.config/btop/btop.conf"
+# --- btop (config + themes; both follow theme-set)
+# Output unified to a single check line. The seed, the #316 color_theme
+# migration, and the 10 per-theme link lines all still run — only their
+# per-step chatter is silenced (stdout of the block → /dev/null).
+{
+  # ~/.config/btop/ is a real dir; btop rewrites btop.conf on exit (sort order,
+  # UI toggles), so the live config is machine-local — seeded once from the
+  # tracked template. Runtime fiddling never dirties the repo.
+  prepare_real_dir "$HOME/.config/btop"
+  seed_local ".config/btop/btop.conf.template" "$HOME/.config/btop/btop.conf"
 
-# Migration (#316): the live btop.conf is seeded once and never re-seeded, so a
-# machine that seeded before the color_theme="current" indirection keeps its old
-# baked theme name and silently ignores theme-set. Force the single color_theme
-# line to the indirection value; btop preserves it across save_config_on_exit.
-# Idempotent (grep-guarded) and portable (no in-place sed flag).
-btop_conf="$HOME/.config/btop/btop.conf"
-if [ -f "$btop_conf" ] && ! grep -q '^color_theme = "current"' "$btop_conf"; then
-    btop_tmp="$(mktemp)"
-    sed 's/^color_theme = .*/color_theme = "current"/' "$btop_conf" > "$btop_tmp" \
-        && mv "$btop_tmp" "$btop_conf"
-    echo "🎨  $btop_conf (color_theme → current; #316 migration)"
-fi
+  # Migration (#316): the live btop.conf is seeded once and never re-seeded, so a
+  # machine that seeded before the color_theme="current" indirection keeps its old
+  # baked theme name and silently ignores theme-set. Force the single color_theme
+  # line to the indirection value; btop preserves it across save_config_on_exit.
+  # Idempotent (grep-guarded) and portable (no in-place sed flag).
+  btop_conf="$HOME/.config/btop/btop.conf"
+  if [ -f "$btop_conf" ] && ! grep -q '^color_theme = "current"' "$btop_conf"; then
+      btop_tmp="$(mktemp)"
+      sed 's/^color_theme = .*/color_theme = "current"/' "$btop_conf" > "$btop_tmp" \
+          && mv "$btop_tmp" "$btop_conf"
+  fi
 
-# btop themes follow theme-set. ~/.config/btop/themes/ is a real dir holding
-# 10 per-file symlinks: 5 vendored (→ repo) + 5 bundled (→ brew share). The
-# active current.theme symlink is machine-local — created only if missing so
-# a prior theme-set pick survives re-running bootstrap.
-prepare_real_dir "$HOME/.config/btop/themes"
-link_tracked_entries ".config/btop/themes" "$HOME/.config/btop/themes"
-for t in solarized_dark dracula gruvbox_dark nord tokyo-storm; do
-    src="/opt/homebrew/share/btop/themes/$t.theme"
-    [ -f "$src" ] && ln -sfn "$src" "$HOME/.config/btop/themes/$t.theme"
-done
-[ -L "$HOME/.config/btop/themes/current.theme" ] \
-    || ln -sfn solarized_dark.theme "$HOME/.config/btop/themes/current.theme"
+  # btop themes follow theme-set. ~/.config/btop/themes/ is a real dir holding
+  # 10 per-file symlinks: 5 vendored (→ repo) + 5 bundled (→ brew share). The
+  # active current.theme symlink is machine-local — created only if missing so
+  # a prior theme-set pick survives re-running bootstrap.
+  prepare_real_dir "$HOME/.config/btop/themes"
+  link_tracked_entries ".config/btop/themes" "$HOME/.config/btop/themes"
+  for t in solarized_dark dracula gruvbox_dark nord tokyo-storm; do
+      src="/opt/homebrew/share/btop/themes/$t.theme"
+      [ -f "$src" ] && ln -sfn "$src" "$HOME/.config/btop/themes/$t.theme"
+  done
+  [ -L "$HOME/.config/btop/themes/current.theme" ] \
+      || ln -sfn solarized_dark.theme "$HOME/.config/btop/themes/current.theme"
+} > /dev/null
+echo "$G_OK  ~/.config/btop configured"
 
 # --- procs (modern ps; Solarized config + procs-heavy.toml for `psh`)
 link ".config/procs"   "$HOME/.config/procs"
@@ -235,12 +256,12 @@ for stale in config-solarized.yml config-mocha.yml config-dracula.yml \
              config-gruvbox.yml config-tokyo-night.yml; do
     if [ -L "$HOME/.config/gh-dash/$stale" ]; then
         rm "$HOME/.config/gh-dash/$stale"
-        echo "🗑️  $HOME/.config/gh-dash/$stale (legacy monolith symlink)"
+        echo "$G_TRASH  $HOME/.config/gh-dash/$stale (legacy monolith symlink)"
     fi
 done
 if [ -L "$HOME/.config/gh-dash/config.yml" ]; then
     rm "$HOME/.config/gh-dash/config.yml"
-    echo "🗑️  $HOME/.config/gh-dash/config.yml (legacy symlink → monolith)"
+    echo "$G_TRASH  $HOME/.config/gh-dash/config.yml (legacy symlink → monolith)"
 fi
 
 link_tracked_entries ".config/gh-dash" "$HOME/.config/gh-dash"
@@ -251,14 +272,14 @@ if [ ! -f "$HOME/.config/gh-dash/config.yml" ]; then
     cat "$HOME/.config/gh-dash/config-base.yml" \
         "$HOME/.config/gh-dash/theme-colors-solarized.yml" \
         > "$HOME/.config/gh-dash/config.yml"
-    echo "✨  $HOME/.config/gh-dash/config.yml (seeded from base + solarized)"
+    echo "$G_SEED  $HOME/.config/gh-dash/config.yml (seeded from base + solarized)"
 fi
 
 # --- gh extensions (idempotent; needs `gh` from brew, no `gh auth` required)
 if ! gh extension list 2>/dev/null | grep -q '^gh dash'; then
-  echo "🧩 installing gh dash..."
+  echo "$G_PLUGIN installing gh dash..."
   gh extension install dlvhdr/gh-dash || \
-    echo "⚠️  gh extension install failed (network?) — re-run bootstrap when online"
+    echo "$G_WARN  gh extension install failed (network?) — re-run bootstrap when online"
 fi
 
 # --- lazygit (git TUI; <leader>gg in LazyVim + standalone; switchable theme)
@@ -271,7 +292,7 @@ prepare_real_dir "$HOME/.config/lazygit"
 # Drop a legacy whole-dir/config.yml symlink if a prior setup left one.
 if [ -L "$HOME/.config/lazygit/config.yml" ]; then
     rm "$HOME/.config/lazygit/config.yml"
-    echo "🗑️  $HOME/.config/lazygit/config.yml (legacy symlink)"
+    echo "$G_TRASH  $HOME/.config/lazygit/config.yml (legacy symlink)"
 fi
 link_tracked_entries ".config/lazygit" "$HOME/.config/lazygit"
 # Seed the generated config.yml once (solarized default). "Don't clobber":
@@ -280,7 +301,7 @@ if [ ! -f "$HOME/.config/lazygit/config.yml" ]; then
     cat "$HOME/.config/lazygit/config-base.yml" \
         "$HOME/.config/lazygit/theme-colors-solarized.yml" \
         > "$HOME/.config/lazygit/config.yml"
-    echo "✨  $HOME/.config/lazygit/config.yml (seeded from base + solarized)"
+    echo "$G_SEED  $HOME/.config/lazygit/config.yml (seeded from base + solarized)"
 fi
 
 # --- lnav (TUI log navigator)
@@ -295,7 +316,7 @@ LNAV_REPO=".config/lnav"
 # 1. Old whole-dir symlink → tear down so we can rebuild as a real dir
 if [ -L "$LNAV_HOME" ]; then
   rm "$LNAV_HOME"
-  echo "🗑️  $LNAV_HOME (legacy whole-dir symlink)"
+  echo "$G_TRASH  $LNAV_HOME (legacy whole-dir symlink)"
 fi
 # 2. Stale runtime artifacts inside the repo (from pre-migration lnav runs).
 #    Only the known set lnav itself emits — never touch installed/.
@@ -322,7 +343,7 @@ unset LNAV_HOME LNAV_REPO
 link ".config/sesh/sesh.toml" "$HOME/.config/sesh/sesh.toml"
 if [ ! -f "$HOME/.config/sesh/sesh.local.toml" ]; then
   cp "$DOTFILES/.config/sesh/sesh.local.toml.template" "$HOME/.config/sesh/sesh.local.toml"
-  echo "✨  ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
+  echo "$G_SEED  ~/.config/sesh/sesh.local.toml (edit to add machine-local sessions)"
 fi
 
 # --- mise (polyglot runtime version manager)
@@ -330,6 +351,7 @@ fi
 # mise auto-discovering it as a local project config when inside the dotfiles dir.
 link "mise.global.toml" "$HOME/.config/mise/config.toml"
 mise install
+echo "$G_OK  mise runtimes installed"
 
 # --- uv-managed Python (global default)
 # `--default` drops python/python3/python3.13 symlinks into ~/.local/bin
@@ -339,6 +361,7 @@ mise install
 # warning on the --default flag (uv 0.11.x). Drop the flag once Astral
 # graduates --default out of preview.
 uv python install 3.13 --default --preview-features python-install-default
+echo "$G_OK  python 3.13 installed"
 
 # --- nvim
 # ~/.config/nvim/ is a real dir; tracked entries are individually symlinked.
@@ -389,7 +412,7 @@ if [ -L "$COMPLETIONS_HOME" ]; then
     case "$name" in
       *.barnybug-backup-*)
         rm -f "$DOTFILES/$rel"
-        echo "🗑️  $rel (installer backup)"
+        echo "$G_TRASH  $rel (installer backup)"
         continue
         ;;
     esac
@@ -401,7 +424,7 @@ if [ -L "$COMPLETIONS_HOME" ]; then
   for f in "$STASH"/*; do
     [ -e "$f" ] || continue
     mv "$f" "$COMPLETIONS_HOME/$(basename "$f")"
-    echo "🚚  $(basename "$f") → $COMPLETIONS_HOME/"
+    echo "$G_MOVE  $(basename "$f") → $COMPLETIONS_HOME/"
   done
   rmdir "$STASH" 2>/dev/null || true
 fi
@@ -447,20 +470,13 @@ done
 # --- TPM (clone if missing; warn but don't abort if offline)
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR/.git" ]; then
-  echo "⬇️  cloning TPM..."
+  echo "$G_CLONE  cloning TPM..."
   if ! git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR" 2>&1; then
-    echo "⚠️  TPM clone failed (offline?) — re-run bootstrap when online"
+    echo "$G_WARN  TPM clone failed (offline?) — re-run bootstrap when online"
   fi
 else
-  echo "✅  $TPM_DIR (TPM present)"
+  echo "$G_OK  $TPM_DIR (TPM present)"
 fi
 
 echo
-echo "🎯 next steps:"
-echo "  🪟 start tmux:               tmux"
-echo "  🧩 install plugins:          <prefix> I  (capital I, prefix = C-a)"
-echo "  🔍 test session picker:      <prefix> t"
-echo "  🐟 set fish as login shell:  see README.md → \"Manual extras\" → 1 (Login shell — fish)"
-echo "  🪝 delta + Claude hooks:     see README.md → \"Setup (new machine)\" → Manual extras"
-
-echo "🎉 dotfiles linked — finish with the next steps above"
+echo "$G_OK  dotfiles linked"
