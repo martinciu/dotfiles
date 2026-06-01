@@ -55,15 +55,19 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Cache key uses `git-common-dir` so worktrees share entries. First call after
   a branch switch shows nothing; next 5s tick renders (never blocks on `gh`).
 - **tmux Claude usage cluster** in `status-left` (`tmux-claude-usage`, parses
-  `ccpulse status --json` each 5s tick). Two chips: violet 7d weekly + yellow
+  `ccpulse status --json --index` each 5s tick; `--index` tails new JSONL so
+  throughput is live). Two chips: violet 7d weekly + yellow
   5h block, each showing `<pct>%` + reset. Overreach decoration (fire +
   projected %) when `projection.<window>.will_overreach` **and**
   `projection.<window>.confidence != "low"` — a low-confidence projection
   (noisy early-window extrapolation) neither decorates nor auto-expands;
   default-to-ok when the field is absent (older ccpulse). 7d chip auto-expands
-  at pct≥80 or on a trusted overreach. Graceful degradation: missing
-  `projection` keeps the cluster (drops the decoration); missing any of the 4
-  core fields hides it atomically.
+  at pct≥80 or on a trusted overreach. 7d chip also shows a cost-throughput
+  element between robot and calendar — speedometer glyph + `$xx/h` from
+  `throughput.cost_per_hour_usd` (`LC_ALL=C printf '$%.0f/h'`, rounded, `$0/h`
+  when idle). Graceful degradation: missing `projection` keeps the cluster
+  (drops the decoration); missing `throughput` drops only the cost element;
+  missing any of the 4 core fields hides it atomically.
 - **tmux prefix `C-a`** (`C-Space` clashes with macOS input-source switch).
   Pane nav `<prefix> h/j/k/l`; splits `|` `-`. **Cycling pairs are
   single-canonical** (one combo per motion): windows `,`/`.`, sessions
