@@ -204,9 +204,16 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Interactive `less` is a `bat` wrapper** (`functions/less.fish`); piped input
   uses `--plain`. `command less` for `+F`/`-R`. Don't `alias less=bat` or set
   `$PAGER=bat`.
-- **`md` renders markdown via `glow`** (`--style .config/glow/glamour.json`,
-  because glow reads from `~/Library/Preferences/glow/` on macOS). **`mdp` =
-  `md -p`** through `$PAGER`. Don't swap to `mdcat`/`frogmouth`.
+- **`md` renders markdown via `glow`** (fish function `functions/md.fish`, not
+  an alias; `--style .config/glow/glamour.json`, because glow reads from
+  `~/Library/Preferences/glow/` on macOS). **Wraps to the current terminal/pane
+  width** — passes `--width $COLUMNS` when stdout is a tty (glow reads width
+  once at launch; resize + re-run to re-flow — one-shot/pager modes don't
+  re-render), and drops `--width` for piped output so redirected renders stay
+  deterministic (glow.yml's width). A later user `-w`/`--width` overrides
+  (cobra takes the last flag), so `md -w 100 file` still works. **`mdp` =
+  `md -p`** through `$PAGER` (inherits the width). Don't swap to
+  `mdcat`/`frogmouth`.
 - **`nvimpager` is the global `$PAGER`** (`00-env.fish`, guarded). Loads its own
   `~/.config/nvimpager/init.lua` (not the nvim config), reusing nvim's lazy
   `snacks.nvim` for scroll (existence-guarded — fresh machine works without

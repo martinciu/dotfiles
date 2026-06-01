@@ -8,10 +8,8 @@ if command -q eza
     alias la='ll -a'
 end
 
-if command -q glow
-    alias md='glow --style $HOME/.config/glow/glamour.json'
-    alias mdp='md -p'
-end
+# md / mdp live in functions/ (functions/md.fish) — they wrap glow at the
+# current terminal width, which an alias can't compute per-invocation.
 
 if command -q procs
     alias ps='procs'
