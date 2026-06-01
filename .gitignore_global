@@ -13,6 +13,9 @@
 .scratch
 .secrets
 
+# mise local config
+mise.local.toml
+
 # CI/code-quality tooling state
 .codacy
 .github/instructions/codacy.instructions.md

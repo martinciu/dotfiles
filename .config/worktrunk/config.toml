@@ -250,9 +250,18 @@ worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
 # Copy gitignored content from the primary worktree into each new
 # worktree at start. Picks up `.superpowers/`, `.autonomo/`, and any
 # other gitignored paths automatically — no per-path hooks needed.
+#
+# `mise trust` is chained onto this *same* hook (not a second post-start
+# entry) on purpose: a repo's mise config can itself be gitignored —
+# chopin's `mise.local.toml` is — so a fresh worktree's git checkout
+# doesn't contain it; `wt step copy-ignored` is what delivers it. As two
+# separate background post-start hooks the trust raced the copy and ran
+# before the config landed, leaving the worktree untrusted (mise warns on
+# the next shell/pane). Chaining guarantees trust runs after the file
+# exists. `--all` trusts the worktree config plus parents (post-start cwd
+# is the new worktree); errors swallowed so a mise-less repo is a no-op.
 [post-start]
-copy = "wt step copy-ignored"
-trust-mise = "mise trust --yes 2>/dev/null || true"
+copy = "wt step copy-ignored; mise trust --all 2>/dev/null || true"
 
 # Before wt remove deletes a worktree, save any new gitignored
 # content (planning artefacts under .superpowers/, autonomo logs
