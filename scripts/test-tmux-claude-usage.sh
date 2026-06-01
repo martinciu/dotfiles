@@ -168,23 +168,21 @@ unset fire_glyph arrow_glyph
 
 # format_cost_throughput — direct unit tests.
 # Returns:
-#   - " <speed> $N/h"  when $1 is a non-empty number string (N = whole
-#                       dollars; $0/h still renders when the rate is 0)
-#   - ""                when $1 is empty (graceful degrade: older ccpulse
-#                       without a throughput.cost_per_hour_usd field).
+#   - "$N/h"  when $1 is a non-empty number string (N = whole dollars;
+#              $0/h still renders when the rate is 0). No glyph, no leading
+#              space — the red cost chip's printf supplies its own padding.
+#   - ""       when $1 is empty (graceful degrade: older ccpulse without a
+#              throughput.cost_per_hour_usd field).
 # Rounding uses LC_ALL=C printf '%.0f' (round-half-to-even). LC_ALL=C is
 # mandatory: this machine's LC_NUMERIC=pl_PL.UTF-8 (decimal comma) would
 # otherwise truncate jq's dot-decimals instead of rounding them.
-speed_glyph=$'\xf3\xb0\x93\x85'
-
-assert_eq "$(format_cost_throughput 14.46)"      " ${speed_glyph} \$14/h" "format_cost_throughput(14.46) — rounds down"
-assert_eq "$(format_cost_throughput 14.6)"       " ${speed_glyph} \$15/h" "format_cost_throughput(14.6) — rounds up (LOCALE GUARD)"
-assert_eq "$(format_cost_throughput 17.1138645)" " ${speed_glyph} \$17/h" "format_cost_throughput(17.1138645) — issue sample"
-assert_eq "$(format_cost_throughput 0)"          " ${speed_glyph} \$0/h"  "format_cost_throughput(0) — zero always shows"
-assert_eq "$(format_cost_throughput 14.5)"       " ${speed_glyph} \$14/h" "format_cost_throughput(14.5) — round-half-to-even under LC_ALL=C"
-assert_eq "$(format_cost_throughput '')"         ""                       "format_cost_throughput('') — graceful degrade"
+assert_eq "$(format_cost_throughput 14.46)"      '$14/h' "format_cost_throughput(14.46) — rounds down"
+assert_eq "$(format_cost_throughput 14.6)"       '$15/h' "format_cost_throughput(14.6) — rounds up (LOCALE GUARD)"
+assert_eq "$(format_cost_throughput 17.1138645)" '$17/h' "format_cost_throughput(17.1138645) — issue sample"
+assert_eq "$(format_cost_throughput 0)"          '$0/h'  "format_cost_throughput(0) — zero always shows"
+assert_eq "$(format_cost_throughput 14.5)"       '$14/h' "format_cost_throughput(14.5) — round-half-to-even under LC_ALL=C"
+assert_eq "$(format_cost_throughput '')"         ''      "format_cost_throughput('') — graceful degrade"
 unset -f format_cost_throughput
-unset speed_glyph
 
 unset TMUX_CLAUDE_USAGE_NO_RUN
 
@@ -509,8 +507,10 @@ fi
 teardown_sandbox
 
 # ─── Cost throughput ($xx/h) ─────────────────
-# Case: throughput present, 7d compact (pct 21 < 80). Expect the speed
-# glyph + "$14/h" between robot and calendar: "🤖 󰓅 $14/h <cal> 21%".
+# Cost throughput now renders as a standalone red chip AFTER the 5h chip,
+# with no glyph: the 5h yellow chip's right cap fuses into the red bg and
+# the red chip closes into bar_bg. (Solarized: yellow #b58900, red #dc322f,
+# light fg #fdf6e3, bar bg #073642.)
 setup_sandbox
 cat > "$TEST_BIN/ccpulse" <<'STUB'
 #!/opt/homebrew/bin/bash
@@ -520,13 +520,25 @@ JSON
 STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
-assert_contains "$got" '$14/h'                                        "cost compact: \$14/h rendered (rounded, no cents)"
-assert_contains "$got" $'\xf3\xb0\x93\x85'                            "cost compact: speed glyph (U+F04C5) present"
-assert_contains "$got" $'\xf3\xb0\x93\x85'' $14/h '$'\xef\x91\x95'    "cost compact: speed → \$14/h → calendar ordering"
+assert_contains     "$got" '$14/h'                          "cost compact: \$14/h rendered (rounded, no cents)"
+assert_not_contains "$got" $'\xf3\xb0\x93\x85'              "cost compact: speedometer glyph dropped"
+assert_contains     "$got" "#[bg=#dc322f,fg=#b58900]"       "cost compact: left cap fuses yellow into red"
+assert_contains     "$got" "#[fg=#fdf6e3,bg=#dc322f,bold]"  "cost compact: red chip body uses light fg on red bold"
+assert_contains     "$got" "#[fg=#dc322f,bg=#073642]"       "cost compact: red chip closes into bar bg"
+# Positional: the cost body ($14/h) must come AFTER the 5h reset (3h37m),
+# confirming the cost chip sits to the right of the 5h chip.
+pos_5h=$(printf '%s' "$got" | grep -boF '3h37m' | head -1 | cut -d: -f1)
+pos_cost=$(printf '%s' "$got" | grep -boF '$14/h' | head -1 | cut -d: -f1)
+if [ -n "$pos_5h" ] && [ -n "$pos_cost" ] && [ "$pos_cost" -gt "$pos_5h" ]; then
+  pass=$((pass+1)); echo "  PASS  cost compact: cost chip renders after the 5h chip"
+else
+  fail=$((fail+1)); fail_msgs+=("FAIL  cost compact: cost chip should render after the 5h chip (5h@${pos_5h:-?} cost@${pos_cost:-?})")
+  echo "  FAIL  cost compact: cost chip renders after the 5h chip"
+fi
 teardown_sandbox
 
-# Case: throughput present, 7d expanded (pct 85 >= 80). Cost element also
-# appears in the expanded body, still ahead of the calendar.
+# Case: throughput present, 7d expanded (pct 85 >= 80). The cost chip is
+# independent of 7d expansion — it still renders as the trailing red chip.
 setup_sandbox
 cat > "$TEST_BIN/ccpulse" <<'STUB'
 #!/opt/homebrew/bin/bash
@@ -536,9 +548,9 @@ JSON
 STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
-assert_contains "$got" '$14/h'                                        "cost expanded: \$14/h rendered"
-assert_contains "$got" "85% • "                                       "cost expanded: 7d auto-expanded (pct>=80)"
-assert_contains "$got" $'\xf3\xb0\x93\x85'' $14/h '$'\xef\x91\x95'    "cost expanded: speed → \$14/h → calendar ordering"
+assert_contains "$got" '$14/h'                           "cost expanded: \$14/h rendered"
+assert_contains "$got" "85% • "                          "cost expanded: 7d auto-expanded (pct>=80)"
+assert_contains "$got" "#[fg=#fdf6e3,bg=#dc322f,bold]"   "cost expanded: red cost chip still present"
 teardown_sandbox
 
 # Case: throughput present but rate is exactly 0 (idle window). Expect
@@ -556,7 +568,7 @@ assert_contains "$got" '$0/h' "cost zero: \$0/h still rendered when rate is 0"
 teardown_sandbox
 
 # Case: graceful degradation — core fields present but NO throughput key
-# (older ccpulse). Expect no cost element (no "/h", no speed glyph) yet
+# (older ccpulse). Expect no cost element (no "/h", no red cost chip) yet
 # BOTH chips still render.
 setup_sandbox
 cat > "$TEST_BIN/ccpulse" <<'STUB'
@@ -568,7 +580,7 @@ STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
 assert_not_contains "$got" "/h"                "degrade: no cost element (no /h) when throughput absent"
-assert_not_contains "$got" $'\xf3\xb0\x93\x85' "degrade: no speed glyph when throughput absent"
+assert_not_contains "$got" "bg=#dc322f"        "degrade: no red cost chip when throughput absent"
 assert_contains     "$got" "8%"                "degrade: 5h pct still visible (cluster not hidden)"
 assert_contains     "$got" "21%"               "degrade: 7d pct still visible (cluster not hidden)"
 assert_contains     "$got" "3h37m"             "degrade: 5h reset still visible (chip body intact)"
