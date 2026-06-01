@@ -41,8 +41,8 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Don't add language patterns — those belong in per-language `.gitignore`.
 - **tmux status bar hand-rolled** (`.config/tmux/tmux.conf`, Solarized base16,
   no theme plugins). Each **pin** uses a unique Solarized accent (session=blue,
-  active window=green, git chips=violet/yellow, PR=orange); new pins pick an
-  unused accent (red/magenta/cyan). Palette reuse across left (usage cluster)
+  active window=green, git chips=violet/yellow, PR=orange, usage-cost=red);
+  new pins pick an unused accent (magenta/cyan). Palette reuse across left (usage cluster)
   and right (git chips) clusters is by design — positional, not paired.
   Mode/message/border/inline colors aren't pins.
 - **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
@@ -56,18 +56,19 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   a branch switch shows nothing; next 5s tick renders (never blocks on `gh`).
 - **tmux Claude usage cluster** in `status-left` (`tmux-claude-usage`, parses
   `ccpulse status --json --index` each 5s tick; `--index` tails new JSONL so
-  throughput is live). Two chips: violet 7d weekly + yellow
-  5h block, each showing `<pct>%` + reset. Overreach decoration (fire +
-  projected %) when `projection.<window>.will_overreach` **and**
+  throughput is live). Two always-on chips: violet 7d weekly + yellow
+  5h block, each showing `<pct>%` + reset, plus a red cost chip rendered
+  **after** the 5h block when ccpulse reports throughput. Overreach decoration
+  (fire + projected %) when `projection.<window>.will_overreach` **and**
   `projection.<window>.confidence != "low"` — a low-confidence projection
   (noisy early-window extrapolation) neither decorates nor auto-expands;
   default-to-ok when the field is absent (older ccpulse). 7d chip auto-expands
-  at pct≥80 or on a trusted overreach. 7d chip also shows a cost-throughput
-  element between robot and calendar — speedometer glyph + `$xx/h` from
-  `throughput.cost_per_hour_usd` (`LC_ALL=C printf '$%.0f/h'`, rounded, `$0/h`
-  when idle). Graceful degradation: missing `projection` keeps the cluster
-  (drops the decoration); missing `throughput` drops only the cost element;
-  missing any of the 4 core fields hides it atomically.
+  at pct≥80 or on a trusted overreach. The red cost chip shows `$xx/h` (plain
+  text, no glyph) from `throughput.cost_per_hour_usd` (`LC_ALL=C printf
+  '$%.0f/h'`, rounded, `$0/h` when idle); the 5h chip's right cap fuses into
+  it. Graceful degradation: missing `projection` keeps the cluster (drops the
+  decoration); missing `throughput` drops the red cost chip (5h closes straight
+  into the bar); missing any of the 4 core fields hides it atomically.
 - **tmux prefix `C-a`** (`C-Space` clashes with macOS input-source switch).
   Pane nav `<prefix> h/j/k/l`; splits `|` `-`. **Cycling pairs are
   single-canonical** (one combo per motion): windows `,`/`.`, sessions

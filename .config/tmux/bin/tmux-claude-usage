@@ -1,7 +1,11 @@
 #!/opt/homebrew/bin/bash
-# Renders two left-cluster tmux chips for Claude Code usage:
+# Renders the left-cluster tmux chips for Claude Code usage:
 #   - 7d weekly chip (violet, compact body, auto-expands when pct >= 80)
 #   - 5h block chip  (yellow, always full body)
+#   - cost chip      (red, "$xx/h" throughput) — appended after the 5h
+#                     chip; emitted only when ccpulse reports throughput.
+#                     Older builds omit it and the 5h chip closes straight
+#                     into the bar.
 # Source: `ccpulse status --json --index` (--index tails new JSONL into
 # the cache before reporting, so throughput reflects live activity).
 # Helper hides (empty output, exit 0) whenever any required field is
@@ -34,14 +38,12 @@ format_reset() {
   fi
 }
 
-# Fire and speed glyphs used by the sourced formatters
-# (format_overreach_suffix, format_cost_throughput). Defined above the
-# source guard so the helper is fully usable when sourced for testing
+# Fire glyph used by format_overreach_suffix. Defined above the source
+# guard so the helper is fully usable when sourced for testing
 # (TMUX_CLAUDE_USAGE_NO_RUN=1). Other glyphs (robot, hourglass, calendar,
 # tri_l, tri_r) live in the runtime block — they are only needed by the
-# chip-rendering printfs.
+# chip-rendering printfs. The cost chip is plain text ("$xx/h"), no glyph.
 fire=$(printf '\xef\x81\xad')      # U+F06D nf-fa-fire
-speed=$(printf '\xf3\xb0\x93\x85') # U+F04C5 nf-md-speedometer
 
 # Returns the overreach decoration to insert after a chip's percentage.
 # Output is meant to be appended directly to a chip body (leading space
@@ -67,22 +69,23 @@ format_overreach_suffix() {
   fi
 }
 
-# Returns the cost-throughput segment inserted after the robot on the 7d
-# chip. The leading space is baked in (like format_overreach_suffix) so it
-# concatenates directly; empty when ccpulse omits throughput (older builds)
-# so the robot falls straight through to the calendar. $0/h still renders
-# when the rate is exactly 0 (idle) — only an absent field hides it.
+# Returns the cost-throughput body ("$N/h") for the standalone red cost
+# chip rendered after the 5h chip. No glyph and no leading space — the chip
+# printf supplies its own padding. Empty when ccpulse omits throughput
+# (older builds), in which case no cost chip is emitted and the 5h chip
+# closes straight into the bar. $0/h still renders when the rate is exactly
+# 0 (idle) — only an absent field hides it.
 #
 # LC_ALL=C on the printf is mandatory: this machine's LC_NUMERIC=pl_PL.UTF-8
 # (decimal comma) would otherwise mis-parse jq's dot-decimal and truncate
 # instead of rounding (e.g. 14.6 -> $14 + an "invalid number" error).
 #
 #   args:   $1 = cost_per_hour_usd (number string, or "" when null/absent)
-#   stdout: " <speed> $N/h"  when $1 non-empty   |   ""  when $1 empty
+#   stdout: "$N/h"  when $1 non-empty   |   ""  when $1 empty
 format_cost_throughput() {
   local cost=$1
   [ -n "$cost" ] || { printf ''; return 0; }
-  LC_ALL=C printf ' %s $%.0f/h' "$speed" "$cost"
+  LC_ALL=C printf '$%.0f/h' "$cost"
 }
 
 # When sourced for testing, return early without running the chip
@@ -167,6 +170,8 @@ violet="$(tmux    show-option -gv @color_accent_violet 2>/dev/null)"; : "${viole
 yellow="$(tmux    show-option -gv @color_accent_yellow 2>/dev/null)"; : "${yellow:=#b58900}"
 fg_violet="$(tmux show-option -gv @color_light_fg      2>/dev/null)"; : "${fg_violet:=#fdf6e3}"
 fg_yellow="$(tmux show-option -gv @color_bar_bg        2>/dev/null)"; : "${fg_yellow:=#073642}"
+red="$(tmux       show-option -gv @color_accent_red    2>/dev/null)"; : "${red:=#dc322f}"
+fg_red="$(tmux    show-option -gv @color_light_fg      2>/dev/null)"; : "${fg_red:=#fdf6e3}"
 
 # Glyphs as raw UTF-8 byte sequences (editor-independent literal).
 tri_l=$(printf '\xee\x82\xb6')      # U+E0B6 left rounded cap (filled)
@@ -186,22 +191,20 @@ body_5h=$(printf '%s %d%%%s • %s' \
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
-# pre-merge); calendar remains the 7d-window anchor.
+# pre-merge); calendar remains the 7d-window anchor. Cost-throughput is no
+# longer inlined here — it renders as its own red chip after the 5h chip.
 over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d" "$conf_7d")
-# Cost-throughput element ($xx/h) sits between the robot and the calendar.
-# Empty under graceful degradation (older ccpulse without throughput).
-cost_seg=$(format_cost_throughput "$cost_ph")
 if [ "$pct_7d" -ge "$threshold" ]; then
   # Expanded body: pct + (optional overreach decoration) + • <reset>.
-  body_7d=$(printf '%s%s %s %d%%%s • %s' \
-    "$robot" "$cost_seg" "$calendar" "$pct_7d" "$over_7d_suffix" "$reset_7d")
+  body_7d=$(printf '%s %s %d%%%s • %s' \
+    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix" "$reset_7d")
 elif [ -n "$over_7d_suffix" ]; then
   # Compact-with-overreach: pct + overreach decoration, no reset.
-  body_7d=$(printf '%s%s %s %d%%%s' \
-    "$robot" "$cost_seg" "$calendar" "$pct_7d" "$over_7d_suffix")
+  body_7d=$(printf '%s %s %d%%%s' \
+    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix")
 else
   # Compact: pct only.
-  body_7d=$(printf '%s%s %s %d%%' "$robot" "$cost_seg" "$calendar" "$pct_7d")
+  body_7d=$(printf '%s %s %d%%' "$robot" "$calendar" "$pct_7d")
 fi
 
 # Render: violet chip — 7d body (left cap closes bar_bg, right cap forwards into yellow).
@@ -210,9 +213,28 @@ printf '#[fg=%s,bg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
   "$fg_violet" "$violet" \
   "$body_7d"
 
-# Yellow chip — 5h body (left cap forwards from violet, right cap closes into bar_bg).
-printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
-  "$yellow" "$violet" "$tri_r" \
-  "$fg_yellow" "$yellow" \
-  "$body_5h" \
-  "$yellow" "$bar_bg" "$tri_r"
+# Cost chip body ("$xx/h"); empty under graceful degradation (older ccpulse
+# without throughput), in which case the 5h chip closes into the bar.
+cost_body=$(format_cost_throughput "$cost_ph")
+
+if [ -n "$cost_body" ]; then
+  # Yellow chip — 5h body, right cap forwards into the red cost chip.
+  printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s ' \
+    "$yellow" "$violet" "$tri_r" \
+    "$fg_yellow" "$yellow" \
+    "$body_5h"
+  # Red chip — cost throughput (left cap fuses yellow into red, right cap
+  # closes into bar_bg).
+  printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
+    "$red" "$yellow" "$tri_r" \
+    "$fg_red" "$red" \
+    "$cost_body" \
+    "$red" "$bar_bg" "$tri_r"
+else
+  # No throughput: yellow chip closes straight into bar_bg (original layout).
+  printf '#[bg=%s,fg=%s]%s#[fg=%s,bg=%s,bold] %s #[fg=%s,bg=%s]%s' \
+    "$yellow" "$violet" "$tri_r" \
+    "$fg_yellow" "$yellow" \
+    "$body_5h" \
+    "$yellow" "$bar_bg" "$tri_r"
+fi
