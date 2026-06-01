@@ -63,7 +63,7 @@
       <tr><td class="key"><a href="https://github.com/sharkdp/bat"><code>bat</code></a></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
       <tr><td class="key"><a href="https://github.com/dandavison/delta"><code>git-delta</code></a></td><td class="desc">git diff/log/blame pager</td></tr>
       <tr><td class="key"><a href="https://difftastic.wilfred.me.uk/"><code>difftastic</code></a></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
-      <tr><td class="key"><a href="https://github.com/charmbracelet/glow"><code>glow</code></a></td><td class="desc">render markdown to ANSI (powers <code>md</code> alias)</td></tr>
+      <tr><td class="key"><a href="https://github.com/charmbracelet/glow"><code>glow</code></a></td><td class="desc">render markdown to ANSI (powers <code>md</code>)</td></tr>
       <tr><td class="key"><a href="https://github.com/sharkdp/vivid"><code>vivid</code></a></td><td class="desc">generates LS_COLORS palettes</td></tr>
       <tr><td class="key"><a href="https://github.com/dalance/procs"><code>procs</code></a></td><td class="desc">modern ps replacement (Rust)</td></tr>
       <tr><td class="key"><a href="https://github.com/bensadeh/tailspin"><code>tailspin</code></a></td><td class="desc">live-log highlighter (<code>tspin</code>); Solarized via <code>~/.config/tailspin/theme.toml</code></td></tr>
@@ -93,8 +93,8 @@
     <table>
       <tr><td class="key"><code>cat</code></td><td class="desc">→ <code>bat --paging=never</code></td></tr>
       <tr><td class="key"><code>less</code></td><td class="desc">function → <code>bat</code> wrapper (file = full decoration; pipe = <code>--plain</code>)</td></tr>
-      <tr><td class="key"><code>md</code></td><td class="desc">→ <code>glow --style ~/.config/glow/glamour.json</code></td></tr>
-      <tr><td class="key"><code>mdp</code></td><td class="desc">→ <code>md -p</code> (paged via real <code>less</code>)</td></tr>
+      <tr><td class="key"><code>md</code></td><td class="desc">→ <code>glow --style ~/.config/glow/glamour.json --width $COLUMNS</code> (fish fn; wraps to pane width)</td></tr>
+      <tr><td class="key"><code>mdp</code></td><td class="desc">→ <code>md -p</code> (paged via <code>$PAGER</code>)</td></tr>
       <tr><td class="key"><code>ls</code></td><td class="desc">→ <code>eza --group-directories-first --icons</code></td></tr>
       <tr><td class="key"><code>ll</code></td><td class="desc">→ <code>eza -lh --git --icons --group-directories-first</code></td></tr>
       <tr><td class="key"><code>la</code></td><td class="desc">→ <code>ll -a</code></td></tr>
@@ -365,16 +365,22 @@
 
 <div class="grid">
   <div class="card">
-    <h3>The <code>md</code> alias</h3>
+    <h3>The <code>md</code> function</h3>
     <p>
-      <code>md</code> renders markdown to ANSI via <code>glow</code> with a pinned Solarized
-      style:
+      <code>md</code> (a fish function, <code>functions/md.fish</code>) renders markdown to
+      ANSI via <code>glow</code> with a pinned Solarized style, word-wrapped to the
+      current terminal/pane width:
     </p>
-    <pre><span class="kw">alias</span> <span class="cmd">md</span>=<span class="str">'glow --style $HOME/.config/glow/glamour.json'</span></pre>
+    <pre><span class="kw">function</span> <span class="cmd">md</span>
+    glow --style <span class="str">$HOME/.config/glow/glamour.json</span> --width <span class="str">$COLUMNS</span> $argv
+<span class="kw">end</span></pre>
     <p>
-      <code>bat</code> / <code>less</code> / <code>cat</code> still show the source with
-      syntax highlighting; <code>md</code> shows the rendered output (headings, lists,
-      code-block themes).
+      glow reads the width once at launch (one-shot and pager modes render then exit),
+      so the wrap reflects the pane size at the moment <code>md</code> runs — resize and
+      re-run to re-flow. Piped output drops <code>--width</code> (glow.yml default) so
+      redirected renders stay deterministic. <code>bat</code> / <code>less</code> /
+      <code>cat</code> still show the source with syntax highlighting; <code>md</code>
+      shows the rendered output (headings, lists, code-block themes).
     </p>
   </div>
 
@@ -382,7 +388,7 @@
     <h3>Why <code>--style</code>, not <code>glow.yml</code></h3>
     <p>
       glow on macOS reads its yaml from <code>~/Library/Preferences/glow/</code>, not
-      <code>~/.config/glow/</code>. The alias passes <code>--style</code> directly so the
+      <code>~/.config/glow/</code>. The function passes <code>--style</code> directly so the
       Solarized JSON in this repo (<code>.config/glow/glamour.json</code>) is used regardless.
     </p>
     <p class="note">
@@ -397,9 +403,9 @@
       <tr><td class="key"><code>md README.md</code></td><td class="desc">render to terminal</td></tr>
       <tr><td class="key"><code>md -p README.md</code></td><td class="desc">paged (uses <code>$PAGER</code> / less)</td></tr>
       <tr><td class="key"><code>mdp README.md</code></td><td class="desc">same as <code>md -p</code> (dedicated alias)</td></tr>
-      <tr><td class="key"><code>md -w 100 README.md</code></td><td class="desc">force width 100</td></tr>
+      <tr><td class="key"><code>md -w 100 README.md</code></td><td class="desc">override width (later flag wins)</td></tr>
       <tr><td class="key"><code>cat foo.md | md -</code></td><td class="desc">render from stdin</td></tr>
-      <tr><td class="key"><code>command glow ...</code></td><td class="desc">bypass alias (no <code>--style</code>)</td></tr>
+      <tr><td class="key"><code>command glow ...</code></td><td class="desc">bypass <code>md</code> (no <code>--style</code>/width)</td></tr>
     </table>
     <p class="note">Don't swap to <code>mdcat</code> / <code>frogmouth</code> without an explicit ask — <code>mdcat</code> was archived upstream 2025-01-10.</p>
   </div>
