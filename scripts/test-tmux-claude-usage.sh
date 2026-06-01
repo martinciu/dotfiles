@@ -508,6 +508,72 @@ else
 fi
 teardown_sandbox
 
+# ─── Cost throughput ($xx/h) ─────────────────
+# Case: throughput present, 7d compact (pct 21 < 80). Expect the speed
+# glyph + "$14/h" between robot and calendar: "🤖 󰓅 $14/h <cal> 21%".
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"throughput":{"cost_per_hour_usd":14.46}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" '$14/h'                                        "cost compact: \$14/h rendered (rounded, no cents)"
+assert_contains "$got" $'\xf3\xb0\x93\x85'                            "cost compact: speed glyph (U+F04C5) present"
+assert_contains "$got" $'\xf3\xb0\x93\x85'' $14/h '$'\xef\x91\x95'    "cost compact: speed → \$14/h → calendar ordering"
+teardown_sandbox
+
+# Case: throughput present, 7d expanded (pct 85 >= 80). Cost element also
+# appears in the expanded body, still ahead of the calendar.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":85,"resets_at":"2099-12-31T00:00:00Z"}},"throughput":{"cost_per_hour_usd":14.46}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" '$14/h'                                        "cost expanded: \$14/h rendered"
+assert_contains "$got" "85% • "                                       "cost expanded: 7d auto-expanded (pct>=80)"
+assert_contains "$got" $'\xf3\xb0\x93\x85'' $14/h '$'\xef\x91\x95'    "cost expanded: speed → \$14/h → calendar ordering"
+teardown_sandbox
+
+# Case: throughput present but rate is exactly 0 (idle window). Expect
+# "$0/h" to render (zero always shows — it is a real reading).
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}},"throughput":{"cost_per_hour_usd":0}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains "$got" '$0/h' "cost zero: \$0/h still rendered when rate is 0"
+teardown_sandbox
+
+# Case: graceful degradation — core fields present but NO throughput key
+# (older ccpulse). Expect no cost element (no "/h", no speed glyph) yet
+# BOTH chips still render.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":8,"minutes_to_reset":217,"quota":{"five_hour":{"utilization":8,"resets_at":"2026-05-09T21:10:00Z"},"seven_day":{"utilization":21,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_not_contains "$got" "/h"                "degrade: no cost element (no /h) when throughput absent"
+assert_not_contains "$got" $'\xf3\xb0\x93\x85' "degrade: no speed glyph when throughput absent"
+assert_contains     "$got" "8%"                "degrade: 5h pct still visible (cluster not hidden)"
+assert_contains     "$got" "21%"               "degrade: 7d pct still visible (cluster not hidden)"
+assert_contains     "$got" "3h37m"             "degrade: 5h reset still visible (chip body intact)"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"

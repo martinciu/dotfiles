@@ -2,12 +2,13 @@
 # Renders two left-cluster tmux chips for Claude Code usage:
 #   - 7d weekly chip (violet, compact body, auto-expands when pct >= 80)
 #   - 5h block chip  (yellow, always full body)
-# Source: `ccpulse status --json`. Helper hides (empty output, exit 0)
-# whenever any required field is missing or ccpulse is unreachable —
-# both chips appear or neither.
+# Source: `ccpulse status --json --index` (--index tails new JSONL into
+# the cache before reporting, so throughput reflects live activity).
+# Helper hides (empty output, exit 0) whenever any required field is
+# missing or ccpulse is unreachable — both chips appear or neither.
 #
-# Called from tmux.conf via #(...) on the 5s status-interval. Bench:
-# ccpulse json round-trip is ~33ms; no bash-level cache needed.
+# Called from tmux.conf via #(...) on the 5s status-interval, run async,
+# so the ~177ms --index round-trip never blocks the bar; no cache needed.
 
 # Function definitions live above the runtime block so the test suite
 # can `source` this script and call format_reset directly without
@@ -94,7 +95,7 @@ set -e
 command -v ccpulse >/dev/null 2>&1 || exit 0
 
 # Capture ccpulse output. Non-zero exit -> hide.
-json=$(ccpulse status --json 2>/dev/null) || exit 0
+json=$(ccpulse status --json --index 2>/dev/null) || exit 0
 [ -z "$json" ] && exit 0
 
 # Parse the four required fields with jq. Any null/missing field -> empty
@@ -118,7 +119,8 @@ mapfile -t _fields < <(printf '%s' "$json" | jq -r '
     (.projection.seven_day.will_overreach            // ""),
     (.projection.seven_day.projected_pct_at_reset    // ""),
     (.projection.five_hour.confidence                // ""),
-    (.projection.seven_day.confidence                // "")
+    (.projection.seven_day.confidence                // ""),
+    (.throughput.cost_per_hour_usd                   // "")
   ] | .[]
 ') || exit 0
 pct_5h=${_fields[0]}
@@ -131,6 +133,7 @@ over_7d=${_fields[6]}
 proj_7d=${_fields[7]}
 conf_5h=${_fields[8]}
 conf_7d=${_fields[9]}
+cost_ph=${_fields[10]}
 
 [ -z "${pct_5h:-}" ]    && exit 0
 [ -z "${mins_5h:-}" ]   && exit 0
@@ -185,17 +188,20 @@ body_5h=$(printf '%s %d%%%s • %s' \
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
 # pre-merge); calendar remains the 7d-window anchor.
 over_7d_suffix=$(format_overreach_suffix "$over_7d" "$proj_7d" "$conf_7d")
+# Cost-throughput element ($xx/h) sits between the robot and the calendar.
+# Empty under graceful degradation (older ccpulse without throughput).
+cost_seg=$(format_cost_throughput "$cost_ph")
 if [ "$pct_7d" -ge "$threshold" ]; then
   # Expanded body: pct + (optional overreach decoration) + • <reset>.
-  body_7d=$(printf '%s %s %d%%%s • %s' \
-    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix" "$reset_7d")
+  body_7d=$(printf '%s%s %s %d%%%s • %s' \
+    "$robot" "$cost_seg" "$calendar" "$pct_7d" "$over_7d_suffix" "$reset_7d")
 elif [ -n "$over_7d_suffix" ]; then
   # Compact-with-overreach: pct + overreach decoration, no reset.
-  body_7d=$(printf '%s %s %d%%%s' \
-    "$robot" "$calendar" "$pct_7d" "$over_7d_suffix")
+  body_7d=$(printf '%s%s %s %d%%%s' \
+    "$robot" "$cost_seg" "$calendar" "$pct_7d" "$over_7d_suffix")
 else
   # Compact: pct only.
-  body_7d=$(printf '%s %s %d%%' "$robot" "$calendar" "$pct_7d")
+  body_7d=$(printf '%s%s %s %d%%' "$robot" "$cost_seg" "$calendar" "$pct_7d")
 fi
 
 # Render: violet chip — 7d body (left cap closes bar_bg, right cap forwards into yellow).
