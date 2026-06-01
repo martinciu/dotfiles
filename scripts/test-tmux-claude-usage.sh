@@ -166,6 +166,26 @@ assert_eq "$(format_overreach_suffix true '' low)"  ""                          
 unset -f format_overreach_suffix
 unset fire_glyph arrow_glyph
 
+# format_cost_throughput — direct unit tests.
+# Returns:
+#   - " <speed> $N/h"  when $1 is a non-empty number string (N = whole
+#                       dollars; $0/h still renders when the rate is 0)
+#   - ""                when $1 is empty (graceful degrade: older ccpulse
+#                       without a throughput.cost_per_hour_usd field).
+# Rounding uses LC_ALL=C printf '%.0f' (round-half-to-even). LC_ALL=C is
+# mandatory: this machine's LC_NUMERIC=pl_PL.UTF-8 (decimal comma) would
+# otherwise truncate jq's dot-decimals instead of rounding them.
+speed_glyph=$'\xf3\xb0\x93\x85'
+
+assert_eq "$(format_cost_throughput 14.46)"      " ${speed_glyph} \$14/h" "format_cost_throughput(14.46) — rounds down"
+assert_eq "$(format_cost_throughput 14.6)"       " ${speed_glyph} \$15/h" "format_cost_throughput(14.6) — rounds up (LOCALE GUARD)"
+assert_eq "$(format_cost_throughput 17.1138645)" " ${speed_glyph} \$17/h" "format_cost_throughput(17.1138645) — issue sample"
+assert_eq "$(format_cost_throughput 0)"          " ${speed_glyph} \$0/h"  "format_cost_throughput(0) — zero always shows"
+assert_eq "$(format_cost_throughput 14.5)"       " ${speed_glyph} \$14/h" "format_cost_throughput(14.5) — round-half-to-even under LC_ALL=C"
+assert_eq "$(format_cost_throughput '')"         ""                       "format_cost_throughput('') — graceful degrade"
+unset -f format_cost_throughput
+unset speed_glyph
+
 unset TMUX_CLAUDE_USAGE_NO_RUN
 
 # Case: resets_at already past -> mins_7d clamps to 0; helper still runs
