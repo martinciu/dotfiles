@@ -11,6 +11,7 @@
 !.config/glow
 !.config/eza
 !.config/tealdeer
+!.config/jnv
 !.config/lnav
 !.config/git
 !.config/lazygit
