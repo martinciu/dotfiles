@@ -586,6 +586,49 @@ assert_contains     "$got" "21%"               "degrade: 7d pct still visible (c
 assert_contains     "$got" "3h37m"             "degrade: 5h reset still visible (chip body intact)"
 teardown_sandbox
 
+# ─── 5h idle: minutes_to_reset null (issue #339) ─────
+# ccpulse reports minutes_to_reset: null while the 5h quota is idle (0%
+# utilization, just after a reset). The cluster must STAY VISIBLE and the 5h
+# chip render "<hourglass> 0%" with no • reset suffix. Previously line 142 hid
+# both chips. The helper keys off TOP-LEVEL .percent / .minutes_to_reset (the
+# five_hour block below is realistic but not read); 7d is low + non-overreaching
+# so the only possible " • " source is the 5h reset suffix, which must be absent.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":0,"minutes_to_reset":null,"quota":{"five_hour":{"utilization":0,"resets_at":null},"seven_day":{"utilization":11,"resets_at":"2099-12-31T00:00:00Z"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+if [ -n "$got" ]; then
+  pass=$((pass+1)); echo "  PASS  5h idle: cluster renders (non-empty)"
+else
+  fail=$((fail+1)); fail_msgs+=("FAIL  5h idle: cluster hidden (empty output) — issue #339 regression")
+  echo "  FAIL  5h idle: cluster hidden (empty output)"
+fi
+assert_contains     "$got" $'\xef\x89\x92' "5h idle: hourglass glyph (U+F252) present"
+assert_contains     "$got" "0%"            "5h idle: 5h pct 0% visible"
+assert_not_contains "$got" " • "           "5h idle: no • reset suffix (compact 7d emits none)"
+teardown_sandbox
+
+# Case: 5h idle AND 5h overreach. The overreach decoration is independent of the
+# reset countdown — it must still render, but with NO • reset suffix.
+setup_sandbox
+cat > "$TEST_BIN/ccpulse" <<'STUB'
+#!/opt/homebrew/bin/bash
+cat <<'JSON'
+{"percent":0,"minutes_to_reset":null,"quota":{"five_hour":{"utilization":0,"resets_at":null},"seven_day":{"utilization":11,"resets_at":"2099-12-31T00:00:00Z"}},"projection":{"five_hour":{"will_overreach":true,"projected_pct_at_reset":120,"confidence":"ok"},"seven_day":{"will_overreach":false,"projected_pct_at_reset":15,"confidence":"ok"}}}
+JSON
+STUB
+chmod +x "$TEST_BIN/ccpulse"
+got=$(run_helper)
+assert_contains     "$got" $'\xef\x81\xad'                              "5h idle + overreach: fire glyph (U+F06D) present"
+assert_contains     "$got" "0% "$'\xef\x81\xad'" "$'\xe2\x86\x92'" 120%" "5h idle + overreach: '0% 🔥 → 120%' shown"
+assert_not_contains "$got" " • "                                        "5h idle + overreach: still no • reset suffix"
+teardown_sandbox
+
 # ─── Summary ────────────────────────────────
 echo
 echo "─────────────────"
