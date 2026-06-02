@@ -285,17 +285,21 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   restart tier (new shells). Escape `command diff`. Don't pin flags.
 - **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
   `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
-- **`slm` pipes any prompt to the local LM Studio model** (fish function
-  `.config/fish/functions/slm.fish`; LM-Studio-only, Mac-only). One-shot,
-  buffered: args and/or stdin → one `curl` POST to `$SLM_URL/chat/completions`
-  (default `:1234/v1`) with `$SLM_MODEL` (default `lfm2.5-1.2b-instruct`) →
-  prints `.choices[0].message.content`. Uses **`curl`, not `xh`** — raw JSON
-  body via `jq`, the documented exception. Flags `-m`/`-s`/`-h`; env
-  `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM` (precedence flag > env > built-in). Server
-  not always-on → friendly `lms server start` error on connection refusal, no
-  auto-start. 1.2B model: quick/cheap, not authoritative. **Out of sandbox
-  scope** (LM Studio is a Mac desktop app; in-container `localhost` isn't the
-  host). Smoke: `scripts/test-slm.sh`.
+- **`slm` pipes any prompt to the local oMLX model** (fish function
+  `.config/fish/functions/slm.fish`; oMLX-only, Mac-only). One-shot, buffered:
+  args and/or stdin → one `curl` POST to `$SLM_URL/chat/completions` (default
+  `:8000/v1`) with `$SLM_MODEL` (default `Llama-3.2-1B-Instruct-4bit`) → prints
+  `.choices[0].message.content`. oMLX **requires an API key**: sends
+  `Authorization: Bearer $SLM_API_KEY` when set (seeded in untracked
+  `99-secrets.fish`), header omitted when empty so a keyless endpoint still
+  works. Uses **`curl`, not `xh`** — raw JSON body via `jq`, the documented
+  exception. Flags `-m`/`-s`/`-h`; env
+  `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM`/`SLM_API_KEY` (precedence flag > env >
+  built-in). Server not always-on → friendly `oMLX not reachable` error on
+  connection refusal, no auto-start (the `omlx` CLI wrapper is broken on this
+  machine anyway — server runs separately). 1B model: quick/cheap, not
+  authoritative. **Out of sandbox scope** (oMLX is a Mac server; in-container
+  `localhost` isn't the host). Smoke: `scripts/test-slm.sh`.
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.

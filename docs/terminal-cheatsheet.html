@@ -514,11 +514,12 @@
   <div class="card">
     <h3>Env &amp; notes</h3>
     <table>
-      <tr><td class="key"><code>SLM_URL</code></td><td class="desc">base URL (default <code>http://localhost:1234/v1</code>)</td></tr>
-      <tr><td class="key"><code>SLM_MODEL</code></td><td class="desc">default model (<code>lfm2.5-1.2b-instruct</code>); persist via <code>set -Ux</code></td></tr>
+      <tr><td class="key"><code>SLM_URL</code></td><td class="desc">base URL (default <code>http://localhost:8000/v1</code>)</td></tr>
+      <tr><td class="key"><code>SLM_MODEL</code></td><td class="desc">default model (<code>Llama-3.2-1B-Instruct-4bit</code>); persist via <code>set -Ux</code></td></tr>
       <tr><td class="key"><code>SLM_SYSTEM</code></td><td class="desc">default system prompt (terse built-in otherwise)</td></tr>
+      <tr><td class="key"><code>SLM_API_KEY</code></td><td class="desc">oMLX API key, sent as <code>Authorization: Bearer</code> (seeded in <code>99-secrets.fish</code>)</td></tr>
     </table>
-    <p class="note">Talks to LM Studio's OpenAI-compatible endpoint via <code>curl</code>. Server isn't always-on — start it with <code>lms server start</code>. It's a 1.2B model: quick &amp; free, not authoritative.</p>
+    <p class="note">Talks to oMLX's OpenAI-compatible endpoint via <code>curl</code> (needs <code>SLM_API_KEY</code>). Server isn't always-on — start the oMLX server if it's not running. It's a 1B model: quick &amp; free, not authoritative.</p>
   </div>
 </div>
 
