@@ -113,6 +113,8 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
         ; and ln -sfn eza-$name.yml ~/.config/eza/theme.yml
     test -f ~/.config/tealdeer/config-$name.toml \
         ; and ln -sfn config-$name.toml ~/.config/tealdeer/config.toml
+    test -f ~/.config/jnv/config-$name.toml \
+        ; and ln -sfn config-$name.toml ~/.config/jnv/config.toml
 
     # gh-dash live config is a generated real file, not a symlink.
     # base.yml has no `theme:` key; theme-colors-$name.yml has only `theme:` —
@@ -162,7 +164,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
     end
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer, jnv"
     echo "  restart: bat + ls colors + difftastic (new shells for \$BAT_THEME / \$VIVID_THEME / \$DFT_BACKGROUND), nvim, gh-dash, lnav, btop, lazygit"
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
