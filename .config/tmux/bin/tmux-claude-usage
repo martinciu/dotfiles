@@ -139,7 +139,6 @@ conf_7d=${_fields[9]}
 cost_ph=${_fields[10]}
 
 [ -z "${pct_5h:-}" ]    && exit 0
-[ -z "${mins_5h:-}" ]   && exit 0
 [ -z "${pct_7d:-}" ]    && exit 0
 [ -z "${resets_7d:-}" ] && exit 0
 
@@ -158,8 +157,9 @@ now_epoch=$(/bin/date '+%s')
 mins_7d=$(( (resets_epoch - now_epoch) / 60 ))
 [ "$mins_7d" -lt 0 ] && mins_7d=0
 
-# Format both reset strings via the formatter from Task 4.
-reset_5h=$(format_reset "$mins_5h")
+# Format the 7d reset string via the formatter from Task 4. The 5h reset is
+# computed lazily in the body branch below — it is absent when the 5h quota is
+# idle (minutes_to_reset: null), issue #339.
 reset_7d=$(format_reset "$mins_7d")
 
 # ── Chip rendering ──────────────────────────
@@ -183,11 +183,21 @@ calendar=$(printf '\xef\x91\x95')   # U+F455 nf-oct-calendar
 # 7d auto-expand threshold (inclusive — pct == 80 expands).
 threshold=80
 
-# 5h body: always full (rendered in the yellow chip).
-body_5h=$(printf '%s %d%%%s • %s' \
-  "$hourglass" "$pct_5h" \
-  "$(format_overreach_suffix "$over_5h" "$proj_5h" "$conf_5h")" \
-  "$reset_5h")
+# 5h body (rendered in the yellow chip): pct + optional overreach decoration,
+# plus " • <reset>" only when the 5h window has a countdown. ccpulse reports
+# minutes_to_reset: null while the 5h quota is idle (0% utilization, just after
+# a reset) — a legitimate state, not missing data — so render the chip without a
+# reset suffix rather than hiding the whole cluster (issue #339). The overreach
+# decoration is independent of the countdown and shows in both branches.
+over_5h_suffix=$(format_overreach_suffix "$over_5h" "$proj_5h" "$conf_5h")
+if [ -n "$mins_5h" ]; then
+  reset_5h=$(format_reset "$mins_5h")
+  body_5h=$(printf '%s %d%%%s • %s' \
+    "$hourglass" "$pct_5h" "$over_5h_suffix" "$reset_5h")
+else
+  body_5h=$(printf '%s %d%%%s' \
+    "$hourglass" "$pct_5h" "$over_5h_suffix")
+fi
 
 # 7d body: robot + calendar + pct, with optional reset when pct >= threshold.
 # Robot glyph is the cluster's "this is Claude" anchor (was its own chip
