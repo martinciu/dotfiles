@@ -296,8 +296,8 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   exception. Flags `-m`/`-s`/`-h`; env
   `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM`/`SLM_API_KEY` (precedence flag > env >
   built-in). Server not always-on → friendly `oMLX not reachable` error on
-  connection refusal, no auto-start (the `omlx` CLI wrapper is broken on this
-  machine anyway — server runs separately). 1B model: quick/cheap, not
+  connection refusal, no auto-start (start it with `omlx serve <model> --port
+  8000` or the oMLX menubar app). 1B model: quick/cheap, not
   authoritative. **Out of sandbox scope** (oMLX is a Mac server; in-container
   `localhost` isn't the host). Smoke: `scripts/test-slm.sh`.
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
