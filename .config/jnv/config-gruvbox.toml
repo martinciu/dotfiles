@@ -1,0 +1,90 @@
+# Whether to hide hint messages
+no_hint = false
+
+# Editor settings
+# Uses promkit_widgets::text_editor::Config directly
+[editor.on_focus]
+edit_mode = "Insert"
+word_break_chars = [".", "|", "(", ")", "[", "]"]
+prefix = "❯❯ "
+prefix_style = "fg=#458588"
+active_char_style = "bg=#b16286"
+inactive_char_style = ""
+
+# Theme settings when the editor is unfocused
+[editor.on_defocus]
+prefix = "▼ "
+prefix_style = "fg=#458588,attr=dim"
+active_char_style = "attr=dim"
+inactive_char_style = "attr=dim"
+
+# JSON display settings
+[json]
+# max_streams =
+
+# JSON display settings
+# Uses promkit_widgets::jsonstream::Config directly
+[json.stream]
+indent = 2
+curly_brackets_style = "attr=bold"
+square_brackets_style = "attr=bold"
+key_style = "fg=#458588,attr=bold"
+string_value_style = "fg=#98971a"
+number_value_style = "fg=#689d6a"
+boolean_value_style = "fg=#b16286"
+null_value_style = "fg=#928374"
+active_item_attribute = "bold"
+inactive_item_attribute = "dim"
+overflow_mode = "Wrap"
+
+# Completion feature settings
+[completion]
+search_result_chunk_size = 100
+search_load_chunk_size = 50000
+
+# Completion UI settings
+# Uses promkit_widgets::listbox::Config directly
+[completion.listbox]
+lines = 3
+cursor = "❯ "
+active_item_style = "fg=#282828,bg=#d79921"
+inactive_item_style = "fg=#928374"
+
+# Keybinding settings
+[keybinds]
+exit = ["Ctrl+C"]
+copy_query = ["Ctrl+Q"]
+copy_result = ["Ctrl+O"]
+switch_mode = ["Shift+Down", "Shift+Up"]
+
+# Keybindings for editor operations
+[keybinds.on_editor]
+backward = ["Left"]
+forward = ["Right"]
+move_to_head = ["Ctrl+A"]
+move_to_tail = ["Ctrl+E"]
+move_to_previous_nearest = ["Alt+B"]
+move_to_next_nearest = ["Alt+F"]
+erase = ["Backspace"]
+erase_all = ["Ctrl+U"]
+erase_to_previous_nearest = ["Ctrl+W"]
+erase_to_next_nearest = ["Alt+D"]
+completion = ["Tab"]
+on_completion.up = ["Up"]
+on_completion.down = ["Down", "Tab"]
+
+# Keybindings for JSON viewer operations
+[keybinds.on_json_viewer]
+up = ["Up", "Ctrl+K", "ScrollUp"]
+down = ["Down", "Ctrl+J", "ScrollDown"]
+move_to_head = ["Ctrl+L"]
+move_to_tail = ["Ctrl+H"]
+toggle = ["Enter"]
+expand = ["Ctrl+P"]
+collapse = ["Ctrl+N"]
+
+# Application reactivity settings
+[reactivity_control]
+query_debounce_duration = "600ms"
+resize_debounce_duration = "200ms"
+spin_duration = "300ms"
