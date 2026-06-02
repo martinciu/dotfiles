@@ -21,7 +21,7 @@
 # session, `slm` for the slug).
 #
 # Branch slug: from the issue title + description via the local `slm` model
-# (LM Studio), word-boundary-trimmed to <=20 chars. Description is capped at
+# (oMLX), word-boundary-trimmed to <=20 chars. Description is capped at
 # 1500 chars to keep latency sane on the 1.2B model — empirically enough
 # context to disambiguate generic titles (#302 "generate" → "slug",
 # #336 "simplify" → "tui-render") without slowing the call by an order of
@@ -39,35 +39,14 @@ n="${1:?usage: i <issue-number> [slug]}"
 [[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
 
 # Branch slug from the issue title + description via the local `slm` model
-# (LM Studio): 2-3 meaningful keywords, hyphen-separated, word-boundary-
-# trimmed to <=20 chars, sanitised to a safe branch ref. The description is
-# capped at 1500 chars before being passed in. Prints nothing if fish/slm is
-# unavailable or the model is unreachable (caller then uses just the issue
-# number).
-SLUG_SYS='Generate a git branch slug from the issue title and description.
-Rules: lowercase; 2-3 meaningful keywords; hyphen-separated; pick whole words;
-drop filler like "add"/"the", file paths, and tool flags. Use the description
-to disambiguate when the title is generic. Output ONLY the slug.'
-
-local_slug() {                       # $1 = title, $2 = description (optional)
-  command -v fish >/dev/null 2>&1 || return 0
-  local slm_fn="${XDG_CONFIG_HOME:-$HOME/.config}/fish/functions/slm.fish"
-  [[ -f "$slm_fn" ]] || return 0
-  # Cap description to keep latency sane on the 1B model.
-  local desc="${2:-}"
-  desc="${desc:0:1500}"
-  # `|| true`: under `set -euo pipefail` a non-zero anywhere in this pipeline —
-  # slm failing (oMLX down) or `head -n1` closing the pipe early on a
-  # multi-line reply — would otherwise abort `i`. Swallow it so empty output
-  # falls through to the bare issue number.
-  printf 'Title: %s\n\nDescription: %s' "$1" "$desc" \
-    | SLM_SYSTEM="$SLUG_SYS" fish --no-config -c "source '$slm_fn'; slm" 2>/dev/null \
-    | head -n1 \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
-    | awk -F- -v max=20 '{acc="";for(i=1;i<=NF;i++){c=(acc==""?$i:acc"-"$i);if(length(c)<=max)acc=c;else break}print acc}' \
-    || true
-}
+# (oMLX). The pipeline lives in the sibling `_slug-from-issue` helper (shared
+# with scripts/eval-slug.sh so what ships is what's measured): it defines
+# SLUG_SYS + the `slug_from_issue` function. Resolve our own real path first
+# (we're invoked through the ~/.local/bin/i symlink) so the source finds the
+# repo copy. Prints nothing if fish/slm is unavailable — caller then falls
+# back to the bare issue number.
+_self="$(readlink -f "${BASH_SOURCE[0]}")"
+source "$(dirname "$_self")/_slug-from-issue"
 
 # Main checkout path (works from inside a secondary worktree too — mirrors bin/s).
 common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
@@ -100,7 +79,7 @@ if ! bd -C "$main" show "$id" --json >/dev/null 2>&1; then
 fi
 
 # 2. Branch name + shape the bead for /mc:* — in MAIN, before the worktree snapshot.
-slug="${2:-$(local_slug "$title" "$desc")}"   # explicit arg wins; else local slm model
+slug="${2:-$(slug_from_issue "$title" "$desc")}"   # explicit arg wins; else local slm model
 branch="$n${slug:+-$slug}"             # <n>-<slug>, or just <n> if no slug
 
 bd -C "$main" update "$id" --type feature >/dev/null

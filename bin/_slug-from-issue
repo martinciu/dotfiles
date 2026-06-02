@@ -1,0 +1,41 @@
+#!/opt/homebrew/bin/bash
+# _slug-from-issue — shared branch-slug generator.
+#
+# SOURCED, not executed. Defines `SLUG_SYS` (the system prompt) and the
+# `slug_from_issue` function, so that BOTH the launcher (`bin/i`) and its
+# eval harness (`scripts/eval-slug.sh`) run the *identical* pipeline. Keep
+# the slug logic here and nowhere else — that's the whole point: what ships
+# is what's measured, with no drift between them.
+#
+# slug_from_issue <title> [<description>]  ->  prints the slug on stdout
+#   • routes title+description through the local `slm` model (oMLX) with the
+#     SLUG_SYS system prompt, then sanitises to a safe branch ref:
+#     first line → lowercase → non-alnum runs to '-' → trim → word-boundary
+#     cap at 20 chars.
+#   • prints NOTHING (returns 0) if fish/slm is unavailable; callers then
+#     fall back (e.g. `bin/i` uses the bare issue number).
+
+SLUG_SYS='Generate a git branch slug from the issue title and description.
+Rules: lowercase; 2-3 meaningful keywords; hyphen-separated; pick whole words;
+drop filler like "add"/"the", file paths, and tool flags. Use the description
+to disambiguate when the title is generic. Output ONLY the slug.'
+
+slug_from_issue() {                  # $1 = title, $2 = description (optional)
+  command -v fish >/dev/null 2>&1 || return 0
+  local slm_fn="${XDG_CONFIG_HOME:-$HOME/.config}/fish/functions/slm.fish"
+  [[ -f "$slm_fn" ]] || return 0
+  # Cap description to keep latency sane on the 1B model.
+  local desc="${2:-}"
+  desc="${desc:0:1500}"
+  # `|| true`: under `set -euo pipefail` a non-zero anywhere in this pipeline —
+  # slm failing (oMLX down) or `head -n1` closing the pipe early on a
+  # multi-line reply — would otherwise abort the caller. Swallow it so empty
+  # output falls through to the caller's fallback.
+  printf 'Title: %s\n\nDescription: %s' "$1" "$desc" \
+    | SLM_SYSTEM="$SLUG_SYS" fish --no-config -c "source '$slm_fn'; slm" 2>/dev/null \
+    | head -n1 \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
+    | awk -F- -v max=20 '{acc="";for(i=1;i<=NF;i++){c=(acc==""?$i:acc"-"$i);if(length(c)<=max)acc=c;else break}print acc}' \
+    || true
+}
