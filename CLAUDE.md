@@ -299,7 +299,14 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   connection refusal, no auto-start (start it with `omlx serve <model> --port
   8000` or the oMLX menubar app). 1B model: quick/cheap, not
   authoritative. **Out of sandbox scope** (oMLX is a Mac server; in-container
-  `localhost` isn't the host). Smoke: `scripts/test-slm.sh`.
+  `localhost` isn't the host). Smoke: `scripts/test-slm.sh`. **Slug-quality
+  eval** for the `i` branch-slug job: `scripts/eval-slug.sh` (`--full`/`-n`/`-m`;
+  `SLM_MODEL=… ` to rank a candidate) scores slm output against
+  `scripts/eval-slug-fixtures.jsonl` — 188 real pre-slm merged ccpulse+dotfiles
+  PRs whose `<issue>-<slug>` branch is a human-authored gold slug (30 curated
+  `quick:true`); keyword-overlap headline + exact + ≤3-word sanity; oMLX-gated
+  SKIP, never a CI gate. The slug pipeline is **shared** in `bin/_slug-from-issue`
+  (sourced by both `bin/i` and the eval, so what ships is what's measured).
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
