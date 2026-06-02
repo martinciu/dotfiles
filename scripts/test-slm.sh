@@ -1,7 +1,7 @@
 #!/opt/homebrew/bin/bash
 # Smoke test for the `slm` fish function (.config/fish/functions/slm.fish).
 # Covers the deterministic no-server paths; the live happy-path is gated on
-# LM Studio being reachable so CI (no LM Studio) still passes.
+# oMLX being reachable (and SLM_API_KEY set) so CI (no oMLX) still passes.
 set -uo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
@@ -63,7 +63,7 @@ assert_contains "$err" "Usage:" "no prompt prints usage to stderr"
 #    call's stdin read gets EOF instead of blocking on an open pipe.)
 err=$(SLM_URL=http://localhost:1/v1 fish --no-config -c "source '$SLM_FN'; slm hi" </dev/null 2>&1 >/dev/null); rc=$?
 assert_eq "$rc" "1" "server-down exits 1"
-assert_contains "$err" "lms server start" "server-down suggests 'lms server start'"
+assert_contains "$err" "oMLX not reachable" "server-down reports oMLX unreachable"
 
 # 4. Multi-line stdin where lines begin with `-` must not be misread as flags
 #    to the internal `string join` calls. Regression for a bug where
@@ -80,16 +80,17 @@ Description:
 EOF
 ); rc=$?
 assert_eq "$rc" "1" "leading-dash stdin doesn't crash slm"
-assert_contains "$err" "lms server start" "leading-dash stdin still reaches friendly server-down error"
+assert_contains "$err" "oMLX not reachable" "leading-dash stdin still reaches friendly server-down error"
 if printf '%s' "$err" | grep -q "string join:.*unknown option"; then
   fail=$((fail+1)); fail_msgs+=("FAIL  leading-dash stdin leaked to string join as a flag"); echo "  FAIL  leading-dash stdin no string-join flag leak"
 else
   pass=$((pass+1)); echo "  PASS  leading-dash stdin no string-join flag leak"
 fi
 
-# 4. Live happy-path — only if LM Studio is reachable.
-SLM_URL_DEFAULT="${SLM_URL:-http://localhost:1234/v1}"
-if curl -sf -o /dev/null --max-time 2 "$SLM_URL_DEFAULT/models" 2>/dev/null; then
+# 4. Live happy-path — only if oMLX is reachable and SLM_API_KEY is set (oMLX
+#    needs the Bearer header; the probe + slm both inherit it from the env).
+SLM_URL_DEFAULT="${SLM_URL:-http://localhost:8000/v1}"
+if curl -sf -o /dev/null --max-time 2 -H "Authorization: Bearer ${SLM_API_KEY:-}" "$SLM_URL_DEFAULT/models" 2>/dev/null; then
   out=$(fish --no-config -c "source '$SLM_FN'; slm reply with only the word OK" </dev/null 2>/dev/null); rc=$?
   assert_eq "$rc" "0" "live: exits 0"
   if [ -n "$out" ]; then
@@ -98,7 +99,7 @@ if curl -sf -o /dev/null --max-time 2 "$SLM_URL_DEFAULT/models" 2>/dev/null; the
     fail=$((fail+1)); fail_msgs+=("FAIL  live: empty completion"); echo "  FAIL  live: non-empty completion"
   fi
 else
-  echo "  SKIP — LM Studio not reachable at $SLM_URL_DEFAULT, skipping live happy-path"
+  echo "  SKIP — oMLX not reachable at $SLM_URL_DEFAULT (or SLM_API_KEY unset), skipping live happy-path"
 fi
 
 echo

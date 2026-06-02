@@ -53,11 +53,11 @@ local_slug() {                       # $1 = title, $2 = description (optional)
   command -v fish >/dev/null 2>&1 || return 0
   local slm_fn="${XDG_CONFIG_HOME:-$HOME/.config}/fish/functions/slm.fish"
   [[ -f "$slm_fn" ]] || return 0
-  # Cap description to keep latency sane on the 1.2B model.
+  # Cap description to keep latency sane on the 1B model.
   local desc="${2:-}"
   desc="${desc:0:1500}"
   # `|| true`: under `set -euo pipefail` a non-zero anywhere in this pipeline —
-  # slm failing (LM Studio down) or `head -n1` closing the pipe early on a
+  # slm failing (oMLX down) or `head -n1` closing the pipe early on a
   # multi-line reply — would otherwise abort `i`. Swallow it so empty output
   # falls through to the bare issue number.
   printf 'Title: %s\n\nDescription: %s' "$1" "$desc" \
