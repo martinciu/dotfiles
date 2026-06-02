@@ -68,7 +68,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   '$%.0f/h'`, rounded, `$0/h` when idle); the 5h chip's right cap fuses into
   it. Graceful degradation: missing `projection` keeps the cluster (drops the
   decoration); missing `throughput` drops the red cost chip (5h closes straight
-  into the bar); missing any of the 4 core fields hides it atomically.
+  into the bar); missing any of the 3 core fields hides it atomically (an idle 5h — `minutes_to_reset: null` — drops just the 5h reset suffix, not the whole cluster, #339).
 - **tmux prefix `C-a`** (`C-Space` clashes with macOS input-source switch).
   Pane nav `<prefix> h/j/k/l`; splits `|` `-`. **Cycling pairs are
   single-canonical** (one combo per motion): windows `,`/`.`, sessions

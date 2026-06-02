@@ -101,9 +101,9 @@ command -v ccpulse >/dev/null 2>&1 || exit 0
 json=$(ccpulse status --json --index 2>/dev/null) || exit 0
 [ -z "$json" ] && exit 0
 
-# Parse the four required fields with jq. Any null/missing field -> empty
+# Parse the three required fields with jq. Any null/missing field -> empty
 # string here, then we abort. Atomic: both chips render or neither.
-# Read the eight ccpulse fields via mapfile + line-per-value jq output.
+# Read the eleven ccpulse fields via mapfile + line-per-value jq output.
 # `read -r ... <<< @tsv` does NOT preserve empty fields between two tabs:
 # bash collapses adjacent IFS-whitespace separators (POSIX rule) — and
 # tab is IFS-whitespace, so even `IFS=$'\t'` does not help. Boolean
