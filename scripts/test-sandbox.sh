@@ -85,9 +85,9 @@ theme_flip_test() {
   [ "$(readlink "$tmp/.config/eza/theme.yml")" = "eza-nord.yml" ] \
     || { echo "❌ nord eza"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/tealdeer/config.toml")" = "config-nord.toml" ] \
+    || { echo "❌ nord tealdeer"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/jnv/config.toml")" = "config-nord.toml" ] \
     || { echo "❌ nord jnv"; rm -rf "$tmp"; exit 1; }
-    || { echo "❌ nord tealdeer"; rm -rf "$tmp"; exit 1; }
   grep -q 'pager = delta' "$tmp/.gitconfig" \
     || { echo "❌ nord gitconfig missing delta"; rm -rf "$tmp"; exit 1; }
   grep -q 'path = ~/.config/git/aliases.gitconfig' "$tmp/.gitconfig" \
@@ -112,9 +112,9 @@ theme_flip_test() {
     || { echo "❌ latte eza overlay"; rm -rf "$tmp"; exit 1; }
   # tealdeer ships a latte variant → overlays (full coverage, like eza).
   [ "$(readlink "$tmp/.config/tealdeer/config.toml")" = "config-latte.toml" ] \
+    || { echo "❌ latte tealdeer overlay"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/jnv/config.toml")" = "config-latte.toml" ] \
     || { echo "❌ latte jnv overlay"; rm -rf "$tmp"; exit 1; }
-    || { echo "❌ latte tealdeer overlay"; rm -rf "$tmp"; exit 1; }
   [ "$(readlink "$tmp/.config/themes/delta-current.gitconfig")" = "delta-solarized.gitconfig" ] \
     || { echo "❌ latte delta floor"; rm -rf "$tmp"; exit 1; }
   # Latte's bat name has a space; fish 4.x encodes spaces as \x20 in the file.
