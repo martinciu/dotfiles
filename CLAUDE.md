@@ -139,7 +139,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   config (ghostty/glow/gh-dash/lnav/eza + `starship-<theme>.toml`); active picked
   via a machine-local symlink. tmux reads `@color_*` user options from the
   sourced palette; bat (`$BAT_THEME`) and vivid (`$VIVID_THEME`) are fish
-  universal vars set by `theme-set`; fzf/atuin auto-adapt via ANSI palette refs
+  universal vars set by `theme-set`; fzf/atuin/fx auto-adapt via ANSI palette refs
   (no per-theme files). **gh-dash is the exception** — its `config.yml` is
   generated (`cat config-base.yml theme-colors-<name>.yml`) since it has no YAML
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
@@ -153,7 +153,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   auto-link via `link_tracked_entries`) **and** register it in
   `scripts/build-theme-colors.py` (`THEMES` + `BG` maps; `BG` = terminal bg/fg
   read from Ghostty's bundled theme), then re-run it to refresh
-  `docs/theme-colors.html` (the per-theme color reference page).
+  `docs/theme-colors.html` (the per-theme color reference page) **and** re-run
+  `scripts/build-jnv-configs.py` (reads the new theme's tmux `@color_*` palette →
+  emits `config-<slug>.toml`; no list edit needed — it iterates the canonical slugs).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
   Mocha; lnav themes for gruvbox/tokyo-night/nord/rose-pine are vendored in
   `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
