@@ -10,6 +10,10 @@ brew "gh"   # GitHub CLI — drives tmux-pr-detect + <prefix> P (gh pr view --we
 brew "bash"   # bash 5; pinned-shebang scripts target /opt/homebrew/bin/bash
 brew "rsync"  # GNU rsync 3.x; shadows BSD openrsync — restores --info=progress2, -A (ACLs), -N (crtimes), --partial-dir
 
+# JSON exploration — interactive layer on top of jq (which stays for scripting)
+brew "jnv"  # jq-filter REPL (Rust; embeds jaq, live preview, keyboard-only)
+brew "fx"   # JS-expr JSON navigator (Go; mouse/tree TUI + pipe transformer)
+
 # Session switcher (sesh + fzf, sesh comes from a tap)
 brew "fzf"
 tap  "joshmedeski/sesh"

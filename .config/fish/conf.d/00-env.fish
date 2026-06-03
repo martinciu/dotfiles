@@ -45,6 +45,13 @@ set -gx EZA_CONFIG_DIR $HOME/.config/eza
 # does no variable expansion). Harmless no-op when tealdeer is absent.
 set -gx TEALDEER_CONFIG_DIR $HOME/.config/tealdeer
 
+# fx (JSON navigator) theme. Preset 1 (its built-in default) styles JSON with
+# ANSI palette refs (key=blue, string=green, bool=magenta, number=cyan), which
+# Ghostty remaps per theme — so fx auto-adapts to theme-set like fzf/atuin, with
+# no per-theme file. Pinned explicitly to document intent + guard a future
+# upstream default flip. Unconditional (sandbox mise-shim timing); no-op if fx absent.
+set -gx FX_THEME 1
+
 fish_add_path -gPm $HOME/.local/bin $HOME/.cargo/bin
 
 # nvimpager as the general $PAGER — smooth, colored paging (e.g. glow's
