@@ -12,7 +12,7 @@ palette build-theme-colors.py reads). Re-run after adding/altering a theme:
 
 Stdlib only. Requires Python 3.11+ for tomllib (validation).
 """
-import os, re, sys, tomllib
+import os, re, tomllib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
