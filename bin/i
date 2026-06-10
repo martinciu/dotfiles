@@ -7,6 +7,11 @@
 #   1. fetches GitHub issue <issue> via `gh` and creates a feature bead whose id
 #      mirrors the issue number: <prefix>-<n> (e.g. gruppo-42). We choose the id
 #      at creation time because bd ids are immutable (no per-bead rename).
+#      An existing OPEN bead is adopted as-is (re-run safe); an existing
+#      CLOSED bead (prior attempt discarded/shipped) prompts: delete &
+#      recreate from the live issue, reopen & adopt, or abort — closed beads
+#      are invisible to the `bd list` lookups /mc:* uses, so silently
+#      adopting one would strand the seeded session.
 #   2. shapes the bead for the /mc:* workflow: type=feature + a `branch:<name>`
 #      label, set in the MAIN .beads/ *before* the worktree is made so
 #      worktrunk's post-start copy-ignored carries the labelled bead in.
@@ -71,11 +76,38 @@ desc=$( jq -r '.body  // ""' <<<"$meta")
 url=$(  jq -r '.url   // ""' <<<"$meta")
 
 echo "i: issue #$n → bead $id" >&2
-if ! bd -C "$main" show "$id" --json >/dev/null 2>&1; then
-  # `bd create --id` on an existing id is a silent destructive upsert, so only
-  # create when the bead is absent; otherwise adopt it as-is below.
+create_bead() {
   bd -C "$main" create --id "$id" --type feature \
     --external-ref "$url" --description "$desc" "$title" >/dev/null
+}
+if bead=$(bd -C "$main" show "$id" --json 2>/dev/null); then
+  # Bead exists — adopt it (`bd create --id` on an existing id is a silent
+  # destructive upsert; never re-create over it). Except when it is CLOSED:
+  # /mc:brainstorm and /mc:execute resolve the bead via `bd list --label
+  # branch:<name>`, and `bd list` hides closed beads by default, so adopting
+  # a closed bead strands the seeded session ("can't resolve the issue").
+  # Ask instead. Default/EOF = abort, so nothing is destroyed when stdin
+  # isn't interactive.
+  if [[ "$(jq -r '.[0].status // empty' <<<"$bead")" == "closed" ]]; then
+    {
+      echo "i: bead $id exists but is closed (prior attempt discarded or shipped?)"
+      echo "   [d] delete & recreate from issue #$n — fresh start (drops the old bead's comments, labels, children)"
+      echo "   [r] reopen & adopt — continue with the prior attempt's history"
+      echo "   [a] abort (default)"
+    } >&2
+    read -rp "i: [d/r/a]? " reply || reply=""
+    case "$reply" in
+      [dD]) bd -C "$main" delete "$id" --cascade --force >/dev/null
+            create_bead
+            echo "i: bead $id recreated" >&2 ;;
+      [rR]) bd -C "$main" reopen "$id" >/dev/null
+            echo "i: bead $id reopened" >&2 ;;
+      *)    echo "i: aborted — bead $id left closed ('bd reopen $id' or 'bd delete $id' to resolve by hand)" >&2
+            exit 1 ;;
+    esac
+  fi
+else
+  create_bead
 fi
 
 # 2. Branch name + shape the bead for /mc:* — in MAIN, before the worktree snapshot.
