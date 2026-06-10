@@ -10,6 +10,10 @@ go = "1.25.10"
 [settings]
 legacy_version_file = true
 idiomatic_version_file_enable_tools = ["node", "ruby"]
+# trusted_config_paths is machine-specific — it lives in the untracked
+# ~/.config/mise/config.local.toml (seeded from mise.config.local.toml.template).
+# Don't add it here: settings REPLACE across config files (no merge), so a
+# value here would be silently overridden on any machine with a local file.
 
 [settings.ruby]
 compile = false

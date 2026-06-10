@@ -1,0 +1,25 @@
+# Machine-local mise settings — seeded once by bootstrap.sh to
+# ~/.config/mise/config.local.toml, never committed. Edit freely.
+#
+# NOTE: a setting here REPLACES the same key from the shared config.toml
+# (mise.global.toml) — lists don't merge — so list settings must carry
+# this machine's complete value.
+#
+# Kept at repo root as mise.config.local.toml.template (not under
+# .config/mise/) for the same reason as mise.global.toml: mise would
+# auto-discover .config/mise/ files as project config inside this repo.
+
+[settings]
+# Auto-trust worktree mise configs by path prefix. mise trust is
+# per-absolute-path, so every new worktree starts untrusted; the worktrunk
+# background post-start trust hook races the first shells of the tmux
+# session `s` attaches (~0.2s) — fish prompts error with "config not
+# trusted" until it lands. A trusted prefix has no timing: any config under
+# it is trusted the moment it exists, including gitignored ones
+# (mise.local.toml) delivered later by copy-ignored. Globs don't work
+# (mise 2026.5.18) — one literal entry per mise-using repo's worktrees dir.
+# Security-equivalent to the repo's already-trusted primary checkout.
+#
+# trusted_config_paths = [
+#   "~/code/<repo>/.claude/worktrees",
+# ]
