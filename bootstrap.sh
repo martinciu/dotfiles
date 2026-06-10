@@ -360,6 +360,9 @@ fi
 # Stored as mise.global.toml at repo root (not under .config/mise/) to avoid
 # mise auto-discovering it as a local project config when inside the dotfiles dir.
 link "mise.global.toml" "$HOME/.config/mise/config.toml"
+# Machine-local settings (trusted_config_paths etc.) — settings REPLACE
+# across mise config files (no list merge), hence a per-machine file.
+seed_local "mise.config.local.toml.template" "$HOME/.config/mise/config.local.toml"
 mise install
 echo "$G_OK  mise runtimes installed"
 

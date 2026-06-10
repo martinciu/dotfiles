@@ -263,10 +263,12 @@ worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
 #
 # Note this background trust races the first shells in the new worktree
 # (`s` attaches a tmux session ~0.2s before it lands). For known repos the
-# race is defused by `trusted_config_paths` in mise.global.toml — a path
-# prefix needs no per-worktree trust at all. The chained trust here stays
-# as a catch-all for mise repos not yet in that list (one untrusted-config
-# error blip on first prompt, clean after).
+# race is defused by `trusted_config_paths` in the machine-local
+# ~/.config/mise/config.local.toml (seeded from
+# mise.config.local.toml.template) — a path prefix needs no per-worktree
+# trust at all. The chained trust here stays as a catch-all for mise repos
+# not in that machine's list (one untrusted-config error blip on first
+# prompt, clean after).
 [post-start]
 copy = "wt step copy-ignored; mise trust --all 2>/dev/null || true"
 

@@ -10,20 +10,10 @@ go = "1.25.10"
 [settings]
 legacy_version_file = true
 idiomatic_version_file_enable_tools = ["node", "ruby"]
-# Auto-trust mise configs under these path prefixes. mise trust is
-# per-absolute-path, so every new worktree starts untrusted; the worktrunk
-# post-start hook grants trust but runs in the background, and `s` spawns
-# the tmux session ~0.2s before it lands — the first fish prompts (and the
-# claude launch) hit "config not trusted" errors. A trusted prefix has no
-# timing: any config under it is trusted the moment it exists, including
-# gitignored ones (mise.local.toml) delivered later by copy-ignored.
-# Globs don't work (verified on 2026.5.18) — one literal entry per
-# mise-using repo's worktrees dir. Security-equivalent to the repo's
-# already-trusted primary checkout.
-trusted_config_paths = [
-  "~/code/ccpulse/.claude/worktrees",
-  # chopin (other machine): add its .claude/worktrees path here
-]
+# trusted_config_paths is machine-specific — it lives in the untracked
+# ~/.config/mise/config.local.toml (seeded from mise.config.local.toml.template).
+# Don't add it here: settings REPLACE across config files (no merge), so a
+# value here would be silently overridden on any machine with a local file.
 
 [settings.ruby]
 compile = false
