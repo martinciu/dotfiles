@@ -260,6 +260,13 @@ worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
 # the next shell/pane). Chaining guarantees trust runs after the file
 # exists. `--all` trusts the worktree config plus parents (post-start cwd
 # is the new worktree); errors swallowed so a mise-less repo is a no-op.
+#
+# Note this background trust races the first shells in the new worktree
+# (`s` attaches a tmux session ~0.2s before it lands). For known repos the
+# race is defused by `trusted_config_paths` in mise.global.toml — a path
+# prefix needs no per-worktree trust at all. The chained trust here stays
+# as a catch-all for mise repos not yet in that list (one untrusted-config
+# error blip on first prompt, clean after).
 [post-start]
 copy = "wt step copy-ignored; mise trust --all 2>/dev/null || true"
 
