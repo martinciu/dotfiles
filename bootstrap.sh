@@ -27,6 +27,12 @@ echo "$G_ROCKET dotfiles bootstrap"
 echo
 echo "$G_BREW brew bundle install:"
 brew bundle --file="$DOTFILES/Brewfile"
+# machine-local package overlay: gitignored Brewfile.local, absent on most
+# machines. Safe under `set -e` — a false `[ -f ]` short-circuits the && list
+# (left side of && is exempt from set -e), so the script does NOT abort when
+# the file is missing; it just skips. When present, brew bundle failure aborts
+# like the shared Brewfile above (desired).
+[ -f "$DOTFILES/Brewfile.local" ] && brew bundle --file="$DOTFILES/Brewfile.local"
 
 # link <source-relative-to-DOTFILES> <target-absolute>
 link() {

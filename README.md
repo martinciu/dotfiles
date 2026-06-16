@@ -86,6 +86,17 @@ Safe to re-run (idempotent for already-imported rows). After this,
 Ctrl-R opens atuin's picker (config at `.config/atuin/config.toml`).
 Up stays on fish's native history-search.
 
+**5. `Brewfile.local` (optional, per machine).** For brew packages you want on
+*this* machine only — not every machine that shares this repo — create a
+`Brewfile.local` next to `Brewfile`. It is gitignored; `bootstrap.sh` runs
+`brew bundle` against it right after the shared `Brewfile` when the file
+exists, and silently skips it otherwise. Same syntax as `Brewfile`:
+
+```ruby
+cask "some-app"
+brew "some-tool"
+```
+
 ## What's where
 
 | Tool         | Source path                          | Target              |
