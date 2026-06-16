@@ -35,7 +35,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   palette theme (auto-adapts, no `theme-set` coupling). Failed commands shown,
   not hidden. Revert: delete the file. First run: `atuin import fish`.
 - **`Brewfile` installed by bootstrap** unconditionally before symlinks;
-  aborts on failure.
+  aborts on failure. **`Brewfile.local`** (gitignored, optional) is a
+  machine-local overlay bundled right after, for packages wanted on one
+  machine only; absent ⇒ skipped (no-op).
 - **Global gitignore symlinked from `.gitignore_global`** → `~/.gitignore_global`.
   Cross-repo never-commit set (Claude state, `.superpowers/`, `.autonomo/`).
   Don't add language patterns — those belong in per-language `.gitignore`.

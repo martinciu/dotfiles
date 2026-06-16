@@ -45,6 +45,10 @@
 .config/fish/conf.d/15-local.fish
 .config/fish/conf.d/99-secrets.fish
 
+# machine-local brew overlay — packages for one machine only, not every
+# machine that shares this repo; bundled after the shared Brewfile by bootstrap.sh
+Brewfile.local
+
 # fish runtime state (universal vars, history, generated completions)
 .config/fish/fish_variables
 .config/fish/fish_history
