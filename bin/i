@@ -118,11 +118,11 @@ bd -C "$main" update "$id" --type feature >/dev/null
 bd -C "$main" label add "$id" "branch:$branch" >/dev/null
 
 # 3. Hand off to `s` (worktree + tmux + seeded claude). `s` runs
-#    ${S_CLAUDE_CMD:-claude} in window 1; we seed Phase 1 (default model, max
+#    ${S_CLAUDE_CMD:-claude} in window 1; we seed Phase 1 (default model +
 #    effort).
 project=$(sesh list -c -j 2>/dev/null | jq -r --arg p "$main" '.[] | select(.Path == $p) | .Name' | head -n1)
 [[ -n "$project" ]] || { echo "i: $main is not in your sesh config" >&2; exit 1; }
 
 echo "i: issue #$n → bead $id → branch $branch" >&2
-S_CLAUDE_CMD='CLAUDE_CODE_EFFORT_LEVEL=max claude "/mc:brainstorm"' \
+S_CLAUDE_CMD='claude "/mc:brainstorm"' \
   exec s "$project" "$branch"
