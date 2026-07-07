@@ -6,6 +6,7 @@ ruby = "3.4.8"
 "npm:@mermaid-js/mermaid-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
 "npm:ccstatusline" = "latest"
 go = "1.25.10"
+"npm:pnpm" = "latest"
 
 [settings]
 legacy_version_file = true
