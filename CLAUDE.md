@@ -335,6 +335,18 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `theme-set` theming deferred to the #317 lazygit pattern — redirect to an XDG
   path via the `CONFIG_DIR` env var when it lands. **Out of sandbox scope** (the
   sandbox is itself a container — no Docker socket).
+- **Obsidian vault tooling: `basalt` + obsidian.nvim** (vault `~/code/notes`,
+  host-only — **out of sandbox scope**). basalt = standalone vault TUI via
+  mise `github:erikjuhani/basalt` (`tag_regex="^basalt/"` guards against the
+  repo's basalt-core tags; arch-specific `bin_path` — the github backend
+  extracts tarballs as-is; raw config; ANSI-adaptive → follows theme-set
+  free; in-TUI editing experimental/off — `ctrl+alt+e` spawns vi,
+  `ctrl+alt+o` opens the app). obsidian.nvim (community fork) =
+  wikilinks/backlinks/pickers in nvim — `plugins/obsidian.lua`, registered
+  only when the vault exists, loads only on vault files, buffer-local
+  `<leader>o` maps, `ui` off (render-markdown.nvim owns rendering),
+  `legacy_commands=false`, no daily notes. Dataview/`.base` stay in the
+  Obsidian app.
 - **`mmdc` renders Mermaid** (mise global npm tool). `.mmd` + `.svg` co-located,
   both committed. Build: `scripts/build-diagrams.sh`. Don't install via
   brew/`npm -g`.

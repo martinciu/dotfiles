@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · slm · fzf · nvimpager · sandbox · vhs
+      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · slm · fzf · nvimpager · sandbox · vhs · basalt
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -41,6 +41,7 @@
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
   <a href="#xh">xh</a>
+  <a href="#basalt">basalt</a>
   <a href="#slm">slm</a>
   <a href="#vivid">vivid / LS_COLORS</a>
   <a href="#fzf">fzf</a>
@@ -497,6 +498,33 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="basalt">basalt <span class="tool-tag">Obsidian vault TUI</span></h2>
+<div class="grid">
+  <div class="card">
+    <h3>What / how installed</h3>
+    <table>
+      <tr><td class="key"><code>basalt</code></td><td class="desc">standalone TUI for the Obsidian vault (<code>~/code/notes</code>) — browse &amp; read notes in a bare terminal, works over SSH; same <code>.md</code> files as the app</td></tr>
+      <tr><td class="key">install</td><td class="desc">mise <code>github:erikjuhani/basalt</code>, prebuilt binary (<code>tag_regex</code> pins the TUI crate — the repo also tags <code>basalt-core</code>); no brew, no Rust toolchain</td></tr>
+      <tr><td class="key">config</td><td class="desc">none shipped — raw defaults; colors ride the ANSI palette, so <code>theme-set</code> applies for free. Dataview/<code>.base</code> views stay in the Obsidian app</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Keys (defaults)</h3>
+    <table>
+      <tr><td class="key"><span class="k">?</span></td><td class="desc">help modal — live keymap for the current pane</td></tr>
+      <tr><td class="key"><span class="k">j</span> / <span class="k">k</span> / <span class="k">Enter</span></td><td class="desc">move / open (vault splash &amp; note explorer)</td></tr>
+      <tr><td class="key"><span class="k">t</span></td><td class="desc">toggle explorer sidebar</td></tr>
+      <tr><td class="key"><span class="k">Tab</span></td><td class="desc">switch pane</td></tr>
+      <tr><td class="key"><span class="k">Ctrl</span>+<span class="k">o</span></td><td class="desc">toggle outline pane</td></tr>
+      <tr><td class="key"><span class="k">Ctrl</span>+<span class="k">g</span></td><td class="desc">vault selector</td></tr>
+      <tr><td class="key"><span class="k">Ctrl</span>+<span class="k">Alt</span>+<span class="k">e</span></td><td class="desc">edit note in <code>vi</code> (in-TUI editing is experimental, off)</td></tr>
+      <tr><td class="key"><span class="k">Ctrl</span>+<span class="k">Alt</span>+<span class="k">o</span></td><td class="desc">open note in the Obsidian app</td></tr>
+      <tr><td class="key"><span class="k">q</span></td><td class="desc">quit</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="slm">slm <span class="tool-tag">local LLM prompt</span></h2>
 
 <div class="grid">
@@ -843,7 +871,7 @@
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
 <footer>
-  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-06-10.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-07-13.
   Refresh after meaningful color-tooling changes.
 </footer>
 

@@ -7,6 +7,12 @@ ruby = "3.4.8"
 "npm:ccstatusline" = "latest"
 go = "1.25.10"
 "npm:pnpm" = "latest"
+# basalt (Obsidian vault TUI): the repo also tags basalt-core releases — tag_regex
+# pins version resolution and asset-matching to the TUI crate. No brew formula;
+# the github backend (ubi successor) pulls the prebuilt darwin-arm64 binary (no
+# Rust toolchain) but extracts the tarball as-is, hence the arch-specific
+# bin_path (fine — this repo is Apple Silicon only).
+"github:erikjuhani/basalt" = { version = "latest", tag_regex = "^basalt/", exe = "basalt", bin_path = "aarch64-apple-darwin/release" }
 
 [settings]
 legacy_version_file = true
