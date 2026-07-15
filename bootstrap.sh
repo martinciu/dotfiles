@@ -251,6 +251,11 @@ link ".config/procs"   "$HOME/.config/procs"
 # --- xh (modern HTTP client; Solarized via default_options)
 link ".config/xh"      "$HOME/.config/xh"
 
+# --- basalt (Obsidian vault TUI; raw config, nerd-font glyph preset)
+# ~/.config/basalt/ holds only the tracked config.toml (basalt reads config
+# here and writes no runtime state), so a whole-dir symlink is safe.
+link ".config/basalt"  "$HOME/.config/basalt"
+
 # --- nvimpager (neovim as $PAGER; smooth + colored paging for glow)
 # ~/.config/nvimpager/ holds only the tracked init.lua; nvimpager's runtime
 # state lives under ~/.local/share/nvimpager/, so a whole-dir symlink is safe.

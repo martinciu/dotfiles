@@ -1,0 +1,15 @@
+# basalt — Obsidian vault TUI (github:erikjuhani/basalt via mise). Raw config.
+
+# vim_mode: this machine is vim-everywhere (nvim/LazyVim, `vi`, btop vim_keys),
+# so use basalt's vim keybinding preset (adds gg/G, vim-style pane nav). The
+# preset replaces the default bindings for affected panes rather than merging.
+vim_mode = true
+
+# experimental_editor stays off by design — it lacks undo/redo, clipboard, and
+# text selection. Edit notes via `ctrl+alt+e` (→ vi) or `ctrl+alt+o` (→ app).
+experimental_editor = false
+
+# nerd-font glyphs: font-set ships only Nerd Fonts, so the icon preset renders
+# correctly. Colors need no config — basalt is ANSI-adaptive (follows theme-set).
+[symbols]
+preset = "nerd-font"

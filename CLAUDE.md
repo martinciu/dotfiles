@@ -339,8 +339,10 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   host-only — **out of sandbox scope**). basalt = standalone vault TUI via
   mise `github:erikjuhani/basalt` (`tag_regex="^basalt/"` guards against the
   repo's basalt-core tags; arch-specific `bin_path` — the github backend
-  extracts tarballs as-is; raw config; ANSI-adaptive → follows theme-set
-  free; in-TUI editing experimental/off — `ctrl+alt+e` spawns vi,
+  extracts tarballs as-is; tracked `config.toml` — `vim_mode`, nerd-font
+  `[symbols]`, `experimental_editor` off — whole-dir symlinked (bootstrap
+  `link`, like xh/procs); ANSI-adaptive → follows theme-set free (no
+  per-theme file); in-TUI editing stays off — `ctrl+alt+e` spawns vi,
   `ctrl+alt+o` opens the app). obsidian.nvim (community fork) =
   wikilinks/backlinks/pickers in nvim — `plugins/obsidian.lua`, registered
   only when the vault exists, loads only on vault files, buffer-local
