@@ -83,8 +83,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   patterns: `worktree-…` branches, `#\d+` refs. Fresh machine: after
   `prefix+I` pick "Build from source" (`crystal` is in Brewfile).
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
-  `tmux-resurrect`, `tmux-continuum` (restore on), `tmux-sessionx`,
-  `tmux-fingers`. Status bar is hand-rolled; don't remove TPM.
+  `tmux-resurrect`, `tmux-continuum` (restore on, auto-save 15 min),
+  `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled; don't remove
+  TPM. Theme + status block sits **above** the TPM `run` — continuum
+  prepends its auto-save hook to `status-right` at load; re-setting status
+  options after TPM kills periodic auto-save (#357). Smoke:
+  `scripts/test-tmux-conf-shape.sh`.
 - **OSC 8 hyperlinks pass through tmux** via two `terminal-features`
   `:hyperlinks` entries — without them Claude Code's file-ref links don't
   render. `file://` routing uses macOS defaults (no `duti`).
@@ -414,6 +418,7 @@ derivatives, re-run after swapping a source.
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
+- tmux conf shape: `scripts/test-tmux-conf-shape.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
 - Ghostty config smoke: `scripts/test-ghostty-config.sh`
