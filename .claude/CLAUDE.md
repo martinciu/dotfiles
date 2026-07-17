@@ -165,6 +165,39 @@ How to apply:
   "<keyword>"`. `bd search` queries a different (per-project, stealth)
   store and won't surface GitHub issues.
 
+## Web search tool routing — Tavily / Brave / SerpApi / WebSearch
+
+Four web-search channels are available in every project: Tavily skills
+(user-level, `~/.claude/skills/tavily-*`, CLI `tvly`), the Brave and SerpApi
+user-scoped plugins, and built-in WebSearch. API keys live in
+`~/.config/fish/conf.d/99-secrets.fish` (gitignored, per-machine). Route by
+task, not by whichever skill triggers first:
+
+- **WebSearch (built-in)** — topic overview, "tell me about X".
+- **Brave** (`brave-search-skills:*`) — quick single lookups, news, images,
+  local business/POI data. ~1,000 free queries/month ($5 monthly credit).
+- **Tavily** (`tavily-*` skills) — multi-source research with context
+  isolation (`tavily-dynamic-search`), content extraction, site crawl/map
+  (`crawl --output-dir` for docs dumps), deep research (`tvly research`;
+  prefer `mini` — `pro` can eat up to 250 credits per query). 1,000 free
+  credits/month.
+- **SerpApi** (`serpapi:search` plugin) — structured Google/engine data:
+  flights, hotels, maps + reviews, shopping, Scholar, YouTube transcripts.
+  Only 250 free searches/month — point queries only, never bulk; the skill
+  confirms before each call.
+
+Why: all four trigger on generic "search" phrasing; without a routing rule
+the aggressive Tavily skill descriptions win every time and the faster or
+better-fitting channel never fires. Quotas are asymmetric (250 vs ~1,000),
+so the default choice matters.
+
+How to apply: single fact / news / image / local business → Brave; data
+gathering with filtering, many sources, citable snippets, docs dumps →
+Tavily; strictly-Google or structured data (flights, reviews, transcripts)
+→ SerpApi; general orientation → WebSearch. For bulk filtering of
+Brave/SerpApi output, reuse the curl→Python→`print()` pattern from
+`tavily-dynamic-search` so raw results stay out of context.
+
 ## Superpowers in auto mode
 
 Auto mode doesn't relax Superpowers' clarifying-question phase. When a
