@@ -56,6 +56,53 @@ done
   && ok "solarized selection override applied" || bad "solarized selection override applied"
 
 echo
+echo "— moshi-theme function"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+mkdir -p "$TMP/home/.config/themes" "$TMP/bin"
+for slug in "${SLUGS[@]}"; do
+  ln -s "$DOTFILES/.config/themes/moshi-$slug.json" "$TMP/home/.config/themes/moshi-$slug.json"
+done
+# Active theme = tokyo-night (relative symlink, exactly like theme-set's).
+ln -s tokyo-night.tmux "$TMP/home/.config/themes/current.tmux"
+# pbcopy stub: capture instead of clobbering the real clipboard.
+printf '#!/bin/sh\ncat > "%s/clip"\n' "$TMP" > "$TMP/bin/pbcopy"
+chmod +x "$TMP/bin/pbcopy"
+
+run_fn() {  # run_fn <argv…> — moshi-theme in a scaffolded HOME
+  HOME="$TMP/home" PATH="$TMP/bin:$PATH" fish -c "
+    source $DOTFILES/.config/fish/functions/__theme_set_current.fish
+    source $DOTFILES/.config/fish/functions/__theme_set_names.fish
+    source $DOTFILES/.config/fish/functions/moshi-theme.fish
+    moshi-theme $*"
+}
+
+out="$(run_fn solarized 2>&1)"; rc=$?
+[ "$rc" -eq 0 ] && ok "explicit slug exits 0" || bad "explicit slug exits 0 (rc=$rc)"
+grep -q 'moshi://theme?d=' <<<"$out" && ok "prints deep link" || bad "prints deep link"
+
+b64="$(grep -o 'moshi://theme?d=[A-Za-z0-9+/=]*' <<<"$out" | head -1 | sed 's|.*d=||')"
+name="$(printf '%s' "$b64" | base64 -d 2>/dev/null | jq -r .name 2>/dev/null)"
+[ "$name" = "Solarized Dark" ] && ok "deep-link payload decodes (name)" || bad "deep-link payload decodes (got '$name')"
+
+if [ -f "$TMP/clip" ] && grep -q '^moshi-theme:' "$TMP/clip"; then
+  ok "clipboard string copied via pbcopy"
+else
+  bad "clipboard string copied via pbcopy"
+fi
+clip_name="$(sed 's/^moshi-theme://' "$TMP/clip" 2>/dev/null | base64 -d 2>/dev/null | jq -r .name 2>/dev/null)"
+[ "$clip_name" = "Solarized Dark" ] && ok "clipboard payload decodes (name)" || bad "clipboard payload decodes (got '$clip_name')"
+
+out="$(run_fn 2>&1)"; rc=$?
+b64="$(grep -o 'moshi://theme?d=[A-Za-z0-9+/=]*' <<<"$out" | head -1 | sed 's|.*d=||')"
+name="$(printf '%s' "$b64" | base64 -d 2>/dev/null | jq -r .name 2>/dev/null)"
+[ "$rc" -eq 0 ] && [ "$name" = "Tokyo Night Storm" ] \
+  && ok "no-arg resolves active theme (current.tmux)" || bad "no-arg resolves active theme (rc=$rc, got '$name')"
+
+run_fn bogus-theme >/dev/null 2>&1 && bad "unknown slug rejected" || ok "unknown slug rejected"
+run_fn --help >/dev/null 2>&1 && ok "--help exits 0" || bad "--help exits 0"
+
+echo
 echo "moshi-theme smoke: $pass passed, $fail failed"
 if [ "$fail" -gt 0 ]; then
   printf '  ❌ %s\n' "${fail_msgs[@]}"
