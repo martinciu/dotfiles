@@ -51,16 +51,24 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
   client's parent chain via `ps -o ppid=,ucomm=`, shows a globe glyph when an
   ancestor is `sshd` or `mosh-server` (same glyph — the pin means "remote
-  client attached"). **Use `ucomm`, not `comm`** (comm renders sshd's argv and
+  client attached"). Clients in `@phone_twin` sessions are skipped (#366) —
+  the globe means "a remote client *other than the phone* is attached".
+  **Use `ucomm`, not `comm`** (comm renders sshd's argv and
   never basename-matches).
-- **Moshi (iPhone) logins get a bar-less tmux twin** (`50-moshi-tmux.fish`):
-  `MOSHI_CLIENT=1` (opt-in Moshi env toggle) exec-attaches to session
-  `phone` grouped with `notes` — own session options, so `status off` +
-  `destroy-unattached on` touch only the phone; a stale ungrouped `phone`
-  (resurrect artifact) is killed first. `window-size latest` (pinned in
-  tmux.conf) keeps Mac windows full-size. ccstatusline guarded machine-
-  locally in `~/.claude/settings.json` (`[ "$MOSHI_CLIENT" = 1 ] ||`).
-  Smoke: `scripts/test-moshi-tmux.sh`.
+- **Moshi/mobile clients land in a bar-less tmux twin — tmux-side** (#366):
+  a `client-attached` hook (`tmux-phone-attach`) classifies every attaching
+  client (remote ancestry via shared `_remote-ancestry` + `client_termname
+  != xterm-ghostty`); phone clients are switched into `<target>-phone`, a
+  grouped twin built by `tmux-phone-twin` (`status off`, `@phone_twin`
+  marker, stale-resurrect kill, twin-of-twin guard; `destroy-unattached on`
+  set only after entry), then the conf is re-sourced to repair Moshi's
+  `set -g status-right ''` clobber (PR pin + continuum hook). Covers the
+  session-picker path that never spawns fish; `50-moshi-tmux.fish` keeps
+  only login auto-attach (`MOSHI_CLIENT=1` → ensure `notes` → attach
+  `notes-phone`). `window-size latest` (pinned in tmux.conf) keeps Mac
+  windows full-size. ccstatusline guarded machine-locally in
+  `~/.claude/settings.json` (`[ "$MOSHI_CLIENT" = 1 ] ||`). Smoke:
+  `scripts/test-moshi-tmux.sh`, `test-phone-twin.sh`, `test-phone-attach.sh`.
 - **tmux PR pin** in `status-right` (`tmux-status-right` → `tmux-pr-detect`,
   stale-while-revalidate cache around `gh pr view`, TTL 60s). Orange chip
   ` #<num>` when a PR exists (OPEN or DRAFT); `<prefix> P` opens it on web.
