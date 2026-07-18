@@ -1,0 +1,50 @@
+#!/opt/homebrew/bin/bash
+# client-attached hook handler (#366): route Moshi/mobile clients into a
+# bar-less grouped twin of whatever session they attached to, then repair
+# the globals Moshi's picker preamble clobbers. Moshi's picker runs
+# `tmux set -g status-right '' \; ... attach-session` with no login shell,
+# so conf.d/50-moshi-tmux.fish never sees that path — this hook does.
+#
+# Classification: "phone" = remote (client_pid ancestry hits sshd /
+# sshd-session / mosh-server) AND client_termname != xterm-ghostty.
+# Local Ghostty and Ghostty-over-SSH clients are no-ops; classification
+# errors fail toward "not phone" (raw attach — pre-#366 behavior, never
+# worse). Always exits 0: a hook failure must never break an attach.
+#
+# set-option's target parser rejects the "=" exact-match prefix
+# (tmux 3.7b) — bare twin name there, "=" on switch-client.
+#
+# Usage: tmux-phone-attach <client-name>
+#   (wired in tmux.conf: set-hook -g client-attached, #{hook_client})
+set -eu
+
+client="${1:?usage: tmux-phone-attach <client-name>}"
+
+. "${BASH_SOURCE[0]%/*}/_remote-ancestry"
+
+info=$(tmux display-message -p -c "$client" \
+  -F '#{client_pid} #{client_termname} #{client_session}' 2>/dev/null) || exit 0
+# session is last: it may contain spaces; pid/termname never do.
+read -r pid termname session <<<"$info"
+
+[ -n "$pid" ] || exit 0
+[ "$termname" = xterm-ghostty ] && exit 0
+ancestry_is_remote "$pid" || exit 0
+
+twin=$("${BASH_SOURCE[0]%/*}/tmux-phone-twin" "$session" 2>/dev/null) || exit 0
+[ -n "$twin" ] || exit 0
+
+if [ "$twin" != "$session" ]; then
+  tmux switch-client -c "$client" -t "=$twin"
+fi
+# Only now that a client is inside: a detached twin with this option set
+# could be reaped before the switch lands.
+tmux set-option -t "$twin" destroy-unattached on
+
+# Moshi's preamble ran `set -g status-right ''` before attaching, wiping
+# the PR pin and tmux-continuum's prepended auto-save hook. Re-sourcing
+# the conf re-sets status-right and re-runs TPM so continuum re-prepends
+# — the documented manual fix (#357/#358), automated. The twin's
+# session-local `status off` overrides the re-set globals, so the phone
+# bar stays hidden.
+tmux source-file "$HOME/.config/tmux/tmux.conf"
