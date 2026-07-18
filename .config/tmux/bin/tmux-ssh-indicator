@@ -5,7 +5,7 @@
 # inside the left-side
 # session chip via `#(...)` in tmux's `status-left`.
 #
-# Detection is server-wide (any attached client SSH-rooted -> indicator on),
+# Detection is server-wide (any attached client remote-rooted -> indicator on),
 # not per-client, because `#(...)` shells run server-global. For a single-
 # user Mac this is accurate enough; a per-client design would require
 # attach/detach hooks plus a per-client option, which is more moving parts
