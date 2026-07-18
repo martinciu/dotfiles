@@ -117,6 +117,7 @@
       <tr><td class="key"><code>tmux a -t work</code></td><td class="desc">attach to "work"</td></tr>
       <tr><td class="key"><code>tmux kill-session -t work</code></td><td class="desc">kill "work"</td></tr>
       <tr><td class="key"><code>tmux kill-server</code></td><td class="desc">kill all sessions</td></tr>
+      <tr><td class="key"><code>MOSHI_CLIENT=1</code> login</td><td class="desc">Moshi (iPhone) auto-attaches to <code>phone</code>, a bar-less grouped twin of <code>notes</code> (<code>50-moshi-tmux.fish</code>); detach ends the connection</td></tr>
     </table>
     <p class="note">tmux-resurrect + tmux-continuum auto-save sessions every 15 min and auto-restore on a fresh server. See the "Persistence" card below for bindings.</p>
   </div>
@@ -387,6 +388,7 @@
 <span class="kw">set</span> -g <span class="cmd">history-limit</span> <span class="arg">50000</span>
 <span class="kw">set</span> -g <span class="cmd">escape-time</span> <span class="arg">10</span>          <span class="c"># vim-friendly</span>
 <span class="kw">set</span> -g <span class="cmd">focus-events</span> <span class="arg">on</span>
+<span class="kw">set</span> -g <span class="cmd">window-size</span> <span class="arg">latest</span>    <span class="c"># a phone client only shrinks the window it's viewing</span>
 
 <span class="c"># Bells silenced everywhere</span>
 <span class="kw">set</span> -g <span class="cmd">bell-action</span>  <span class="arg">none</span>
