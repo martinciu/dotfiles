@@ -8,8 +8,8 @@
 # is what's measured, with no drift between them.
 #
 # slug_from_issue <title> [<description>]  ->  prints the slug on stdout
-#   • routes title+description through the local `slm` model (oMLX) with the
-#     SLUG_SYS system prompt, then sanitises to a safe branch ref:
+#   • routes title+description through the local `slm` model (LM Studio) with
+#     the SLUG_SYS system prompt, then sanitises to a safe branch ref:
 #     first line → lowercase → non-alnum runs to '-' → trim → word-boundary
 #     cap at 20 chars.
 #   • prints NOTHING (returns 0) if fish/slm is unavailable; callers then
@@ -24,11 +24,11 @@ slug_from_issue() {                  # $1 = title, $2 = description (optional)
   command -v fish >/dev/null 2>&1 || return 0
   local slm_fn="${XDG_CONFIG_HOME:-$HOME/.config}/fish/functions/slm.fish"
   [[ -f "$slm_fn" ]] || return 0
-  # Cap description to keep latency sane on the 1B model.
+  # Cap description to keep latency sane on a small local model.
   local desc="${2:-}"
   desc="${desc:0:1500}"
   # `|| true`: under `set -euo pipefail` a non-zero anywhere in this pipeline —
-  # slm failing (oMLX down) or `head -n1` closing the pipe early on a
+  # slm failing (LM Studio down) or `head -n1` closing the pipe early on a
   # multi-line reply — would otherwise abort the caller. Swallow it so empty
   # output falls through to the caller's fallback.
   printf 'Title: %s\n\nDescription: %s' "$1" "$desc" \
