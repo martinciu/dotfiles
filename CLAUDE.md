@@ -49,8 +49,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Mode/message/border/inline colors aren't pins.
 - **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
   client's parent chain via `ps -o ppid=,ucomm=`, shows a globe glyph when an
-  ancestor is `sshd`. **Use `ucomm`, not `comm`** (comm renders sshd's argv and
-  never basename-matches). Mosh not detected.
+  ancestor is `sshd` or `mosh-server` (same glyph — the pin means "remote
+  client attached"). **Use `ucomm`, not `comm`** (comm renders sshd's argv and
+  never basename-matches).
 - **tmux PR pin** in `status-right` (`tmux-status-right` → `tmux-pr-detect`,
   stale-while-revalidate cache around `gh pr view`, TTL 60s). Orange chip
   ` #<num>` when a PR exists (OPEN or DRAFT); `<prefix> P` opens it on web.

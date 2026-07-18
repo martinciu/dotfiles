@@ -1,18 +1,19 @@
 #!/opt/homebrew/bin/bash
 # Emit a Nerd Font globe glyph (U+F0AC, nf-fa-globe) when any currently-
-# attached tmux client traces back to an `sshd` (or `sshd-session`) ancestor
-# process. Otherwise emit nothing. Intended for use inside the left-side
+# attached tmux client traces back to an `sshd` (or `sshd-session`) or
+# `mosh-server` ancestor process. Otherwise emit nothing. Intended for use
+# inside the left-side
 # session chip via `#(...)` in tmux's `status-left`.
 #
-# Detection is server-wide (any attached client SSH-rooted -> indicator on),
+# Detection is server-wide (any attached client remote-rooted -> indicator on),
 # not per-client, because `#(...)` shells run server-global. For a single-
 # user Mac this is accurate enough; a per-client design would require
 # attach/detach hooks plus a per-client option, which is more moving parts
 # than the use case warrants.
 #
-# Mosh is intentionally not detected — mosh sessions root in `mosh-server`,
-# not `sshd`. Add `mosh-server` to the match set if mosh becomes a regular
-# tool here.
+# Mosh sessions root in `mosh-server` (daemonized, directly under launchd),
+# not `sshd` — detected via the same match set, same glyph: the pin means
+# "a remote client is attached", transport-agnostic.
 
 set -eu
 set -o pipefail
@@ -24,7 +25,8 @@ glyph=$(printf '\xef\x82\xac')   # U+F0AC nf-fa-globe
 MAX_DEPTH=20
 
 # Returns 0 if walking the parent-process chain of $1 on macOS finds an
-# `sshd` or `sshd-session` ancestor. Returns 1 otherwise. Stops at depth
+# `sshd`, `sshd-session`, or `mosh-server` ancestor. Returns 1 otherwise.
+# Stops at depth
 # MAX_DEPTH or when ppid is 0 / 1 / equals self / cycles back to a seen pid.
 #
 # Uses `ps -o ucomm=` (kernel-recorded short command name), not `comm=`.
@@ -48,7 +50,7 @@ client_is_ssh() {
     read -r ppid ucomm <<<"$row"
     [ -z "$ppid" ] && return 1
     case "$ucomm" in
-      sshd|sshd-session) return 0 ;;
+      sshd|sshd-session|mosh-server) return 0 ;;
     esac
     case "$seen" in
       *" $ppid "*) return 1 ;;

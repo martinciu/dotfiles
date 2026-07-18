@@ -261,6 +261,28 @@ EOF
 check "ps cycle (ppid loops back) -> loop guard, empty output" test_ps_cycle
 
 # ---------------------------------------------------------------------------
+# Test 8: ancestry rooted in mosh-server -> glyph. mosh-server daemonizes
+# and re-parents to launchd, so it sits directly under pid 1 — this also
+# regression-tests that the ucomm match fires before the ppid-0/1 stop.
+# ---------------------------------------------------------------------------
+test_mosh_server_ancestor() {
+  local dir; dir=$(mktemp -d)
+  # shellcheck disable=SC2064
+  trap "rm -rf '$dir'" RETURN
+  printf '%s\n' "7001" > "$dir/clients"
+  cat > "$dir/table" <<'EOF'
+7001 6900 tmux
+6900 6800 fish
+6800 1 mosh-server
+EOF
+  build_shim "$dir" "$dir/clients" "$dir/table"
+  local out
+  out=$(PATH="$dir:$PATH" "$SCRIPT")
+  [ "$out" = "$EXPECT_SSH" ] || { echo "  expected glyph+space, got: $(printf %q "$out")"; return 1; }
+}
+check "client ancestry through mosh-server -> glyph + space" test_mosh_server_ancestor
+
+# ---------------------------------------------------------------------------
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 if [ "$fail" -gt 0 ]; then
   printf 'Failed:\n'
