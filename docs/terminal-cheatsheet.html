@@ -743,6 +743,21 @@
     <p><strong>Stay Solarized Dark:</strong> procs, tailspin (<code>tspin</code>), xh.</p>
     <p class="note">fzf + atuin + difftastic auto-adapt via ANSI palette refs (no per-theme file). tmux sources the active palette; nvim reads it at startup. See CLAUDE.md → "Switchable themes".</p>
   </div>
+
+  <div class="card">
+    <h3>Send the theme to the phone</h3>
+    <p>
+      <code>moshi-theme</code> (fish function) exports a theme to the
+      <a href="https://getmoshi.app">Moshi</a> iPhone terminal as a
+      Moshi-v1 payload. No args = the active <code>theme-set</code> theme.
+    </p>
+    <table>
+      <tr><td class="key"><code>moshi-theme</code></td><td class="desc">active theme → tappable <code>moshi://</code> deep link + <code>moshi-theme:…</code> string on the clipboard</td></tr>
+      <tr><td class="key"><code>moshi-theme &lt;name&gt;</code></td><td class="desc">any of the 10 themes (Tab-completes)</td></tr>
+      <tr><td class="key"><code>moshi-theme --qr</code></td><td class="desc">scannable QR in the terminal (phone camera → Moshi import)</td></tr>
+    </table>
+    <p class="note">Import is manual on the phone (Settings → Theme → Import theme). Payloads are committed <code>moshi-&lt;slug&gt;.json</code> artifacts — re-run <code>scripts/build-moshi-themes.py</code> after theme changes (needs Ghostty.app).</p>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
