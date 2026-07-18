@@ -25,7 +25,8 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   into ordered `conf.d/<NN>-<concern>.fish`: `00-env`, `10-colors`, `15-local`
   (untracked), `20-mise`, `25-prompt` (starship), `30-aliases`,
   `35-abbreviations` (git-flow abbrs), `40-plugins` (fzf/zoxide/wt),
-  `45-atuin`, `99-secrets` (untracked). `15-local`/`99-secrets` are real files
+  `45-atuin`, `50-moshi-tmux` (phone → bar-less tmux twin), `99-secrets`
+  (untracked). `15-local`/`99-secrets` are real files
   seeded from `.template` companions. `completions/`: `s.fish`/`wt.fish`
   tracked, machine completions real. Smoke: `scripts/test-fish-loads.sh`.
 - **`atuin` owns Ctrl-R only** (`45-atuin.fish`, loaded after fzf so its
@@ -52,6 +53,14 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   ancestor is `sshd` or `mosh-server` (same glyph — the pin means "remote
   client attached"). **Use `ucomm`, not `comm`** (comm renders sshd's argv and
   never basename-matches).
+- **Moshi (iPhone) logins get a bar-less tmux twin** (`50-moshi-tmux.fish`):
+  `MOSHI_CLIENT=1` (opt-in Moshi env toggle) exec-attaches to session
+  `phone` grouped with `notes` — own session options, so `status off` +
+  `destroy-unattached on` touch only the phone; a stale ungrouped `phone`
+  (resurrect artifact) is killed first. `window-size latest` (pinned in
+  tmux.conf) keeps Mac windows full-size. ccstatusline guarded machine-
+  locally in `~/.claude/settings.json` (`[ "$MOSHI_CLIENT" = 1 ] ||`).
+  Smoke: `scripts/test-moshi-tmux.sh`.
 - **tmux PR pin** in `status-right` (`tmux-status-right` → `tmux-pr-detect`,
   stale-while-revalidate cache around `gh pr view`, TTL 60s). Orange chip
   ` #<num>` when a PR exists (OPEN or DRAFT); `<prefix> P` opens it on web.
@@ -419,6 +428,7 @@ derivatives, re-run after swapping a source.
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
+- Moshi auto-attach: `scripts/test-moshi-tmux.sh`
 - tmux conf shape: `scripts/test-tmux-conf-shape.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
 - Fish config smoke: `scripts/test-fish-loads.sh`
