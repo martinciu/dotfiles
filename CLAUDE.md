@@ -308,28 +308,30 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `00-env.fish`) like fzf/atuin — no per-theme file; presets 4–9 are fixed
   hex/256 and would follow worse. **Both in sandbox scope** (baked via
   `sandbox/mise.toml`).
-- **`slm` pipes any prompt to the local oMLX model** (fish function
-  `.config/fish/functions/slm.fish`; oMLX-only, Mac-only). One-shot, buffered:
-  args and/or stdin → one `curl` POST to `$SLM_URL/chat/completions` (default
-  `:8000/v1`) with `$SLM_MODEL` (default `Llama-3.2-1B-Instruct-4bit`) → prints
-  `.choices[0].message.content`. oMLX **requires an API key**: sends
-  `Authorization: Bearer $SLM_API_KEY` when set (seeded in untracked
-  `99-secrets.fish`), header omitted when empty so a keyless endpoint still
-  works. Uses **`curl`, not `xh`** — raw JSON body via `jq`, the documented
-  exception. Flags `-m`/`-s`/`-h`; env
-  `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM`/`SLM_API_KEY` (precedence flag > env >
-  built-in). Server not always-on → friendly `oMLX not reachable` error on
-  connection refusal, no auto-start (start it with `omlx serve <model> --port
-  8000` or the oMLX menubar app). 1B model: quick/cheap, not
-  authoritative. **Out of sandbox scope** (oMLX is a Mac server; in-container
-  `localhost` isn't the host). Smoke: `scripts/test-slm.sh`. **Slug-quality
-  eval** for the `i` branch-slug job: `scripts/eval-slug.sh` (`--full`/`-n`/`-m`;
-  `SLM_MODEL=… ` to rank a candidate) scores slm output against
-  `scripts/eval-slug-fixtures.jsonl` — 188 real pre-slm merged ccpulse+dotfiles
-  PRs whose `<issue>-<slug>` branch is a human-authored gold slug (30 curated
-  `quick:true`); keyword-overlap headline + exact + ≤3-word sanity; oMLX-gated
-  SKIP, never a CI gate. The slug pipeline is **shared** in `bin/_slug-from-issue`
-  (sourced by both `bin/i` and the eval, so what ships is what's measured).
+- **`slm` pipes any prompt to the local LM Studio model** (fish function
+  `.config/fish/functions/slm.fish`; LM Studio-only, Mac-only). One-shot,
+  buffered: args and/or stdin → one `curl` POST to `$SLM_URL/chat/completions`
+  (default `:1234/v1`, keyless) with `$SLM_MODEL` (default `qwen/qwen3.5-9b`)
+  → prints `.choices[0].message.content`. Body pins `reasoning_effort: "none"`
+  (qwen3.5 is a hybrid thinking model — without it a one-liner burns thousands
+  of reasoning tokens and returns empty content, #363) and `max_tokens`
+  (`SLM_MAX_TOKENS`, default 512, numeric-guarded). Uses **`curl`, not `xh`** —
+  raw JSON body via `jq`, the documented exception. Flags `-m`/`-s`/`-h`; env
+  `SLM_URL`/`SLM_MODEL`/`SLM_SYSTEM`/`SLM_MAX_TOKENS` (precedence flag > env >
+  built-in). Server not always-on → friendly `LM Studio not reachable` error
+  on connection refusal, no auto-start (start the LM Studio app or `lms server
+  start`). Stale-env footgun: a long-lived shell exporting an old `SLM_MODEL`
+  gets a `Channel Error` from LM Studio; new shells self-heal. 9B model:
+  quick/local, not authoritative. **Out of sandbox scope** (LM Studio is a Mac
+  server; in-container `localhost` isn't the host). Smoke:
+  `scripts/test-slm.sh`. **Slug-quality eval** for the `i` branch-slug job:
+  `scripts/eval-slug.sh` (`--full`/`-n`/`-m`; `SLM_MODEL=… ` to rank a
+  candidate) scores slm output against `scripts/eval-slug-fixtures.jsonl` —
+  188 real pre-slm merged ccpulse+dotfiles PRs whose `<issue>-<slug>` branch
+  is a human-authored gold slug (30 curated `quick:true`); keyword-overlap
+  headline + exact + ≤3-word sanity; LM Studio-gated SKIP, never a CI gate.
+  The slug pipeline is **shared** in `bin/_slug-from-issue` (sourced by both
+  `bin/i` and the eval, so what ships is what's measured).
 - **`hyperfine`** for benchmarks (warmups / A-B), additive to `time`. Raw.
 - **`duf`/`dust`/`dua` are modern `df`/`du`/`du`-aggregate companions** (raw, no
   alias; `du`/`df` stay for scripts). `dua i` opens a TUI deleter.
