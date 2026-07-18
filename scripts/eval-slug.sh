@@ -2,7 +2,7 @@
 # eval-slug.sh — measure how well a local `slm` model turns GitHub issues into
 # branch slugs (the job `bin/i` does). NOT a pass/fail gate: slm output is
 # non-deterministic and model-dependent, so this prints scores you read, and
-# always exits 0 (SKIP when oMLX is unreachable).
+# always exits 0 (SKIP when LM Studio is unreachable).
 #
 #   scripts/eval-slug.sh              # 30-case curated quick set, current model
 #   scripts/eval-slug.sh --full       # all 188 cases
@@ -20,7 +20,7 @@
 #   • exact match      — strict, secondary (an LLM rarely nails it verbatim).
 #   • ≤3-word sanity   — did the model obey "2-3 keywords"? (instruction follow)
 #
-# Quick set runtime ≈ 1 fish+slm call per case; budget ~1-2s each on a 1B model.
+# Quick set runtime ≈ 1 fish+slm call per case; budget a few seconds per case.
 set -uo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
@@ -49,12 +49,11 @@ done
 [ -f "$FIXTURE" ] || { echo "❌ fixture missing: $FIXTURE" >&2; exit 1; }
 [ -f "$HELPER" ]  || { echo "❌ helper missing: $HELPER"  >&2; exit 1; }
 
-# oMLX gate — same probe as test-slm.sh. No server → SKIP (CI-friendly).
-SLM_URL_DEFAULT="${SLM_URL:-http://localhost:8000/v1}"
-if ! curl -sf -o /dev/null --max-time 2 \
-     -H "Authorization: Bearer ${SLM_API_KEY:-}" "$SLM_URL_DEFAULT/models" 2>/dev/null; then
-  echo "⏭️  oMLX not reachable at $SLM_URL_DEFAULT (or SLM_API_KEY unset) — skipping slug eval"
-  echo "    start it with:  omlx serve <model> --port 8000   (or the oMLX menubar app)"
+# LM Studio gate — same probe as test-slm.sh. No server → SKIP (CI-friendly).
+SLM_URL_DEFAULT="${SLM_URL:-http://localhost:1234/v1}"
+if ! curl -sf -o /dev/null --max-time 2 "$SLM_URL_DEFAULT/models" 2>/dev/null; then
+  echo "⏭️  LM Studio not reachable at $SLM_URL_DEFAULT — skipping slug eval"
+  echo "    start the LM Studio app (or:  lms server start)"
   exit 0
 fi
 

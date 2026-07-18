@@ -26,8 +26,8 @@
 # session, `slm` for the slug).
 #
 # Branch slug: from the issue title + description via the local `slm` model
-# (oMLX), word-boundary-trimmed to <=20 chars. Description is capped at
-# 1500 chars to keep latency sane on the 1.2B model — empirically enough
+# (LM Studio), word-boundary-trimmed to <=20 chars. Description is capped at
+# 1500 chars to keep latency sane on a small local model — empirically enough
 # context to disambiguate generic titles (#302 "generate" → "slug",
 # #336 "simplify" → "tui-render") without slowing the call by an order of
 # magnitude. Falls back to just the issue number if fish/slm is unavailable
@@ -44,7 +44,7 @@ n="${1:?usage: i <issue-number> [slug]}"
 [[ "$n" =~ ^[0-9]+$ ]] || { echo "i: issue must be a number, got '$n'" >&2; exit 1; }
 
 # Branch slug from the issue title + description via the local `slm` model
-# (oMLX). The pipeline lives in the sibling `_slug-from-issue` helper (shared
+# (LM Studio). The pipeline lives in the sibling `_slug-from-issue` helper (shared
 # with scripts/eval-slug.sh so what ships is what's measured): it defines
 # SLUG_SYS + the `slug_from_issue` function. Resolve our own real path first
 # (we're invoked through the ~/.local/bin/i symlink) so the source finds the
