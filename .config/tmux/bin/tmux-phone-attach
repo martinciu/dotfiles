@@ -35,11 +35,14 @@ twin=$("${BASH_SOURCE[0]%/*}/tmux-phone-twin" "$session" 2>/dev/null) || exit 0
 [ -n "$twin" ] || exit 0
 
 if [ "$twin" != "$session" ]; then
-  tmux switch-client -c "$client" -t "=$twin"
+  # Client may have detached before this async hook body ran; a failed
+  # switch means no client is inside the twin, so skip destroy-unattached
+  # and the repair below too.
+  tmux switch-client -c "$client" -t "=$twin" || exit 0
 fi
 # Only now that a client is inside: a detached twin with this option set
 # could be reaped before the switch lands.
-tmux set-option -t "$twin" destroy-unattached on
+tmux set-option -t "$twin" destroy-unattached on || exit 0
 
 # Moshi's preamble ran `set -g status-right ''` before attaching, wiping
 # the PR pin and tmux-continuum's prepended auto-save hook. Re-sourcing
@@ -47,4 +50,4 @@ tmux set-option -t "$twin" destroy-unattached on
 # — the documented manual fix (#357/#358), automated. The twin's
 # session-local `status off` overrides the re-set globals, so the phone
 # bar stays hidden.
-tmux source-file "$HOME/.config/tmux/tmux.conf"
+tmux source-file "$HOME/.config/tmux/tmux.conf" || exit 0

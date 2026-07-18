@@ -37,6 +37,9 @@ if [ "\$1" = display-message ]; then
   [ -n "\${CLIENT_INFO:-}" ] || exit 1
   printf '%s\n' "\$CLIENT_INFO"
 fi
+if [ "\$1" = switch-client ] && [ -n "\${SWITCH_FAIL:-}" ]; then
+  exit 1
+fi
 exit 0
 EOF
   chmod +x "$dir/shim/tmux"
@@ -160,6 +163,25 @@ test_client_gone() {
   ! grep -q '^phone-twin' "$dir/log" || { echo "  twin called"; return 1; }
 }
 check "vanished client -> graceful no-op" test_client_gone
+
+# Test 7: switch-client fails (client vanished mid-hook) -> exit 0, no
+# destroy-unattached, no repair
+test_switch_failure() {
+  local dir; dir=$(mktemp -d)
+  # shellcheck disable=SC2064
+  trap "rm -rf '$dir'" RETURN
+  printf '%s\n' "$REMOTE_TABLE" > "$dir/table"
+  build_sandbox "$dir" "$dir/log" "$dir/table"
+  local rc=0
+  run_handler "$dir" "$dir/log" CLIENT_INFO="1001 xterm-256color notes" TWIN_OUT=notes-phone SWITCH_FAIL=1 || rc=$?
+  [ "$rc" -eq 0 ] || { echo "  exited $rc"; return 1; }
+  grep -Fq 'switch-client -c /dev/ttys099 -t =notes-phone' "$dir/log" \
+    || { echo "  missing switch attempt"; return 1; }
+  ! grep -Fq 'set-option -t notes-phone destroy-unattached on' "$dir/log" \
+    || { echo "  destroy-unattached set"; return 1; }
+  ! grep -q 'source-file' "$dir/log" || { echo "  sourced"; return 1; }
+}
+check "switch-client failure -> exit 0, no destroy-unattached, no repair" test_switch_failure
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 if [ "$fail" -gt 0 ]; then
