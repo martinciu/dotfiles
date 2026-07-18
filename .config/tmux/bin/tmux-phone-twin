@@ -1,0 +1,52 @@
+#!/opt/homebrew/bin/bash
+# Ensure a bar-less grouped "phone twin" of a target session; print its
+# name. The single twin implementation behind both Moshi entry paths
+# (#366): the client-attached hook (tmux-phone-attach) and the login
+# auto-attach (conf.d/50-moshi-tmux.fish). A twin shares the target's
+# windows but owns its session options — `status off` hides the bar for
+# the phone only. `destroy-unattached` is deliberately NOT set here:
+# callers set it once their client is inside (a detached twin must
+# survive until the switch-client/attach lands).
+#
+# Usage: tmux-phone-twin <target-session>
+#   stdout: twin session name (the target itself when it's already a twin)
+#   exit:   non-zero when the target session doesn't exist
+#
+# Target form varies by command, deliberately (tmux 3.7b, verified):
+# session-only-target commands (has-session, kill-session, new-session -t)
+# accept the "=" exact-match prefix; the option/format commands
+# (set-option, show-option, display-message) reject it — with -q the
+# failure is silently empty, which would defeat the guards below. Those
+# three use bare names: exact-name match outranks prefix/fnmatch, and
+# every bare target here was just created or has-session-verified.
+set -eu
+
+target="${1:?usage: tmux-phone-twin <target-session>}"
+
+# Twin-of-twin guard: tapping a live twin in Moshi's picker must not nest
+# (notes-phone-phone). Twins carry @phone_twin from creation.
+if [ "$(tmux show-option -t "$target" -qv @phone_twin 2>/dev/null)" = 1 ]; then
+  printf '%s\n' "$target"
+  exit 0
+fi
+
+tmux has-session -t "=$target" 2>/dev/null
+
+twin="${target}-phone"
+
+# tmux-resurrect restores twins as ungrouped full copies (it doesn't
+# understand session groups); reusing one would hand the phone a stale
+# snapshot. Kill it unless genuinely grouped with the target.
+if tmux has-session -t "=$twin" 2>/dev/null; then
+  if [ "$(tmux display-message -p -t "$twin" '#{session_group}')" != "$target" ]; then
+    tmux kill-session -t "=$twin"
+  fi
+fi
+
+if ! tmux has-session -t "=$twin" 2>/dev/null; then
+  tmux new-session -d -s "$twin" -t "=$target"
+  tmux set-option -t "$twin" status off
+  tmux set-option -t "$twin" @phone_twin 1
+fi
+
+printf '%s\n' "$twin"
