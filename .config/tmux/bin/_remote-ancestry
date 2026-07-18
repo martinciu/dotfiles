@@ -1,0 +1,47 @@
+# _remote-ancestry — shared macOS parent-chain walk (sourced, not run).
+# Consumers: tmux-ssh-indicator (globe pin), tmux-phone-attach (#366).
+#
+# ancestry_is_remote <pid>: returns 0 if walking the parent-process chain
+# finds an `sshd`, `sshd-session`, or `mosh-server` ancestor; 1 otherwise.
+# Stops at depth _REMOTE_ANCESTRY_MAX_DEPTH or when ppid is 0 / 1 / equals
+# self / cycles back to a seen pid.
+#
+# Uses `ps -o ucomm=` (kernel-recorded short command name), not `comm=`.
+# On macOS, `comm` for sshd's privsep children renders as the descriptive
+# argv string (e.g. `sshd-session: martinciu@ttys008`), which never
+# basename-equals `sshd-session`. `ucomm` always returns the executable
+# basename, so the case match below is exact.
+#
+# Implemented as a single function (no pipeline to a separate matcher) so
+# consumers don't have to reason about SIGPIPE semantics under pipefail.
+
+_REMOTE_ANCESTRY_MAX_DEPTH=20
+
+ancestry_is_remote() {
+  local pid="$1"
+  local depth=0
+  local seen=" "
+  local row ppid ucomm
+  while [ "$depth" -lt "$_REMOTE_ANCESTRY_MAX_DEPTH" ]; do
+    row=$(ps -p "$pid" -o ppid=,ucomm= 2>/dev/null) || return 1
+    [ -z "$row" ] && return 1
+    # `read` collapses leading whitespace (macOS ps right-pads ppid) and
+    # splits the first run of whitespace as the ppid/ucomm boundary.
+    read -r ppid ucomm <<<"$row"
+    [ -z "$ppid" ] && return 1
+    case "$ucomm" in
+      sshd|sshd-session|mosh-server) return 0 ;;
+    esac
+    case "$seen" in
+      *" $ppid "*) return 1 ;;
+    esac
+    seen="$seen$ppid "
+    case "$ppid" in
+      0|1) return 1 ;;
+    esac
+    [ "$ppid" = "$pid" ] && return 1
+    pid="$ppid"
+    depth=$((depth + 1))
+  done
+  return 1
+}

@@ -1,17 +1,19 @@
 #!/opt/homebrew/bin/bash
-# Smoke tests for conf.d/50-moshi-tmux.fish (Moshi -> bar-less grouped twin).
+# Smoke tests for conf.d/50-moshi-tmux.fish (Moshi login -> twin attach).
 #
 # Each test builds a tmpdir with a mock `tmux` that logs every invocation
-# ("$*" per line) and answers has-session / display-message from env-var
-# fixtures (HAS_NOTES / HAS_PHONE exit codes, PHONE_GROUP group name).
-# The snippet is sourced under `fish --no-config -i -c` so its
+# ("$*" per line) and answers has-session from the HAS_NOTES exit-code
+# fixture, plus a mock tmux-phone-twin under a fake $HOME (the snippet
+# calls it via ~/.config/tmux/bin/…) that prints $TWIN_OUT or fails when
+# it's empty. The snippet is sourced under `fish --no-config -i -c` so its
 # `status is-interactive` gate passes; `env -u TMUX` clears the outer tmux.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SNIPPET="$REPO/.config/fish/conf.d/50-moshi-tmux.fish"
 
-ATTACH_LINE='new-session -A -s phone -t notes ; set status off ; set destroy-unattached on'
+ATTACH_LINE='attach-session -t =notes-phone ; set destroy-unattached on'
+FALLBACK_LINE='new-session -A -s notes'
 
 pass=0
 fail=0
@@ -29,35 +31,42 @@ check() {
   fi
 }
 
-# Build the mock tmux in $1 (a tmpdir); it appends "$*" to $2 on every call.
+# Build the mock tmux in $1/bin and a mock tmux-phone-twin under the fake
+# HOME $1/home (the snippet calls it via ~/.config/tmux/bin/…). Both log
+# "$*" lines; the twin mock prints $TWIN_OUT (fails when empty).
 build_shim() {
   local dir="$1" log="$2"
+  mkdir -p "$dir/bin" "$dir/home/.config/tmux/bin"
 
-  cat > "$dir/tmux" <<EOF
+  cat > "$dir/bin/tmux" <<EOF
 #!/opt/homebrew/bin/bash
 echo "\$*" >> "$log"
 case "\$1" in
   has-session)
     case "\$*" in
-      *"-t notes"*) exit "\${HAS_NOTES:-1}" ;;
-      *"-t phone"*) exit "\${HAS_PHONE:-1}" ;;
+      *"-t =notes"*) exit "\${HAS_NOTES:-1}" ;;
     esac
-    ;;
-  display-message)
-    printf '%s\n' "\${PHONE_GROUP:-phone}"
     ;;
 esac
 exit 0
 EOF
-  chmod +x "$dir/tmux"
+  chmod +x "$dir/bin/tmux"
+
+  cat > "$dir/home/.config/tmux/bin/tmux-phone-twin" <<EOF
+#!/opt/homebrew/bin/bash
+echo "phone-twin \$*" >> "$log"
+[ -n "\${TWIN_OUT:-}" ] || exit 1
+printf '%s\n' "\$TWIN_OUT"
+EOF
+  chmod +x "$dir/home/.config/tmux/bin/tmux-phone-twin"
 }
 
 # run_snippet <dir> <log> [VAR=val ...] — source the snippet with the shim
-# first on PATH and the given env fixtures. TMUX is cleared unless a fixture
-# re-sets it.
+# first on PATH, the fake HOME, and the given env fixtures. TMUX is cleared
+# unless a fixture re-sets it.
 run_snippet() {
   local dir="$1" log="$2"; shift 2
-  env -u TMUX "$@" PATH="$dir:$PATH" \
+  env -u TMUX "$@" HOME="$dir/home" PATH="$dir/bin:$PATH" \
     fish --no-config -i -c "source '$SNIPPET'"
 }
 
@@ -88,61 +97,47 @@ test_inside_tmux() {
 check "MOSHI_CLIENT=1 inside tmux -> no tmux calls" test_inside_tmux
 
 # ---------------------------------------------------------------------------
-# Test 3: happy path — notes exists, no phone -> attach, no create/kill
+# Test 3: happy path — notes exists, twin script succeeds -> twin attach
 # ---------------------------------------------------------------------------
 test_happy_path() {
   local dir; dir=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf '$dir'" RETURN
   build_shim "$dir" "$dir/log"
-  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=0 HAS_PHONE=1
+  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=0 TWIN_OUT=notes-phone
+  grep -Fxq 'phone-twin notes' "$dir/log" || { echo "  twin script not called"; return 1; }
   grep -Fxq "$ATTACH_LINE" "$dir/log" || { echo "  missing attach line"; return 1; }
-  ! grep -Fq 'new-session -d -s notes' "$dir/log" || { echo "  unexpected notes create"; return 1; }
-  ! grep -Fq 'kill-session' "$dir/log" || { echo "  unexpected kill-session"; return 1; }
+  ! grep -Fq 'new-session' "$dir/log" || { echo "  unexpected new-session"; return 1; }
 }
-check "notes exists, no phone -> attach only" test_happy_path
+check "notes exists -> twin attach, no create" test_happy_path
 
 # ---------------------------------------------------------------------------
-# Test 4: notes missing -> created detached before the attach
+# Test 4: notes missing -> created detached first, then twin attach
 # ---------------------------------------------------------------------------
 test_notes_created() {
   local dir; dir=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf '$dir'" RETURN
   build_shim "$dir" "$dir/log"
-  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=1 HAS_PHONE=1
+  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=1 TWIN_OUT=notes-phone
   grep -Fxq 'new-session -d -s notes' "$dir/log" || { echo "  missing notes create"; return 1; }
   grep -Fxq "$ATTACH_LINE" "$dir/log" || { echo "  missing attach line"; return 1; }
 }
-check "notes missing -> created detached, then attach" test_notes_created
+check "notes missing -> created detached, then twin attach" test_notes_created
 
 # ---------------------------------------------------------------------------
-# Test 5: stale ungrouped phone (resurrect artifact) -> killed before attach
+# Test 5: twin script fails -> plain new-session -A fallback
 # ---------------------------------------------------------------------------
-test_stale_phone_killed() {
+test_twin_failure_fallback() {
   local dir; dir=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf '$dir'" RETURN
   build_shim "$dir" "$dir/log"
-  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=0 HAS_PHONE=0 PHONE_GROUP=phone
-  grep -Fxq 'kill-session -t phone' "$dir/log" || { echo "  missing kill-session"; return 1; }
-  grep -Fxq "$ATTACH_LINE" "$dir/log" || { echo "  missing attach line"; return 1; }
+  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=0 TWIN_OUT=
+  grep -Fxq "$FALLBACK_LINE" "$dir/log" || { echo "  missing fallback attach"; return 1; }
+  ! grep -Fq 'attach-session' "$dir/log" || { echo "  unexpected twin attach"; return 1; }
 }
-check "stale ungrouped phone -> killed, then attach" test_stale_phone_killed
-
-# ---------------------------------------------------------------------------
-# Test 6: phone already grouped with notes -> NOT killed, just attach
-# ---------------------------------------------------------------------------
-test_grouped_phone_kept() {
-  local dir; dir=$(mktemp -d)
-  # shellcheck disable=SC2064
-  trap "rm -rf '$dir'" RETURN
-  build_shim "$dir" "$dir/log"
-  run_snippet "$dir" "$dir/log" MOSHI_CLIENT=1 HAS_NOTES=0 HAS_PHONE=0 PHONE_GROUP=notes
-  ! grep -Fq 'kill-session' "$dir/log" || { echo "  unexpected kill-session"; return 1; }
-  grep -Fxq "$ATTACH_LINE" "$dir/log" || { echo "  missing attach line"; return 1; }
-}
-check "grouped phone kept -> attach reuses it" test_grouped_phone_kept
+check "twin failure -> plain new-session -A fallback" test_twin_failure_fallback
 
 # ---------------------------------------------------------------------------
 printf '\n%d passed, %d failed\n' "$pass" "$fail"

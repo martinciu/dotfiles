@@ -52,6 +52,19 @@ else
   else
     record_fail "@continuum-save-interval pinned to 15" "line not found in $CONF"
   fi
+
+  hook_line="$(grep -n '^set-hook -g client-attached' "$CONF" | head -1 | cut -d: -f1)"
+  if [ -n "$hook_line" ] && grep -q 'tmux-phone-attach' "$CONF"; then
+    record_pass "client-attached phone hook present"
+  else
+    record_fail "client-attached phone hook present" "set-hook -g client-attached … tmux-phone-attach not found (#366)"
+  fi
+
+  if [ -n "$hook_line" ] && [ -n "$tpm_run_line" ] && [ "$hook_line" -lt "$tpm_run_line" ]; then
+    record_pass "phone hook (line $hook_line) before TPM run (line $tpm_run_line)"
+  else
+    record_fail "phone hook before TPM run" "hook line: '${hook_line:-none}', TPM run line: '${tpm_run_line:-none}'"
+  fi
 fi
 
 echo
