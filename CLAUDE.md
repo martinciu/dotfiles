@@ -13,9 +13,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   (`link`); tools mixing tracked + machine-local/runtime state (fish, nvim,
   worktrunk, lnav, sesh) use the **mixed-dir pattern**: real dir, per-file
   symlinks for tracked entries, real files for the rest. Helpers:
-  `prepare_real_dir` + `rescue_in_repo` + `link_tracked_entries` (skips
+  `prepare_real_dir` + `rescue_in_repo` + `link_tracked_entries`
+  (iterates `git ls-files` — untracked/gitignored never link; skips
   `*.template`) + `seed_local`. Legacy whole-dir symlinks migrate
-  automatically on next run.
+  automatically on next run; `rescue_in_repo` heals symlinks-into-repo
+  and warns when repo-side + `$HOME` copies both exist (#370). Smoke:
+  `scripts/test-bootstrap-linking.sh`.
 - **Bash scripts target bash 5.** Shebang `#!/opt/homebrew/bin/bash`; Apple
   Silicon only (`brew bundle` runs first). `mapfile`/`declare -A`/`wait -n`
   OK. No bash-3 shims.
@@ -443,6 +446,7 @@ derivatives, re-run after swapping a source.
 ## Verify changes
 
 - Helper smoke tests: `scripts/test-helpers.sh`
+- Bootstrap linking helpers: `scripts/test-bootstrap-linking.sh`
 - Regenerate screenshots: `scripts/build-screenshots.sh`
 - Render diagrams: `scripts/build-diagrams.sh`
 - Render tapes: `scripts/build-tapes.sh`
