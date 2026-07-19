@@ -71,39 +71,77 @@ prepare_real_dir() {
 # rescue_in_repo <repo-abs-path> <target-abs-path>
 #   Migration aid for machines that ran an older bootstrap where the dir
 #   was whole-dir-symlinked. If <repo-abs-path> exists as a real file or
-#   dir (not a symlink), and <target-abs-path> doesn't yet, MOVE it across.
-#   Idempotent: no-op once rescued. Must run AFTER prepare_real_dir on
-#   the parent so the destination path is no longer aliased to the repo.
+#   dir (not a symlink), and <target-abs-path> doesn't yet, MOVE it
+#   across. Idempotent: no-op once rescued. Must run AFTER
+#   prepare_real_dir on the parent so the destination path is no longer
+#   aliased to the repo. Two #370 hardenings on top:
+#   - Heal: if <target> is a symlink pointing into the repo (these
+#     machine-local paths must never do that — the old glob-based
+#     link_tracked_entries created such links), materialize the resolved
+#     content as a real file/dir; if the symlink dangles, remove it so
+#     seed_local can re-seed. Symlinks pointing outside the repo are
+#     deliberate user setup — left alone.
+#   - Warn: if <repo-abs-path> AND <target> both exist, print a warning
+#     and touch nothing — the repo-side copy is stale; remove it by hand.
 rescue_in_repo() {
   local in_repo="$1"; local new_home="$2"
-  if [ -e "$in_repo" ] && [ ! -L "$in_repo" ] && [ ! -e "$new_home" ]; then
-    mkdir -p "$(dirname "$new_home")"
-    mv "$in_repo" "$new_home"
-    echo "$G_MOVE  $in_repo → $new_home"
+  local raw resolved
+  if [ -L "$new_home" ]; then
+    raw="$(readlink "$new_home")"
+    case "$raw" in
+      "$DOTFILES"/*)
+        if [ -e "$new_home" ]; then
+          resolved="$(readlink -f "$new_home")"
+          rm "$new_home"
+          cp -R "$resolved" "$new_home"
+          echo "$G_MOVE  $new_home (materialized from repo-side symlink)"
+        else
+          rm "$new_home"
+          echo "$G_TRASH  $new_home (dangling symlink into repo)"
+        fi
+        ;;
+    esac
+  fi
+  if [ -e "$in_repo" ] && [ ! -L "$in_repo" ]; then
+    if [ ! -e "$new_home" ] && [ ! -L "$new_home" ]; then
+      mkdir -p "$(dirname "$new_home")"
+      mv "$in_repo" "$new_home"
+      echo "$G_MOVE  $in_repo → $new_home"
+    else
+      echo "$G_WARN  stale repo-side copy: $in_repo ($new_home exists — remove the repo copy manually)"
+    fi
   fi
 }
 
 # link_tracked_entries <repo-rel-source-dir> <target-abs-dir>
-#   Per-entry symlinks every tracked top-level entry from <source> into
-#   <target>, skipping *.template files. Tracked entries that are dirs
-#   are whole-dir-symlinked; tracked files are file-symlinked. Reuses the
-#   existing link() helper, so already-correct symlinks no-op. Entries
-#   whose destination already exists as a real (non-symlink) dir are
-#   left alone — that means the caller is handling them recursively
-#   (e.g. fish/conf.d/ inside fish/) and link() would otherwise back up
-#   the real dir and replace it with a symlink.
+#   Per-entry symlinks every git-TRACKED top-level entry from <source>
+#   into <target>, skipping *.template files. The entry list comes from
+#   `git ls-files` — never the working-tree glob — so untracked or
+#   gitignored files sitting in the repo-side dir can never be linked
+#   (#370). Tracked entries that are dirs are whole-dir-symlinked;
+#   tracked files are file-symlinked. Reuses the existing link() helper,
+#   so already-correct symlinks no-op and tracked-but-deleted files hit
+#   link()'s missing-source skip. Entries whose destination already
+#   exists as a real (non-symlink) dir are left alone — that means the
+#   caller is handling them recursively (e.g. fish/conf.d/ inside fish/)
+#   and link() would otherwise back up the real dir and replace it with
+#   a symlink.
 link_tracked_entries() {
   local src_rel="$1"; local dst="$2"
-  local src="$DOTFILES/$src_rel"
-  for entry in "$src"/*; do
-    [ -e "$entry" ] || continue
-    local name; name="$(basename "$entry")"
+  local path name
+  local -A seen=()
+  while IFS= read -r -d '' path; do
+    name="${path#"$src_rel"/}"
+    name="${name%%/*}"
+    [ -n "${seen[$name]:-}" ] && continue
+    seen[$name]=1
     case "$name" in *.template) continue ;; esac
-    if [ -d "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
+    if [ -d "$DOTFILES/$src_rel/$name" ] && [ -d "$dst/$name" ] \
+        && [ ! -L "$dst/$name" ]; then
       continue
     fi
     link "$src_rel/$name" "$dst/$name"
-  done
+  done < <(git -C "$DOTFILES" ls-files -z -- "$src_rel")
 }
 
 # seed_local <template-repo-rel> <target-abs>
