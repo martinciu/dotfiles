@@ -71,15 +71,45 @@ prepare_real_dir() {
 # rescue_in_repo <repo-abs-path> <target-abs-path>
 #   Migration aid for machines that ran an older bootstrap where the dir
 #   was whole-dir-symlinked. If <repo-abs-path> exists as a real file or
-#   dir (not a symlink), and <target-abs-path> doesn't yet, MOVE it across.
-#   Idempotent: no-op once rescued. Must run AFTER prepare_real_dir on
-#   the parent so the destination path is no longer aliased to the repo.
+#   dir (not a symlink), and <target-abs-path> doesn't yet, MOVE it
+#   across. Idempotent: no-op once rescued. Must run AFTER
+#   prepare_real_dir on the parent so the destination path is no longer
+#   aliased to the repo. Two #370 hardenings on top:
+#   - Heal: if <target> is a symlink pointing into the repo (these
+#     machine-local paths must never do that — the old glob-based
+#     link_tracked_entries created such links), materialize the resolved
+#     content as a real file/dir; if the symlink dangles, remove it so
+#     seed_local can re-seed. Symlinks pointing outside the repo are
+#     deliberate user setup — left alone.
+#   - Warn: if <repo-abs-path> AND <target> both exist, print a warning
+#     and touch nothing — the repo-side copy is stale; remove it by hand.
 rescue_in_repo() {
   local in_repo="$1"; local new_home="$2"
-  if [ -e "$in_repo" ] && [ ! -L "$in_repo" ] && [ ! -e "$new_home" ]; then
-    mkdir -p "$(dirname "$new_home")"
-    mv "$in_repo" "$new_home"
-    echo "$G_MOVE  $in_repo → $new_home"
+  local raw resolved
+  if [ -L "$new_home" ]; then
+    raw="$(readlink "$new_home")"
+    case "$raw" in
+      "$DOTFILES"/*)
+        if [ -e "$new_home" ]; then
+          resolved="$(readlink -f "$new_home")"
+          rm "$new_home"
+          cp -R "$resolved" "$new_home"
+          echo "$G_MOVE  $new_home (materialized from repo-side symlink)"
+        else
+          rm "$new_home"
+          echo "$G_TRASH  $new_home (dangling symlink into repo)"
+        fi
+        ;;
+    esac
+  fi
+  if [ -e "$in_repo" ] && [ ! -L "$in_repo" ]; then
+    if [ ! -e "$new_home" ] && [ ! -L "$new_home" ]; then
+      mkdir -p "$(dirname "$new_home")"
+      mv "$in_repo" "$new_home"
+      echo "$G_MOVE  $in_repo → $new_home"
+    else
+      echo "$G_WARN  stale repo-side copy: $in_repo ($new_home exists — remove the repo copy manually)"
+    fi
   fi
 }
 
