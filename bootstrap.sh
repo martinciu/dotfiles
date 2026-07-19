@@ -84,26 +84,34 @@ rescue_in_repo() {
 }
 
 # link_tracked_entries <repo-rel-source-dir> <target-abs-dir>
-#   Per-entry symlinks every tracked top-level entry from <source> into
-#   <target>, skipping *.template files. Tracked entries that are dirs
-#   are whole-dir-symlinked; tracked files are file-symlinked. Reuses the
-#   existing link() helper, so already-correct symlinks no-op. Entries
-#   whose destination already exists as a real (non-symlink) dir are
-#   left alone — that means the caller is handling them recursively
-#   (e.g. fish/conf.d/ inside fish/) and link() would otherwise back up
-#   the real dir and replace it with a symlink.
+#   Per-entry symlinks every git-TRACKED top-level entry from <source>
+#   into <target>, skipping *.template files. The entry list comes from
+#   `git ls-files` — never the working-tree glob — so untracked or
+#   gitignored files sitting in the repo-side dir can never be linked
+#   (#370). Tracked entries that are dirs are whole-dir-symlinked;
+#   tracked files are file-symlinked. Reuses the existing link() helper,
+#   so already-correct symlinks no-op and tracked-but-deleted files hit
+#   link()'s missing-source skip. Entries whose destination already
+#   exists as a real (non-symlink) dir are left alone — that means the
+#   caller is handling them recursively (e.g. fish/conf.d/ inside fish/)
+#   and link() would otherwise back up the real dir and replace it with
+#   a symlink.
 link_tracked_entries() {
   local src_rel="$1"; local dst="$2"
-  local src="$DOTFILES/$src_rel"
-  for entry in "$src"/*; do
-    [ -e "$entry" ] || continue
-    local name; name="$(basename "$entry")"
+  local path name
+  local -A seen=()
+  while IFS= read -r -d '' path; do
+    name="${path#"$src_rel"/}"
+    name="${name%%/*}"
+    [ -n "${seen[$name]:-}" ] && continue
+    seen[$name]=1
     case "$name" in *.template) continue ;; esac
-    if [ -d "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
+    if [ -d "$DOTFILES/$src_rel/$name" ] && [ -d "$dst/$name" ] \
+        && [ ! -L "$dst/$name" ]; then
       continue
     fi
     link "$src_rel/$name" "$dst/$name"
-  done
+  done < <(git -C "$DOTFILES" ls-files -z -- "$src_rel")
 }
 
 # seed_local <template-repo-rel> <target-abs>
