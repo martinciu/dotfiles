@@ -317,7 +317,7 @@ SHIM
   # ─── has-session short-circuit: no new-session, but wt + stamp still run ──
   # When the session already exists, we skip new-session creation but STILL
   # call wt (idempotent per bin/s:25) and re-stamp @session_root — the latter
-  # is how we self-heal after tmux-continuum restores wipe session options.
+  # is how sessions whose options were lost self-heal.
   shimdir=$(make_shimdir)
   write_sesh_shim "$shimdir" '[{"Name":"dotfiles","Path":"/tmp/fakerepo"}]'
   write_tmux_shim "$shimdir"
