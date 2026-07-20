@@ -57,7 +57,7 @@ test_idempotent() {
 }
 check "second run reuses the twin" test_idempotent
 
-# Test 3: stale ungrouped notes-phone (resurrect artifact) -> replaced
+# Test 3: stale ungrouped notes-phone (historical resurrect artifact) -> replaced
 test_stale_killed() {
   fresh; tmux new-session -d -s notes
   tmux new-session -d -s notes-phone          # ungrouped impostor

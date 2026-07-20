@@ -34,9 +34,10 @@ tmux has-session -t "=$target" 2>/dev/null
 
 twin="${target}-phone"
 
-# tmux-resurrect restores twins as ungrouped full copies (it doesn't
-# understand session groups); reusing one would hand the phone a stale
-# snapshot. Kill it unless genuinely grouped with the target.
+# A same-named session that isn't genuinely grouped with the target is an
+# impostor — historically created by tmux-resurrect restores (plugin
+# removed in #376; kill kept as belt-and-braces). Reusing one would hand
+# the phone a stale standalone copy, so kill it.
 if tmux has-session -t "=$twin" 2>/dev/null; then
   if [ "$(tmux display-message -p -t "$twin" '#{session_group}')" != "$target" ]; then
     tmux kill-session -t "=$twin"

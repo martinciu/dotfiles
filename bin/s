@@ -95,7 +95,7 @@ case $# in
     session="$project/$name"
     project_path=$(resolve_project_path "$project")
     # Resolve worktree path unconditionally so we can re-stamp @session_root
-    # on every invocation (handles tmux-continuum restores wiping options).
+    # on every invocation (self-heals sessions whose options were lost).
     # `wt switch --create --no-cd` is idempotent — see ensure_worktree above.
     target_path=$(ensure_worktree "$project_path" "$name")
     if ! tmux has-session -t "$session" 2>/dev/null; then

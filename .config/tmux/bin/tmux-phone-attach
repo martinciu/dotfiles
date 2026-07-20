@@ -46,11 +46,9 @@ fi
 tmux set-option -t "$twin" destroy-unattached on || exit 0
 
 # Moshi's preamble ran `set -g status-right ''` before attaching, wiping
-# the PR pin and tmux-continuum's prepended auto-save hook. Re-sourcing
-# the conf re-sets status-right and re-runs TPM so continuum re-prepends
-# — the documented manual fix (#357/#358), automated. The twin's
-# session-local `status off` overrides the re-set globals, so the phone
-# bar stays hidden.
+# the PR pin. Re-sourcing the conf re-sets status-right — the documented
+# manual fix (#357/#358), automated. The twin's session-local `status off`
+# overrides the re-set globals, so the phone bar stays hidden.
 #
 # Gated on statusbar_clobbered: client-session-changed (#372) re-fires this
 # handler on the switch-client above; that second pass finds the bar already
