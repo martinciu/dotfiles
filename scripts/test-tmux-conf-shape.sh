@@ -65,6 +65,12 @@ else
   else
     record_fail "phone hook before TPM run" "hook line: '${hook_line:-none}', TPM run line: '${tpm_run_line:-none}'"
   fi
+
+  if grep -q '^set -g status-left ".*tmux-statusbar-guard' "$CONF"; then
+    record_pass "status-left includes the clobber guard (#372)"
+  else
+    record_fail "status-left includes the clobber guard" "tmux-statusbar-guard #() not found in status-left (#372)"
+  fi
 fi
 
 echo
