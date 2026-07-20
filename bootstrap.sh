@@ -540,5 +540,18 @@ else
   echo "$G_OK  $TPM_DIR (TPM present)"
 fi
 
+# --- resurrect/continuum removal (#376): plugins dropped from tmux.conf.
+# One-time per-machine convergence — delete the stale clones + snapshot
+# state. Guarded: silent no-op once gone. TPM only loads plugins listed in
+# the conf, so a leftover clone is inert; this is hygiene, not correctness.
+for stale in "$HOME/.config/tmux/plugins/tmux-resurrect" \
+             "$HOME/.config/tmux/plugins/tmux-continuum" \
+             "$HOME/.local/share/tmux/resurrect"; do
+  if [ -e "$stale" ]; then
+    rm -rf "$stale"
+    echo "$G_TRASH  $stale (resurrect/continuum removed, #376)"
+  fi
+done
+
 echo
 echo "$G_OK  dotfiles linked"
