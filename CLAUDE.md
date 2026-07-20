@@ -63,9 +63,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   client (remote ancestry via shared `_remote-ancestry` + `client_termname
   != xterm-ghostty`); phone clients are switched into `<target>-phone`, a
   grouped twin built by `tmux-phone-twin` (`status off`, `@phone_twin`
-  marker, stale-resurrect kill, twin-of-twin guard; `destroy-unattached on`
+  marker, stale-twin kill, twin-of-twin guard; `destroy-unattached on`
   set only after entry), then the conf is re-sourced to repair Moshi's
-  `set -g status-right ''` clobber (PR pin + continuum hook). Both hooks —
+  `set -g status-right ''` clobber (PR pin). Both hooks —
   `client-attached` and `client-session-changed` — fire the same idempotent
   handler: Moshi ≥0.2.51 drives tmux out-of-band via `switch-client` (fires
   session-changed, never attached), so the switch path needed its own wiring
@@ -123,11 +123,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   patterns: `worktree-…` branches, `#\d+` refs. Fresh machine: after
   `prefix+I` pick "Build from source" (`crystal` is in Brewfile).
 - **TPM is the tmux plugin manager.** Loaded: `tmux-sensible`,
-  `tmux-resurrect`, `tmux-continuum` (restore on, auto-save 15 min),
   `tmux-sessionx`, `tmux-fingers`. Status bar is hand-rolled; don't remove
-  TPM. Theme + status block sits **above** the TPM `run` — continuum
-  prepends its auto-save hook to `status-right` at load; re-setting status
-  options after TPM kills periodic auto-save (#357). Smoke:
+  TPM. No session persistence — resurrect/continuum removed (#376): a
+  reboot ends sessions; sessionx/`s` recreate them on demand. Smoke:
   `scripts/test-tmux-conf-shape.sh`.
 - **OSC 8 hyperlinks pass through tmux** via two `terminal-features`
   `:hyperlinks` entries — without them Claude Code's file-ref links don't
