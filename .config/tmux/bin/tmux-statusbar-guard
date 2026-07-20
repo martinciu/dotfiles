@@ -1,0 +1,19 @@
+#!/opt/homebrew/bin/bash
+# tmux-statusbar-guard — belt-and-braces self-heal (#372). Runs as an
+# invisible #() in status-left each status-interval tick. Moshi drives tmux
+# out-of-band (switch-client via the moshi-hook daemon) and can wipe global
+# status-right with no attach/session event the #366 repair listens on. When
+# status-right is found empty, re-source the conf to restore the PR pin +
+# continuum's auto-save hook (the documented #357/#358 manual fix, automated).
+# Self-limiting: once repaired, the next tick sees status-right populated and
+# no-ops. Prints nothing; always exits 0 (a status helper must never break
+# the bar). Lives in status-left because status-left keeps rendering while
+# status-right is the thing clobbered.
+set -u
+
+. "${BASH_SOURCE[0]%/*}/_statusbar-clobbered"
+
+if statusbar_clobbered; then
+  tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
+fi
+exit 0
