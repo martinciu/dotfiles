@@ -21,6 +21,7 @@ set -eu
 client="${1:?usage: tmux-phone-attach <client-name>}"
 
 . "${BASH_SOURCE[0]%/*}/_remote-ancestry"
+. "${BASH_SOURCE[0]%/*}/_statusbar-clobbered"
 
 info=$(tmux display-message -p -c "$client" \
   -F '#{client_pid} #{client_termname} #{client_session}' 2>/dev/null) || exit 0
@@ -50,4 +51,10 @@ tmux set-option -t "$twin" destroy-unattached on || exit 0
 # — the documented manual fix (#357/#358), automated. The twin's
 # session-local `status off` overrides the re-set globals, so the phone
 # bar stays hidden.
-tmux source-file "$HOME/.config/tmux/tmux.conf" || exit 0
+#
+# Gated on statusbar_clobbered: client-session-changed (#372) re-fires this
+# handler on the switch-client above; that second pass finds the bar already
+# repaired and skips the redundant source-file + TPM re-run.
+if statusbar_clobbered; then
+  tmux source-file "$HOME/.config/tmux/tmux.conf" || exit 0
+fi

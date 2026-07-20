@@ -20,7 +20,8 @@ build_sandbox() {
   local dir="$1" log="$2" table="$3"
   mkdir -p "$dir/bin" "$dir/shim"
   cp "$REPO/.config/tmux/bin/tmux-phone-attach" \
-     "$REPO/.config/tmux/bin/_remote-ancestry" "$dir/bin/"
+     "$REPO/.config/tmux/bin/_remote-ancestry" \
+     "$REPO/.config/tmux/bin/_statusbar-clobbered" "$dir/bin/"
 
   cat > "$dir/bin/tmux-phone-twin" <<EOF
 #!/opt/homebrew/bin/bash
@@ -36,6 +37,9 @@ echo "\$*" >> "$log"
 if [ "\$1" = display-message ]; then
   [ -n "\${CLIENT_INFO:-}" ] || exit 1
   printf '%s\n' "\$CLIENT_INFO"
+fi
+if [ "\$1" = show-options ]; then
+  printf '%s\n' "\${STATUS_RIGHT:-}"
 fi
 if [ "\$1" = switch-client ] && [ -n "\${SWITCH_FAIL:-}" ]; then
   exit 1
@@ -182,6 +186,26 @@ test_switch_failure() {
   ! grep -q 'source-file' "$dir/log" || { echo "  sourced"; return 1; }
 }
 check "switch-client failure -> exit 0, no destroy-unattached, no repair" test_switch_failure
+
+# Test 8: phone path but status-right already populated -> switch +
+# destroy-unattached still happen, but NO re-source (the switch-triggered
+# self-fire of client-session-changed must not redo the repair, #372).
+test_phone_healthy_no_resource() {
+  local dir; dir=$(mktemp -d)
+  # shellcheck disable=SC2064
+  trap "rm -rf '$dir'" RETURN
+  printf '%s\n' "$REMOTE_TABLE" > "$dir/table"
+  build_sandbox "$dir" "$dir/log" "$dir/table"
+  run_handler "$dir" "$dir/log" \
+    CLIENT_INFO="1001 xterm-256color notes" TWIN_OUT=notes-phone \
+    STATUS_RIGHT="#(tmux-status-right)"
+  grep -Fq 'switch-client -c /dev/ttys099 -t =notes-phone' "$dir/log" \
+    || { echo "  missing switch"; return 1; }
+  grep -Fq 'set-option -t notes-phone destroy-unattached on' "$dir/log" \
+    || { echo "  missing destroy-unattached"; return 1; }
+  ! grep -q 'source-file' "$dir/log" || { echo "  re-sourced when healthy"; return 1; }
+}
+check "phone client, healthy status-right -> switch but no re-source" test_phone_healthy_no_resource
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 if [ "$fail" -gt 0 ]; then
