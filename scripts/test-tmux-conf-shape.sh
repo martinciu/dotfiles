@@ -71,6 +71,19 @@ else
   else
     record_fail "status-left includes the clobber guard" "tmux-statusbar-guard #() not found in status-left (#372)"
   fi
+
+  sess_hook_line="$(grep -n '^set-hook -g client-session-changed' "$CONF" | head -1 | cut -d: -f1)"
+  if [ -n "$sess_hook_line" ] && grep -q "client-session-changed.*tmux-phone-attach" "$CONF"; then
+    record_pass "client-session-changed phone hook present (#372)"
+  else
+    record_fail "client-session-changed phone hook present" "set-hook -g client-session-changed … tmux-phone-attach not found (#372)"
+  fi
+
+  if [ -n "$sess_hook_line" ] && [ -n "$tpm_run_line" ] && [ "$sess_hook_line" -lt "$tpm_run_line" ]; then
+    record_pass "session-changed hook (line $sess_hook_line) before TPM run (line $tpm_run_line)"
+  else
+    record_fail "session-changed hook before TPM run" "hook line: '${sess_hook_line:-none}', TPM run line: '${tpm_run_line:-none}'"
+  fi
 fi
 
 echo
