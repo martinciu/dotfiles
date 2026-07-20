@@ -1,0 +1,13 @@
+# _statusbar-clobbered — shared predicate (sourced, not run). #372.
+# Consumers: tmux-phone-attach (gates its conf re-source), tmux-statusbar-guard.
+#
+# statusbar_clobbered: returns 0 when the GLOBAL status-right has been wiped
+# to empty. Moshi's picker preamble runs `set -g status-right ''`, which also
+# kills tmux-continuum's auto-save hook (it lives inside status-right, #357).
+# Returns 1 when status-right is populated (healthy).
+#
+# A tmux failure yields empty output → treated as clobbered (fail toward
+# attempting the harmless, idempotent re-source).
+statusbar_clobbered() {
+  [ -z "$(tmux show-options -gv status-right 2>/dev/null)" ]
+}
