@@ -1,5 +1,5 @@
 # _remote-ancestry — shared macOS parent-chain walk (sourced, not run).
-# Consumers: tmux-ssh-indicator (globe pin), tmux-phone-attach (#366).
+# Consumers: tmux-ssh-indicator (globe pin).
 #
 # ancestry_is_remote <pid>: returns 0 if walking the parent-process chain
 # finds an `sshd`, `sshd-session`, or `mosh-server` ancestor; 1 otherwise.
