@@ -32,24 +32,14 @@ check() {
 # Build mock tmux + ps in $1 (a tmpdir).
 #   $2 = path to a file containing "pid session" client rows (may be empty)
 #   $3 = path to a file containing "pid ppid comm" rows for `ps` to answer
-# show-option answers the @phone_twin probe: sessions listed in the
-# space-separated $TWIN_SESSIONS env var report 1, others empty.
 build_shim() {
   local dir="$1" clients="$2" table="$3"
 
   cat > "$dir/tmux" <<EOF
 #!/opt/homebrew/bin/bash
 case "\$1" in
-  list-clients) cat "$clients" ;;
-  show-option)
-    target=""
-    while [ \$# -gt 0 ]; do
-      case "\$1" in -t) target="\$2"; shift 2 ;; *) shift ;; esac
-    done
-    case " \${TWIN_SESSIONS:-} " in
-      *" \${target#=} "*) echo 1 ;;
-    esac
-    ;;
+  # Emulate list-clients -F '#{client_pid}': emit only the pid column.
+  list-clients) awk '{print \$1}' "$clients" ;;
 esac
 EOF
   chmod +x "$dir/tmux"
@@ -87,16 +77,8 @@ build_shim_dual_field() {
   cat > "$dir/tmux" <<EOF
 #!/opt/homebrew/bin/bash
 case "\$1" in
-  list-clients) cat "$clients" ;;
-  show-option)
-    target=""
-    while [ \$# -gt 0 ]; do
-      case "\$1" in -t) target="\$2"; shift 2 ;; *) shift ;; esac
-    done
-    case " \${TWIN_SESSIONS:-} " in
-      *" \${target#=} "*) echo 1 ;;
-    esac
-    ;;
+  # Emulate list-clients -F '#{client_pid}': emit only the pid column.
+  list-clients) awk '{print \$1}' "$clients" ;;
 esac
 EOF
   chmod +x "$dir/tmux"
@@ -301,53 +283,6 @@ EOF
   [ "$out" = "$EXPECT_SSH" ] || { echo "  expected glyph+space, got: $(printf %q "$out")"; return 1; }
 }
 check "client ancestry through mosh-server -> glyph + space" test_mosh_server_ancestor
-
-# ---------------------------------------------------------------------------
-# Test 9: remote client but its session is a @phone_twin -> excluded, empty.
-# The Mac-side globe means "a remote client OTHER than the phone is
-# attached" (#366) — the phone in its bar-less twin must not light it.
-# ---------------------------------------------------------------------------
-test_phone_twin_excluded() {
-  local dir; dir=$(mktemp -d)
-  # shellcheck disable=SC2064
-  trap "rm -rf '$dir'" RETURN
-  printf '%s\n' "8001 notes-phone" > "$dir/clients"
-  cat > "$dir/table" <<'EOF'
-8001 7900 tmux
-7900 7800 fish
-7800 1 mosh-server
-EOF
-  build_shim "$dir" "$dir/clients" "$dir/table"
-  local out
-  out=$(TWIN_SESSIONS="notes-phone" PATH="$dir:$PATH" "$SCRIPT")
-  [ -z "$out" ] || { echo "  expected empty, got: $(printf %q "$out")"; return 1; }
-}
-check "remote client in @phone_twin session -> excluded, empty" test_phone_twin_excluded
-
-# ---------------------------------------------------------------------------
-# Test 10: phone twin + a genuine SSH client -> glyph (exclusion is
-# per-client, not a kill switch).
-# ---------------------------------------------------------------------------
-test_phone_twin_plus_ssh() {
-  local dir; dir=$(mktemp -d)
-  # shellcheck disable=SC2064
-  trap "rm -rf '$dir'" RETURN
-  printf '%s\n%s\n' "8001 notes-phone" "8101 main" > "$dir/clients"
-  cat > "$dir/table" <<'EOF'
-8001 7900 tmux
-7900 7800 fish
-7800 1 mosh-server
-8101 8000 tmux
-8000 7700 zsh
-7700 7600 sshd
-7600 1 launchd
-EOF
-  build_shim "$dir" "$dir/clients" "$dir/table"
-  local out
-  out=$(TWIN_SESSIONS="notes-phone" PATH="$dir:$PATH" "$SCRIPT")
-  [ "$out" = "$EXPECT_SSH" ] || { echo "  expected glyph+space, got: $(printf %q "$out")"; return 1; }
-}
-check "phone twin + genuine SSH client -> glyph + space" test_phone_twin_plus_ssh
 
 # ---------------------------------------------------------------------------
 printf '\n%d passed, %d failed\n' "$pass" "$fail"

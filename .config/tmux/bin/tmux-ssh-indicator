@@ -5,15 +5,12 @@
 # inside the left-side
 # session chip via `#(...)` in tmux's `status-left`.
 #
-# Detection is server-wide (any attached client remote-rooted -> indicator
-# on) with one per-client exception (#366): clients whose session carries
-# the @phone_twin marker are skipped, so the globe reads "a remote client
-# OTHER than the phone is attached" — a Moshi user already knows their
-# session is remote, and the Mac shouldn't pin the phone's own attach.
+# Detection is server-wide: the indicator lights if any attached client is
+# remote-rooted. The pin means "a remote client is attached".
 #
 # Mosh sessions root in `mosh-server` (daemonized, directly under launchd),
-# not `sshd` — detected via the same match set, same glyph: the pin means
-# "a remote client is attached", transport-agnostic.
+# not `sshd` — detected via the same match set, same glyph: the pin is
+# transport-agnostic.
 
 set -eu
 set -o pipefail
@@ -24,19 +21,11 @@ glyph=$(printf '\xef\x82\xac')   # U+F0AC nf-fa-globe
 
 . "${BASH_SOURCE[0]%/*}/_remote-ancestry"
 
-clients=$(tmux list-clients -F '#{client_pid} #{client_session}' 2>/dev/null || true)
+clients=$(tmux list-clients -F '#{client_pid}' 2>/dev/null || true)
 [ -z "$clients" ] && exit 0
 
-while IFS=' ' read -r pid session; do
+while read -r pid; do
   [ -z "$pid" ] && continue
-  # Phone twins are excluded by design (#366): the Moshi client in its
-  # bar-less twin is remote by construction; the globe should only pin
-  # other remote clients. Bare -t: show-option rejects the "=" prefix
-  # (tmux 3.7b), and the session name comes straight from list-clients.
-  if [ -n "$session" ] && \
-     [ "$(tmux show-option -t "$session" -qv @phone_twin 2>/dev/null)" = 1 ]; then
-    continue
-  fi
   if ancestry_is_remote "$pid"; then
     printf '%s ' "$glyph"
     exit 0
