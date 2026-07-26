@@ -180,7 +180,11 @@ task, not by whichever skill triggers first:
   isolation (`tavily-dynamic-search`), content extraction, site crawl/map
   (`crawl --output-dir` for docs dumps), deep research (`tvly research`;
   prefer `mini` — `pro` can eat up to 250 credits per query). 1,000 free
-  credits/month.
+  credits/month, then **pay-as-you-go at $0.008/credit** — the account is
+  metered, so overrunning the free pool bills money instead of failing.
+  Check with `curl https://api.tavily.com/usage -H "Authorization: Bearer
+  $TAVILY_API_KEY"` (free, no credits consumed): `plan_usage` is the running
+  total, `paygo_usage` is the billed part.
 - **SerpApi** (`serpapi:search` plugin) — structured Google/engine data:
   flights, hotels, maps + reviews, shopping, Scholar, YouTube transcripts.
   Only 250 free searches/month — point queries only, never bulk; the skill
@@ -188,8 +192,9 @@ task, not by whichever skill triggers first:
 
 Why: all four trigger on generic "search" phrasing; without a routing rule
 the aggressive Tavily skill descriptions win every time and the faster or
-better-fitting channel never fires. Quotas are asymmetric (250 vs ~1,000),
-so the default choice matters.
+better-fitting channel never fires. Quotas are asymmetric (250 vs ~1,000)
+and only Tavily bills past its pool rather than stopping, so the default
+choice matters.
 
 How to apply: single fact / news / image / local business → Brave; data
 gathering with filtering, many sources, citable snippets, docs dumps →
