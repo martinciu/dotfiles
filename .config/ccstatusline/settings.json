@@ -8,31 +8,22 @@
         "backgroundColor": "bgBrightMagenta"
       },
       {
-        "id": "4830ad63-ce5a-4842-a2b5-52b6d664515d",
+        "id": "b4dc9557-1a69-4ec9-a878-9daa46426674",
         "type": "thinking-effort",
-        "backgroundColor": "bgBrightBlue"
+        "backgroundColor": "bgGreen"
       },
       {
         "id": "a83ffe56-6074-4e7d-826b-e4f89c4904f7",
         "type": "context-percentage",
         "backgroundColor": "bgBrightWhite"
-      },
-      {
-        "id": "babebda4-b14d-4236-97c6-332c8b244a9d",
-        "type": "context-length",
-        "backgroundColor": "bgBrightBlue"
-      },
-      {
-        "id": "86948b16-e4c5-4e03-a960-1d78fcfca471",
-        "type": "tokens-total",
-        "backgroundColor": "bgRed"
       }
     ]
   ],
-  "flexMode": "full-minus-40",
+  "flexMode": "full",
   "compactThreshold": 60,
   "colorLevel": 3,
   "defaultPadding": " ",
+  "defaultPaddingSide": "both",
   "inheritSeparatorColors": false,
   "globalBold": false,
   "gitCacheTtlSeconds": 5,
