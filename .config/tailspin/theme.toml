@@ -5,14 +5,18 @@
 # mapping (bright_red -> orange #cb4b16, bright_magenta -> violet #6c71c4,
 # bright_green -> base01 #586e75, bright_cyan -> base1 #93a1a1).
 #
-# Schema reference:
-#   https://github.com/bensadeh/tailspin/blob/main/src/theme/mod.rs
+# Schema: tailspin 7 (`tspin --generate-default-theme` prints the full set).
+# Unknown keys are a hard parse error, so the section names below must track
+# upstream renames — 7.0 moved [numbers].number to .style and [ip_addresses]
+# to [ipv4].
 #
 # Minimal pin: only override groups whose tspin defaults clash with Solarized.
-# Unspecified groups (uuids, pointers, processes, emails, json, jvm_stack_traces,
-# regexps) inherit upstream defaults.
+# Unspecified groups (uuids, pointers, processes, emails, durations, json,
+# jvm_stack_traces, ipv6, regexes) inherit upstream defaults.
 
-# --- Severity keywords (defined here; tspin has no built-in error/warn/info).
+# --- Severity keywords. tspin 7 ships built-ins (ERROR red / WARN yellow /
+# INFO white / DEBUG green / TRACE faint); these additive entries take
+# precedence and remap them onto the Solarized accents.
 
 [[keywords]]
 words = ["ERROR", "Error", "error", "FATAL", "Fatal", "fatal", "FAIL", "Fail", "fail"]
@@ -37,7 +41,7 @@ date = { fg = "cyan" }
 time = { fg = "cyan" }
 
 [numbers]
-number = { fg = "magenta" }
+style = { fg = "magenta" }
 
 [urls]
 http  = { fg = "blue", underline = true }
@@ -53,5 +57,5 @@ style = { fg = "green" }
 [key_value_pairs]
 key = { fg = "bright_cyan" }                     # Solarized base1
 
-[ip_addresses]
+[ipv4]
 number = { fg = "bright_magenta" }               # Solarized violet
