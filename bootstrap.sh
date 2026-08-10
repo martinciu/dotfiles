@@ -538,6 +538,36 @@ link ".gitignore_global" "$HOME/.gitignore_global"
 # --- claude
 link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
+# hunk-review Claude Code skill — symlink the bundled, generated skill dir
+# into ~/.claude/skills/ (machine-local, untracked). `hunk skill path`
+# resolves into the versioned Cellar, which dangles on `brew upgrade`;
+# rewrite through the stable $(brew --prefix hunk) so the link survives
+# upgrades. Never fail bootstrap over this — warn-and-skip on any failure.
+if command -v hunk >/dev/null 2>&1; then
+    hunk_skill_md="$(hunk skill path 2>/dev/null)" || hunk_skill_md=""
+    if [ -n "$hunk_skill_md" ] && [ -e "$hunk_skill_md" ]; then
+        hunk_skill_dir="$(dirname "$hunk_skill_md")"
+        hunk_opt="$(brew --prefix hunk 2>/dev/null)" || hunk_opt=""
+        if [ -n "$hunk_opt" ]; then
+            hunk_stable="$(printf '%s\n' "$hunk_skill_dir" | sed -E "s|^.*/Cellar/hunk/[^/]+|$hunk_opt|")"
+            [ -d "$hunk_stable" ] && hunk_skill_dir="$hunk_stable"
+        fi
+        hunk_link="$HOME/.claude/skills/hunk-review"
+        mkdir -p "$HOME/.claude/skills"
+        if [ -e "$hunk_link" ] && [ ! -L "$hunk_link" ]; then
+            echo "$G_WARN  $hunk_link is a real dir (hand-copied skill?) — left untouched"
+        else
+            if [ -L "$hunk_link" ] && [ ! -e "$hunk_link" ]; then
+                echo "$G_TRASH  $hunk_link (dangling — stale Cellar path; relinking)"
+            fi
+            ln -sfn "$hunk_skill_dir" "$hunk_link"
+            echo "$G_OK  $hunk_link → $hunk_skill_dir"
+        fi
+    else
+        echo "$G_WARN  hunk installed but 'hunk skill path' gave nothing usable — skill not linked"
+    fi
+fi
+
 # --- bin (user commands on $PATH)
 # Symlink each file individually because ~/.local/bin/ typically contains
 # other user-installed binaries that shouldn't be displaced by linking the
