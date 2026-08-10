@@ -363,6 +363,28 @@ if [ ! -f "$HOME/.config/lazygit/config.yml" ]; then
     echo "$G_SEED  $HOME/.config/lazygit/config.yml (seeded from base + solarized)"
 fi
 
+# --- hunk (review-first terminal diff viewer; switchable theme)
+# ~/.config/hunk/ is a real dir. Shared prefs live in config-base.toml (root
+# keys ONLY — a [table] header would swallow the theme fragment's root
+# `theme` key); per-theme one-liners in theme-<slug>.toml. The live
+# config.toml is generated (cat base + theme-<slug>, fragment LAST) — never
+# a symlink — so it stays machine-local and theme-set can rewrite it.
+# Mirrors the lazygit pattern above.
+prepare_real_dir "$HOME/.config/hunk"
+if [ -L "$HOME/.config/hunk/config.toml" ]; then
+    rm "$HOME/.config/hunk/config.toml"
+    echo "$G_TRASH  $HOME/.config/hunk/config.toml (legacy symlink)"
+fi
+link_tracked_entries ".config/hunk" "$HOME/.config/hunk"
+# Seed the generated config.toml once (solarized default). "Don't clobber":
+# never overwrite an existing pick, so a prior theme-set survives bootstrap.
+if [ ! -f "$HOME/.config/hunk/config.toml" ]; then
+    cat "$HOME/.config/hunk/config-base.toml" \
+        "$HOME/.config/hunk/theme-solarized.toml" \
+        > "$HOME/.config/hunk/config.toml"
+    echo "$G_SEED  $HOME/.config/hunk/config.toml (seeded from base + solarized)"
+fi
+
 # --- lnav (TUI log navigator)
 # ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
 # the repo. configs/installed/ is mixed-dir: tracked theme variants
