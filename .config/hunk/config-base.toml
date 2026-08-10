@@ -1,0 +1,8 @@
+# hunk shared preferences — every setting EXCEPT the theme selection.
+# INVARIANT: root keys only — no [table] headers, ever. theme-set generates
+# the live config.toml as `cat config-base.toml theme-<slug>.toml` (fragment
+# LAST); a fragment may carry a [custom_theme] table, so a table here would
+# swallow the fragment's root `theme` key. scripts/test-theme-switch.sh
+# asserts this file stays table-free.
+# Starts comments-only: add a root key only when a preference diverges from
+# hunk's defaults.
