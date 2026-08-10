@@ -300,17 +300,20 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **`hunk` is the review-first diff TUI** (brew core; explicit `hunk diff` /
   `hunk show <rev>` — delta keeps git's pager, no gitconfig wiring; agent
   loop via `hunk session list` / `review --json` / `comment add` over a
-  loopback daemon, notes render inline above their hunk). Follows
-  `theme-set` 10/10 incl. Latte: mixed-dir `.config/hunk/`, generated
-  `config.toml` = `cat config-base.toml theme-<slug>.toml` — **fragment
-  LAST; base stays root-keys-only** (a `[table]` would swallow the
-  fragment's `theme` key; smoke-asserted). An unknown theme id **silently
-  falls back** — no launch error — so a fragment's id must be checked
-  against hunk's built-in registry, not by launching. Restart tier; in-TUI
-  `t` picker is preview-only. Bootstrap symlinks the bundled `hunk-review`
-  skill to `~/.claude/skills/hunk-review` through `$(brew --prefix hunk)`
-  (survives upgrades; warn-and-skip guards; real-dir never clobbered).
-  **Out of sandbox scope.** Smoke: `scripts/test-theme-switch.sh`.
+  loopback daemon). Follows `theme-set` 10/10 incl. Latte: mixed-dir
+  `.config/hunk/`, generated `config.toml` = `cat config-base.toml
+  theme-<slug>.toml` — **fragment LAST; base stays root-keys-only** (a
+  `[table]` would swallow the fragment's `theme` key; smoke-asserted).
+  Restart tier. Two hunk-specific traps: an **unknown theme id silently
+  falls back** (no launch error — validate fragment ids against hunk's
+  built-in registry, not by launching), and `theme` is a *persisted view
+  preference*, so `prompt_save_view_preferences = false` in the base keeps
+  the in-TUI `t` picker preview-only — without it, quitting after `t`
+  offers to save and rewrites theme-set's `theme` line in place. Bootstrap
+  symlinks the bundled `hunk-review` skill to `~/.claude/skills/hunk-review`
+  through `$(brew --prefix hunk)` (survives upgrades; warn-and-skip guards;
+  real-dir never clobbered). **Out of sandbox scope.** Smoke:
+  `scripts/test-theme-switch.sh`.
 - **`bd` is beads (raw), stealth mode** (`bd init --stealth`): `.beads/` +
   `.claude/settings.local.json` in `.git/info/exclude`, `no-git-ops: true`.
   Re-init only via `--stealth`. **Don't use bd's memory layer** — memory is
