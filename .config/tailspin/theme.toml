@@ -34,6 +34,26 @@ style = { fg = "blue" }
 words = ["DEBUG", "Debug", "debug", "TRACE", "Trace", "trace"]
 style = { fg = "bright_green" }                  # Solarized base01 (muted)
 
+# --- Flagi stanu UPS-a (NUT / upslog -> /opt/homebrew/var/log/nut-data.log).
+# Mapowane na powyzsza semantyke severity, zeby log UPS-a czytalo sie tak
+# samo jak kazdy inny. Dopasowanie tspina respektuje granice wyrazow
+# (sprawdzone: PROTOCOL / OBJECT / GLOBAL zostaja nietkniete), wiec te
+# dwuliterowe tokeny nie zapalaja sie w innych logach.
+# Swiadomie pominiete OFF / OVER / CAL — zbyt generyczne, falszowalyby
+# trafienia poza kontekstem UPS-a.
+
+[[keywords]]
+words = ["OL", "CHRG"]                           # sieć OK / ładowanie — stan nudny
+style = { fg = "bright_green" }                  # Solarized base01 (muted)
+
+[[keywords]]
+words = ["OB", "DISCHRG", "BOOST", "TRIM", "BYPASS"]   # na baterii / korekta napięcia
+style = { fg = "bright_red" }                    # Solarized orange (jak WARN)
+
+[[keywords]]
+words = ["LB", "RB", "FSD", "ALARM"]             # bateria na wykończeniu / do wymiany / wymuszone zamknięcie
+style = { fg = "red", bold = true }              # jak ERROR
+
 # --- Built-in groups.
 
 [dates]
