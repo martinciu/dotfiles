@@ -277,7 +277,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-tokyo-ni
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-night.json"       "glow glamour.json → glamour-tokyo-night.json"
 assert_gh_dash_config "#c0caf5" "gh-dash config.yml ← base + theme-colors-tokyo-night"
 assert_lazygit_config "#7aa2f7" "lazygit config.yml ← base + theme-colors-tokyo-night"
-assert_hunk_config "tokyo-night" "hunk config.toml ← base + theme-tokyo-night"
+assert_hunk_config "custom" "hunk config.toml ← base + theme-tokyo-night ([custom_theme] Storm overlay)"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "tokyo-storm.theme" "btop current.theme → tokyo-storm.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-tokyo-night.yml"      "eza theme.yml → eza-tokyo-night.yml"
