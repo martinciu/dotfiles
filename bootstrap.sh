@@ -363,6 +363,28 @@ if [ ! -f "$HOME/.config/lazygit/config.yml" ]; then
     echo "$G_SEED  $HOME/.config/lazygit/config.yml (seeded from base + solarized)"
 fi
 
+# --- hunk (review-first terminal diff viewer; switchable theme)
+# ~/.config/hunk/ is a real dir. Shared prefs live in config-base.toml (root
+# keys ONLY — a [table] header would swallow the theme fragment's root
+# `theme` key); per-theme one-liners in theme-<slug>.toml. The live
+# config.toml is generated (cat base + theme-<slug>, fragment LAST) — never
+# a symlink — so it stays machine-local and theme-set can rewrite it.
+# Mirrors the lazygit pattern above.
+prepare_real_dir "$HOME/.config/hunk"
+if [ -L "$HOME/.config/hunk/config.toml" ]; then
+    rm "$HOME/.config/hunk/config.toml"
+    echo "$G_TRASH  $HOME/.config/hunk/config.toml (legacy symlink)"
+fi
+link_tracked_entries ".config/hunk" "$HOME/.config/hunk"
+# Seed the generated config.toml once (solarized default). "Don't clobber":
+# never overwrite an existing pick, so a prior theme-set survives bootstrap.
+if [ ! -f "$HOME/.config/hunk/config.toml" ]; then
+    cat "$HOME/.config/hunk/config-base.toml" \
+        "$HOME/.config/hunk/theme-solarized.toml" \
+        > "$HOME/.config/hunk/config.toml"
+    echo "$G_SEED  $HOME/.config/hunk/config.toml (seeded from base + solarized)"
+fi
+
 # --- lnav (TUI log navigator)
 # ~/.config/lnav/ is a real dir. formats/installed/ is whole-dir-symlinked to
 # the repo. configs/installed/ is mixed-dir: tracked theme variants
@@ -515,6 +537,36 @@ link ".gitignore_global" "$HOME/.gitignore_global"
 
 # --- claude
 link ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+
+# hunk-review Claude Code skill — symlink the bundled, generated skill dir
+# into ~/.claude/skills/ (machine-local, untracked). `hunk skill path`
+# resolves into the versioned Cellar, which dangles on `brew upgrade`;
+# rewrite through the stable $(brew --prefix hunk) so the link survives
+# upgrades. Never fail bootstrap over this — warn-and-skip on any failure.
+if command -v hunk >/dev/null 2>&1; then
+    hunk_skill_md="$(hunk skill path 2>/dev/null)" || hunk_skill_md=""
+    if [ -n "$hunk_skill_md" ] && [ -e "$hunk_skill_md" ]; then
+        hunk_skill_dir="$(dirname "$hunk_skill_md")"
+        hunk_opt="$(brew --prefix hunk 2>/dev/null)" || hunk_opt=""
+        if [ -n "$hunk_opt" ]; then
+            hunk_stable="$(printf '%s\n' "$hunk_skill_dir" | sed -E "s|^.*/Cellar/hunk/[^/]+|$hunk_opt|")"
+            [ -d "$hunk_stable" ] && hunk_skill_dir="$hunk_stable"
+        fi
+        hunk_link="$HOME/.claude/skills/hunk-review"
+        mkdir -p "$HOME/.claude/skills"
+        if [ -e "$hunk_link" ] && [ ! -L "$hunk_link" ]; then
+            echo "$G_WARN  $hunk_link is a real dir (hand-copied skill?) — left untouched"
+        else
+            if [ -L "$hunk_link" ] && [ ! -e "$hunk_link" ]; then
+                echo "$G_TRASH  $hunk_link (dangling — stale Cellar path; relinking)"
+            fi
+            ln -sfn "$hunk_skill_dir" "$hunk_link"
+            echo "$G_OK  $hunk_link → $hunk_skill_dir"
+        fi
+    else
+        echo "$G_WARN  hunk installed but 'hunk skill path' gave nothing usable — skill not linked"
+    fi
+fi
 
 # --- bin (user commands on $PATH)
 # Symlink each file individually because ~/.local/bin/ typically contains

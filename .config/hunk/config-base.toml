@@ -1,0 +1,15 @@
+# hunk shared preferences — every setting EXCEPT the theme selection.
+# INVARIANT: root keys only — no [table] headers, ever. theme-set generates
+# the live config.toml as `cat config-base.toml theme-<slug>.toml` (fragment
+# LAST); a fragment may carry a [custom_theme] table, so a table here would
+# swallow the fragment's root `theme` key. scripts/test-theme-switch.sh
+# asserts this file stays table-free.
+# Add a root key only when a preference diverges from hunk's defaults.
+
+# Keep theme-set the sole writer of config.toml. `theme` is the first entry in
+# hunk's PERSISTED_VIEW_PREFERENCE_KEYS, so quitting the TUI after using the
+# in-app `t` picker otherwise offers to save it — and the save path
+# (upsertTopLevelTomlValue) REPLACES the `theme` line theme-set generated,
+# silently, with no duplicate key for the smoke to catch. false disables that
+# quit prompt, which makes the `t` picker preview-only as documented.
+prompt_save_view_preferences = false

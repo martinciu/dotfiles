@@ -139,6 +139,19 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             > ~/.config/lazygit/config.yml
     end
 
+    # hunk live config is a generated real file, same contract as lazygit but
+    # TOML: config-base.toml holds root keys only; theme-$name.toml is the
+    # fragment (usually one `theme = ...` line, may carry a [custom_theme]
+    # table). Fragment concatenates LAST — TOML root keys cannot follow a
+    # [table] header, so base must stay table-free (smoke-asserted). hunk
+    # reads config at launch (restart tier).
+    if test -f ~/.config/hunk/theme-$name.toml
+        cat \
+            ~/.config/hunk/config-base.toml \
+            ~/.config/hunk/theme-$name.toml \
+            > ~/.config/hunk/config.toml
+    end
+
     # Persisted env vars; survive shell restarts. Open shells need new
     # session to pick up the values. BAT_THEME is read by bat at startup;
     # VIVID_THEME is read by .config/fish/conf.d/10-colors.fish at fish
@@ -165,7 +178,7 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
 
     echo "theme → $name"
     echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer, jnv"
-    echo "  restart: bat + ls colors + difftastic (new shells for \$BAT_THEME / \$VIVID_THEME / \$DFT_BACKGROUND), nvim, gh-dash, lnav, btop, lazygit"
+    echo "  restart: bat + ls colors + difftastic (new shells for \$BAT_THEME / \$VIVID_THEME / \$DFT_BACKGROUND), nvim, gh-dash, lnav, btop, lazygit, hunk"
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
     # pick up the new palette. Existing windows keep their old theme until a

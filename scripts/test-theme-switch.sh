@@ -27,10 +27,18 @@ assert_link() {
 # run_theme_set subshell, so read them through a fresh `fish -c` — what a new
 # shell would see. Plain `fish -c` loads universal vars; do NOT add --no-config
 # (verified: --no-config skips universal-var loading).
+#
+# `env -u "$var"` is load-bearing: the shell running this script normally has
+# the same name already EXPORTED (it was itself started by fish after a prior
+# theme-set), and an inherited environment variable SHADOWS the fish universal
+# of the same name in the child. Without the unset, every assertion whose
+# expected value happens to equal the inherited one passes vacuously, and the
+# one that differs (DFT_BACKGROUND=light on latte) fails even though theme-set
+# wrote the universal correctly.
 assert_env_var() {
     local var="$1" want="$2" desc="$3"
     local got
-    got="$(fish -c "echo \$$var" 2>/dev/null)"
+    got="$(env -u "$var" fish -c "echo \$$var" 2>/dev/null)"
     if [ "$got" = "$want" ]; then
         pass=$((pass+1))
         echo "  PASS  $desc"
@@ -115,6 +123,57 @@ assert_lazygit_config() {
     fi
 }
 
+# hunk's live config.toml is a generated real file (cat base + theme
+# fragment, fragment LAST — TOML root keys cannot follow a [table] header).
+# Assert: (1) not a symlink, (2) exists, (3) exactly one root `theme = `
+# key (catches a table leaking into config-base.toml and swallowing the
+# fragment), (4) the value matches the expected hunk theme id.
+assert_hunk_config() {
+    local want_id="$1" desc="$2"
+    local path="$HOME/.config/hunk/config.toml"
+    if [ -L "$path" ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        is a symlink; expected a generated real file")
+        echo "  FAIL  $desc"
+        return
+    fi
+    if [ ! -f "$path" ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path missing")
+        echo "  FAIL  $desc"
+        return
+    fi
+    local theme_keys; theme_keys=$(grep -c '^theme = ' "$path")
+    if [ "$theme_keys" -ne 1 ]; then
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        expected 1 root 'theme = ' key, got $theme_keys")
+        echo "  FAIL  $desc"
+        return
+    fi
+    if grep -q "^theme = \"$want_id\"" "$path"; then
+        pass=$((pass+1))
+        echo "  PASS  $desc"
+    else
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  $desc"$'\n'"        path: $path"$'\n'"        expected theme = \"$want_id\", got: $(grep '^theme = ' "$path")")
+        echo "  FAIL  $desc"
+    fi
+}
+
+# Root-keys-only invariant for hunk's config-base.toml (repo copy): a [table]
+# header would swallow the fragment's root `theme` key at concat time.
+assert_hunk_base_tablefree() {
+    local path="$REPO/.config/hunk/config-base.toml"
+    if [ -f "$path" ] && ! grep -q '^\[' "$path"; then
+        pass=$((pass+1))
+        echo "  PASS  hunk config-base.toml is table-free (root keys only)"
+    else
+        fail=$((fail+1))
+        fail_msgs+=("FAIL  hunk config-base.toml missing or contains a [table] header"$'\n'"        path: $path")
+        echo "  FAIL  hunk config-base.toml is table-free (root keys only)"
+    fi
+}
+
 REPO="${REPO:-$PROJECTS_HOME/dotfiles}"
 THEME_SET_FN="$REPO/.config/fish/functions/theme-set.fish"
 
@@ -133,6 +192,9 @@ run_theme_set() {
 echo "theme-set smoke test"
 echo "───────────────────"
 
+# Theme-independent invariant — checked once, before any flip.
+assert_hunk_base_tablefree
+
 # Remember the starting theme so we can restore at the end.
 start_theme="$(readlink "$HOME/.config/themes/current.tmux" 2>/dev/null | sed 's/\.tmux$//')"
 : "${start_theme:=solarized}"
@@ -146,6 +208,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-mocha.to
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-mocha.json"       "glow glamour.json → glamour-mocha.json"
 assert_gh_dash_config "#cdd6f4" "gh-dash config.yml ← base + theme-colors-mocha"
 assert_lazygit_config "#89b4fa" "lazygit config.yml ← base + theme-colors-mocha"
+assert_hunk_config "catppuccin-mocha" "hunk config.toml ← base + theme-mocha"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-mocha.json"         "lnav theme.json → theme-mocha.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_mocha.theme" "btop current.theme → catppuccin_mocha.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-mocha.yml"            "eza theme.yml → eza-mocha.yml"
@@ -163,6 +226,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-frappe.t
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-frappe.json"        "glow glamour.json → glamour-frappe.json"
 assert_gh_dash_config "#c6d0f5" "gh-dash config.yml ← base + theme-colors-frappe"
 assert_lazygit_config "#8caaee" "lazygit config.yml ← base + theme-colors-frappe"
+assert_hunk_config "catppuccin-frappe" "hunk config.toml ← base + theme-frappe"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-frappe.json"          "lnav theme.json → theme-frappe.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "catppuccin_frappe.theme" "btop current.theme → catppuccin_frappe.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-frappe.yml"           "eza theme.yml → eza-frappe.yml"
@@ -179,6 +243,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-dracula.
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-dracula.json"       "glow glamour.json → glamour-dracula.json"
 assert_gh_dash_config "#f8f8f2" "gh-dash config.yml ← base + theme-colors-dracula"
 assert_lazygit_config "#bd93f9" "lazygit config.yml ← base + theme-colors-dracula"
+assert_hunk_config "dracula" "hunk config.toml ← base + theme-dracula"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-dracula.json"         "lnav theme.json → theme-dracula.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "dracula.theme" "btop current.theme → dracula.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-dracula.yml"          "eza theme.yml → eza-dracula.yml"
@@ -195,6 +260,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-gruvbox.
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-gruvbox.json"       "glow glamour.json → glamour-gruvbox.json"
 assert_gh_dash_config "#ebdbb2" "gh-dash config.yml ← base + theme-colors-gruvbox"
 assert_lazygit_config "#458588" "lazygit config.yml ← base + theme-colors-gruvbox"
+assert_hunk_config "gruvbox-dark-medium" "hunk config.toml ← base + theme-gruvbox"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-gruvbox.json"         "lnav theme.json → theme-gruvbox.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "gruvbox_dark.theme" "btop current.theme → gruvbox_dark.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-gruvbox.yml"          "eza theme.yml → eza-gruvbox.yml"
@@ -211,6 +277,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-tokyo-ni
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-tokyo-night.json"       "glow glamour.json → glamour-tokyo-night.json"
 assert_gh_dash_config "#c0caf5" "gh-dash config.yml ← base + theme-colors-tokyo-night"
 assert_lazygit_config "#7aa2f7" "lazygit config.yml ← base + theme-colors-tokyo-night"
+assert_hunk_config "custom" "hunk config.toml ← base + theme-tokyo-night ([custom_theme] Storm overlay)"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-tokyo-night.json"         "lnav theme.json → theme-tokyo-night.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "tokyo-storm.theme" "btop current.theme → tokyo-storm.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-tokyo-night.yml"      "eza theme.yml → eza-tokyo-night.yml"
@@ -227,6 +294,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-nord.tom
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-nord.json"       "glow glamour.json → glamour-nord.json"
 assert_gh_dash_config "#d8dee9" "gh-dash config.yml ← base + theme-colors-nord"
 assert_lazygit_config "#5e81ac" "lazygit config.yml ← base + theme-colors-nord"
+assert_hunk_config "nord" "hunk config.toml ← base + theme-nord"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-nord.json"         "lnav theme.json → theme-nord.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "nord.theme" "btop current.theme → nord.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-nord.yml"             "eza theme.yml → eza-nord.yml"
@@ -243,6 +311,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-rose-pin
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine.json"       "glow glamour.json → glamour-rose-pine.json"
 assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine"
 assert_lazygit_config "#31748f" "lazygit config.yml ← base + theme-colors-rose-pine"
+assert_hunk_config "rose-pine" "hunk config.toml ← base + theme-rose-pine"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine.json"         "lnav theme.json → theme-rose-pine.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine.theme" "btop current.theme → rose-pine.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine.yml"        "eza theme.yml → eza-rose-pine.yml"
@@ -259,6 +328,7 @@ assert_link "$HOME/.config/starship.toml"                     "starship-rose-pin
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow glamour.json → glamour-rose-pine-moon.json"
 assert_gh_dash_config "#e0def4" "gh-dash config.yml ← base + theme-colors-rose-pine-moon"
 assert_lazygit_config "#3e8fb0" "lazygit config.yml ← base + theme-colors-rose-pine-moon"
+assert_hunk_config "rose-pine-moon" "hunk config.toml ← base + theme-rose-pine-moon"
 assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav theme.json → theme-rose-pine-moon.json"
 assert_link "$HOME/.config/btop/themes/current.theme" "rose-pine-moon.theme" "btop current.theme → rose-pine-moon.theme"
 assert_link "$HOME/.config/eza/theme.yml"                     "eza-rose-pine-moon.yml"   "eza theme.yml → eza-rose-pine-moon.yml"
@@ -279,6 +349,7 @@ assert_link "$HOME/.config/tealdeer/config.toml"             "config-latte.toml"
 assert_link "$HOME/.config/jnv/config.toml"                 "config-latte.toml"        "jnv config.toml → config-latte.toml"
 assert_env_var "DFT_BACKGROUND" "light" "DFT_BACKGROUND=light (latte)"
 assert_lazygit_config "#1e66f5" "lazygit config.yml ← base + theme-colors-latte (flips; has a Latte variant)"
+assert_hunk_config "catppuccin-latte" "hunk config.toml ← base + theme-latte (flips; has a Latte variant)"
 # Negative contract — what does NOT flip (partial coverage stays on previous theme = rose-pine-moon):
 assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine-moon.gitconfig"    "delta stays on rose-pine-moon (no delta-latte.gitconfig)"
 assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow stays on rose-pine-moon (no glamour-latte.json)"
@@ -291,6 +362,7 @@ assert_link "$HOME/.config/themes/current.tmux"               "solarized.tmux"  
 assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-solarized.ghostty"    "ghostty theme.ghostty → theme-solarized.ghostty (reverse)"
 assert_link "$HOME/.config/starship.toml"                     "starship-solarized.toml"    "starship.toml → starship-solarized.toml (reverse)"
 assert_link "$HOME/.config/btop/themes/current.theme" "solarized_dark.theme" "btop current.theme → solarized_dark.theme (reverse)"
+assert_hunk_config "solarized-dark" "hunk config.toml ← base + theme-solarized (reverse)"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (solarized, reverse)"
 
 # Restore starting state.

@@ -22,7 +22,7 @@
   <div class="hero-inner">
     <h1>Terminal <span class="accent">— Getting Started &amp; Cheatsheet</span></h1>
     <div class="sub">
-      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · glow · vivid · procs · lnav · xh · slm · fzf · nvimpager · sandbox · vhs · basalt
+      Solarized Dark default (switchable) &middot; eza · bat · git-delta · difftastic · hunk · glow · vivid · procs · lnav · xh · slm · fzf · nvimpager · sandbox · vhs · basalt
     </div>
   </div>
   <a class="hero-cta" href="images/example_terminal.png">view full screenshot</a>
@@ -38,6 +38,7 @@
   <a href="#less">less wrapper</a>
   <a href="#delta">git-delta</a>
   <a href="#difftastic">difftastic</a>
+  <a href="#hunk">hunk</a>
   <a href="#glow">glow / md</a>
   <a href="#tspin">tspin</a>
   <a href="#xh">xh</a>
@@ -64,6 +65,7 @@
       <tr><td class="key"><a href="https://github.com/sharkdp/bat"><code>bat</code></a></td><td class="desc">syntax-highlighted cat / man pager backend</td></tr>
       <tr><td class="key"><a href="https://github.com/dandavison/delta"><code>git-delta</code></a></td><td class="desc">git diff/log/blame pager</td></tr>
       <tr><td class="key"><a href="https://difftastic.wilfred.me.uk/"><code>difftastic</code></a></td><td class="desc">syntactic diff for ad-hoc compares (non-git)</td></tr>
+      <tr><td class="key"><a href="https://www.hunk.dev/"><code>hunk</code></a></td><td class="desc">review-first diff TUI for whole changesets (explicit invocation)</td></tr>
       <tr><td class="key"><a href="https://github.com/charmbracelet/glow"><code>glow</code></a></td><td class="desc">render markdown to ANSI (powers <code>md</code>)</td></tr>
       <tr><td class="key"><a href="https://github.com/sharkdp/vivid"><code>vivid</code></a></td><td class="desc">generates LS_COLORS palettes</td></tr>
       <tr><td class="key"><a href="https://github.com/dalance/procs"><code>procs</code></a></td><td class="desc">modern ps replacement (Rust)</td></tr>
@@ -358,6 +360,37 @@
     <h3>Why no theme pin</h3>
     <p>Difftastic uses ANSI 16-color directly; it inherits the active terminal palette (Solarized Dark by default), so it auto-adapts with <code>theme-set</code> — nothing to wire.</p>
     <p class="note">Don't introduce <code>delta</code>, <code>diff-so-fancy</code>, or another diff renderer for non-git — they're line-based, not syntactic, and would duplicate what delta already does for git.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<h2 id="hunk">hunk <span class="tool-tag">review-first diff TUI</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Review a changeset</h3>
+    <table>
+      <tr><td class="key"><code>hunk diff</code></td><td class="desc">working-tree review: file sidebar, one stream, hunk-to-hunk jumps</td></tr>
+      <tr><td class="key"><code>hunk show HEAD~1</code></td><td class="desc">review a commit</td></tr>
+      <tr><td class="key"><code>t</code></td><td class="desc">ad-hoc theme picker (preview only — <code>prompt_save_view_preferences = false</code> keeps theme-set the sole writer)</td></tr>
+    </table>
+    <p class="note">Explicit invocation only — <code>git diff</code> / <code>git log -p</code> stay on delta; hunk is the deliberate whole-changeset pass.</p>
+  </div>
+
+  <div class="card">
+    <h3>Agent review loop</h3>
+    <table>
+      <tr><td class="key"><code>hunk session list</code></td><td class="desc">live sessions (loopback daemon)</td></tr>
+      <tr><td class="key"><code>hunk session review --repo . --json</code></td><td class="desc">machine-readable review state</td></tr>
+      <tr><td class="key"><code>hunk session comment add …</code></td><td class="desc">note renders inline above the hunk it annotates</td></tr>
+    </table>
+    <p class="note">Claude Code loads the bundled <code>hunk-review</code> skill — bootstrap symlinks it into <code>~/.claude/skills/</code> through <code>/opt/homebrew/opt/hunk</code> (survives <code>brew upgrade</code>).</p>
+  </div>
+
+  <div class="card">
+    <h3>Theme</h3>
+    <p>Follows <code>theme-set</code> across all 10 themes incl. Latte. Generated <code>~/.config/hunk/config.toml</code> = <code>config-base.toml</code> + <code>theme-&lt;slug&gt;.toml</code> (fragment last). Restart tier — relaunch to repaint.</p>
   </div>
 </div>
 
@@ -739,7 +772,7 @@
 
   <div class="card">
     <h3>What follows the theme</h3>
-    <p><strong>Follow <code>theme-set</code>:</strong> bat, git-delta, difftastic, glow/<code>md</code>, vivid/<code>LS_COLORS</code>, eza, fzf, atuin, Ghostty, starship, lnav, gh-dash, tmux, nvim, btop.</p>
+    <p><strong>Follow <code>theme-set</code>:</strong> bat, git-delta, difftastic, glow/<code>md</code>, vivid/<code>LS_COLORS</code>, eza, fzf, atuin, Ghostty, starship, lnav, gh-dash, tmux, nvim, btop, hunk.</p>
     <p><strong>Stay Solarized Dark:</strong> procs, tailspin (<code>tspin</code>), xh.</p>
     <p class="note">fzf + atuin + difftastic auto-adapt via ANSI palette refs (no per-theme file). tmux sources the active palette; nvim reads it at startup. See CLAUDE.md → "Switchable themes".</p>
   </div>
@@ -886,7 +919,7 @@
 <span class="cmd">git log -p</span> | <span class="cmd">head</span>                 <span class="c"># should look styled</span></pre>
 
 <footer>
-  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-08-09.
+  Built from <code>~/.config/fish/</code>, <code>Brewfile</code>, and project CLAUDE.md on 2026-08-10.
   Refresh after meaningful color-tooling changes.
 </footer>
 

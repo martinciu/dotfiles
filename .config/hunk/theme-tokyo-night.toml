@@ -1,0 +1,15 @@
+# hunk ships a single "tokyo-night" — the Night variant (bg #1a1b26). The rest
+# of this setup is TokyoNight *Storm* (Ghostty bg #24283b), so the stock id
+# would seat hunk's diff surface on a darker ground than the window around it.
+# Overlay Storm's background on the same base instead of picking another id.
+#
+# This is the fragment that makes config-base.toml's root-keys-only rule
+# load-bearing: the [custom_theme] table below must be the LAST thing in the
+# generated config.toml, so nothing table-shaped may precede it in the base.
+theme = "custom"
+
+[custom_theme]
+base  = "tokyo-night"
+label = "Tokyo Night Storm"
+background = "#24283b"   # Ghostty "TokyoNight Storm" background
+panel      = "#1a1b26"   # @color_deep_bg from .config/themes/tokyo-night.tmux
