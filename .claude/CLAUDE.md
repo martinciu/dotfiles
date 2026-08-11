@@ -203,6 +203,37 @@ Tavily; strictly-Google or structured data (flights, reviews, transcripts)
 Brave/SerpApi output, reuse the curl→Python→`print()` pattern from
 `tavily-dynamic-search` so raw results stay out of context.
 
+## Code review routing — Hunk inline comments when a session is live
+
+Before delivering any code-review-style response (`/code-review`,
+`/review`, `pr-review`, "review this diff", "look over my changes"),
+check whether a live Hunk session is loaded for the current checkout:
+
+```
+hunk session get --repo "$(git rev-parse --show-toplevel)" --json
+```
+
+- **Exit 0** — a session is live for this worktree. Do the review as
+  usual, then deliver the findings as inline Hunk comments via the
+  `hunk-review` skill (`hunk session comment add`, or `comment apply
+  --stdin` for batches). Keep the chat reply to a short summary — the
+  Hunk comments are the deliverable.
+- **Exit 1** — no session for this checkout. Sessions in other repos
+  or worktrees don't count; do a normal chat review. Optionally note
+  that launching `hunk diff` first would route comments inline.
+
+Why: Hunk is the review surface when it's open — comments land on the
+exact hunks in the TUI instead of scrolling past in chat. Matching by
+`--repo $(git rev-parse --show-toplevel)` scopes the check to the
+current worktree, so a session left open in another project never
+hijacks a review here.
+
+How to apply: run the check once at the start of the review, not per
+finding — `hunk session get` is instant and read-only. If the session's
+loaded diff doesn't match what was asked (e.g. it shows an older
+branch), reload it (`hunk session reload --repo <root> -- diff
+<target>`) instead of falling back to chat.
+
 ## Superpowers in auto mode
 
 Auto mode doesn't relax Superpowers' clarifying-question phase. When a
