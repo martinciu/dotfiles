@@ -29,7 +29,13 @@ vivid = "latest"
 btop = "latest"
 dust = "latest"
 duf = "latest"
-dua = "latest"
+# Pinned to 2.x, not "latest": Byron/dua-cli publishes two tag series from
+# one repo — the CLI (`vX.Y.Z`, ships assets) and the `dua-core-vX.Y.Z`
+# library crate (zero assets). A solo dua-core release takes GitHub's
+# "latest" pointer, aqua then renders `dua-dua-core-<ver>-…tar.gz`, and the
+# image build dies on the missing asset. "2" can never prefix-match a
+# dua-core tag.
+dua = "2"
 lnav = "latest"
 "github:bensadeh/tailspin" = "latest"
 xh = "latest"
