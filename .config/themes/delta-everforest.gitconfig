@@ -1,0 +1,15 @@
+# Everforest Dark Medium delta config. Active when
+# ~/.config/themes/delta-current.gitconfig symlinks to this file.
+# plus/minus emph hex are hand-derived from Everforest's green (#a7c080)
+# and red (#e67e80), sitting just above bg0 (#2d353b).
+#
+# bat 0.26 ships no Everforest syntax theme, and neither does vivid —
+# Everforest is the first theme with no match in either catalogue. Both
+# fall back to `gruvbox-dark`: nearest warm family member, and it keeps
+# bat and vivid agreeing with each other.
+[delta]
+    syntax-theme = gruvbox-dark
+    plus-style = "syntax #2c3a26"
+    minus-style = "syntax #3d2a2c"
+    plus-emph-style = "syntax #3d5233"
+    minus-emph-style = "syntax #5e2f33"

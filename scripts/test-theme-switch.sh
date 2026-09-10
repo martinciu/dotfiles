@@ -336,8 +336,25 @@ assert_link "$HOME/.config/tealdeer/config.toml"             "config-rose-pine-m
 assert_link "$HOME/.config/jnv/config.toml"                 "config-rose-pine-moon.toml"        "jnv config.toml → config-rose-pine-moon.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (rose-pine-moon)"
 
-# Forward: rose-pine-moon → latte (partial-coverage theme — only ghostty/tmux/starship
-# flip; delta/glow/lnav/gh-dash stay on nord by design, see spec).
+# Forward: rose-pine-moon → everforest
+run_theme_set everforest
+assert_link "$HOME/.config/themes/current.tmux"               "everforest.tmux"               "current.tmux → everforest.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-everforest.gitconfig"    "delta-current.gitconfig → delta-everforest.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-everforest.ghostty"      "ghostty theme.ghostty → theme-everforest.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-everforest.toml"      "starship.toml → starship-everforest.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-everforest.json"       "glow glamour.json → glamour-everforest.json"
+assert_gh_dash_config "#d3c6aa" "gh-dash config.yml ← base + theme-colors-everforest"
+assert_lazygit_config "#7fbbb3" "lazygit config.yml ← base + theme-colors-everforest"
+assert_hunk_config "everforest-dark" "hunk config.toml ← base + theme-everforest"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-everforest.json"         "lnav theme.json → theme-everforest.json"
+assert_link "$HOME/.config/btop/themes/current.theme" "everforest-dark-medium.theme" "btop current.theme → everforest-dark-medium.theme"
+assert_link "$HOME/.config/eza/theme.yml"                     "eza-everforest.yml"        "eza theme.yml → eza-everforest.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-everforest.toml"    "tealdeer config.toml → config-everforest.toml"
+assert_link "$HOME/.config/jnv/config.toml"                 "config-everforest.toml"        "jnv config.toml → config-everforest.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (everforest)"
+
+# Forward: everforest → latte (partial-coverage theme — only ghostty/tmux/starship
+# flip; delta/glow/lnav/gh-dash stay on everforest by design, see spec).
 run_theme_set latte
 # Positive contract — what flips:
 assert_link "$HOME/.config/themes/current.tmux"               "latte.tmux"               "current.tmux → latte.tmux"
@@ -350,11 +367,11 @@ assert_link "$HOME/.config/jnv/config.toml"                 "config-latte.toml" 
 assert_env_var "DFT_BACKGROUND" "light" "DFT_BACKGROUND=light (latte)"
 assert_lazygit_config "#1e66f5" "lazygit config.yml ← base + theme-colors-latte (flips; has a Latte variant)"
 assert_hunk_config "catppuccin-latte" "hunk config.toml ← base + theme-latte (flips; has a Latte variant)"
-# Negative contract — what does NOT flip (partial coverage stays on previous theme = rose-pine-moon):
-assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-rose-pine-moon.gitconfig"    "delta stays on rose-pine-moon (no delta-latte.gitconfig)"
-assert_link "$HOME/.config/glow/glamour.json"                 "glamour-rose-pine-moon.json"       "glow stays on rose-pine-moon (no glamour-latte.json)"
-assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-rose-pine-moon.json"         "lnav stays on rose-pine-moon (no theme-latte.json)"
-assert_gh_dash_config "#e0def4" "gh-dash stays on rose-pine-moon (no theme-colors-latte.yml)"
+# Negative contract — what does NOT flip (partial coverage stays on previous theme = everforest):
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-everforest.gitconfig"        "delta stays on everforest (no delta-latte.gitconfig)"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-everforest.json"           "glow stays on everforest (no glamour-latte.json)"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-everforest.json"             "lnav stays on everforest (no theme-latte.json)"
+assert_gh_dash_config "#d3c6aa" "gh-dash stays on everforest (no theme-colors-latte.yml)"
 
 # Reverse: latte → solarized
 run_theme_set solarized

@@ -7,6 +7,7 @@ complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a nord     
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a latte       -d 'Catppuccin Latte (light)'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine   -d 'Rose Pine Main'
 complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine-moon -d 'Rose Pine Moon (2.5 contrast)'
+complete -c theme-set -f -n 'test (count (commandline -opc)) -eq 1' -a everforest -d 'Everforest Dark Medium'
 
 # Flags (no positional name yet, or alongside).
 complete -c theme-set -l stats -d 'Per-theme usage report'

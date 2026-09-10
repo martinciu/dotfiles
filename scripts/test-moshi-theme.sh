@@ -20,7 +20,7 @@ fail_msgs=()
 ok()  { pass=$((pass+1)); echo "  PASS  $1"; }
 bad() { fail=$((fail+1)); fail_msgs+=("$1"); echo "  FAIL  $1"; }
 
-SLUGS=(solarized mocha frappe dracula gruvbox tokyo-night nord latte rose-pine rose-pine-moon)
+SLUGS=(solarized mocha frappe dracula gruvbox tokyo-night nord latte rose-pine rose-pine-moon everforest)
 
 echo "— committed artifacts"
 for slug in "${SLUGS[@]}"; do
