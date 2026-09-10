@@ -47,7 +47,7 @@ search_load_chunk_size = 50000
 [completion.listbox]
 lines = 3
 cursor = "❯ "
-active_item_style = "fg=#2d353b,bg=#dbbc7f"
+active_item_style = "fg=#232a2e,bg=#dbbc7f"
 inactive_item_style = "fg=#859289"
 
 # Keybinding settings

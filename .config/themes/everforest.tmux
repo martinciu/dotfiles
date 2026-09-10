@@ -6,13 +6,21 @@
 # distinguishes the two roles.
 
 # Bases
-set -g @color_bar_bg          "#343f44"
-set -g @color_deep_bg         "#2d353b"
+# bar_bg is bg0 — the same hex Ghostty paints as the terminal background,
+# so the status bar sits flush with the pane instead of reading as a band.
+# That is the dracula / mocha / nord / tokyo-night / rose-pine school;
+# solarized and gruvbox take the other one. deep_bg therefore drops to
+# bg_dim, one step under the bar, so copy-mode selection and the prefix-:
+# command prompt still read as a distinct field against a flush bar —
+# every blending theme keeps that separation.
+set -g @color_bar_bg          "#2d353b"
+set -g @color_deep_bg         "#232a2e"
 set -g @color_default_fg      "#d3c6aa"
 set -g @color_muted_fg        "#859289"
 # light_fg here is dark (#2d353b = Everforest bg0) — chip-text inversion.
 # Everforest's accents are light and low-saturation, so light-on-accent
-# would be illegible.
+# would be illegible. Equal to bar_bg, as in dracula / rose-pine /
+# tokyo-night, so every chip carries the same dark text.
 set -g @color_light_fg        "#2d353b"
 
 # Accents
