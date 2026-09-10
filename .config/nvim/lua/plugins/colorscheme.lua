@@ -145,6 +145,24 @@ return {
       end
     end,
   },
+  -- Everforest (new — loaded when theme.lua resolves to everforest).
+  {
+    "neanias/everforest-nvim",
+    name = "everforest",
+    version = false,
+    lazy = false,
+    priority = 1000,
+    opts = {
+      background = "medium",
+      italics = true,
+    },
+    config = function(_, opts)
+      require("everforest").setup(opts)
+      if current == "everforest" then
+        vim.cmd.colorscheme("everforest")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",

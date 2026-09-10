@@ -9,6 +9,7 @@
 --   "nord"
 --   "rose-pine"
 --   "rose-pine-moon"
+--   "everforest"
 local M = {}
 
 function M.current()
@@ -30,6 +31,8 @@ function M.current()
       return "rose-pine-moon"
     elseif link:match("rose%-pine") then
       return "rose-pine"
+    elseif link:match("everforest") then
+      return "everforest"
     end
   end
   return "solarized"
