@@ -56,8 +56,9 @@ assert_not_contains() {
 
 echo "── name lists ──"
 theme_count="$(fishrun '__theme_set_names | count')"
-assert_eq "$theme_count" "10" "__theme_set_names emits 10 themes"
+assert_eq "$theme_count" "11" "__theme_set_names emits 11 themes"
 assert_contains "$(fishrun '__theme_set_names')" "rose-pine-moon" "theme list includes rose-pine-moon"
+assert_contains "$(fishrun '__theme_set_names')" "everforest" "theme list includes everforest"
 font_count="$(fishrun '__font_set_names | count')"
 assert_eq "$font_count" "17" "__font_set_names emits 17 fonts"
 assert_contains "$(fishrun '__font_set_names')" "jetbrains" "font list includes jetbrains"
