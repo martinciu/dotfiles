@@ -1,5 +1,5 @@
 function theme-set --description 'Switch colour scheme; bare = show current, --stats = usage report'
-    set -l usage "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon>
+    set -l usage "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon|everforest>
        theme-set            show current theme + when set
        theme-set --stats [--all]   per-theme usage report"
 
@@ -81,6 +81,16 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             set bat_theme "Catppuccin Mocha"
             set vivid_theme "rose-pine-moon"
             set btop_theme "rose-pine-moon"
+        case everforest
+            # bat 0.26 and vivid 0.11 both lack an Everforest palette —
+            # Everforest is the first theme with no match in either
+            # catalogue. Fall back to gruvbox-dark in both: it is the
+            # nearest family member (warm cream fg on a warm dark ground)
+            # and keeps bat and vivid agreeing with each other, which every
+            # other theme does. btop's brew share ships the real thing.
+            set bat_theme "gruvbox-dark"
+            set vivid_theme "gruvbox-dark"
+            set btop_theme "everforest-dark-medium"
         case '*'
             set bat_theme "Solarized (dark)"
             set vivid_theme "solarized-dark"
