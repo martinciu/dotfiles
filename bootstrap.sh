@@ -247,7 +247,7 @@ link ".config/tailspin" "$HOME/.config/tailspin"
 
 # --- btop (config + themes; both follow theme-set)
 # Output unified to a single check line. The seed, the #316 color_theme
-# migration, and the 10 per-theme link lines all still run — only their
+# migration, and the 11 per-theme link lines all still run — only their
 # per-step chatter is silenced (stdout of the block → /dev/null).
 {
   # ~/.config/btop/ is a real dir; btop rewrites btop.conf on exit (sort order,
