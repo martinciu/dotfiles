@@ -63,6 +63,7 @@ sources_hash() {
             .config/starship-gruvbox.toml .config/starship-tokyo-night.toml \
             .config/starship-nord.toml .config/starship-latte.toml \
             .config/starship-rose-pine.toml .config/starship-rose-pine-moon.toml \
+            .config/starship-everforest.toml \
             -type f -print0 2>/dev/null \
        | sort -z | xargs -0 shasum | shasum | awk '{print $1}' )
 }

@@ -25,6 +25,7 @@
 !.config/starship-latte.toml
 !.config/starship-rose-pine.toml
 !.config/starship-rose-pine-moon.toml
+!.config/starship-everforest.toml
 # Never ship machine-local fish files (belt-and-suspenders — these are not in the
 # repo working tree anyway, only their .template companions are).
 .config/fish/conf.d/15-local.fish

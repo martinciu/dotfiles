@@ -128,6 +128,7 @@ stage_theme() {
     latte)          bat="Catppuccin Latte";  vivid="catppuccin-latte" ;;
     rose-pine)      bat="Catppuccin Mocha";  vivid="rose-pine" ;;
     rose-pine-moon) bat="Catppuccin Mocha";  vivid="rose-pine-moon" ;;
+    everforest)     bat="gruvbox-dark";      vivid="gruvbox-dark" ;;
     *)              name="solarized"; bat="Solarized (dark)"; vivid="solarized-dark" ;;
   esac
 
