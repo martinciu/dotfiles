@@ -1,0 +1,29 @@
+# Derived from .config/themes/everforest.* palette
+gui:
+  theme:
+    activeBorderColor:
+      - "#7fbbb3"
+      - bold
+    inactiveBorderColor:
+      - "#7a8478"
+    searchingActiveBorderColor:
+      - "#dbbc7f"
+      - bold
+    optionsTextColor:
+      - "#83c092"
+    selectedLineBgColor:
+      - "#343f44"
+    inactiveViewSelectedLineBgColor:
+      - "#2d353b"
+    cherryPickedCommitFgColor:
+      - "#2d353b"
+    cherryPickedCommitBgColor:
+      - "#d699b6"
+    markedBaseCommitFgColor:
+      - "#2d353b"
+    markedBaseCommitBgColor:
+      - "#dbbc7f"
+    unstagedChangesColor:
+      - "#e67e80"
+    defaultFgColor:
+      - "#d3c6aa"

@@ -1,0 +1,6 @@
+# hunk ships a built-in "everforest-dark" and it is the Dark Medium
+# variant (bg #2d353b) — the same grade this setup uses — so no
+# [custom_theme] overlay is needed. Contrast with tokyo-night, which
+# needs one because hunk's built-in is the Night variant while the rest
+# of the setup is Storm.
+theme = "everforest-dark"
