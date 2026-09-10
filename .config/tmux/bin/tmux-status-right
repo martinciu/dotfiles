@@ -18,7 +18,13 @@ pwd_in="${1:-$PWD}"
 # Colours read from tmux @color_* options (see ~/.config/themes/*.tmux).
 # Solarized hex retained as fallback so the helper still works when invoked
 # outside a tmux server (e.g. from scripts/test-helpers.sh).
-bar_bg="$(tmux show-option -gv @color_bar_bg          2>/dev/null)"; : "${bar_bg:=#073642}"
+#
+# bar_bg is the literal `default`, not a hex — every use here is a *cap
+# ground* (the orange cap below, and the prev_bg forwarded to
+# tmux-git-status). `bg=default` leaves the cell's background unset so it
+# composites under Ghostty's background-opacity like the pane does; an
+# explicit hex renders opaque and reads as a seam (#391).
+bar_bg="default"
 pr_bg="$(tmux show-option  -gv @color_accent_orange   2>/dev/null)"; : "${pr_bg:=#cb4b16}"
 pr_fg="$(tmux show-option  -gv @color_light_fg        2>/dev/null)"; : "${pr_fg:=#fdf6e3}"
 helper_dir="$(dirname "${BASH_SOURCE[0]}")"

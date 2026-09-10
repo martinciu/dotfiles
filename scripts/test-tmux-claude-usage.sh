@@ -214,8 +214,9 @@ STUB
 chmod +x "$TEST_BIN/ccpulse"
 got=$(run_helper)
 
-# Violet chip now opens directly against bar_bg with a left rounded cap.
-assert_contains "$got" "#[fg=#6c71c4,bg=#073642]"     "violet chip cap is violet on bar bg"
+# Violet chip now opens directly against the bar with a left rounded cap.
+# The cap ground is `default`, not a hex — see #391 (theme-independent).
+assert_contains "$got" "#[fg=#6c71c4,bg=default]"     "violet chip cap is violet on bar ground"
 # Robot still rendered, now inside the violet body alongside the calendar
 # (U+1F916 emoji, chosen over Nerd Font U+F544 in commit 254840b for portability).
 assert_contains "$got" $'\xf0\x9f\xa4\x96'            "robot glyph (U+1F916) present"
@@ -509,8 +510,8 @@ teardown_sandbox
 # ─── Cost throughput ($xx/h) ─────────────────
 # Cost throughput now renders as a standalone red chip AFTER the 5h chip,
 # with no glyph: the 5h yellow chip's right cap fuses into the red bg and
-# the red chip closes into bar_bg. (Solarized: yellow #b58900, red #dc322f,
-# light fg #fdf6e3, bar bg #073642.)
+# the red chip closes into the bar ground. (Solarized: yellow #b58900,
+# red #dc322f, light fg #fdf6e3; the bar ground is `default`, #391.)
 setup_sandbox
 cat > "$TEST_BIN/ccpulse" <<'STUB'
 #!/opt/homebrew/bin/bash
@@ -524,7 +525,7 @@ assert_contains     "$got" '$14/h'                          "cost compact: \$14/
 assert_not_contains "$got" $'\xf3\xb0\x93\x85'              "cost compact: speedometer glyph dropped"
 assert_contains     "$got" "#[bg=#dc322f,fg=#b58900]"       "cost compact: left cap fuses yellow into red"
 assert_contains     "$got" "#[fg=#fdf6e3,bg=#dc322f,bold]"  "cost compact: red chip body uses light fg on red bold"
-assert_contains     "$got" "#[fg=#dc322f,bg=#073642]"       "cost compact: red chip closes into bar bg"
+assert_contains     "$got" "#[fg=#dc322f,bg=default]"       "cost compact: red chip closes into bar ground"
 # Positional: the cost body ($14/h) must come AFTER the 5h reset (3h37m),
 # confirming the cost chip sits to the right of the 5h chip.
 pos_5h=$(printf '%s' "$got" | grep -boF '3h37m' | head -1 | cut -d: -f1)

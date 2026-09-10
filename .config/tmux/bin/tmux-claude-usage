@@ -165,7 +165,12 @@ reset_7d=$(format_reset "$mins_7d")
 # ── Chip rendering ──────────────────────────
 # Colours read from tmux @color_* options. Solarized hex retained as
 # fallback for invocation outside a tmux server.
-bar_bg="$(tmux    show-option -gv @color_bar_bg        2>/dev/null)"; : "${bar_bg:=#073642}"
+#
+# bar_bg is the literal `default`, not a hex — its only uses are cap grounds,
+# and `bg=default` composites under Ghostty's background-opacity instead of
+# painting an opaque seam (#391). fg_yellow below reads the same @color_bar_bg
+# option as a *foreground* and keeps the hex, where `default` is meaningless.
+bar_bg="default"
 violet="$(tmux    show-option -gv @color_accent_violet 2>/dev/null)"; : "${violet:=#6c71c4}"
 yellow="$(tmux    show-option -gv @color_accent_yellow 2>/dev/null)"; : "${yellow:=#b58900}"
 fg_violet="$(tmux show-option -gv @color_light_fg      2>/dev/null)"; : "${fg_violet:=#fdf6e3}"
