@@ -1,0 +1,14 @@
+# Everforest Dark Medium. Active when ~/.config/ghostty/theme.ghostty →
+# this file (theme-set everforest).
+#
+# Ghostty bundles only "Everforest Dark Hard" (bg #1e2326) and
+# "Everforest Light Med" — there is no bundled Dark Medium. Point at Hard
+# and override the one bg-carrying key: Hard's palette 0 is grey0
+# (#7a8478), not a bg-tinted near-black, so `background` is the only line
+# needed. The accents are identical across all three contrast grades.
+#
+# This also gives moshi the Medium ground for free —
+# scripts/build-moshi-themes.py merges repo hex overrides over the
+# bundled palette.
+theme = Everforest Dark Hard
+background = #2d353b
