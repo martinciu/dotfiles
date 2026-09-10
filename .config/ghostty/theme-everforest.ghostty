@@ -3,10 +3,11 @@
 #
 # Ghostty bundles only "Everforest Dark Hard" (bg #1e2326) and
 # "Everforest Light Med" — there is no bundled Dark Medium. Point at Hard
-# and override the bg-carrying keys: Hard's palette 0 is grey0
-# (#7a8478), not a bg-tinted near-black, so `background` and the
-# bg_visual-derived selection/cursor-text pair need overriding too. The
-# accents are grade-independent — these bg-derived keys are not.
+# and override its bg-derived keys. Hard's palette 0 is grey0 (#7a8478),
+# not a bg-tinted near-black, so no `palette =` override is needed — but
+# `background` and the bg_visual-derived selection/cursor-text pair are
+# per-grade (Hard #4c3743 vs Medium #543a48) and do need one. The accents
+# are identical across all three contrast grades.
 #
 # This also gives moshi the Medium ground for free —
 # scripts/build-moshi-themes.py merges repo hex overrides over the
