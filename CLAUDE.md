@@ -221,7 +221,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
   `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, `eza` (`ll`/`ls` —
   per-theme `~/.config/eza/theme.yml` themes git/perms/icons/headers beyond
-  `LS_COLORS`; 10/10, nord hand-mapped; re-read per invocation so the next
+  `LS_COLORS`; 11/11, nord hand-mapped; re-read per invocation so the next
   `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
   `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
   only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
