@@ -52,8 +52,22 @@ assert_not_contains() {
 # Build a sandbox: a bin/ holding a ccpulse stub. Caller writes the
 # desired stub body and exit code into $TEST_BIN/ccpulse before
 # running the helper with PATH=$TEST_BIN:$PATH.
+#
+# The sandbox also stubs `tmux` so the helper cannot reach the live server.
+# `show-option` then returns empty and the `: "${var:=<solarized-hex>}"`
+# fallbacks in tmux-claude-usage take over, which is what the colour
+# assertions below are written against. Without it the helper reads the
+# *active* theme and every colour assertion fails whenever that is not
+# Solarized — 8 of them did, under Everforest (#395). Same shim, same
+# reason, as scripts/test-tmux-pr-status.sh.
 setup_sandbox() {
   TEST_BIN=$(mktemp -d)
+  cat > "$TEST_BIN/tmux" <<'TMUXSTUB'
+#!/opt/homebrew/bin/bash
+# Shim: show-option returns empty (triggers Solarized fallbacks); all else no-ops.
+exit 0
+TMUXSTUB
+  chmod +x "$TEST_BIN/tmux"
 }
 
 teardown_sandbox() {

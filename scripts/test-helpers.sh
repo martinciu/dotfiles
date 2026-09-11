@@ -34,6 +34,23 @@ assert_contains() {
   fi
 }
 
+# Stub `tmux` for the helper sections below, so tmux-git-status cannot reach
+# the live server. `show-option` then returns empty and the
+# `: "${var:=<solarized-hex>}"` fallbacks inside the helper take over — which
+# is what the colour assertions here are written against. Without it the
+# helper reads whatever theme is currently active and 6 assertions fail on any
+# non-Solarized theme (#395). Same shim, same reason, as
+# scripts/test-tmux-pr-status.sh.
+TMUX_STUB_DIR=$(mktemp -d)
+cat > "$TMUX_STUB_DIR/tmux" <<'TMUXSTUB'
+#!/opt/homebrew/bin/bash
+# Shim: show-option returns empty (triggers Solarized fallbacks); all else no-ops.
+exit 0
+TMUXSTUB
+chmod +x "$TMUX_STUB_DIR/tmux"
+_SAVED_PATH="$PATH"
+export PATH="$TMUX_STUB_DIR:$PATH"
+
 # ─── tmux-git-status ────────────────────────
 echo
 echo "tmux-git-status"
@@ -184,6 +201,11 @@ else
 
   rm -rf "$changes_repo" "$upstream" "$clone_dir"
 fi
+
+# Helper sections done — drop the tmux stub so the rest of the script sees the
+# real environment again.
+PATH="$_SAVED_PATH"; export PATH
+rm -rf "$TMUX_STUB_DIR"
 
 # ─── glow ───────────────────────────────────
 echo
