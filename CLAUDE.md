@@ -166,7 +166,10 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   config (ghostty/glow/gh-dash/lnav/eza + `starship-<theme>.toml`); active picked
   via a machine-local symlink. tmux reads `@color_*` user options from the
   sourced palette; bat (`$BAT_THEME`) and vivid (`$VIVID_THEME`) are fish
-  universal vars set by `theme-set`; fzf/atuin/fx auto-adapt via ANSI palette refs
+  universal vars set by `theme-set`, which must also **erase the same name
+  from the global scope and from the tmux server env** — a tmux server hands
+  each pane a stale copy that fish turns into a global, and a global shadows
+  the universal (#392); fzf/atuin/fx auto-adapt via ANSI palette refs
   (no per-theme files). **gh-dash is the exception** — its `config.yml` is
   generated (`cat config-base.yml theme-colors-<name>.yml`) since it has no YAML
   includes (see the gh-dash bullet). **Adding a theme:** drop the variant files
@@ -333,7 +336,8 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **`diff` → `difft`** (guarded; ad-hoc non-git only — git/vimdiff unaffected).
   Follows the light/dark axis via `DFT_BACKGROUND` (`light` on Latte, `dark`
   elsewhere) + pins `DFT_SYNTAX_HIGHLIGHT=on` — coarse only, no named palette;
-  restart tier (new shells). Escape `command diff`. Don't pin flags.
+  live in the shell that ran `theme-set` and in panes opened after, stale in
+  panes already open. Escape `command diff`. Don't pin flags.
 - **`xh` is the HTTP client** (`xh`/`xhs`; `--style=solarized` in
   `.config/xh/config.json`). Don't alias `curl`. No `http`/`https` alias.
 - **`jnv` + `fx` are the interactive JSON layer over `jq`.** `jnv` (Rust; embeds
