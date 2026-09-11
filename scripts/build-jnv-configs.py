@@ -21,7 +21,7 @@ OUT_DIR = os.path.join(ROOT, ".config", "jnv")
 # Canonical switchable-theme slugs (mirror theme-set's __theme_set_names).
 THEMES = ["solarized", "mocha", "frappe", "dracula", "gruvbox",
           "tokyo-night", "nord", "latte", "rose-pine", "rose-pine-moon",
-          "everforest"]
+          "everforest", "kanagawa"]
 
 def palette(slug):
     """Read .config/themes/<slug>.tmux → {role: '#hex'} from @color_<role> lines."""

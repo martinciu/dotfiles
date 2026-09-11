@@ -33,6 +33,7 @@ THEMES = {
     "rose-pine":      "Rosé Pine",
     "rose-pine-moon": "Rosé Pine Moon",
     "everforest":     "Everforest",
+    "kanagawa":       "Kanagawa Wave",
 }
 
 # Moshi ANSI field names, palette index order 0–15.

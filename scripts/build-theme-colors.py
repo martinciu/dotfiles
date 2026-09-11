@@ -134,7 +134,7 @@ THEMES = {
     "Solarized Dark":"solarized","Catppuccin Mocha":"mocha","Catppuccin Frappé":"frappe",
     "Catppuccin Latte":"latte","Dracula":"dracula","Gruvbox":"gruvbox",
     "Tokyo Night Storm":"tokyo-night","Nord":"nord","Rosé Pine":"rose-pine","Rosé Pine Moon":"rose-pine-moon",
-    "Everforest":"everforest",
+    "Everforest":"everforest","Kanagawa Wave":"kanagawa",
 }
 # Actual terminal background / foreground per theme, read once from Ghostty's
 # bundled theme files (the named themes the repo's theme-<slug>.ghostty files
@@ -152,6 +152,7 @@ BG = {
     "rose-pine":      ("#191724","#e0def4"),
     "rose-pine-moon": ("#232136","#e0def4"),
     "everforest":     ("#2d353b","#d3c6aa"),
+    "kanagawa":       ("#1f1f28","#dcd7ba"),
 }
 BTOP = {"mocha":"catppuccin_mocha","frappe":"catppuccin_frappe","latte":"catppuccin_latte",
         "rose-pine":"rose-pine","rose-pine-moon":"rose-pine-moon"}
@@ -159,7 +160,8 @@ LNAV = {"mocha":("catppuccin.json","catppuccin-mocha"),"frappe":("catppuccin.jso
         "gruvbox":("gruvbox.json","gruvbox-dark"),"tokyo-night":("tokyo-night.json","tokyo-night"),
         "nord":("nord.json","nord"),"rose-pine":("rose-pine.json","rose-pine"),
         "rose-pine-moon":("rose-pine.json","rose-pine-moon"),
-        "everforest":("everforest.json","everforest")}
+        "everforest":("everforest.json","everforest"),
+        "kanagawa":("kanagawa.json","kanagawa")}
 TOOLS = ["tmux","starship","lnav","btop","eza","ghostty","delta","glow","gh-dash","lazygit","tealdeer"]
 
 def pairs_for(slug):

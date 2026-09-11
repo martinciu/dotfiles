@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte / Rose Pine / Rose Pine Moon / Everforest via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
+Personal config for Ghostty + fish + tmux + vim — multi-theme (Solarized Dark / Mocha / Frappé / Dracula / Gruvbox / Tokyo Night Storm / Nord / Catppuccin Latte / Rose Pine / Rose Pine Moon / Everforest / Kanagawa Wave via `theme-set`) and multi-font (17 Nerd Fonts via `font-set`). Solarized Dark and JetBrains Mono are the defaults.
 
 <p align="center">
   <a href="docs/images/example_terminal.png"><img src="docs/images/example_terminal-thumb.png" alt="terminal" width="32%" /></a>
@@ -120,7 +120,7 @@ brew "some-tool"
 
 ## Switching themes
 
-Eleven themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Catppuccin Frappé**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, **Nord**, **Catppuccin Latte** (the only light theme), **Rose Pine**, **Rose Pine Moon**, and **Everforest Dark Medium**.
+Twelve themes are wired: **Solarized Dark** (default), **Catppuccin Mocha**, **Catppuccin Frappé**, **Dracula**, **Gruvbox Dark Medium**, **Tokyo Night Storm**, **Nord**, **Catppuccin Latte** (the only light theme), **Rose Pine**, **Rose Pine Moon**, **Everforest Dark Medium**, and **Kanagawa Wave**.
 Swap via the fish function `theme-set`:
 
 ```fish
@@ -134,6 +134,7 @@ theme-set latte        # switch to Catppuccin Latte (light, partial coverage)
 theme-set rose-pine    # switch to Rose Pine Main (light-on-accent, rose prompt)
 theme-set rose-pine-moon # switch to Rose Pine Moon (2.5-contrast accessibility variant)
 theme-set everforest   # switch to Everforest Dark Medium (low-contrast forest palette)
+theme-set kanagawa     # switch to Kanagawa Wave (muted ink-and-paper palette)
 theme-set solarized    # switch back
 ```
 
