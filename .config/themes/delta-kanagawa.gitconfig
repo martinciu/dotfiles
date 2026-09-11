@@ -1,0 +1,18 @@
+# Kanagawa Wave delta config. Active when
+# ~/.config/themes/delta-current.gitconfig symlinks to this file.
+# plus/minus grounds are Kanagawa's own winterGreen (#2b3328) and
+# winterRed (#43242b) — the palette defines these for exactly this
+# purpose. Kanagawa has no second diff tier (its DiffText is a single
+# yellow), so the emph pair is derived: each ground blended 30% toward
+# the matching autumn accent, which lands within 0.006 relative
+# luminance of Everforest's hand-derived pair.
+#
+# bat 0.26 ships no Kanagawa syntax theme, and neither does vivid. Both
+# fall back to Catppuccin Mocha — the closest pastel-on-dark in either
+# catalogue, and already the fallback for tokyo-night and rose-pine.
+[delta]
+    syntax-theme = Catppuccin Mocha
+    plus-style = "syntax #2b3328"
+    minus-style = "syntax #43242b"
+    plus-emph-style = "syntax #42503c"
+    minus-emph-style = "syntax #692c32"

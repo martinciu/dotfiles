@@ -1,0 +1,29 @@
+# Derived from .config/themes/kanagawa.* palette
+gui:
+  theme:
+    activeBorderColor:
+      - "#7e9cd8"
+      - bold
+    inactiveBorderColor:
+      - "#727169"
+    searchingActiveBorderColor:
+      - "#c0a36e"
+      - bold
+    optionsTextColor:
+      - "#6a9589"
+    selectedLineBgColor:
+      - "#2a2a37"
+    inactiveViewSelectedLineBgColor:
+      - "#1f1f28"
+    cherryPickedCommitFgColor:
+      - "#1f1f28"
+    cherryPickedCommitBgColor:
+      - "#957fb8"
+    markedBaseCommitFgColor:
+      - "#1f1f28"
+    markedBaseCommitBgColor:
+      - "#c0a36e"
+    unstagedChangesColor:
+      - "#c34043"
+    defaultFgColor:
+      - "#dcd7ba"
