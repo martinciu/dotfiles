@@ -52,6 +52,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   new pins pick an unused accent (magenta/cyan). Palette reuse across left (usage cluster)
   and right (git chips) clusters is by design — positional, not paired.
   Mode/message/border/inline colors aren't pins.
+- **Bar and cap grounds are `bg=default`, never `@color_bar_bg`** (tmux.conf,
+  `tmux-status-right`, `tmux-claude-usage`). Ghostty's `background-opacity`
+  applies only to the default background, so an explicit hex composites opaque
+  and reads as a seam. `@color_bar_bg` stays a hex — it's still the
+  *foreground* on the yellow chips.
 - **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
   client's parent chain via `ps -o ppid=,ucomm=`, shows a globe glyph when an
   ancestor is `sshd` or `mosh-server` (same glyph — the pin means "remote
