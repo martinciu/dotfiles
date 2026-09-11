@@ -162,12 +162,32 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             > ~/.config/hunk/config.toml
     end
 
-    # Persisted env vars; survive shell restarts. Open shells need new
-    # session to pick up the values. BAT_THEME is read by bat at startup;
-    # VIVID_THEME is read by .config/fish/conf.d/10-colors.fish at fish
-    # startup to regenerate LS_COLORS via `vivid generate`. fzf colors are
-    # palette-symbolic (ANSI 0–15 refs) and auto-adapt via Ghostty's
-    # 16-color palette — no env var needed.
+    # Persisted env vars. Universals are the store of record, but writing one
+    # is not enough to make it take effect (#392): a tmux server hands every
+    # pane a copy of the environment it was launched with, fish turns that
+    # into a *global*, and a global shadows the universal of the same name.
+    # Result before this erase — the value was written on every flip and read
+    # on none, so bat / ls colours / difftastic sat on whatever theme was
+    # active when the server first started.
+    #
+    # Erasing the global here is what makes those three live in THIS shell
+    # rather than restart-tier. Dropping the name from the tmux server
+    # environment (further down, with the other tmux calls) keeps panes opened
+    # later from inheriting the stale value and re-creating the shadow. Panes
+    # that are already open keep their own copy — a running process's
+    # environment cannot be changed from outside — so those still need a new
+    # shell.
+    #
+    # `set -e -g` on an absent name returns status 4 and prints nothing.
+    # BAT_THEME is read by bat at startup; VIVID_THEME is read by
+    # .config/fish/conf.d/10-colors.fish at fish startup to regenerate
+    # LS_COLORS via `vivid generate`. fzf colors are palette-symbolic
+    # (ANSI 0–15 refs) and auto-adapt via Ghostty's 16-color palette — no env
+    # var needed.
+    for __ts_var in BAT_THEME VIVID_THEME DFT_BACKGROUND DFT_SYNTAX_HIGHLIGHT
+        set -e -g $__ts_var
+    end
+
     set -Ux BAT_THEME $bat_theme
     set -Ux VIVID_THEME $vivid_theme
     # difftastic (aliased to `diff`) has no named palettes — only a light/dark
@@ -177,18 +197,42 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
     set -Ux DFT_BACKGROUND $dft_background
     set -Ux DFT_SYNTAX_HIGHLIGHT on
 
+    # LS_COLORS is computed once per shell by conf.d/10-colors.fish, so the
+    # universal alone would not repaint `ls` until the next shell. Regenerate
+    # it here — mirrors that file's logic — so ls follows in this pane too.
+    # Guarded on non-empty output: an unknown theme name would otherwise blank
+    # LS_COLORS outright.
+    if command -q vivid
+        set -l __ts_ls (vivid generate $vivid_theme 2>/dev/null)
+        test -n "$__ts_ls"; and set -gx LS_COLORS $__ts_ls
+    end
+
     # tmux: re-source config + force status redraw (silent if no server).
     # Gated on FISH_DOTFILES_TEST so the test harness doesn't repaint the
     # live status bar on every flip (same intent as the __ghostty_reload
     # suppression below).
     if not set -q FISH_DOTFILES_TEST
+        # Drop the stale copies from the server environment so newly opened
+        # panes inherit nothing and see the universals (#392). Silent without
+        # a server, like the calls below.
+        for __ts_var in BAT_THEME VIVID_THEME DFT_BACKGROUND DFT_SYNTAX_HIGHLIGHT
+            tmux setenv -gu $__ts_var 2>/dev/null
+        end
         tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null
         tmux refresh-client -S                    2>/dev/null
     end
 
     echo "theme → $name"
-    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer, jnv"
-    echo "  restart: bat + ls colors + difftastic (new shells for \$BAT_THEME / \$VIVID_THEME / \$DFT_BACKGROUND), nvim, gh-dash, lnav, btop, lazygit, hunk"
+    echo "  live:    tmux + helpers, starship (next prompt), glow, delta, eza, tealdeer, jnv, bat + ls colors + difftastic (this shell)"
+    echo "  restart: nvim, gh-dash, lnav, btop, lazygit, hunk"
+    # bat / ls / difftastic are live here and in panes opened from now on, but
+    # a pane that is already running holds its own copy of the environment and
+    # cannot be reached. Gate on another pane actually existing — the pane you
+    # are typing in is the one that just got fixed, so `set -q TMUX` alone
+    # would print this in the single-pane case where nothing is stale.
+    if test (tmux list-panes -a 2>/dev/null | wc -l | string trim) -gt 1
+        echo "  panes:   other already-open shells keep the old bat/ls/difftastic until restarted"
+    end
     # Ghostty 1.3 limitation: reload_config does NOT repaint existing surfaces
     # when `theme` changes — only NEW windows/tabs/splits opened after reload
     # pick up the new palette. Existing windows keep their old theme until a

@@ -153,9 +153,13 @@ palette-symbolic in `FZF_DEFAULT_OPTS` and auto-adapt via Ghostty's
 **Reloads live:** tmux (status bar + helpers, instant), ghostty,
 starship (next prompt render), glow, delta (next `git diff`).
 
-**Needs restart:** open shells (`$BAT_THEME` and `$VIVID_THEME` are
-read at fish startup; affects bat + ls/eza file colors), nvim,
-gh-dash, lnav.
+**Needs restart:** nvim, gh-dash, lnav.
+
+**Other tmux panes:** bat, `ls` colors and difftastic flip live in the shell
+you run `theme-set` from, and in panes opened afterwards. Panes that are
+already open hold their own copy of the environment and keep the old colors
+until restarted — a running process's environment can't be changed from
+outside.
 
 **Add another theme:** drop a new `.config/themes/<name>.tmux` palette
 file (mirror the role keys from the existing palettes) plus per-tool
