@@ -129,6 +129,7 @@ stage_theme() {
     rose-pine)      bat="Catppuccin Mocha";  vivid="rose-pine" ;;
     rose-pine-moon) bat="Catppuccin Mocha";  vivid="rose-pine-moon" ;;
     everforest)     bat="gruvbox-dark";      vivid="gruvbox-dark" ;;
+    kanagawa)       bat="Catppuccin Mocha";  vivid="catppuccin-mocha" ;;
     *)              name="solarized"; bat="Solarized (dark)"; vivid="solarized-dark" ;;
   esac
 
