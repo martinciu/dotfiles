@@ -1,8 +1,9 @@
 # dotfiles — Claude Code instructions
 
 Personal multi-theme, multi-font setup for Ghostty + tmux + vim + fish.
-`theme-set` swaps 11 themes (Solarized Dark / Catppuccin Mocha·Frappé·Latte /
-Dracula / Gruvbox / Tokyo Night Storm / Nord / Rose Pine·Moon / Everforest);
+`theme-set` swaps 12 themes (Solarized Dark / Catppuccin Mocha·Frappé·Latte /
+Dracula / Gruvbox / Tokyo Night Storm / Nord / Rose Pine·Moon / Everforest /
+Kanagawa Wave);
 `font-set`
 swaps 17 Nerd Fonts. Both switch live. Solarized Dark + JetBrains Mono are the
 bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
@@ -158,7 +159,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Mason LSPs pinned** via `mason-lock.json` (tracked; `:MasonLock` /
   `:MasonLockUpdate`). `lazy-lock.json` is gitignored (churn noise; use
   `:Lazy restore` for single-machine reproducibility).
-- **Switchable themes (11).** `theme-set <name>` (fish function) flips
+- **Switchable themes (12).** `theme-set <name>` (fish function) flips
   machine-local active-theme symlinks across hot-path + file-viewer tools.
   Palette files in `.config/themes/` (mixed-dir: tracked `*.tmux` +
   `delta-*.gitconfig`; machine-local `current.tmux` / `delta-current.gitconfig`
@@ -189,10 +190,11 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   **and** re-run `scripts/build-moshi-themes.py` (reads the new theme's
   Ghostty bundled palette → commits `moshi-<slug>.json`; needs Ghostty.app).
   Fallbacks: bat lacks Tokyo Night + Rose Pine → both fall back to Catppuccin
-  Mocha; Everforest is the first theme missing from *both* catalogues, so bat
-  **and** vivid fall back to `gruvbox-dark` (nearest warm family member, and
-  it keeps the two agreeing); lnav themes for
-  gruvbox/tokyo-night/nord/rose-pine/everforest are vendored in
+  Mocha; Everforest and Kanagawa are missing from *both* catalogues, so bat
+  **and** vivid fall back together — Everforest to `gruvbox-dark` (nearest warm
+  family member), Kanagawa to `catppuccin-mocha` (nearest pastel-on-dark) —
+  which keeps the two tools agreeing; lnav themes for
+  gruvbox/tokyo-night/nord/rose-pine/everforest/kanagawa are vendored in
   `configs/installed/` (lnav 0.14 doesn't ship them). nvim picks its colorscheme
   at startup from `readlink` of `current.tmux` (`lua/config/theme.lua`).
   Bootstrap "don't clobber" guards preserve a prior pick. Out of v1:
@@ -229,7 +231,7 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
 - **Terminal tools default Solarized Dark; some follow `theme-set`.** Follow:
   `bat`, `git-delta`, `glow`/`md`, `vivid`/`LS_COLORS`, `eza` (`ll`/`ls` —
   per-theme `~/.config/eza/theme.yml` themes git/perms/icons/headers beyond
-  `LS_COLORS`; 11/11, nord hand-mapped; re-read per invocation so the next
+  `LS_COLORS`; 12/12, nord hand-mapped; re-read per invocation so the next
   `ll` is themed; needs `EZA_CONFIG_DIR=~/.config/eza` exported in
   `00-env.fish` — eza 0.23 ignores the documented `~/.config/eza` default and
   only reads `theme.yml` from `$EZA_CONFIG_DIR`; sandbox themes it at creation
@@ -261,18 +263,18 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `snacks.nvim` for scroll (existence-guarded — fresh machine works without
   animation). `man` (`MANPAGER=bat`) and `git` (delta) unaffected. Smoke:
   `scripts/test-nvimpager.sh`.
-- **`top` → `btop`** (`vim_keys`; follows `theme-set` across all 11 themes).
+- **`top` → `btop`** (`vim_keys`; follows `theme-set` across all 12 themes).
   `command top` for macOS. `btop.conf` sets `color_theme = "current"` (existing
   machines converged by a guarded `bootstrap.sh` migration that rewrites that
   line); `~/.config/btop/themes/current.theme` is a machine-local symlink
   flipped by `theme-set` (restart tier — btop has no live reload). Themes dir
-  holds 11 per-file symlinks: 5 vendored (Catppuccin ×3, Rosé Pine ×2,
-  pinned-SHA MIT ports) + 6 shimmed from brew's
+  holds 12 per-file symlinks: 5 vendored (Catppuccin ×3, Rosé Pine ×2,
+  pinned-SHA MIT ports) + 7 shimmed from brew's
   `/opt/homebrew/share/btop/themes/`. `btop.conf` is seeded once from
   `btop.conf.template` (mixed-dir, seed-only), so runtime sort/UI toggles
   don't dirty the repo. Edit the template to change the baked default;
   `current.theme` defaults to `solarized_dark.theme`.
-- **`tldr` → `tealdeer`** (follows `theme-set` across all 11 themes; live tier —
+- **`tldr` → `tealdeer`** (follows `theme-set` across all 12 themes; live tier —
   re-reads config each invocation, no reload). Mixed-dir `.config/tealdeer/`:
   per-theme `config-<name>.toml` symlinked, active `config.toml` a machine-local
   symlink flipped by `theme-set`. Four `[style.*]` blocks per theme
@@ -304,15 +306,15 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   is **generated** by `theme-set` via plain `cat base + theme-colors-<name>`
   (gh-dash pattern) — machine-local, never a symlink, never add a `gui:` to
   the base (smoke asserts exactly one `^gui:`). **Restart tier** — lazygit
-  reads the theme at launch; relaunch to repaint. **Full 11-theme coverage
+  reads the theme at launch; relaunch to repaint. **Full 12-theme coverage
   incl. Latte** (catppuccin ships a Latte block), so unlike most followers
   Latte flips rather than degrades. rose-pine/catppuccin vendored upstream
-  (MIT); solarized/dracula/gruvbox/tokyo-night/nord/everforest derived from
-  `.config/themes/<name>.*`. Bootstrap seeds solarized (don't-clobber).
+  (MIT); solarized/dracula/gruvbox/tokyo-night/nord/everforest/kanagawa
+  derived from `.config/themes/<name>.*`. Bootstrap seeds solarized (don't-clobber).
 - **`hunk` is the review-first diff TUI** (brew core; explicit `hunk diff` /
   `hunk show <rev>` — delta keeps git's pager, no gitconfig wiring; agent
   loop via `hunk session list` / `review --json` / `comment add` over a
-  loopback daemon). Follows `theme-set` 11/11 incl. Latte: mixed-dir
+  loopback daemon). Follows `theme-set` 12/12 incl. Latte: mixed-dir
   `.config/hunk/`, generated `config.toml` = `cat config-base.toml
   theme-<slug>.toml` — **fragment LAST; base stays root-keys-only** (a
   `[table]` would swallow the fragment's `theme` key; smoke-asserted).

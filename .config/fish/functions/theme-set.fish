@@ -1,5 +1,5 @@
 function theme-set --description 'Switch colour scheme; bare = show current, --stats = usage report'
-    set -l usage "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon|everforest>
+    set -l usage "Usage: theme-set <solarized|mocha|frappe|dracula|gruvbox|tokyo-night|nord|latte|rose-pine|rose-pine-moon|everforest|kanagawa>
        theme-set            show current theme + when set
        theme-set --stats [--all]   per-theme usage report"
 
@@ -91,6 +91,18 @@ function theme-set --description 'Switch colour scheme; bare = show current, --s
             set bat_theme "gruvbox-dark"
             set vivid_theme "gruvbox-dark"
             set btop_theme "everforest-dark-medium"
+        case kanagawa
+            # bat 0.26 and vivid 0.11 both lack a Kanagawa palette. Fall
+            # back to Catppuccin Mocha in both — closest pastel-on-dark
+            # in either catalogue, already the bat fallback for
+            # tokyo-night and rose-pine, and it keeps bat and vivid
+            # agreeing with each other as every other theme does. Note
+            # this is a foreground-only choice: both tools colour text on
+            # the terminal's own ground, so Mocha's background is never
+            # rendered. btop's brew share ships the real thing.
+            set bat_theme "Catppuccin Mocha"
+            set vivid_theme "catppuccin-mocha"
+            set btop_theme "kanagawa-wave"
         case '*'
             set bat_theme "Solarized (dark)"
             set vivid_theme "solarized-dark"

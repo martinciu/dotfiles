@@ -1,0 +1,6 @@
+# Kanagawa Wave — Ghostty built-in. Theme name is case-sensitive and
+# uses a space (not a hyphen). The bundled palette is canonical Wave
+# (background #1f1f28, foreground #dcd7ba), so no overrides are needed.
+# Active when ~/.config/ghostty/theme.ghostty → this file
+# (theme-set kanagawa).
+theme = Kanagawa Wave

@@ -163,6 +163,24 @@ return {
       end
     end,
   },
+  -- Kanagawa (new — loaded when theme.lua resolves to kanagawa).
+  {
+    "rebelot/kanagawa.nvim",
+    name = "kanagawa",
+    version = false,
+    lazy = false,
+    priority = 1000,
+    opts = {
+      theme = "wave",
+      background = { dark = "wave" },
+    },
+    config = function(_, opts)
+      require("kanagawa").setup(opts)
+      if current == "kanagawa" then
+        vim.cmd.colorscheme("kanagawa")
+      end
+    end,
+  },
   -- Tell LazyVim which colorscheme to default to (matches our resolver).
   {
     "LazyVim/LazyVim",
