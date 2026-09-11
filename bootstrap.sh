@@ -247,7 +247,7 @@ link ".config/tailspin" "$HOME/.config/tailspin"
 
 # --- btop (config + themes; both follow theme-set)
 # Output unified to a single check line. The seed, the #316 color_theme
-# migration, and the 11 per-theme link lines all still run — only their
+# migration, and the 12 per-theme link lines all still run — only their
 # per-step chatter is silenced (stdout of the block → /dev/null).
 {
   # ~/.config/btop/ is a real dir; btop rewrites btop.conf on exit (sort order,
@@ -269,12 +269,12 @@ link ".config/tailspin" "$HOME/.config/tailspin"
   fi
 
   # btop themes follow theme-set. ~/.config/btop/themes/ is a real dir holding
-  # 11 per-file symlinks: 5 vendored (→ repo) + 6 bundled (→ brew share). The
+  # 12 per-file symlinks: 5 vendored (→ repo) + 7 bundled (→ brew share). The
   # active current.theme symlink is machine-local — created only if missing so
   # a prior theme-set pick survives re-running bootstrap.
   prepare_real_dir "$HOME/.config/btop/themes"
   link_tracked_entries ".config/btop/themes" "$HOME/.config/btop/themes"
-  for t in solarized_dark dracula gruvbox_dark nord tokyo-storm everforest-dark-medium; do
+  for t in solarized_dark dracula gruvbox_dark nord tokyo-storm everforest-dark-medium kanagawa-wave; do
       src="/opt/homebrew/share/btop/themes/$t.theme"
       [ -f "$src" ] && ln -sfn "$src" "$HOME/.config/btop/themes/$t.theme"
   done

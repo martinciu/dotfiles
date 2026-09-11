@@ -1,0 +1,11 @@
+# hunk ships a built-in "kanagawa-wave" whose background is #1f1f28 and
+# foreground #dcd7ba — canonical Wave, the exact grade this setup uses —
+# so no [custom_theme] overlay is needed. Contrast with tokyo-night,
+# which needs one because hunk's built-in is the Night variant while the
+# rest of the setup is Storm.
+#
+# Use the variant-suffixed id: hunk's registry holds kanagawa-wave,
+# kanagawa-dragon and kanagawa-lotus. An unknown id falls back silently
+# rather than erroring, so this id was validated against the registry,
+# not by launching.
+theme = "kanagawa-wave"
