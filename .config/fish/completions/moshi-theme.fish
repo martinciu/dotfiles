@@ -10,6 +10,7 @@ complete -c moshi-theme -f -n 'test (count (commandline -opc)) -eq 1' -a latte  
 complete -c moshi-theme -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine      -d 'Rosé Pine'
 complete -c moshi-theme -f -n 'test (count (commandline -opc)) -eq 1' -a rose-pine-moon -d 'Rosé Pine Moon'
 complete -c moshi-theme -f -n 'test (count (commandline -opc)) -eq 1' -a everforest     -d 'Everforest'
+complete -c moshi-theme -f -n 'test (count (commandline -opc)) -eq 1' -a kanagawa       -d 'Kanagawa Wave'
 
 complete -c moshi-theme -l qr -d 'Render a scannable QR (phone camera → Moshi import)'
 complete -c moshi-theme -s h -l help -d 'Show usage'
