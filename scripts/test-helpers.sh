@@ -215,25 +215,34 @@ echo "────"
 if ! command -v glow >/dev/null 2>&1; then
   echo "  SKIP — glow not installed (run 'brew bundle')"
 else
+  # glow is a MIXED-DIR tool: ~/.config/glow is a real directory holding
+  # per-file symlinks to the repo's tracked glamour-<theme>.json, plus a
+  # machine-local glamour.json that theme-set points at the active one. The
+  # repo therefore has no glamour.json of its own — $REPO/.config/glow/
+  # glamour.json never exists, and asserting against it fails on a correctly
+  # bootstrapped machine (#398).
+  #
+  # Assert the path the real code uses. functions/md.fish:12 resolves
+  # `$HOME/.config/glow/glamour.json`, so that is what these check.
   glamour_json="$HOME/.config/glow/glamour.json"
 
-  if [ -L "$glamour_json" ] && [ "$(readlink "$glamour_json")" = "$REPO/.config/glow/glamour.json" ]; then
-    pass=$((pass+1)); echo "  PASS  ~/.config/glow/glamour.json symlinks into dotfiles"
-  else
-    # Accept directory-level symlink (~/.config/glow -> $REPO/.config/glow) too,
-    # since bootstrap.sh links the dir, not the file. The realpath check below
-    # catches both shapes.
-    if [ -e "$glamour_json" ] && [ "$(cd "$(dirname "$glamour_json")" && pwd -P)/$(basename "$glamour_json")" = "$REPO/.config/glow/glamour.json" ]; then
-      pass=$((pass+1)); echo "  PASS  ~/.config/glow/glamour.json resolves into dotfiles"
-    else
+  # Shape: the active pointer must resolve to one of the repo's tracked
+  # per-theme files. Deliberately not pinned to a specific theme — theme-set
+  # repoints it on every flip, and any glamour-*.json in the repo is correct.
+  glamour_target=$(cd "$(dirname "$glamour_json")" 2>/dev/null && readlink -f "$glamour_json" 2>/dev/null)
+  case "$glamour_target" in
+    "$REPO/.config/glow/glamour-"*.json)
+      pass=$((pass+1)); echo "  PASS  ~/.config/glow/glamour.json resolves to a tracked glamour-<theme>.json"
+      ;;
+    *)
       fail=$((fail+1))
-      fail_msgs+=("FAIL  ~/.config/glow/glamour.json does not resolve into dotfiles")
+      fail_msgs+=("FAIL  ~/.config/glow/glamour.json does not resolve into dotfiles"$'\n'"        got:  '${glamour_target:-<unresolved>}'"$'\n'"        want: $REPO/.config/glow/glamour-<theme>.json")
       echo "  FAIL  ~/.config/glow/glamour.json does not resolve into dotfiles"
-    fi
-  fi
+      ;;
+  esac
 
   # JSON parse check (uses python3, available on macOS by default).
-  if python3 -m json.tool "$REPO/.config/glow/glamour.json" >/dev/null 2>&1; then
+  if python3 -m json.tool "$glamour_json" >/dev/null 2>&1; then
     pass=$((pass+1)); echo "  PASS  glamour.json parses as JSON"
   else
     fail=$((fail+1))
@@ -241,10 +250,9 @@ else
     echo "  FAIL  glamour.json failed to parse"
   fi
 
-  # End-to-end: render a small fixture from stdin via the same flag the alias
-  # uses. Exit 0, non-empty output.
-  out=$(printf '# Hi\n\n**bold**\n' | glow --style "$REPO/.config/glow/glamour.json" - 2>/dev/null)
-  if [ "$?" -eq 0 ] && [ -n "$out" ]; then
+  # End-to-end: render a small fixture from stdin via the same flag md uses.
+  # Exit 0, non-empty output.
+  if out=$(printf '# Hi\n\n**bold**\n' | glow --style "$glamour_json" - 2>/dev/null) && [ -n "$out" ]; then
     pass=$((pass+1)); echo "  PASS  stdin render via --style exits 0 with non-empty output"
   else
     fail=$((fail+1))
@@ -253,7 +261,7 @@ else
   fi
 
   # Render an actual repo file (catches stylesheet parse regressions).
-  if glow --style "$REPO/.config/glow/glamour.json" "$REPO/README.md" >/dev/null 2>&1; then
+  if glow --style "$glamour_json" "$REPO/README.md" >/dev/null 2>&1; then
     pass=$((pass+1)); echo "  PASS  glow --style glamour.json README.md exits 0"
   else
     fail=$((fail+1))
