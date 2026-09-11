@@ -186,7 +186,16 @@ run_theme_set() {
     # Source the function from the repo so the test works regardless of
     # whether ~/.config/fish/functions/theme-set.fish has been wired yet
     # (e.g. on a freshly-checked-out branch before re-running bootstrap).
-    fish -c "source $THEME_SET_FN; theme-set $1" >/dev/null
+    #
+    # Prepend the repo's functions dir too (same idiom as
+    # test-theme-font-stats.sh's fishrun): theme-set calls helpers —
+    # __theme_set_names above all — which otherwise autoload from
+    # ~/.config/fish/functions, a whole-dir symlink into the PRIMARY
+    # checkout. Without this, REPO=$PWD from a worktree sources the
+    # branch's theme-set but validates the name against main's theme
+    # list, so a newly-added theme is rejected as unknown and nothing
+    # flips.
+    fish -c "set -p fish_function_path '$REPO/.config/fish/functions'; source $THEME_SET_FN; theme-set $1" >/dev/null
 }
 
 echo "theme-set smoke test"
@@ -353,8 +362,25 @@ assert_link "$HOME/.config/tealdeer/config.toml"             "config-everforest.
 assert_link "$HOME/.config/jnv/config.toml"                 "config-everforest.toml"        "jnv config.toml → config-everforest.toml"
 assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (everforest)"
 
-# Forward: everforest → latte (partial-coverage theme — only ghostty/tmux/starship
-# flip; delta/glow/lnav/gh-dash stay on everforest by design, see spec).
+# Forward: everforest → kanagawa
+run_theme_set kanagawa
+assert_link "$HOME/.config/themes/current.tmux"               "kanagawa.tmux"               "current.tmux → kanagawa.tmux"
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-kanagawa.gitconfig"    "delta-current.gitconfig → delta-kanagawa.gitconfig"
+assert_link "$HOME/.config/ghostty/theme.ghostty"             "theme-kanagawa.ghostty"      "ghostty theme.ghostty → theme-kanagawa.ghostty"
+assert_link "$HOME/.config/starship.toml"                     "starship-kanagawa.toml"      "starship.toml → starship-kanagawa.toml"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-kanagawa.json"       "glow glamour.json → glamour-kanagawa.json"
+assert_gh_dash_config "#dcd7ba" "gh-dash config.yml ← base + theme-colors-kanagawa"
+assert_lazygit_config "#7e9cd8" "lazygit config.yml ← base + theme-colors-kanagawa"
+assert_hunk_config "kanagawa-wave" "hunk config.toml ← base + theme-kanagawa"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-kanagawa.json"         "lnav theme.json → theme-kanagawa.json"
+assert_link "$HOME/.config/btop/themes/current.theme" "kanagawa-wave.theme" "btop current.theme → kanagawa-wave.theme"
+assert_link "$HOME/.config/eza/theme.yml"                     "eza-kanagawa.yml"        "eza theme.yml → eza-kanagawa.yml"
+assert_link "$HOME/.config/tealdeer/config.toml"             "config-kanagawa.toml"    "tealdeer config.toml → config-kanagawa.toml"
+assert_link "$HOME/.config/jnv/config.toml"                 "config-kanagawa.toml"        "jnv config.toml → config-kanagawa.toml"
+assert_env_var "DFT_BACKGROUND" "dark" "DFT_BACKGROUND=dark (kanagawa)"
+
+# Forward: kanagawa → latte (partial-coverage theme — only ghostty/tmux/starship
+# flip; delta/glow/lnav/gh-dash stay on kanagawa by design, see spec).
 run_theme_set latte
 # Positive contract — what flips:
 assert_link "$HOME/.config/themes/current.tmux"               "latte.tmux"               "current.tmux → latte.tmux"
@@ -367,11 +393,11 @@ assert_link "$HOME/.config/jnv/config.toml"                 "config-latte.toml" 
 assert_env_var "DFT_BACKGROUND" "light" "DFT_BACKGROUND=light (latte)"
 assert_lazygit_config "#1e66f5" "lazygit config.yml ← base + theme-colors-latte (flips; has a Latte variant)"
 assert_hunk_config "catppuccin-latte" "hunk config.toml ← base + theme-latte (flips; has a Latte variant)"
-# Negative contract — what does NOT flip (partial coverage stays on previous theme = everforest):
-assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-everforest.gitconfig"        "delta stays on everforest (no delta-latte.gitconfig)"
-assert_link "$HOME/.config/glow/glamour.json"                 "glamour-everforest.json"           "glow stays on everforest (no glamour-latte.json)"
-assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-everforest.json"             "lnav stays on everforest (no theme-latte.json)"
-assert_gh_dash_config "#d3c6aa" "gh-dash stays on everforest (no theme-colors-latte.yml)"
+# Negative contract — what does NOT flip (partial coverage stays on previous theme = kanagawa):
+assert_link "$HOME/.config/themes/delta-current.gitconfig"    "delta-kanagawa.gitconfig"        "delta stays on kanagawa (no delta-latte.gitconfig)"
+assert_link "$HOME/.config/glow/glamour.json"                 "glamour-kanagawa.json"           "glow stays on kanagawa (no glamour-latte.json)"
+assert_link "$HOME/.config/lnav/configs/installed/theme.json" "theme-kanagawa.json"             "lnav stays on kanagawa (no theme-latte.json)"
+assert_gh_dash_config "#dcd7ba" "gh-dash stays on kanagawa (no theme-colors-latte.yml)"
 
 # Reverse: latte → solarized
 run_theme_set solarized
