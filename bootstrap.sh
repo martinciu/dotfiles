@@ -474,6 +474,7 @@ link ".config/starship-latte.toml"       "$HOME/.config/starship-latte.toml"
 link ".config/starship-rose-pine.toml"      "$HOME/.config/starship-rose-pine.toml"
 link ".config/starship-rose-pine-moon.toml" "$HOME/.config/starship-rose-pine-moon.toml"
 link ".config/starship-everforest.toml"     "$HOME/.config/starship-everforest.toml"
+link ".config/starship-kanagawa.toml"       "$HOME/.config/starship-kanagawa.toml"
 [ -L "$HOME/.config/starship.toml" ] \
     || ln -sfn starship-solarized.toml "$HOME/.config/starship.toml"
 
