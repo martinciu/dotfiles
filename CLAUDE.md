@@ -57,7 +57,16 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `tmux-status-right`, `tmux-claude-usage`). Ghostty's `background-opacity`
   applies only to the default background, so an explicit hex composites opaque
   and reads as a seam. `@color_bar_bg` stays a hex — it's still the
-  *foreground* on the yellow chips.
+  *foreground* on the yellow chips. **`message-style`/`message-command-style`
+  are the deliberate exception**: tmux 3.7 draws messages *over* the bar, so
+  they need `fill=` to clear it, and `fill` must be a **real colour** —
+  `fill=default` parses and round-trips through `show -g` but paints nothing
+  (renders byte-identical to no `fill` at all). `fill=#{@color_deep_bg}` goes
+  opaque across the bar, but only while a message or the `prefix :` prompt is
+  up, so it's transient, not a standing seam. `width=` bounds the message
+  *text*, but on this config it did not bound the fill (checked at `50%`
+  and at fixed columns, prompt and message alike), so it can't be used to
+  spare the chips — a barer config bounded it, so don't assume either way.
 - **SSH indicator on the session chip** (`tmux-ssh-indicator`). Walks each
   client's parent chain via `ps -o ppid=,ucomm=`, shows a globe glyph when an
   ancestor is `sshd` or `mosh-server` (same glyph — the pin means "remote
