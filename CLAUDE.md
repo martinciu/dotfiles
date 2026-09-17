@@ -132,6 +132,24 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   word-jump doesn't shadow tmux pane-resize). Trade-off: no Polish in Ghostty
   via left-Option; use Alt+b / Alt+f for word-jump. Smoke:
   `scripts/test-ghostty-config.sh`.
+- **Ghostty background image excludes glass.** `.config/ghostty/bg/fog.jpg`
+  is tracked; `bootstrap.sh` symlinks the whole `bg/` entry like any other
+  tracked path. `background-image-fit = cover`, because the default `contain`
+  letterboxes the theme background whenever the image aspect ratio misses the
+  window. **`background-blur` must stay `false`:** with `macos-glass-clear`
+  the image never renders at all. The renderer's last step is
+  `rgba *= in.bg_color.a` (`src/renderer/shaders/shaders.metal`,
+  `bg_image_fragment`) and glass drops the terminal's own background alpha to
+  zero so the system glass layer shows through, which multiplies the image
+  away whatever `background-image-opacity` says. `background-opacity = 0.92`
+  is innocent - both established 18.09.2026 by A/B of two live instances.
+  Opacity `0.25` is measured, not taste: blended over the Everforest ground
+  the brightest 1% of cells still hold 5,5:1 against the foreground, and this
+  image keeps the WCAG AA floor (4,5:1) up to 0.42; busier photos top out
+  near 0.22, so re-measure before swapping one in. The image is per-terminal
+  and duplicated in VRAM per terminal (~19 MB at 2560x1871), so ship
+  wallpapers at display width, not source width. Smoke:
+  `scripts/test-ghostty-config.sh`.
 - **Sesh config split: shared + machine-local.** Repo tracks
   `.config/sesh/sesh.toml` (`Home` session + `import` of `sesh.local.toml`).
   Machine sessions go in the untracked local file (seeded from template). Don't

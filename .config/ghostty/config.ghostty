@@ -27,7 +27,32 @@ font-thicken = true
 
 # ─── Window appearance ────────────────────────
 background-opacity = 0.92
-background-blur = macos-glass-clear
+# Glass is OFF because it is mutually exclusive with background-image,
+# measured 18.09.2026 by A/B of two live instances: with
+# `macos-glass-clear` the image never renders, with blur off it does, at
+# the same background-opacity. Mechanism is in the renderer
+# (src/renderer/shaders/shaders.metal, bg_image_fragment): the final line
+# is `rgba *= in.bg_color.a`, and glass drops the terminal's own
+# background alpha to zero so the system glass layer shows through -
+# which multiplies the whole image away, whatever
+# background-image-opacity says. Restore `macos-glass-clear` here only
+# if the background-image block below goes away.
+background-blur = false
+
+# Background image: machine-local file (not tracked in dotfiles) at
+# ~/.config/ghostty/bg/fog.jpg - voxelfied/Wallpapers, recolored to the
+# Everforest palette. `cover` and not the default `contain`, which
+# letterboxes the theme background whenever the image aspect ratio does
+# not match the window. Opacity 0.25 is measured, not guessed: blended
+# over #2d353b, the brightest 1% of cells still hold a 5,5:1 contrast
+# against the Everforest foreground #d3c6aa, and this image keeps the
+# 4,5:1 WCAG AA floor all the way up to 0.42. Busier photos from the same
+# set top out near 0.22 - raise this only after re-measuring.
+# Caveats from the Ghostty docs: PNG/JPEG only, the image is per-terminal
+# (so it repeats across splits) and is duplicated in VRAM per terminal.
+background-image = ~/.config/ghostty/bg/fog.jpg
+background-image-fit = cover
+background-image-opacity = 0.25
 window-padding-x = 12
 window-padding-y = 12
 window-padding-balance = true
