@@ -13,6 +13,9 @@
 .scratch
 .secrets
 
+# Beads (bd) gate lock — created at the repo root, next to .beads/
+.beads.gate.lock
+
 # mise local config
 mise.local.toml
 
