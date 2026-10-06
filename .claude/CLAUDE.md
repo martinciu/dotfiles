@@ -203,25 +203,28 @@ task, not by whichever skill triggers first:
 
 Why: the skill-backed channels all trigger on generic "search" phrasing;
 without a routing rule the aggressive Tavily skill descriptions win every
-time and the faster or better-fitting channel never fires. Exa became the
-default after a blind A/B on 20 real past queries, mostly Polish long-tail
-(2026-10-05): 147 vs 91 relevant results in the top 10 against Tavily
-basic, 13–4 on queries with 3 ties. Tavily padded Polish queries with US
-news and twice returned a single result under `include_domains`. Exa stays
-curl-only so the model doesn't get yet more competing search-tool
-descriptions. Quotas are asymmetric (250 vs ~1,000) and only Tavily bills
-past its pool rather than stopping, so the default choice matters.
+time and the faster or better-fitting channel never fires. Exa won a blind
+A/B on 20 real past queries, mostly Polish long-tail (2026-10-05, numbers
+in PR #412). It stays curl-only so the model doesn't get yet more
+competing search-tool descriptions. Free pools differ (Exa ~1,400
+searches, Brave ~1,000, SerpApi 250) and only Tavily bills past its pool
+rather than stopping, so the default choice matters.
 
 How to apply: search/discovery (long-tail, price lists, official/legal
 pages, technical docs, domain-filtered queries) → Exa first; Reddit,
-extraction, crawl/map, a second opinion, or Exa returning `402`/nothing →
-Tavily; single fact / news / image / local business → Brave;
-strictly-Google or structured data (flights, reviews, transcripts) →
-SerpApi; general orientation → WebSearch. For bulk filtering of
-Exa/Brave/SerpApi output, reuse the curl→Python→`print()` pattern from
-`tavily-dynamic-search` so raw results stay out of context. Run key-based
-curls through `fish -lc '…'` — a session started before a key was added
-doesn't have it in its environment.
+extraction, crawl/map, a second opinion, or Exa coming up empty → Tavily;
+single fact / news / image / local business → Brave; strictly-Google or
+structured data (flights, reviews, transcripts) → SerpApi; general
+orientation → WebSearch. Exa errors: `401` = key missing from this
+session's env (retry through fish, below), `429` = rate limit (back off,
+honour `Retry-After`), `402` = free credits gone → Tavily. For bulk
+filtering of Exa/Brave/SerpApi output, reuse the curl→Python→`print()`
+pattern from `tavily-dynamic-search` so raw results stay out of context.
+Run key-based curls through `fish -lc '…'` — a session started before a
+key was added doesn't have it in its environment. Keep the free-text query
+out of that single-quoted string: write the JSON body to a scratchpad file
+with a quoted heredoc (`<<'EOF'`) and pass `-d @body.json`, so an
+apostrophe in the query can't break the command.
 
 ## Superpowers in auto mode
 
