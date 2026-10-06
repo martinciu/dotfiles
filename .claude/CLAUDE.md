@@ -165,24 +165,35 @@ How to apply:
   "<keyword>"`. `bd search` queries a different (per-project, stealth)
   store and won't surface GitHub issues.
 
-## Web search tool routing — Tavily / Brave / SerpApi / WebSearch
+## Web search tool routing — Exa / Tavily / Brave / SerpApi / WebSearch
 
-Four web-search channels are available in every project: Tavily skills
-(user-level, `~/.claude/skills/tavily-*`, CLI `tvly`), the Brave and SerpApi
-user-scoped plugins, and built-in WebSearch. API keys live in
+Five web-search channels are available in every project: Exa (REST via
+curl — deliberately no plugin or MCP), Tavily skills (user-level,
+`~/.claude/skills/tavily-*`, CLI `tvly`), the Brave and SerpApi user-scoped
+plugins, and built-in WebSearch. API keys live in
 `~/.config/fish/conf.d/99-secrets.fish` (gitignored, per-machine). Route by
 task, not by whichever skill triggers first:
 
+- **Exa** — the default for search/discovery. `POST
+  https://api.exa.ai/search` with `Authorization: Bearer $EXA_API_KEY` and
+  body `{"query": …, "type": "auto", "numResults": 10, "contents":
+  {"highlights": true}}`. Filters: `includeDomains` (paths allowed, e.g.
+  `linkedin.com/company`), `startPublishedDate`, `category` (`company`,
+  `people`, `news`, `financial report`). Results come back in the query's
+  language — write the query in English to get English sources. Does
+  **not** index Reddit; no crawl/map. $7/1k searches; $10/month free tier,
+  no card — when it runs out the API returns `402` instead of billing.
 - **WebSearch (built-in)** — topic overview, "tell me about X".
 - **Brave** (`brave-search-skills:*`) — quick single lookups, news, images,
   local business/POI data. ~1,000 free queries/month ($5 monthly credit).
-- **Tavily** (`tavily-*` skills) — multi-source research with context
-  isolation (`tavily-dynamic-search`), content extraction, site crawl/map
-  (`crawl --output-dir` for docs dumps), deep research (`tvly research`;
-  prefer `mini` — `pro` can eat up to 250 credits per query). 1,000 free
-  credits/month, then **pay-as-you-go at $0.008/credit** — the account is
-  metered, so overrunning the free pool bills money instead of failing.
-  Check with `curl https://api.tavily.com/usage -H "Authorization: Bearer
+- **Tavily** (`tavily-*` skills) — Reddit discovery (`include_domains`),
+  content extraction, site crawl/map (`crawl --output-dir` for docs dumps),
+  deep research (`tvly research`; prefer `mini` — `pro` can eat up to 250
+  credits per query), and a second opinion on research that matters (its
+  index barely overlaps Exa's). 1,000 free credits/month, then
+  **pay-as-you-go at $0.008/credit** — the account is metered, so
+  overrunning the free pool bills money instead of failing. Check with
+  `curl https://api.tavily.com/usage -H "Authorization: Bearer
   $TAVILY_API_KEY"` (free, no credits consumed): `plan_usage` is the running
   total, `paygo_usage` is the billed part.
 - **SerpApi** (`serpapi:search` plugin) — structured Google/engine data:
@@ -190,18 +201,30 @@ task, not by whichever skill triggers first:
   Only 250 free searches/month — point queries only, never bulk; the skill
   confirms before each call.
 
-Why: all four trigger on generic "search" phrasing; without a routing rule
-the aggressive Tavily skill descriptions win every time and the faster or
-better-fitting channel never fires. Quotas are asymmetric (250 vs ~1,000)
-and only Tavily bills past its pool rather than stopping, so the default
-choice matters.
+Why: the skill-backed channels all trigger on generic "search" phrasing;
+without a routing rule the aggressive Tavily skill descriptions win every
+time and the faster or better-fitting channel never fires. Exa won a blind
+A/B on 20 real past queries, mostly Polish long-tail (2026-10-05, numbers
+in PR #412). It stays curl-only so the model doesn't get yet more
+competing search-tool descriptions. Free pools differ (Exa ~1,400
+searches, Brave ~1,000, SerpApi 250) and only Tavily bills past its pool
+rather than stopping, so the default choice matters.
 
-How to apply: single fact / news / image / local business → Brave; data
-gathering with filtering, many sources, citable snippets, docs dumps →
-Tavily; strictly-Google or structured data (flights, reviews, transcripts)
-→ SerpApi; general orientation → WebSearch. For bulk filtering of
-Brave/SerpApi output, reuse the curl→Python→`print()` pattern from
-`tavily-dynamic-search` so raw results stay out of context.
+How to apply: search/discovery (long-tail, price lists, official/legal
+pages, technical docs, domain-filtered queries) → Exa first; Reddit,
+extraction, crawl/map, a second opinion, or Exa coming up empty → Tavily;
+single fact / news / image / local business → Brave; strictly-Google or
+structured data (flights, reviews, transcripts) → SerpApi; general
+orientation → WebSearch. Exa errors: `401` = key missing from this
+session's env (retry through fish, below), `429` = rate limit (back off,
+honour `Retry-After`), `402` = free credits gone → Tavily. For bulk
+filtering of Exa/Brave/SerpApi output, reuse the curl→Python→`print()`
+pattern from `tavily-dynamic-search` so raw results stay out of context.
+Run key-based curls through `fish -lc '…'` — a session started before a
+key was added doesn't have it in its environment. Keep the free-text query
+out of that single-quoted string: write the JSON body to a scratchpad file
+with a quoted heredoc (`<<'EOF'`) and pass `-d @body.json`, so an
+apostrophe in the query can't break the command.
 
 ## Superpowers in auto mode
 
