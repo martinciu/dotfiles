@@ -181,8 +181,10 @@ task, not by whichever skill triggers first:
   `linkedin.com/company`), `startPublishedDate`, `category` (`company`,
   `people`, `news`, `financial report`). Results come back in the query's
   language — write the query in English to get English sources. Does
-  **not** index Reddit; no crawl/map. $7/1k searches; $10/month free tier,
-  no card — when it runs out the API returns `402` instead of billing.
+  **not** index Reddit; no crawl/map. $7/1k searches; $10/month free tier
+  on the first team (`EXA_API_KEY`), no card — when it runs out the API
+  returns `402` instead of billing. Paid credits sit on a second, prepaid
+  team (`EXA_PAID_API_KEY`), so topping up never touches the free grant.
 - **WebSearch (built-in)** — topic overview, "tell me about X".
 - **Brave** (`brave-search-skills:*`) — quick single lookups, news, images,
   local business/POI data. ~1,000 free queries/month ($5 monthly credit).
@@ -217,7 +219,8 @@ single fact / news / image / local business → Brave; strictly-Google or
 structured data (flights, reviews, transcripts) → SerpApi; general
 orientation → WebSearch. Exa errors: `401` = key missing from this
 session's env (retry through fish, below), `429` = rate limit (back off,
-honour `Retry-After`), `402` = free credits gone → Tavily. For bulk
+honour `Retry-After`), `402` = free credits gone → retry the same request
+with `$EXA_PAID_API_KEY`; only a `402` on that key → Tavily. For bulk
 filtering of Exa/Brave/SerpApi output, reuse the curl→Python→`print()`
 pattern from `tavily-dynamic-search` so raw results stay out of context.
 Run key-based curls through `fish -lc '…'` — a session started before a
