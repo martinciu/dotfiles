@@ -89,7 +89,9 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   ` #<num>` when a PR exists (OPEN or DRAFT); `<prefix> P` opens it on web.
   Cache key uses `git-common-dir` so worktrees share entries. First call after
   a branch switch shows nothing; next 5s tick renders (never blocks on `gh`).
-- **tmux Claude usage cluster** in `status-left` (`tmux-claude-usage`, parses
+- **tmux Claude usage cluster** — **hidden since 2026-11-03** (usage shows in
+  ccstatusline; original `status-left` kept commented out in tmux.conf). In
+  `status-left` (`tmux-claude-usage`, parses
   `ccpulse status --json --index` each 5s tick; `--index` tails new JSONL so
   throughput is live). Two always-on chips: violet 7d weekly + yellow
   5h block, each showing `<pct>%` + reset, plus a red cost chip rendered
