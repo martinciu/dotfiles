@@ -16,6 +16,11 @@
         "id": "a83ffe56-6074-4e7d-826b-e4f89c4904f7",
         "type": "context-percentage",
         "backgroundColor": "bgBrightWhite"
+      },
+      {
+        "id": "b2393584-5ac0-49fa-bd01-bf3d2d268e13",
+        "backgroundColor": "bgYellow",
+        "type": "weekly-usage"
       }
     ]
   ],
@@ -27,6 +32,8 @@
   "inheritSeparatorColors": false,
   "globalBold": false,
   "gitCacheTtlSeconds": 5,
+  "terminalWidthCacheTtlSeconds": 5,
+  "customCommandCacheTtlSeconds": 0,
   "minimalistMode": true,
   "powerline": {
     "enabled": true,
