@@ -261,7 +261,9 @@ else
   fi
 
   # Render an actual repo file (catches stylesheet parse regressions).
-  if glow --style "$glamour_json" "$REPO/README.md" >/dev/null 2>&1; then
+  # </dev/null: glow 3 waits for stdin EOF whenever stdin is a pipe, even with
+  # a file argument — an inherited never-closing pipe (agent shells) hangs it.
+  if glow --style "$glamour_json" "$REPO/README.md" </dev/null >/dev/null 2>&1; then
     pass=$((pass+1)); echo "  PASS  glow --style glamour.json README.md exits 0"
   else
     fail=$((fail+1))
