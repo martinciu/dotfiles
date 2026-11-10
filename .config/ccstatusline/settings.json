@@ -20,7 +20,9 @@
       {
         "id": "b2393584-5ac0-49fa-bd01-bf3d2d268e13",
         "backgroundColor": "bgYellow",
-        "type": "weekly-usage"
+        "type": "custom-command",
+        "commandPath": "ccpulse status --json | jq -r '\"\\(.percent_7d // 0)%\"'",
+        "timeout": 2000
       }
     ]
   ],

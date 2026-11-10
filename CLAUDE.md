@@ -90,7 +90,13 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   Cache key uses `git-common-dir` so worktrees share entries. First call after
   a branch switch shows nothing; next 5s tick renders (never blocks on `gh`).
 - **tmux Claude usage cluster** — **hidden since 2026-11-03** (usage shows in
-  ccstatusline; original `status-left` kept commented out in tmux.conf). In
+  ccstatusline; original `status-left` kept commented out in tmux.conf).
+  ccstatusline's yellow 7d chip is a `custom-command` reading
+  `ccpulse status --json`, not the built-in `weekly-usage` widget: that one
+  polls the usage API itself and shows `[Timeout]` whenever another statusline
+  process holds its in-flight fetch lock with no usable cache (fresh sessions,
+  before Claude Code sends `rate_limits`). ccpulse keeps the one shared 3-min
+  cache + 429 backoff, warmed by the `Stop` hook. In
   `status-left` (`tmux-claude-usage`, parses
   `ccpulse status --json --index` each 5s tick; `--index` tails new JSONL so
   throughput is live). Two always-on chips: violet 7d weekly + yellow
