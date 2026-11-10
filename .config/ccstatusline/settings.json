@@ -21,7 +21,7 @@
         "id": "b2393584-5ac0-49fa-bd01-bf3d2d268e13",
         "backgroundColor": "bgYellow",
         "type": "custom-command",
-        "commandPath": "ccpulse status --json | jq -r '\"\\(.percent_7d // 0)%\"'",
+        "commandPath": "~/.config/ccstatusline/bin/ccpulse-weekly",
         "timeout": 2000
       }
     ]

@@ -96,7 +96,12 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   polls the usage API itself and shows `[Timeout]` whenever another statusline
   process holds its in-flight fetch lock with no usable cache (fresh sessions,
   before Claude Code sends `rate_limits`). ccpulse keeps the one shared 3-min
-  cache + 429 backoff, warmed by the `Stop` hook. In
+  cache + 429 backoff, warmed by the `Stop` hook. The chip body comes from
+  `.config/ccstatusline/bin/ccpulse-weekly`: past 1h of quota age
+  (`quota_updated_at`) it appends a Nerd Font hourglass (U+F252) + age
+  (`25%  3h`, `2d`), since ccpulse serves its last cache through 429
+  streaks; prints `?` when ccpulse has no 7d quota. Smoke:
+  `scripts/test-ccstatusline-weekly.sh`. In
   `status-left` (`tmux-claude-usage`, parses
   `ccpulse status --json --index` each 5s tick; `--index` tails new JSONL so
   throughput is live). Two always-on chips: violet 7d weekly + yellow
@@ -505,6 +510,7 @@ derivatives, re-run after swapping a source.
 - tmux SSH-indicator: `scripts/test-tmux-ssh-indicator.sh`
 - tmux PR-pin: `scripts/test-tmux-pr-status.sh`
 - tmux Claude usage: `scripts/test-tmux-claude-usage.sh`
+- ccstatusline weekly chip: `scripts/test-ccstatusline-weekly.sh`
 - Moshi theme export: `scripts/test-moshi-theme.sh`
 - tmux conf shape: `scripts/test-tmux-conf-shape.sh`
 - Session-root binding: `scripts/test-s-session-root.sh`
