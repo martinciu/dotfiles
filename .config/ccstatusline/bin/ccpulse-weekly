@@ -1,0 +1,36 @@
+#!/opt/homebrew/bin/bash
+# ccstatusline custom-command: the 7d weekly-usage chip body.
+#
+# Prints `<pct>%` from `ccpulse status --json`. When the quota ccpulse
+# serves is older than CCPULSE_WEEKLY_STALE_AFTER seconds (default 1h),
+# appends an hourglass (Nerd Font U+F252) and the age: `25%  3h`, `25%  2d`.
+# ccpulse keeps serving its last cache through 429 streaks on the usage API,
+# sometimes for hours, so a bare percentage can look current when it isn't.
+#
+# Never fails: ccpulse unreachable, bad JSON or no 7d quota prints `?`, so
+# ccstatusline shows a placeholder instead of its own [Exit: N] marker.
+#
+# CCPULSE_WEEKLY_NOW (epoch seconds) pins the clock for the smoke test.
+
+stale_after=${CCPULSE_WEEKLY_STALE_AFTER:-3600}
+now=${CCPULSE_WEEKLY_NOW:-$(/bin/date '+%s')}
+
+json=$(ccpulse status --json 2>/dev/null) || { echo '?'; exit 0; }
+
+out=$(printf '%s' "$json" | jq -r \
+  --argjson now "$now" \
+  --argjson stale "$stale_after" '
+  if (.percent_7d | type) != "number" then "?"
+  else
+    (.quota_updated_at
+      | if type == "string"
+        then $now - (sub("\\.[0-9]+"; "") | fromdateiso8601)
+        else null end) as $age
+    | (.percent_7d | floor | tostring) + "%"
+      + (if $age != null and $age > $stale
+         then ($age / 3600 | floor) as $h
+           | "  " + (if $h < 24 then "\($h)h" else "\($h / 24 | floor)d" end)
+         else "" end)
+  end' 2>/dev/null)
+
+printf '%s\n' "${out:-?}"
