@@ -285,5 +285,26 @@ version and stop. If a project-level CLAUDE.md still references zsh
 parity (e.g. dotfiles/CLAUDE.md), follow the user's per-project guidance
 but default to fish-only when the project rule is silent.
 
+## Computer use — announce, then wait for my "okej"
+
+Computer use (`mcp__computer-use__*`) drives my real mouse, keyboard and
+window focus, not a separate session. If I keep working in another window
+while you click, we fight over the cursor, and my non-granted frontmost app
+comes back as a black screenshot.
+
+- Before the first click or keystroke of **every** computer-use block
+  (later blocks in the same session too), tell me you're taking over the
+  screen, roughly for how long and what for, and that I shouldn't touch
+  the mouse or keyboard. Then end the turn and wait. Start only after I
+  reply "okej" (or an equivalent yes).
+- After the last action, say on its own line that you're done and I can
+  use the computer again.
+- Background work (shell commands, reading files, waiting on a copy)
+  doesn't touch the screen and needs no announcement.
+
+Why: on 14.11.2026, while Claude was setting up a ChronoSync task, I
+switched to the terminal mid-clicking because nothing told me the screen
+was in use. Nothing broke, but it could have.
+
 @~/.claude/CLAUDE.local.md
 
