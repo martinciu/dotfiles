@@ -298,7 +298,13 @@ comes back as a black screenshot.
   the mouse or keyboard. Then end the turn and wait. Start only after I
   reply "okej" (or an equivalent yes).
 - After the last action, say on its own line that you're done and I can
-  use the computer again.
+  use the computer again. I may have walked away from the terminal, so at
+  the same time show a pop-up with a sound (Bash with `run_in_background`,
+  so it doesn't block the turn; it stays until I click OK):
+
+  ```bash
+  afplay /System/Library/Sounds/Glass.aiff & osascript -e 'display dialog "Skończyłem klikać. Możesz używać komputera." with title "Claude Code" buttons {"OK"} default button "OK" with icon note giving up after 600'
+  ```
 - Background work (shell commands, reading files, waiting on a copy)
   doesn't touch the screen and needs no announcement.
 
