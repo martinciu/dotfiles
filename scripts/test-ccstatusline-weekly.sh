@@ -91,6 +91,39 @@ CCPULSE_WEEKLY_NOW=0 PATH="$TEST_BIN:$PATH" "$HELPER" >/dev/null 2>&1
 assert_eq "$?" "0"                                 "ccpulse exits non-zero: helper still exits 0"
 teardown_sandbox
 
+# stub_record: ccpulse saves its args (and stdin, under --stdin), then prints
+# the fixture.
+stub_record() {
+  cat > "$TEST_BIN/ccpulse" <<STUB
+#!/opt/homebrew/bin/bash
+printf '%s\n' "\$*" > "$TEST_BIN/args"
+case " \$* " in *" --stdin "*) cat > "$TEST_BIN/stdin" ;; esac
+cat <<'JSON'
+$FIXTURE
+JSON
+STUB
+  chmod +x "$TEST_BIN/ccpulse"
+}
+
+setup_sandbox
+stub_record
+PAYLOAD='{"session_id":"x","rate_limits":{"seven_day":{"used_percentage":25}}}'
+assert_eq "$(printf '%s' "$PAYLOAD" | run_at 120)" "25%" "piped statusline payload: chip renders"
+assert_eq "$(cat "$TEST_BIN/args")" "status --stdin --json" "piped statusline payload: ccpulse gets --stdin"
+assert_eq "$(cat "$TEST_BIN/stdin")" "$PAYLOAD"    "piped statusline payload: reaches ccpulse unchanged"
+teardown_sandbox
+
+# A terminal on stdin (run by hand): --stdin left off, since ccpulse rejects
+# an interactive stdin. script(1) gives the helper a pty (BSD syntax).
+if [ "$(uname)" = Darwin ]; then
+  setup_sandbox
+  stub_record
+  CCPULSE_WEEKLY_NOW=$((UPDATED + 120)) PATH="$TEST_BIN:$PATH" \
+    script -q /dev/null "$HELPER" </dev/null >/dev/null 2>&1
+  assert_eq "$(cat "$TEST_BIN/args" 2>/dev/null)" "status --json" "terminal stdin: no --stdin"
+  teardown_sandbox
+fi
+
 echo
 echo "─────────────────"
 echo "  Summary: $pass passed, $fail failed"
