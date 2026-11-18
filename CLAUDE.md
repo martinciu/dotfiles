@@ -95,10 +95,15 @@ bootstrap defaults. See "Switchable themes" / "Switchable Ghostty fonts" below.
   `ccpulse status --json`, not the built-in `weekly-usage` widget: that one
   polls the usage API itself and shows `[Timeout]` whenever another statusline
   process holds its in-flight fetch lock with no usable cache (fresh sessions,
-  before Claude Code sends `rate_limits`). ccpulse keeps the one shared 3-min
-  cache + 429 backoff, warmed by the `Stop` hook. The chip body comes from
-  `.config/ccstatusline/bin/ccpulse-weekly`: past 1h of quota age
-  (`quota_updated_at`) it appends a Nerd Font hourglass (U+F252) + age
+  before Claude Code sends `rate_limits`). ccpulse keeps the one shared
+  usage-API cache + 429 backoff, warmed by the `Stop` hook. The chip body comes
+  from `.config/ccstatusline/bin/ccpulse-weekly`, which pipes the statusline
+  JSON ccstatusline hands it into `ccpulse status --stdin --json` (`--stdin`
+  only when stdin isn't a terminal, so a manual run still works): ccpulse
+  stores the payload's `rate_limits` as fresh 5h/7d numbers with no API
+  request, and while they're fresh it asks the usage API at most every 30 min
+  instead of every 3. Past 1h of quota age
+  (`quota_updated_at`) the script appends a Nerd Font hourglass (U+F252) + age
   (`25%  3h`, `2d`), since ccpulse serves its last cache through 429
   streaks; prints `?` when ccpulse has no 7d quota. Smoke:
   `scripts/test-ccstatusline-weekly.sh`. In

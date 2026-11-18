@@ -7,6 +7,12 @@
 # ccpulse keeps serving its last cache through 429 streaks on the usage API,
 # sometimes for hours, so a bare percentage can look current when it isn't.
 #
+# ccstatusline pipes Claude Code's statusline JSON into this command; it is
+# passed through to `ccpulse status --stdin`, which stores the payload's
+# rate_limits (fresh 5h/7d numbers, no API request) so the chip stays current
+# while the usage API 429s. Run by hand from a terminal, --stdin is left off:
+# ccpulse rejects an interactive stdin.
+#
 # Never fails: ccpulse unreachable, bad JSON or no 7d quota prints `?`, so
 # ccstatusline shows a placeholder instead of its own [Exit: N] marker.
 #
@@ -15,7 +21,10 @@
 stale_after=${CCPULSE_WEEKLY_STALE_AFTER:-3600}
 now=${CCPULSE_WEEKLY_NOW:-$(/bin/date '+%s')}
 
-json=$(ccpulse status --json 2>/dev/null) || { echo '?'; exit 0; }
+stdin_flag=()
+[ -t 0 ] || stdin_flag=(--stdin)
+
+json=$(ccpulse status "${stdin_flag[@]}" --json 2>/dev/null) || { echo '?'; exit 0; }
 
 out=$(printf '%s' "$json" | jq -r \
   --argjson now "$now" \
